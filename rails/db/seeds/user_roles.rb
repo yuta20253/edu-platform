@@ -1,7 +1,9 @@
-user_roles = [
-  "student",
-  "teacher",
-  "parent"
+# frozen_string_literal: true
+
+user_roles = %w[
+  student
+  teacher
+  parent
 ]
 
 user_roles.each do |role|
