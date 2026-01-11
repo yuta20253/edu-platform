@@ -315,16 +315,19 @@ Devise.setup do |config|
     config.jwt do |jwt|
       jwt.secret = Rails.application.credentials.devise_jwt_secret_key!
       jwt.dispatch_requests = [
-        ['POST', %r{^/admin/login$}],
-        ['POST', %r{^/teacher/login$}],
-        ['POST', %r{^/student/login$}],
-        ['POST', %r{^/parent/login$}]
+        ['POST', %r{^/api/v1/student/signup$}],
+        ['POST', %r{^/api/v1/teacher/signup$}],
+        ['POST', %r{^/api/v1/admin/signup$}],
+        ['POST', %r{^/api/v1/admin/login$}],
+        ['POST', %r{^/api/v1/teacher/login$}],
+        ['POST', %r{^/api/v1/student/login$}],
+        ['POST', %r{^/api/v1/parent/login$}]
       ]
       jwt.revocation_requests = [
-        ['DELETE', %r{^/admin/logout$}],
-        ['DELETE', %r{^/teacher/logout$}],
-        ['DELETE', %r{^/student/logout$}],
-        ['DELETE', %r{^/parent/logout$}]
+        ['DELETE', %r{^/api/v1/admin/logout$}],
+        ['DELETE', %r{^/api/v1/teacher/logout$}],
+        ['DELETE', %r{^/api/v1/student/logout$}],
+        ['DELETE', %r{^/api/v1/parent/logout$}]
       ]
       jwt.expiration_time = 1.day.to_i
     end

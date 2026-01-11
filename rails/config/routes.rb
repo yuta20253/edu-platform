@@ -1,22 +1,9 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      devise_for :users,
-        controllers: {
-          sessions: "users/sessions",
-          registrations: "users/registrations",
-          passwords: "users/passwords",
-          confirmations: "users/confirmations",
-          unlocks: "users/unlocks"
-        }
-
-        devise_scope :users do
-          post "/admin/login",  to: "admin/sessions#create"
-          delete "/admin/logout", to: "admin/sessions#destroy"
-          post "/teacher/login",  to: "teacher/sessions#create"
-          post "/student/login",  to: "student/sessions#create"
-          post "/parent/login",  to: "parent/sessions#create"
-        end
+      post "/student/signup", to: "role_registrations#student"
+      post "/teacher/signup", to: "role_registrations#teacher"
+      post "/admin/signup",   to: "role_registrations#admin"
     end
   end
 
