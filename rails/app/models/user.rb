@@ -23,9 +23,9 @@
 class User < ApplicationRecord
   belongs_to :user_role, optional: true
   belongs_to :address, optional: true
+  belongs_to :high_school
 
   has_one :user_personal_info, dependent: :destroy
-  has_one :high_school, dependent: :destroy
   has_one :user_overall_question_stat, dependent: :destroy
 
   has_many :goals, dependent: :destroy
