@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 user_roles = %w[
+  admin
   student
   teacher
   parent
