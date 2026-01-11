@@ -21,6 +21,8 @@
 #  address_id             :bigint
 #
 class User < ApplicationRecord
+  before_create :set_jti
+
   belongs_to :user_role, optional: true
   belongs_to :address, optional: true
   belongs_to :high_school
@@ -53,5 +55,9 @@ class User < ApplicationRecord
 
   def parent?
     user_role&.role_name == 'parent'
+  end
+
+  def set_jti
+    self.jti ||= SecureRandom.uuid
   end
 end
