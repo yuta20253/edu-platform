@@ -4,7 +4,8 @@ RUN apt-get update -qq && apt-get install -y \
   build-essential \
   default-libmysqlclient-dev \
   nodejs \
-  yarn
+  yarn \
+  vim
 
 WORKDIR /rails
 
