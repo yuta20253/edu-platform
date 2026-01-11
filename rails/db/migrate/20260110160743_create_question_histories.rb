@@ -4,8 +4,8 @@ class CreateQuestionHistories < ActiveRecord::Migration[7.1]
       t.references :user, null: false, foreign_key: true
       t.references :course, null: false, foreign_key: true
       t.references :unit, null: false, foreign_key: true
-      t.references :question, null: false, foreign_key: tru
-      e
+      t.references :question, null: false, foreign_key: true
+
       t.references :question_choice, null: false, foreign_key: true
       t.text :answer_text, null: true
       t.integer :time_spent_sec
