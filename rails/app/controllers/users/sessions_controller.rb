@@ -7,7 +7,7 @@ class Users::SessionsController < Devise::SessionsController
   # POST /resource/sign_in
   def create
     super do |user|
-      return render json: { token: request.env['warden-jwt_auth.token'], user: user } if request.format.json?
+      return render json: { token: request.env['warden-jwt_auth.token'], user: CurrentUserSerializer.new(user) } if request.format.json?
     end
   end
 
