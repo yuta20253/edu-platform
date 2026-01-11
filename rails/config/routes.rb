@@ -1,5 +1,21 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users,
+    controllers: {
+      sessions: "users/sessions",
+      registrations: "users/registrations",
+      passwords: "users/passwords",
+      confirmations: "users/confirmations",
+      unlocks: "users/unlocks"
+    }
+
+    devise_scope :users do
+      post "/admin/login",  to: "admin/sessions#create"
+      delete "/admin/logout", to: "admin/sessions#destroy"
+      post "/teacher/login",  to: "teacher/sessions#create"
+      post "/student/login",  to: "student/sessions#create"
+      post "/parent/login",  to: "parent/sessions#create"
+    end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
