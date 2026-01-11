@@ -1,0 +1,46 @@
+require:
+  - rubocop-rails
+  - rubocop-performance
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.4
+  Exclude:
+    - "db/schema.rb"
+    - "db/migrate/*"
+    - "node_modules/**/*"
+    - "vendor/**/*"
+    - "bin/*"
+    - "config/**/*"
+
+Rails:
+  Enabled: true
+
+# API + 業務アプリではドキュメントコメントは邪魔
+Style/Documentation:
+  Enabled: false
+
+# 1行80文字は現実的でない
+Layout/LineLength:
+  Max: 120
+
+# unless否定は業務で読みにくい
+Style/NegatedIf:
+  Enabled: false
+
+# before_action多用を許可
+Rails/SkipsModelValidations:
+  Enabled: false
+
+# has_many dependent: :destroy を強制しない
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+# enumのprefix/suffixを強制しない（role enum等で邪魔）
+Rails/EnumSyntax:
+  Enabled: false
+
+# モデルのcallbackは許可
+Rails/SaveBang:
+  Enabled: false
