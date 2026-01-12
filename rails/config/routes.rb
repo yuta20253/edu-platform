@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      post "/student/signup", to: "role_registrations#student"
-      post "/teacher/signup", to: "role_registrations#teacher"
-      post "/admin/signup",   to: "role_registrations#admin"
+      post "/student/signup", to: "registrations#create"
+      post "/teacher/signup", to: "registrations#create"
+      post "/admin/signup",   to: "registrations#create"
     end
   end
 
