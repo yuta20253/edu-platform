@@ -1,4 +1,4 @@
-class SignUpForm
+class Auth::SignUpForm
   include ActiveModel::Model
   include ActiveModel::Attributes
   include ActiveModel::Validations

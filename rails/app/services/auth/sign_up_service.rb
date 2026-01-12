@@ -1,5 +1,6 @@
-class SignUpService
+class Auth::SignUpService
   class JWTGenerationError < StandardError;end
+
   def initialize(form)
     @form = form
   end
