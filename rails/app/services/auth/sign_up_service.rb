@@ -1,22 +1,26 @@
-class Auth::SignUpService
-  class JWTGenerationError < StandardError;end
+# frozen_string_literal: true
 
-  def initialize(form)
-    @form = form
-  end
+module Auth
+  class SignUpService
+    class JWTGenerationError < StandardError; end
 
-  def call
-    ActiveRecord::Base.transaction do
-      role = UserRole.find_by!(role_name: @form.role_name)
-      high_school = HighSchool.find_by!(school_name: @form.school_name)
+    def initialize(form)
+      @form = form
+    end
 
-      user = User.create!(@form.to_attributes.merge(user_role_id: role.id, high_school_id: high_school.id))
+    def call
+      ActiveRecord::Base.transaction do
+        role = UserRole.find_by!(role_name: @form.role_name)
+        high_school = HighSchool.find_by!(school_name: @form.school_name)
 
-      token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
+        user = User.create!(@form.to_attributes.merge(user_role_id: role.id, high_school_id: high_school.id))
 
-      raise JWTGenerationError if token.blank?
+        token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
 
-      [user, token]
+        raise JWTGenerationError if token.blank?
+
+        [user, token]
+      end
     end
   end
 end

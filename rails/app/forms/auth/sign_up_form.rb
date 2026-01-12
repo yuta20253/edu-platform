@@ -1,28 +1,32 @@
-class Auth::SignUpForm
-  include ActiveModel::Model
-  include ActiveModel::Attributes
-  include ActiveModel::Validations
+# frozen_string_literal: true
 
-  attribute :email, :string
-  attribute :name, :string
-  attribute :name_kana, :string
-  attribute :password, :string
-  attribute :password_confirmation, :string
-  attribute :role_name, :string
-  attribute :school_name, :string
+module Auth
+  class SignUpForm
+    include ActiveModel::Model
+    include ActiveModel::Attributes
+    include ActiveModel::Validations
 
-  validates :name, presence: true
-  validates :name_kana, presence: true
-  validates :role_name, presence: true, inclusion: { in: ["admin", "teacher", "parent", "student"] }
-  validates :school_name, presence: true
+    attribute :email, :string
+    attribute :name, :string
+    attribute :name_kana, :string
+    attribute :password, :string
+    attribute :password_confirmation, :string
+    attribute :role_name, :string
+    attribute :school_name, :string
 
-  def to_attributes
-    {
-      email:,
-      name:,
-      name_kana:,
-      password:,
-      password_confirmation:
-    }
+    validates :name, presence: true
+    validates :name_kana, presence: true
+    validates :role_name, presence: true, inclusion: { in: %w[admin teacher parent student] }
+    validates :school_name, presence: true
+
+    def to_attributes
+      {
+        email:,
+        name:,
+        name_kana:,
+        password:,
+        password_confirmation:
+      }
+    end
   end
 end

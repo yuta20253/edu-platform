@@ -1,24 +1,24 @@
-class Auth::LoginService
-  class LoginError < StandardError; end
-  class JWTError < StandardError; end
+# frozen_string_literal: true
 
-  def initialize(form)
-    @form = form
-  end
+module Auth
+  class LoginService
+    class LoginError < StandardError; end
+    class JWTError < StandardError; end
 
-  def call
-    user = User.find_by!(email: @form.email)
-
-    unless user&.valid_password?(@form.password)
-      raise Auth::LoginService::LoginError, "メールアドレスまたはパスワードが違います"
+    def initialize(form)
+      @form = form
     end
 
-    token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
+    def call
+      user = User.find_by!(email: @form.email)
 
-    if token.blank?
-      raise Auth::LoginService::JWTError, "トークン生成に失敗しました"
+      raise Auth::LoginService::LoginError, 'メールアドレスまたはパスワードが違います' unless user&.valid_password?(@form.password)
+
+      token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
+
+      raise Auth::LoginService::JWTError, 'トークン生成に失敗しました' if token.blank?
+
+      [user, token]
     end
-
-    [ user, token ]
   end
 end
