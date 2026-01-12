@@ -4,13 +4,13 @@ module Api
   module V1
     class RegistrationsController < ApplicationController
       def create
-        form = SignUpForm.new(sign_up_params)
+        form = Auth::SignUpForm.new(sign_up_params)
 
         unless form.valid?
           return render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
         end
 
-        user, token = SignUpService.new(form).call
+        user, token = Auth::SignUpService.new(form).call
 
         render json: { user: user, token: token }, status: :created
       rescue ActiveRecord::RecordNotFound => e
