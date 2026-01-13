@@ -3,7 +3,6 @@
 module Auth
   class LoginService
     class LoginError < StandardError; end
-    class JWTError < StandardError; end
 
     def initialize(form)
       @form = form

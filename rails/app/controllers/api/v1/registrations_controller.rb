@@ -15,8 +15,6 @@ module Api
         render json: { user: user }, status: :created
       rescue ActiveRecord::RecordNotFound => e
         render json: { errors: ["指定された情報が見つかりません: #{e.model}"] }, status: :not_found
-      rescue Auth::SignUpService::JWTGenerationError
-        render json: { errors: ['トークン生成に失敗しました'] }, status: :internal_server_error
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
       rescue StandardError => e
