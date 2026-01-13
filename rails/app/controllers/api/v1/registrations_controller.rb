@@ -8,12 +8,14 @@ module Api
 
         return render json: { errors: form.errors.full_messages }, status: :unprocessable_content unless form.valid?
 
-        user, token = Auth::SignUpService.new(form).call
+        user = Auth::SignUpService.new(form).call
 
-        render json: { user: user, token: token }, status: :created
+        sign_in(user, store: false)
+
+        render json: { user: user }, status: :created
       rescue ActiveRecord::RecordNotFound => e
         render json: { errors: ["指定された情報が見つかりません: #{e.model}"] }, status: :not_found
-      rescue SignUpService::JWTGenerationError
+      rescue Auth::SignUpService::JWTGenerationError
         render json: { errors: ['トークン生成に失敗しました'] }, status: :internal_server_error
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
