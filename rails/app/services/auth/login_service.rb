@@ -14,11 +14,7 @@ module Auth
 
       raise Auth::LoginService::LoginError, 'メールアドレスまたはパスワードが違います' unless user&.valid_password?(@form.password)
 
-      token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
-
-      raise Auth::LoginService::JWTError, 'トークン生成に失敗しました' if token.blank?
-
-      [user, token]
+      user
     end
   end
 end

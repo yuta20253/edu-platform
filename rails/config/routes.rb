@@ -1,12 +1,19 @@
 Rails.application.routes.draw do
+  devise_for :users, skip: [:sessions, :registrations]
+
   namespace :api do
     namespace :v1 do
+      devise_scope :user do
         post "/student/login", to: "sessions#create"
         post "/student/signup", to: "registrations#create"
         post "/teacher/login", to: "sessions#create"
         post "/teacher/signup", to: "registrations#create"
         post "/admin/login", to: "sessions#create"
         post "/admin/signup",   to: "registrations#create"
+        delete "/student/logout", to: "sessions#destroy"
+        delete "/teacher/logout", to: "sessions#destroy"
+        delete "/admin/logout",   to: "sessions#destroy"
+      end
       namespace :student do
       end
       namespace :teacher do
