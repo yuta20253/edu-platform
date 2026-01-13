@@ -22,6 +22,7 @@
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
+
   before_create :set_jti
 
   belongs_to :user_role, optional: true

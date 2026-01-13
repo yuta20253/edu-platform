@@ -25,7 +25,7 @@ module Api
       def destroy
         current_user.update!(jti: SecureRandom.uuid)
 
-        render json: { message: "ログアウトしました。" }, status: :ok
+        render json: { message: 'ログアウトしました。' }, status: :ok
       end
     end
   end
