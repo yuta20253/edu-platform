@@ -21,6 +21,7 @@
 #  address_id             :bigint
 #
 class User < ApplicationRecord
+  include Devise::JWT::RevocationStrategies::JTIMatcher
   before_create :set_jti
 
   belongs_to :user_role, optional: true
@@ -43,7 +44,7 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
+         :jwt_authenticatable, jwt_revocation_strategy: self
 
   def student?
     user_role&.role_name == 'student'

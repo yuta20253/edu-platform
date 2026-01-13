@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_10_174123) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_13_171643) do
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
     t.string "prefecture", limit: 20, null: false
@@ -50,14 +50,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_10_174123) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["school_name"], name: "index_high_schools_on_school_name", unique: true
-  end
-
-  create_table "jwt_denylists", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "jti", null: false
-    t.datetime "exp", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["jti"], name: "index_jwt_denylists_on_jti", unique: true
   end
 
   create_table "question_choices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
