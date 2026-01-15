@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_13_171643) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_15_153041) do
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
     t.string "prefecture", limit: 20, null: false
@@ -46,10 +46,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_171643) do
   end
 
   create_table "high_schools", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "school_name", limit: 50, null: false
+    t.string "name", limit: 50, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["school_name"], name: "index_high_schools_on_school_name", unique: true
+    t.index ["name"], name: "index_high_schools_on_name", unique: true
   end
 
   create_table "question_choices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -241,10 +241,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_171643) do
   end
 
   create_table "user_roles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "role_name", null: false
+    t.integer "name", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["role_name"], name: "index_user_roles_on_role_name", unique: true
+    t.index ["name"], name: "index_user_roles_on_name", unique: true
   end
 
   create_table "user_subject_question_stats", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
