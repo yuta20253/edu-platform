@@ -47,16 +47,20 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
 
+  def admin?
+    user_role&.admin?
+  end
+
   def student?
-    user_role&.role_name == 'student'
+    user_role&.student?
   end
 
   def teacher?
-    user_role&.role_name == 'teacher'
+    user_role&.teacher?
   end
 
   def parent?
-    user_role&.role_name == 'parent'
+    user_role&.parent?
   end
 
   def set_jti
