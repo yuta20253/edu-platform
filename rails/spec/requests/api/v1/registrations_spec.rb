@@ -47,7 +47,7 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
     end
 
     context '異常系' do
-      it 'roleが存在しない場合は 404 を返す' do
+      it 'roleが存在しない場合は404を返す' do
         invalid_params = valid_params.deep_merge(
           user: { user_role_name: 'not_exist_role' }
         )
@@ -56,7 +56,7 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
         expect(response).to have_http_status(:not_found)
       end
 
-      it 'schoolが存在しない場合は404 を返す' do
+      it 'schoolが存在しない場合は404を返す' do
         invalid_params = valid_params.deep_merge(
           user: { school_name: '存在しない高校' }
         )

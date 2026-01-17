@@ -18,8 +18,6 @@ module Api
         render json: { user: user }, status: :ok
       rescue Auth::LoginService::LoginError => e
         render json: { errors: [e.message] }, status: :unauthorized
-      rescue ActiveRecord::RecordNotFound => e
-        render json: { errors: ["指定されたユーザーが見つかりません: #{e.model}"] }, status: :not_found
       end
 
       def destroy

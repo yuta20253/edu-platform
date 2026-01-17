@@ -9,7 +9,7 @@ module Auth
     end
 
     def call
-      user = User.find_by!(email: @form.email)
+      user = User.find_by(email: @form.email)
 
       raise Auth::LoginService::LoginError, 'メールアドレスまたはパスワードが違います' unless user&.valid_password?(@form.password)
 
