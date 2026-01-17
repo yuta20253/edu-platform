@@ -41,6 +41,8 @@ class User < ApplicationRecord
   has_many :subjects, through: :user_subject_question_stats
   has_many :user_unit_question_stats, dependent: :destroy
 
+  before_validation :set_jti, on: :create
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -62,6 +64,8 @@ class User < ApplicationRecord
   def parent?
     user_role&.parent?
   end
+
+  private
 
   def set_jti
     self.jti ||= SecureRandom.uuid

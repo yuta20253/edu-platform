@@ -12,6 +12,8 @@
 class UserRole < ApplicationRecord
   has_many :users
 
+  validates :name, presence: true
+
   enum name: {
     admin: 0,
     student: 1,

@@ -16,7 +16,7 @@ module Auth
 
     validates :name, presence: true
     validates :name_kana, presence: true
-    validates :user_role_name, presence: true, inclusion: { in: UserRole.names.keys }
+    validates :user_role_name, presence: true
     validates :school_name, presence: true
 
     def to_attributes
