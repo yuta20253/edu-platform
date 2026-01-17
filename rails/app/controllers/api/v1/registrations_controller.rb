@@ -12,12 +12,12 @@ module Api
         user = Auth::SignUpService.new(form).call
 
         render json: { user: user }, status: :created
-      rescue ActiveRecord::RecordNotFound => e
-        render json: { errors: ["指定された情報が見つかりません: #{e.model}"] }, status: :not_found
+      rescue ActiveRecord::RecordNotFound
+        render json: { errors: ['指定された情報が見つかりません'] }, status: :not_found
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
-      rescue StandardError => e
-        render json: { errors: ["予期せぬエラーが発生しました: #{e.message}"] }, status: :internal_server_error
+      rescue StandardError
+        render json: { errors: ['予期せぬエラーが発生しました'] }, status: :internal_server_error
       end
 
       private
