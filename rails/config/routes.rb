@@ -10,6 +10,7 @@ Rails.application.routes.draw do
         post "/teacher/signup", to: "registrations#create"
         post "/admin/signup",   to: "registrations#create"
       end
+
       namespace :student do
       end
       namespace :teacher do
