@@ -3,14 +3,13 @@
 module Api
   module V1
     class RegistrationsController < ApplicationController
+      skip_before_action :authenticate_user!, only: [:create]
       def create
         form = Auth::SignUpForm.new(sign_up_params)
 
         return render json: { errors: form.errors.full_messages }, status: :unprocessable_content unless form.valid?
 
         user = Auth::SignUpService.new(form).call
-
-        sign_in(user, store: false)
 
         render json: { user: user }, status: :created
       rescue ActiveRecord::RecordNotFound => e
