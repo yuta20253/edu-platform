@@ -23,6 +23,7 @@
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
 
+  before_validation :set_jti, on: :create
   before_create :set_jti
 
   belongs_to :user_role, optional: true
@@ -40,8 +41,6 @@ class User < ApplicationRecord
   has_many :user_subject_question_stats, dependent: :destroy
   has_many :subjects, through: :user_subject_question_stats
   has_many :user_unit_question_stats, dependent: :destroy
-
-  before_validation :set_jti, on: :create
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable

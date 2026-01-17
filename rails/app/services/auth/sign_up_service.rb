@@ -2,7 +2,6 @@
 
 module Auth
   class SignUpService
-
     def initialize(form)
       @form = form
     end

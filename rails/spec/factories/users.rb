@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :user do
     email { Faker::Internet.unique.email }
@@ -6,7 +8,7 @@ FactoryBot.define do
     name { 'テスト太郎' }
     name_kana { 'テストタロウ' }
 
-    association :user_role, factory: [:user_role, :student]
+    association :user_role, factory: %i[user_role student]
     association :high_school
 
     trait :admin do

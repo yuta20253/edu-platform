@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
-require "devise/jwt/test_helpers"
+require 'devise/jwt/test_helpers'
 
 RSpec.describe 'Api::V1::Registrations', type: :request do
   include Devise::Test::IntegrationHelpers
+
   describe 'POST /api/v1/student/signup' do
     let!(:student_role) { create(:user_role, :student) }
     let!(:high_school) { create(:high_school) }
@@ -76,6 +79,7 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
             }
           }
         end
+
         it '422を返す' do
           post '/api/v1/student/signup', params: invalid_params.to_json, headers: headers
 
