@@ -24,6 +24,7 @@ services:
       - "5000:3000"
     volumes:
       - ./rails:/rails
+      - gem_data:/usr/local/bundle
     depends_on:
       - db
     environment:
@@ -37,3 +38,4 @@ services:
 
 volumes:
   mysql_data:
+  gem_data:
