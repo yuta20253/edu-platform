@@ -1,12 +1,16 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Auth::SignUpService, type: :service do
+  subject { described_class.new(form).call }
+
   let!(:high_school) { create(:high_school, name: 'テスト高校') }
   let!(:user_role) { create(:user_role, name: :student) }
 
   let(:form) do
     instance_double(
-      'Auth::SignUpForm',
+      Auth::SignUpForm,
       user_role_name: user_role_name,
       school_name: school_name,
       to_attributes: {
@@ -16,8 +20,6 @@ RSpec.describe Auth::SignUpService, type: :service do
       }
     )
   end
-
-  subject { described_class.new(form).call }
 
   context '正常系' do
     let(:user_role_name) { 'student' }
@@ -47,9 +49,8 @@ RSpec.describe Auth::SignUpService, type: :service do
       let(:school_name) { '存在しない高校' }
 
       it 'SignUpErrorをraiseする' do
-        expect { subject }. to raise_error(Auth::SignUpService::SignUpError, '学校が見つかりません')
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '学校が見つかりません')
       end
     end
   end
-
 end
