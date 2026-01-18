@@ -12,8 +12,8 @@ module Api
         user = Auth::SignUpService.new(form).call
 
         render json: { user: user }, status: :created
-      rescue ActiveRecord::RecordNotFound
-        render json: { errors: ['指定された情報が見つかりません'] }, status: :not_found
+      rescue Auth::SignUpService::SignUpError => e
+        render json: { errors: [e.message] }, status: :unprocessable_content
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
       rescue StandardError
