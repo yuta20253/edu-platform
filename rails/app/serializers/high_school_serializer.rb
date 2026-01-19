@@ -10,5 +10,5 @@
 #  updated_at :datetime         not null
 #
 class HighSchoolSerializer < ActiveModel::Serializer
-  attributes :id, :name
+  attributes :name
 end

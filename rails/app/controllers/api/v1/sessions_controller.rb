@@ -15,7 +15,7 @@ module Api
 
         sign_in(user, store: false)
 
-        render json: { user: user }, status: :ok
+        render json: user, serializer: CurrentUserSerializer, status: :ok
       rescue Auth::LoginService::LoginError => e
         render json: { errors: [e.message] }, status: :unauthorized
       end

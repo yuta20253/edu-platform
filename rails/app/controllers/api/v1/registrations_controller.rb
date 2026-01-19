@@ -11,7 +11,7 @@ module Api
 
         user = Auth::SignUpService.new(form).call
 
-        render json: { user: user }, status: :created
+        render json: user, serializer: CurrentUserSerializer, status: :created
       rescue Auth::SignUpService::SignUpError => e
         render json: { errors: [e.message] }, status: :unprocessable_content
       rescue ActiveRecord::RecordInvalid => e
