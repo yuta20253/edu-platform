@@ -24,4 +24,6 @@ class Task < ApplicationRecord
   belongs_to :goal
   has_many :task_courses, dependent: :destroy
   has_many :courses, through: :task_courses
+  has_many :task_units, dependent: :destroy
+  has_many :units, through: :task_units
 end

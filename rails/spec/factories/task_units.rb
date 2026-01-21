@@ -1,16 +1,16 @@
-# frozen_string_literal: true
-
 # == Schema Information
 #
-# Table name: high_schools
+# Table name: task_units
 #
 #  id         :bigint           not null, primary key
-#  name       :string(50)       not null
+#  task_id    :bigint           not null
+#  unit_id    :bigint           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 FactoryBot.define do
-  factory :high_school do
-    sequence(:name) { |n| "テスト高校#{n}" }
+  factory :task_unit do
+    task { nil }
+    unit { nil }
   end
 end

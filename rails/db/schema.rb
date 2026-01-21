@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_15_153041) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_21_150312) do
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
     t.string "prefecture", limit: 20, null: false
@@ -190,6 +190,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_15_153041) do
     t.index ["task_id"], name: "index_task_courses_on_task_id"
   end
 
+  create_table "task_units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "task_id", null: false
+    t.bigint "unit_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["task_id", "unit_id"], name: "index_task_units_on_task_id_and_unit_id", unique: true
+    t.index ["task_id"], name: "index_task_units_on_task_id"
+    t.index ["unit_id"], name: "index_task_units_on_unit_id"
+  end
+
   create_table "tasks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "goal_id"
@@ -279,6 +289,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_15_153041) do
     t.index ["user_id"], name: "index_user_unit_question_stats_on_user_id"
   end
 
+  create_table "user_units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "unit_id", null: false
+    t.integer "progress", default: 0
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_user_units_on_unit_id"
+    t.index ["user_id", "unit_id"], name: "index_user_units_on_user_id_and_unit_id", unique: true
+    t.index ["user_id"], name: "index_user_units_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", null: false
     t.string "encrypted_password", null: false
@@ -321,6 +343,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_15_153041) do
   add_foreign_key "study_logs", "users"
   add_foreign_key "task_courses", "courses"
   add_foreign_key "task_courses", "tasks"
+  add_foreign_key "task_units", "tasks"
+  add_foreign_key "task_units", "units"
   add_foreign_key "tasks", "goals"
   add_foreign_key "tasks", "users"
   add_foreign_key "units", "courses"
@@ -331,6 +355,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_15_153041) do
   add_foreign_key "user_unit_question_stats", "courses"
   add_foreign_key "user_unit_question_stats", "units"
   add_foreign_key "user_unit_question_stats", "users"
+  add_foreign_key "user_units", "units"
+  add_foreign_key "user_units", "users"
   add_foreign_key "users", "addresses"
   add_foreign_key "users", "high_schools"
   add_foreign_key "users", "user_roles"
