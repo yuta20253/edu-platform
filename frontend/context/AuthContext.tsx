@@ -4,13 +4,8 @@ import { loginAuth } from '@/libs/services/auth';
 import {
   getCurrentUser,
 } from '@/libs/services/user';
+import { User } from '@/types/user';
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
-
-type User = {
-    id: number;
-    name: string;
-    email: string;
-};
 
 type AuthState = {
     user: User | null;
@@ -46,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (token && !cachedUser) {
                     const fresh = await getCurrentUser();
                     setUser(fresh);
-                    localStorage.setItem(USER_KEY, JSON.parse(fresh));
+                    localStorage.setItem(USER_KEY, JSON.stringify(fresh));
                 }
             } catch (error) {
                 console.error('auth boot failed', error);
@@ -66,7 +61,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         try {
             const { token, user } = await loginAuth({ email, password });
-            localStorage.setItem(TOKEN_KEY, token);
+
+            if (token) {
+                localStorage.setItem(TOKEN_KEY, token);
+            }
             localStorage.setItem(USER_KEY, JSON.stringify(user));
             setUser(user);
         } finally {

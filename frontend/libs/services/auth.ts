@@ -1,25 +1,17 @@
+import { User } from "@/types/user";
 import { apiClient } from "../http/apiClient";
 
-type LoginResponse = {
-  token: string;
-  user: {
-    id: number;
-    email: string;
-    name: string;
-    user_role: {
-      name: string;
-    };
-    high_school: {
-      name: string;
-    };
-  };
-};
-
-export const loginAuth = async ({ email, password }: { email: string; password: string }): Promise<LoginResponse> => {
-    const res = await apiClient.post<LoginResponse>(
+export const loginAuth = async ({ email, password }: { email: string; password: string }): Promise<{user: User; token: string | null}> => {
+    const res = await apiClient.post<User>(
         '/api/v1/user/login',
         {email, password}
     );
 
-    return res.data;
+    const authHeader = res.headers['authorization'];
+    const token = authHeader.replace("Bearer ", "") ?? null;
+
+    return {
+      user: res.data,
+      token,
+    };
 };
