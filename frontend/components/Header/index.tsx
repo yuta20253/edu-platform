@@ -12,7 +12,7 @@ export const Header = (): JSX.Element => {
     const { user } = useAuthState();
     return (
         <>
-            <AppBar>
+            <AppBar position="fixed">
                 <ToolBar>
                     <Box sx={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
                         <Link href="/" aria-label="ホームヘ" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
