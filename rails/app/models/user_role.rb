@@ -5,7 +5,7 @@
 # Table name: user_roles
 #
 #  id         :bigint           not null, primary key
-#  name       :integer          default(1), not null
+#  name       :integer          default("student"), not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
