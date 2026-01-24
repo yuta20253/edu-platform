@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_21_150312) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
     t.string "prefecture", limit: 20, null: false
@@ -289,18 +289,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_21_150312) do
     t.index ["user_id"], name: "index_user_unit_question_stats_on_user_id"
   end
 
-  create_table "user_units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "unit_id", null: false
-    t.integer "progress", default: 0
-    t.datetime "completed_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["unit_id"], name: "index_user_units_on_unit_id"
-    t.index ["user_id", "unit_id"], name: "index_user_units_on_user_id_and_unit_id", unique: true
-    t.index ["user_id"], name: "index_user_units_on_user_id"
-  end
-
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", null: false
     t.string "encrypted_password", null: false
@@ -355,8 +343,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_21_150312) do
   add_foreign_key "user_unit_question_stats", "courses"
   add_foreign_key "user_unit_question_stats", "units"
   add_foreign_key "user_unit_question_stats", "users"
-  add_foreign_key "user_units", "units"
-  add_foreign_key "user_units", "users"
   add_foreign_key "users", "addresses"
   add_foreign_key "users", "high_schools"
   add_foreign_key "users", "user_roles"

@@ -16,8 +16,6 @@ class Unit < ApplicationRecord
   has_many :questions, dependent: :destroy
   has_many :question_histories
   has_many :user_unit_question_stats, dependent: :destroy
-  has_many :user_units, dependent: :destroy
-  has_many :users, through: :user_units
   has_many :task_units, dependent: :destroy
   has_many :tasks, through: :task_units
 end

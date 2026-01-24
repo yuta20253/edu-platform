@@ -41,8 +41,6 @@ class User < ApplicationRecord
   has_many :user_subject_question_stats, dependent: :destroy
   has_many :subjects, through: :user_subject_question_stats
   has_many :user_unit_question_stats, dependent: :destroy
-  has_many :user_units, dependent: :destroy
-  has_many :units, through: :user_units
 
   validates :name, :name_kana, presence: true, on: :update
   validates :user_role, presence: true
