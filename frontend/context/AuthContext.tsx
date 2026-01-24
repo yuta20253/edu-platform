@@ -1,10 +1,10 @@
 'use client';
 
-import { loginAuth } from '@/libs/services/auth';
+import { loginAuth, signUpAuth } from '@/libs/services/auth';
 import {
   getCurrentUser,
 } from '@/libs/services/user';
-import { User } from '@/types/user';
+import { User } from '@/types/login/user';
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 
 type AuthState = {
@@ -15,6 +15,7 @@ type AuthState = {
 
 type AuthActions = {
     login: (p: { email: string, password: string }) => Promise<void>;
+    signUp: (p: { user: { email: string, name: string, name_kana: string, password: string, password_confirmation: string, user_role_name: string, school_name: string}}) => Promise<void>;
 };
 
 const AuthStateContext = createContext<AuthState| undefined>(undefined);
@@ -72,13 +73,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const signUp: AuthActions['signUp'] = async ({user: { email, name, name_kana, password, password_confirmation, user_role_name, school_name }}) => {
+        setLoading(true);
+        try {
+            await signUpAuth({ user: { email, name, name_kana, password, password_confirmation, user_role_name, school_name } });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const stateValue = useMemo<AuthState>(
         () => ({ user, loading, hydrated }),
         [user, loading, hydrated]
     );
 
     const actionsValue: AuthActions = {
-        login
+        login,
+        signUp
     };
 
     return (
