@@ -2,11 +2,11 @@
 
 import { Alert, Box, Button, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useAuthActions } from '@/context/AuthContext';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSubmit } from './hooks';
 
 type LoginFormType = {
     email: string;
@@ -16,28 +16,12 @@ type LoginFormType = {
 export const Login = (): React.JSX.Element => {
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const router = useRouter();
+
     const { login } = useAuthActions();
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormType>();
 
-    const onSubmit: SubmitHandler<LoginFormType> = async (data: LoginFormType) => {
-        const email = data.email;
-        const password = data.password;
-        try {
-            await login({ email, password });
-            router.push('/');
-        } catch (error) {
-            const message =
-                error instanceof Error
-                ? error.message
-                : typeof error === 'string'
-                    ? error
-                    : '不明なエラーが発生しました';
-
-            setErrorMessage(message);
-        }
-    };
+    const { onSubmit } = useSubmit({ login, setErrorMessage });
 
     return (
         <Box
