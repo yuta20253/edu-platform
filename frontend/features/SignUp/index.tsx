@@ -4,47 +4,43 @@ import { User } from '@/types/signUp/user';
 import { Alert, Box, Button, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { useAuthActions } from '@/context/AuthContext';
+import { UserRole } from '@/types/signUp/user_role';
+import { useSubmit } from './hooks';
 
-export const SignUp = (): React.JSX.Element => {
+export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element => {
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showConfirmationPassword, setShowConfirmationPassword] = useState<boolean>(false);
     const { signUp } = useAuthActions();
-    const router = useRouter();
     const { register, handleSubmit, formState: { errors } } = useForm<User>();
 
-    const onSubmit: SubmitHandler<User> = async (data: User) => {
-        const userRole = 'teacher';
+    const { onSubmit } = useSubmit({signUp, setErrorMessage, userRole});
 
-        const postData: User = {
-            user: {
-                ...data.user,
-                user_role_name: userRole
-            }
-        };
+    let title = '生徒用'
 
-        try {
-            await signUp(postData);
-            router.push('/login');
-        } catch (error) {
-            const message =
-                error instanceof Error
-                ? error.message
-                : typeof error === 'string'
-                    ? error
-                    : '不明なエラーが発生しました';
-
-            setErrorMessage(message);
-        }
-    };
+    switch (userRole) {
+        case 'student':
+            title = '生徒用'
+            break;
+        case 'admin':
+            title = '管理者用'
+            break;
+        case 'teacher':
+            title = '教員用'
+            break;
+        case 'guardian':
+            title = '保護者用'
+            break;
+        default:
+            break;
+    }
 
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2, }}>
             <Box sx={{ width: '100%', maxWidth: 600 }}>
-                <Typography variant='h4' component='p' sx={{ fontWeight: 'bold', mt: 4, textAlign: 'center' }}>新規登録(教員用)</Typography>
+                <Typography variant='h4' component='p' sx={{ fontWeight: 'bold', mt: 4, textAlign: 'center' }}>新規登録({title})</Typography>
                 {
                     errorMessage && (
                         <Alert severity='error' sx={{ mt: 2 }}>
@@ -75,10 +71,14 @@ export const SignUp = (): React.JSX.Element => {
                             helperText={errors.user?.email?.message}
                             />
                         </Box>
-                        <Box sx={{ mb: 2 }}>
-                            <Typography>在籍高校</Typography>
-                            <TextField fullWidth variant='outlined' {...register('user.school_name')} />
-                        </Box>
+                        {
+                            (userRole === 'student' || userRole === 'teacher') && (
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography>在籍高校</Typography>
+                                    <TextField fullWidth variant='outlined' {...register('user.school_name')} />
+                                </Box>
+                            )
+                        }
                         <Box sx={{ mb: 2 }}>
                             <Typography>パスワード</Typography>
                             <TextField type={showPassword ? 'text' : 'password'} fullWidth variant='outlined'
