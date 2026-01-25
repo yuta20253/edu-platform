@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --dir app --dir components --dir features --dir libs --dir context --dir types",
-    "format": "next lint --fix --dir app --dir components --dir features --dir libs --dir context --dir types"
+    "lint": "next lint"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
