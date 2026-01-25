@@ -15,7 +15,7 @@ module Auth
     attribute :school_name, :string
 
     validates :user_role_name, presence: true
-    validates :school_name, presence: true
+    validates :school_name, presence: true, if: :school_required?
 
     def to_attributes
       {
@@ -25,6 +25,12 @@ module Auth
         password:,
         password_confirmation:
       }
+    end
+
+    private
+
+    def school_required?
+      user_role_name.in?([:student, :teacher])
     end
   end
 end
