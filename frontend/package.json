@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format:check": "prettier '**/*.{js,ts,tsx,json}' --check"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
