@@ -151,7 +151,7 @@ export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element =>
                         {
                             renderTabs(userRole).map(({ role, title }) => (
                                 <Box key={role} sx={{ width: '100%', textAlign: 'center', mb: 4 }}>
-                                    <Link href={`/${role}/signup`}>{title}の方はこちら</Link>
+                                    <Link href={role === 'student' ? '/signup' : `/${role}/signup`}>{title}の方はこちら</Link>
                                 </Box>
                             ))
                         }
