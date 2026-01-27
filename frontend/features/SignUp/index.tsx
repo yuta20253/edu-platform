@@ -5,6 +5,7 @@ import { Alert, Box, Button, IconButton, InputAdornment, TextField, Typography }
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Link from 'next/link';
 import { useAuthActions } from '@/context/AuthContext';
 import { UserRole } from '@/types/signUp/user_role';
 import { useSubmit } from './hooks';
@@ -18,29 +19,30 @@ export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element =>
 
     const { onSubmit } = useSubmit({signUp, setErrorMessage, userRole});
 
-    let title = '生徒用'
+    const roleTitleMap = {
+        student: '生徒用',
+        admin: '管理者用',
+        teacher: '教員用',
+        guardian: '保護者用'
+    } as const;
 
-    switch (userRole) {
-        case 'student':
-            title = '生徒用'
-            break;
-        case 'admin':
-            title = '管理者用'
-            break;
-        case 'teacher':
-            title = '教員用'
-            break;
-        case 'guardian':
-            title = '保護者用'
-            break;
-        default:
-            break;
+    type UserRole = keyof typeof roleTitleMap;
+
+    const renderTabs = (userRole: UserRole) => {
+        return Object
+            .entries(roleTitleMap)
+            .filter(([role]) => role !== userRole)
+            .map(([role, title]) => ({
+                role: role as UserRole,
+                title: title
+            })
+        )
     }
 
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2, }}>
             <Box sx={{ width: '100%', maxWidth: 600 }}>
-                <Typography variant='h4' component='p' sx={{ fontWeight: 'bold', mt: 4, textAlign: 'center' }}>新規登録({title})</Typography>
+                <Typography variant='h4' component='p' sx={{ fontWeight: 'bold', mt: 8, textAlign: 'center' }}>新規登録({roleTitleMap[userRole]})</Typography>
                 {
                     errorMessage && (
                         <Alert severity='error' sx={{ mt: 2 }}>
@@ -146,6 +148,13 @@ export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element =>
                                     <Typography sx={{ fontSize: 'large', textAlign: 'center' }}>登録</Typography>
                                 </Button>
                         </Box>
+                        {
+                            renderTabs(userRole).map(({ role, title }) => (
+                                <Box key={role} sx={{ width: '100%', textAlign: 'center', mb: 4 }}>
+                                    <Link href={`/${role}/signup`}>{title}の方はこちら</Link>
+                                </Box>
+                            ))
+                        }
                     </Box>
                 </Box>
             </Box>
