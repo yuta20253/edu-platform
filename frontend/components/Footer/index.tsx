@@ -3,12 +3,12 @@
 import { Box } from "@mui/material";
 import { usePathname } from "next/navigation";
 
-export const Footer = (): React.JSX.Element | null => {
+export const Footer = (): React.JSX.Element => {
     const pathName = usePathname();
     const hiddenPaths = ['/login', '/signup'];
     const hidden = hiddenPaths.includes(pathName);
 
-    if (hidden) return null;
+    if (hidden) return <></>;
 
     return (
         <Box
