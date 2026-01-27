@@ -2,11 +2,7 @@
 
 import { SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-
-type LoginFormType = {
-    email: string;
-    password: string;
-};
+import { LoginFormType } from '@/types/login/form';
 
 type LoginProps = {
     login: (p: {

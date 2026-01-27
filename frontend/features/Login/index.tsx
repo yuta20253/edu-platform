@@ -7,11 +7,7 @@ import Link from 'next/link';
 import { useAuthActions } from '@/context/AuthContext';
 import { useState } from 'react';
 import { useSubmit } from './hooks';
-
-type LoginFormType = {
-    email: string;
-    password: string;
-};
+import { LoginFormType } from '@/types/login/form';
 
 export const Login = (): React.JSX.Element => {
     const [errorMessage, setErrorMessage] = useState<string>('');
