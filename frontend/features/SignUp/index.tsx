@@ -17,13 +17,13 @@ export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element =>
     const { signUp } = useAuthActions();
     const { register, handleSubmit, formState: { errors } } = useForm<User>();
 
-    const { onSubmit } = useSubmit({signUp, setErrorMessage, userRole});
+    const { onSubmit } = useSubmit({signUp, setErrorMessage});
 
     const roleTitleMap = {
-        student: '生徒用',
-        admin: '管理者用',
-        teacher: '教員用',
-        guardian: '保護者用'
+        student: '生徒',
+        admin: '管理者',
+        teacher: '教員',
+        guardian: '保護者'
     } as const;
 
     type UserRole = keyof typeof roleTitleMap;
