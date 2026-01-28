@@ -19,14 +19,12 @@ export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element =>
 
     const { onSubmit } = useSubmit({signUp, setErrorMessage});
 
-    const roleTitleMap = {
+    const roleTitleMap: Record<UserRole, string> = {
         student: '生徒',
         admin: '管理者',
         teacher: '教員',
         guardian: '保護者'
-    } as const;
-
-    type UserRole = keyof typeof roleTitleMap;
+    };
 
     const renderTabs = (userRole: UserRole) => {
         return Object
