@@ -5,6 +5,7 @@ import {
   getCurrentUser,
 } from '@/libs/services/user';
 import { User } from '@/types/login/user';
+import { UserRole } from '@/types/signUp/user_role';
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 
 type AuthState = {
@@ -15,7 +16,7 @@ type AuthState = {
 
 type AuthActions = {
     login: (p: { email: string, password: string }) => Promise<void>;
-    signUp: (p: { user: { email: string, name: string, name_kana: string, password: string, password_confirmation: string, user_role_name: string, school_name: string}}) => Promise<void>;
+    signUp: (p: { user: { email: string, name: string, name_kana: string, password: string, password_confirmation: string, user_role_name: UserRole, school_name: string}}) => Promise<void>;
 };
 
 const AuthStateContext = createContext<AuthState| undefined>(undefined);
