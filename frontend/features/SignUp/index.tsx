@@ -17,7 +17,7 @@ export const SignUp = ({userRole}: { userRole: UserRole }): React.JSX.Element =>
     const { signUp } = useAuthActions();
     const { register, handleSubmit, formState: { errors } } = useForm<User>();
 
-    const { onSubmit } = useSubmit({signUp, setErrorMessage});
+    const { onSubmit } = useSubmit({signUp, setErrorMessage, userRole});
 
     const roleTitleMap: Record<UserRole, string> = {
         student: '生徒',
