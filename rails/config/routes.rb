@@ -11,6 +11,8 @@ Rails.application.routes.draw do
         post "/admin/signup",   to: "registrations#create"
       end
 
+      resource :users, only: :show
+
       namespace :student do
       end
       namespace :teacher do
