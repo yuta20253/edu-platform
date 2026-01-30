@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       resource :users, only: :show
 
       namespace :student do
+        resource :dashboard, only: :show
       end
       namespace :teacher do
       end
