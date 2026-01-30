@@ -30,7 +30,7 @@ module Auth
     private
 
     def school_required?
-      user_role_name.in?([:student, :teacher])
+      user_role_name.in?(%i[student teacher])
     end
   end
 end

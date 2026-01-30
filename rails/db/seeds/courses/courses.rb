@@ -1,4 +1,6 @@
-english = ['英文法', '英読解']
+# frozen_string_literal: true
+
+english = %w[英文法 英読解]
 math = ['I・A', 'Ⅱ・B', 'C']
 
 1.upto(5) do |i|

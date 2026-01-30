@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GoalsQuery
   def initialize(relation = Goal.all)
     @relation = relation
