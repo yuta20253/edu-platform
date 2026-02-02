@@ -43,5 +43,6 @@ module RailsApp
 
     config.autoload_paths << Rails.root.join('app/forms')
     config.autoload_paths << Rails.root.join('app/services')
+    config.autoload_paths << Rails.root.join('app/queries')
   end
 end
