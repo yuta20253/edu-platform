@@ -6,12 +6,12 @@ class GoalsQuery
   end
 
   def due_soon
-    @relation.order(due_date: :asc)
+    @relation = @relation.order(due_date: :asc)
     self
   end
 
   def limit_five
-    @relation.limit(5)
+    @relation = @relation.limit(5)
     self
   end
 
