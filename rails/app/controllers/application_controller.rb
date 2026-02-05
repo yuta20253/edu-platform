@@ -13,7 +13,7 @@ class ApplicationController < ActionController::API
 
   def user_not_authorized(_exception)
     render json: {
-      error: 'forbidden',
+      error: 'FORBIDDEN',
       message: 'この操作を行う権限がありません'
     }, status: :forbidden
   end
