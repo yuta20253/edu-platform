@@ -40,8 +40,8 @@ class ApplicationPolicy
     user&.teacher?
   end
 
-  def guardian
-    user&.guardian
+  def guardian?
+    user&.guardian?
   end
 
   class Scope
