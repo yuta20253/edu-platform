@@ -1,5 +1,5 @@
 import { SignUp } from "@/features/SignUp";
 
-export default function SignUpPage () {
-    return <SignUp userRole="teacher" />;
+export default function SignUpPage() {
+  return <SignUp userRole="teacher" />;
 }

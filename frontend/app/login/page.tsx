@@ -1,5 +1,5 @@
-import { Login } from '@/features/Login';
+import { Login } from "@/features/Login";
 
-export default function LoginPage () {
-    return <Login />;
+export default function LoginPage() {
+  return <Login />;
 }
