@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#0068b7',
+      main: "#0068b7",
     },
     secondary: {
-      main: '#F2A541',
+      main: "#F2A541",
     },
   },
   typography: {
-    fontFamily: ['"Roboto"', 'sans-serif'].join(','),
+    fontFamily: ['"Roboto"', "sans-serif"].join(","),
   },
 });
 

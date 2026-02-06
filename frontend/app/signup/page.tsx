@@ -1,5 +1,5 @@
-import { SignUp } from '@features/SignUp';
+import { SignUp } from "@features/SignUp";
 
-export default function SignUpPage () {
-    return <SignUp userRole="student" />;
+export default function SignUpPage() {
+  return <SignUp userRole="student" />;
 }
