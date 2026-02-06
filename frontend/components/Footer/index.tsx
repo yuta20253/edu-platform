@@ -19,7 +19,7 @@ export const Footer = (): React.JSX.Element => {
             left: 0,
             width: '100%',
             height: 48,
-            bgcolor: 'background.paper',
+            backgroundColor: '#0068b7',
             boxShadow: '0 -2px 8px rgba(0,0,0,0.1)',
             display: 'flex',
             justifyContent: 'center',
