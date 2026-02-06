@@ -64,8 +64,8 @@ class User < ApplicationRecord
     user_role&.teacher?
   end
 
-  def parent?
-    user_role&.parent?
+  def guardian?
+    user_role&.guardian?
   end
 
   private
