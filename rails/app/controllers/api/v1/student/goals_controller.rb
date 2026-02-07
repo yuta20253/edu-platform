@@ -5,10 +5,10 @@ module Api
     module Student
       class GoalsController < Api::V1::Student::BaseController
         def create
-          form = Student::CreateGoalForm.new(create_goal_params)
+          form = ::Student::CreateGoalForm.new(create_goal_params)
 
           if form.save
-            render json: { message: '目標が作成できました' }, status: :created
+            render json: form.goal.id, status: :created
           else
             render json: { errors: form.errors }, status: :unprocessable_entity
           end

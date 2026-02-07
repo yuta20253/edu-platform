@@ -6,6 +6,8 @@ module Student
     include ActiveModel::Attributes
     include ActiveModel::Validations
 
+    attr_reader :goal
+
     attribute :user
     attribute :title, :string
     attribute :description, :string
@@ -18,12 +20,13 @@ module Student
     def save
       return unless valid?
 
-      Goal.create!(
+      @goal = Goal.create!(
         user: user,
         title: title,
         description: description,
         due_date: parsed_due_date
       )
+      true
     end
 
     private
