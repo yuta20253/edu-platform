@@ -8,7 +8,7 @@ module Student
 
     attr_reader :goal
 
-    attribute :user
+    attribute :current_user
     attribute :title, :string
     attribute :description, :string
     attribute :due_date, :string
@@ -21,7 +21,7 @@ module Student
       return unless valid?
 
       @goal = Goal.create!(
-        user: user,
+        user: current_user,
         title: title,
         description: description,
         due_date: parsed_due_date
