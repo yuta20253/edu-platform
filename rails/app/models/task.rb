@@ -26,4 +26,14 @@ class Task < ApplicationRecord
   has_many :courses, through: :task_courses
   has_many :task_units, dependent: :destroy
   has_many :units, through: :task_units
+
+  enum priority: {
+    very_low: 1,
+    low: 2,
+    normal: 3,
+    high: 4,
+    very_high: 5
+  }
+
+  enum status: { not_started: 0, in_progress: 1, completed: 2 }
 end
