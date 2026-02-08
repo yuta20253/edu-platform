@@ -9,10 +9,10 @@
 #  goal_id        :bigint
 #  title          :string(100)      not null
 #  content        :text(65535)      not null
-#  priority       :integer          default(3), not null
+#  priority       :integer          default("normal"), not null
 #  due_date       :date
 #  estimated_time :integer
-#  status         :integer          default(0), not null
+#  status         :integer          default("not_started"), not null
 #  memo           :text(65535)
 #  completed_at   :datetime
 #  deleted_at     :datetime
