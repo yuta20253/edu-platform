@@ -9,7 +9,7 @@
 #  title       :string(255)      not null
 #  description :text(65535)
 #  due_date    :date
-#  status      :integer          default(0), not null
+#  status      :integer          default("not_started"), not null
 #  deleted_at  :datetime
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null

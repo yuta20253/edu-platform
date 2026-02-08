@@ -12,6 +12,6 @@ class ApplicationController < ActionController::API
   private
 
   def user_not_authorized(_exception)
-    render json: { errors: 'この操作を行う権限がありません'}, status: :forbidden
+    render json: { errors: 'この操作を行う権限がありません' }, status: :forbidden
   end
 end
