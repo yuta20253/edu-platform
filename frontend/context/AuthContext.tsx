@@ -37,7 +37,7 @@ type AuthActions = {
 const AuthStateContext = createContext<AuthState | undefined>(undefined);
 const AuthActionsContext = createContext<AuthActions | undefined>(undefined);
 
-const TOKEN_KEY = "token";
+export const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

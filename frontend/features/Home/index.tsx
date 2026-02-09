@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaPen } from "react-icons/fa";
+import { TOKEN_KEY } from '@context/AuthContext';
 
 type GoalType = {
   id: number;
@@ -14,8 +15,6 @@ type GoalType = {
   formatted_status: string;
   formatted_due_date: string;
 };
-
-const TOKEN_KEY = "token";
 
 export const Home = (): React.JSX.Element => {
   const [goals, setGoals] = useState<GoalType[] | null>(null);
