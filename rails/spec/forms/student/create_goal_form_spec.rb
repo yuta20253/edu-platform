@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Student::CreateGoalForm, type: :model do
-  subject { described_class.new(params) }
+  subject { described_class.new(**params) }
 
   let(:user) { create(:user) }
 
@@ -41,7 +41,7 @@ RSpec.describe Student::CreateGoalForm, type: :model do
     context 'titleがない時' do
       it '保存されない' do
         params[:title] = nil
-        form = described_class.new(params)
+        form = described_class.new(**params)
 
         expect(form.save).to be_nil
         expect(form.errors[:title]).to be_present
@@ -51,7 +51,7 @@ RSpec.describe Student::CreateGoalForm, type: :model do
     context 'due_dateが不正な値の時' do
       it 'エラーになる' do
         params[:due_date] = 'invalid-date'
-        form = described_class.new(params)
+        form = described_class.new(**params)
 
         expect(form.save).to be_nil
         expect(form.errors[:due_date]).to include('は正しい日付を入力してください')
@@ -61,7 +61,7 @@ RSpec.describe Student::CreateGoalForm, type: :model do
     context 'バリデーションエラーがあるとき' do
       it 'Goalは作成されない' do
         params[:title] = nil
-        form = described_class.new(params)
+        form = described_class.new(**params)
 
         expect { form.save }.not_to change(Goal, :count)
       end

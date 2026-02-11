@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Student::CreateTaskForm, type: :model do
-  subject { described_class.new(params) }
+  subject { described_class.new(**params) }
 
   let(:user) { create(:user) }
   let(:goal) { create(:goal, user:) }
