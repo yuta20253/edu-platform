@@ -5,10 +5,9 @@ module Api
     module Student
       class TasksController < Api::V1::Student::BaseController
         def create
-          form = ::Student::CreateTaskForm.new(create_task_params.merge(current_user: current_user))
+          form = ::Student::CreateTaskForm.new(current_user: current_user, **create_task_params.to_h.symbolize_keys)
 
-          if form.valid?
-            ::Student::CreateTaskService.new(form).call
+          if form.save
             render json: { message: 'タスクが作成されました。' }, status: :created
           else
             render json: { errors: form.errors }, status: :unprocessable_content

@@ -6,7 +6,8 @@ module Student
     include ActiveModel::Attributes
     include ActiveModel::Validations
 
-    attribute :current_user
+    attr_reader :current_user
+
     attribute :goal_id, :integer
     attribute :title, :string
     attribute :content, :string
@@ -23,6 +24,17 @@ module Student
     validate :goal_must_exist
     validate :due_date_must_be_valid
     validate :unit_ids_must_exist
+
+    def initialize(current_user:, **attributes)
+      super(attributes)
+      @current_user = current_user
+    end
+
+    def save
+      return false unless valid?
+      ::Student::CreateTaskService.new(self).call
+      true
+    end
 
     def parsed_due_date
       @parsed_due_date ||= Date.parse(due_date)
