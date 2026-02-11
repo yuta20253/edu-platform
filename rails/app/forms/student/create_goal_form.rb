@@ -8,7 +8,6 @@ module Student
 
     attr_reader :goal
 
-    attribute :current_user
     attribute :title, :string
     attribute :description, :string
     attribute :due_date, :string
@@ -17,11 +16,16 @@ module Student
     validates :due_date, presence: true
     validate :due_date_must_be_valid
 
+    def initialize(current_user:, **attributes)
+      super(attributes)
+      @current_user = current_user
+    end
+
     def save
       return unless valid?
 
       @goal = Goal.create!(
-        user: current_user,
+        user: @current_user,
         title: title,
         description: description,
         due_date: parsed_due_date
