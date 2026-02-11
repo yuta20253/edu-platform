@@ -32,6 +32,7 @@ module Student
 
     def save
       return false unless valid?
+
       ::Student::CreateTaskService.new(self).call
       true
     end

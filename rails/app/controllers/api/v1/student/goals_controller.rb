@@ -5,7 +5,7 @@ module Api
     module Student
       class GoalsController < Api::V1::Student::BaseController
         def create
-          form = ::Student::CreateGoalForm.new(current_user: current_user ,**create_goal_params.to_h.symbolize_keys)
+          form = ::Student::CreateGoalForm.new(current_user: current_user, **create_goal_params.to_h.symbolize_keys)
 
           if form.save
             render json: form.goal.id, status: :created
