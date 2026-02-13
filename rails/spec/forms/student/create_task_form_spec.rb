@@ -20,6 +20,27 @@ RSpec.describe Student::CreateTaskForm, type: :model do
     }
   end
 
+  describe "#save" do
+    context "入力が正しい時" do
+      it "Taskが作成される" do
+        expect { subject.save }.to change(Task, :count).by(1)
+      end
+
+      it "作成されたtaskのデータが与えられたパラメーターの値になっていること" do
+        subject.save
+        task = Task.last
+
+        expect(task.user).to eq(user)
+        expect(task.goal).to eq(goal)
+        expect(task.title).to eq('タスク')
+        expect(task.content).to eq('内容')
+        expect(task.priority).to eq('very_low')
+        expect(task.memo).to eq('メモ')
+        expect(task.due_date).to eq(Date.new(2026, 2, 10))
+      end
+    end
+  end
+
   it '有効であること' do
     expect(subject).to be_valid
   end
