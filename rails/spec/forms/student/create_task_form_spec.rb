@@ -58,6 +58,51 @@ RSpec.describe Student::CreateTaskForm, type: :model do
         expect(task.units).to match_array([unit1, unit2])
       end
     end
+
+    context "値が不正な時" do
+      it "unit_ids に存在しないIDが混ざるとinvalid" do
+        unit1 = create(:unit)
+        invalid_id = 999999
+
+        form = described_class.new(
+          current_user: user,
+          goal_id: goal.id,
+          title: "タスク",
+          content: "内容",
+          priority: 1,
+          due_date: "2026-02-10",
+          unit_ids: [unit1.id, invalid_id]
+        )
+
+        expect(form).not_to be_valid
+        expect(form.errors[:unit_ids]).to include('に不正な値が含まれています')
+      end
+
+      it "必須項目が欠けているとinvalidになる" do
+        form = described_class.new(current_user: user)
+
+        expect(form).not_to be_valid
+        expect(form.errors[:goal_id]).to be_present
+        expect(form.errors[:title]).to be_present
+        expect(form.errors[:content]).to be_present
+        expect(form.errors[:priority]).to be_present
+        expect(form.errors[:due_date]).to be_present
+      end
+
+      it "goal_idがnilだとinvalid" do
+        subject.goal_id = nil
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:goal_id]).to include("can't be blank")
+      end
+
+      it "存在しないgoal_idだとinvalid" do
+        subject.goal_id = 999999
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:goal_id]).to include('が不正です')
+      end
+    end
   end
 
   it '有効であること' do
