@@ -38,6 +38,25 @@ RSpec.describe Student::CreateTaskForm, type: :model do
         expect(task.memo).to eq('メモ')
         expect(task.due_date).to eq(Date.new(2026, 2, 10))
       end
+
+      it "unit_idsを渡した場合、task.units が付く" do
+        unit1 = create(:unit)
+        unit2 = create(:unit)
+
+        form = described_class.new(
+          current_user: user,
+          goal_id: goal.id,
+          title: "タスク",
+          content: "内容",
+          priority: 1,
+          due_date: "2026-02-10",
+          unit_ids: [unit1.id, unit2.id]
+        )
+
+        expect { form.save }.to change(Task, :count).by(1)
+        task = Task.last
+        expect(task.units).to match_array([unit1, unit2])
+      end
     end
   end
 
