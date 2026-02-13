@@ -39,8 +39,8 @@ RSpec.describe Student::CreateGoalForm, type: :model do
     end
 
     context 'titleがない時' do
+      let(:params) { super().merge(title: nil) }
       it '保存されない' do
-        params[:title] = nil
         form = described_class.new(**params)
 
         expect(form.save).to be_nil
