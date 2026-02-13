@@ -36,6 +36,10 @@ RSpec.describe Student::CreateGoalForm, type: :model do
         subject.save
         expect(subject.goal.due_date).to eq(Date.new(2026, 4, 11))
       end
+
+      it "trueを返す" do
+        expect(subject.save).to be true
+      end
     end
 
     context 'titleがない時' do
