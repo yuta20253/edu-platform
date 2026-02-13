@@ -42,6 +42,15 @@ RSpec.describe Student::CreateGoalForm, type: :model do
       end
     end
 
+    context "descriptionが空でも保存できる" do
+      let(:params) { super().merge(description: nil) }
+      it "保存できる" do
+        expect(subject.save).to be true
+        expect(subject.goal).to be_persisted
+        expect(subject.goal.description).to be_nil
+      end
+    end
+
     context 'titleがない時' do
       let(:params) { super().merge(title: nil) }
       it '保存されない' do
