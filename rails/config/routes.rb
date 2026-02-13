@@ -15,6 +15,8 @@ Rails.application.routes.draw do
 
       namespace :student do
         resource :dashboard, only: :show
+        resources :goals
+        resources :tasks
       end
       namespace :teacher do
       end
