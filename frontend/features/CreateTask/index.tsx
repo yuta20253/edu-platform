@@ -1,23 +1,60 @@
 'use client'
 
 import { Box, Button, TextField, Typography, MenuItem, Card, CardContent, CardActions, Divider, FormControlLabel, Checkbox } from '@mui/material';
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useState } from "react";
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { TOKEN_KEY } from '@context/AuthContext';
+import { apiClient } from '@/libs/http/apiClient';
 
 type CreateTaskForm = {
     task: {
         goal_id: number;
         title: string;
         content: string;
-        priority: number;
+        priority: string;
         due_date: string;
         unit_ids: number[] | null;
     }
 };
 
+type UnitType = {
+  id: number;
+  course_id: number;
+  unit_name: string;
+};
+
+type CourseType = {
+    id: number;
+    level_number: number;
+    level_name: string;
+    description: string;
+    units: UnitType[];
+};
+
+type SubjectName =
+  | "英語"
+  | "数学"
+  | "現代文"
+  | "古文"
+  | "日本史"
+  | "世界史"
+  | "地理"
+  | "物理"
+  | "化学"
+  | "生物"
+  | "地学";
+
 export const CreateTask = (): React.JSX.Element => {
-    const [dueDate, setDueDate] = useState<string>('');
-    const { register, formState: { errors } } = useForm<CreateTaskForm>();
+    const [courses, setCourses] = useState<CourseType[] | null>(null);
+    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+    const [showAllCourses, setShowAllCourses] = useState<boolean>(false);
+    const [selectedUnitIds, setSelectedUnitIds] = useState<number[]>([]);
+    const params = useParams();
+    const router = useRouter();
+
+    const goalId = Number(params.goalId);
 
     const priorities = [
         { value: "very_low", label: "とても低い" },
@@ -26,9 +63,57 @@ export const CreateTask = (): React.JSX.Element => {
         { value: "high", label: "高い" },
         { value: "very_high", label: "とても高い" },
     ];
-    const subjectLists = [
+    const subjectLists: SubjectName[] = [
         '英語', '数学', '現代文', '古文', '日本史', '世界史', '地理', '物理', '化学', '生物', '地学'
     ];
+
+    const selectSubject = async (name: SubjectName) => {
+        setSelectedCourseId(null);
+        setShowAllCourses(false);
+        try {
+            const token = localStorage.getItem(TOKEN_KEY);
+            const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            };
+
+            const res = await apiClient.get<CourseType[]>(`/api/v1/student/courses?subject=${name}`, { headers });
+
+            setCourses(res.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleToggleUnit = (unitId: number) => {
+        setSelectedUnitIds((prev) =>
+            prev?.includes(unitId) ? prev.filter((id) => id !== unitId) : [...prev, unitId]
+        );
+    };
+
+    const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
+
+    const displayedCourses = showAllCourses ? courses : courses?.slice(0, 3);
+
+    const { control, register, handleSubmit, formState: { errors } }
+        = useForm<CreateTaskForm>({
+        defaultValues: {
+            task: {
+                goal_id: goalId,
+                title: "",
+                content: "",
+                priority: "",
+                due_date: "",
+                unit_ids: []
+            }
+        }
+  });
+
+    const onSubmit: SubmitHandler<CreateTaskForm> = async (data) => {
+        data.task.unit_ids = selectedUnitIds;
+        sessionStorage.setItem("CreateTaskData", JSON.stringify(data));
+        router.push(`/goals/${goalId}/tasks/confirm`);
+    };
 
     return (
         <Box
@@ -45,7 +130,7 @@ export const CreateTask = (): React.JSX.Element => {
                     タスク作成
                 </Typography>
                 <Box sx={{ padding: 2, width: "100%" }}>
-                    <Box component="form" sx={{ width: "100%", maxWidth: 600, mx: "auto", mt: 5 }}>
+                    <Box component="form" sx={{ width: "100%", maxWidth: 600, mx: "auto", mt: 5 }} onSubmit={handleSubmit(onSubmit)}>
                         <Box sx={{ mb: 2 }}>
                             <Typography>タスクタイトル</Typography>
                             <TextField
@@ -71,29 +156,34 @@ export const CreateTask = (): React.JSX.Element => {
                         <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
                             <Box sx={{ flex: 1 }}>
                                 <Typography>優先度</Typography>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    {...register("task.priority")}
-                                    error={!!errors.task?.priority}
-                                    helperText={errors.task?.priority?.message}
-                                >
-                                    <MenuItem value="">選択してください</MenuItem>
-                                    {priorities.map((priority) => (
-                                        <MenuItem key={priority.value} value={priority.value} >
-                                            {priority.label}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
+                                <Controller
+                                    name='task.priority'
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.task?.priority}
+                                            helperText={errors.task?.priority?.message}
+                                        >
+                                            <MenuItem value="">選択してください</MenuItem>
+                                            {priorities.map((priority) => (
+                                                <MenuItem key={priority.value} value={priority.value} >
+                                                    {priority.label}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    )}
+                                />
                             </Box>
                             <Box sx={{ flex: 1 }}>
                                 <Typography>期限</Typography>
                                 <TextField
                                     type="date"
                                     variant="outlined"
-                                    value={dueDate}
                                     {...register("task.due_date")}
-                                    onChange={(e) => setDueDate(e.target.value)}
                                     slotProps={{
                                         inputLabel: {
                                             shrink: true,
@@ -131,6 +221,7 @@ export const CreateTask = (): React.JSX.Element => {
                                 select
                                 fullWidth
                                 defaultValue=""
+                                onChange={(e) => selectSubject(e.target.value as SubjectName)}
                                 slotProps={{
                                     select: {
                                         MenuProps: {
@@ -158,97 +249,90 @@ export const CreateTask = (): React.JSX.Element => {
                                 <Typography sx={{mb: 1, fontWeight: 500}}>
                                     講座一覧
                                 </Typography>
-                                <Card sx={{ mt: 2 }}>
-                                    <CardContent>
-                                        <Typography variant="h6" component="div" gutterBottom>
-                                        講座名
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                        ここに講座の概要が入ります。ReactやRailsの基礎を学ぶ講座です。
-                                        </Typography>
-                                    </CardContent>
-                                    <CardActions sx={{ justifyContent: "flex-end" }}>
-                                        <Button
-                                            sx={{
-                                                backgroundColor: "#0068b7",
-                                                color: "#ffffff",
-                                                fontSize: "small",
-                                            }}
-                                        >
-                                            詳細を見る
-                                        </Button>
-                                    </CardActions>
-                                </Card>
-                                <Card sx={{ mt: 2 }}>
-                                    <CardContent>
-                                        <Typography variant="h6" component="div" gutterBottom>
-                                        講座名
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                        ここに講座の概要が入ります。ReactやRailsの基礎を学ぶ講座です。
-                                        </Typography>
-                                    </CardContent>
-                                    <CardActions sx={{ justifyContent: "flex-end" }}>
-                                        <Button
-                                            sx={{
-                                                backgroundColor: "#0068b7",
-                                                color: "#ffffff",
-                                                fontSize: "small",
-                                            }}
-                                        >
-                                            詳細を見る
-                                        </Button>
-                                    </CardActions>
-                                </Card>
+                                {displayedCourses?.map((course) => (
+                                    <Card sx={{ mt: 2 }} key={course.id}>
+                                        <CardContent>
+                                            <Typography variant="h6" component="div" gutterBottom>
+                                                {course.level_name}レベル{course.level_number}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {course.description ?? "説明はありません"}
+                                            </Typography>
+                                        </CardContent>
+                                        <CardActions sx={{ justifyContent: "flex-end" }}>
+                                            <Button
+                                                onClick={() => setSelectedCourseId(course.id)}
+                                                sx={{
+                                                    backgroundColor: "#0068b7",
+                                                    color: "#ffffff",
+                                                    fontSize: "small",
+                                                }}
+                                            >
+                                                詳細を見る
+                                            </Button>
+                                        </CardActions>
+                                    </Card>
+                                ))}
+                                {courses && courses.length > 3 && (
+                                <Box sx={{ textAlign: "center", mt: 2 }}>
+                                    <Button
+                                    onClick={() => setShowAllCourses((prev) => !prev)}
+                                    sx={{ color: "#0068b7" }}
+                                    >
+                                    {showAllCourses ? "閉じる" : "もっと見る"}
+                                    </Button>
+                                </Box>
+                                )}
                             </Box>
                         </Box>
-                        <Box
-                        sx={{
-                            mt: 4,
-                            borderRadius: 2,
-                            overflow: "hidden",
-                            border: "1px solid #e0e0e0",
-                        }}
-                        >
+                        {selectedCourseId && (
                             <Box
                                 sx={{
-                                backgroundColor: "#0068b7",
-                                color: "#ffffff",
-                                px: 3,
-                                py: 2,
+                                    mt: 4,
+                                    borderRadius: 2,
+                                    overflow: "hidden",
+                                    border: "1px solid #e0e0e0",
                                 }}
                             >
-                                <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
-                                講座詳細
-                                </Typography>
+                                <Box
+                                    sx={{
+                                    backgroundColor: "#0068b7",
+                                    color: "#ffffff",
+                                    px: 3,
+                                    py: 2,
+                                    }}
+                                >
+                                    <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                                    講座詳細
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ p: 3 }}>
+                                    <Typography variant="h6" gutterBottom>
+                                        {selectedCourse?.level_name}レベル{selectedCourse?.level_number}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                        {selectedCourse?.description ?? "説明はありません"}
+                                    </Typography>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                        単元一覧
+                                    </Typography>
+                                    {selectedCourse?.units.map((unit) => (
+                                    <FormControlLabel
+                                        key={unit.id}
+                                        control={
+                                            <Checkbox
+                                                checked={selectedUnitIds.includes(unit.id)}
+                                                onChange={() => handleToggleUnit(unit.id)}
+                                            />
+                                        }
+                                        label={unit.unit_name}
+                                        sx={{ display: 'block' }}
+                                    />
+                                    ))}
+                                </Box>
                             </Box>
-                            <Box sx={{ p: 3 }}>
-                                <Typography variant="h6" gutterBottom>
-                                講座名: React & Rails入門
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                この講座では、ReactとRailsの基礎を学び、Webアプリ開発の全体像を理解します。
-                                </Typography>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mt: 2 }}>
-                                到達イメージ
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                講座終了後は、簡単なフロント＋バックエンドのアプリを自力で作れるようになります。
-                                </Typography>
-                                <Divider sx={{ my: 2 }} />
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                                単元一覧
-                                </Typography>
-                                {['React基礎', 'Rails入門', '状態管理'].map((unit, i) => (
-                                <FormControlLabel
-                                    key={i}
-                                    control={<Checkbox />}
-                                    label={unit}
-                                    sx={{ display: 'block' }}
-                                />
-                                ))}
-                            </Box>
-                        </Box>
+                        )}
                         <Box sx={{ my: 4 }}>
                             <Button
                               type="submit"
