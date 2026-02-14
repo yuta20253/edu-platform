@@ -223,27 +223,19 @@ export const CreateTask = (): React.JSX.Element => {
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 3 }}>
-                                {/* 講座名 */}
                                 <Typography variant="h6" gutterBottom>
                                 講座名: React & Rails入門
                                 </Typography>
-
-                                {/* 講座概要 */}
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 この講座では、ReactとRailsの基礎を学び、Webアプリ開発の全体像を理解します。
                                 </Typography>
-
-                                {/* 到達イメージ */}
                                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mt: 2 }}>
                                 到達イメージ
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 講座終了後は、簡単なフロント＋バックエンドのアプリを自力で作れるようになります。
                                 </Typography>
-
                                 <Divider sx={{ my: 2 }} />
-
-                                {/* 単元一覧 */}
                                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
                                 単元一覧
                                 </Typography>
@@ -252,7 +244,7 @@ export const CreateTask = (): React.JSX.Element => {
                                     key={i}
                                     control={<Checkbox />}
                                     label={unit}
-                                    sx={{ display: 'block' }} // 縦表示
+                                    sx={{ display: 'block' }}
                                 />
                                 ))}
                             </Box>
