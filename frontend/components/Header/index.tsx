@@ -71,6 +71,7 @@ export const Header = (): JSX.Element => {
           )}
         </ToolBar>
       </AppBar>
+      <ToolBar />
     </>
   );
 };
