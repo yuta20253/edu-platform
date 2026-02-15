@@ -38,7 +38,7 @@ export const CreateGoal = (): React.JSX.Element => {
       const res = await apiClient.post("/api/v1/student/goals", data, {
         headers,
       });
-      console.log(res.data);
+
       const goalId = res.data;
 
       router.push(`/goals/${goalId}/tasks/new`);
