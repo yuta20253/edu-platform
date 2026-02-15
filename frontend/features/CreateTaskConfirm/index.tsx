@@ -98,7 +98,7 @@ export const CreateTaskConfirm = (): React.JSX.Element => {
       };
 
       console.log(task);
-      await apiClient.post(`/api/v1/student/tasks`, { task }, { headers })
+      await apiClient.post(`/api/v1/student/tasks`, { task }, { headers });
 
       setSnackbar({
         open: true,
@@ -106,10 +106,9 @@ export const CreateTaskConfirm = (): React.JSX.Element => {
         severity: "success",
       });
 
-      setTimeout(() => router.push('/'), 1000);
-
+      setTimeout(() => router.push("/"), 1000);
     } catch (error) {
-        console.error(error);
+      console.error(error);
       setSnackbar({
         open: true,
         message: "タスク登録に失敗しました",
@@ -119,7 +118,7 @@ export const CreateTaskConfirm = (): React.JSX.Element => {
   };
 
   const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({...prev, open: false}));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (
