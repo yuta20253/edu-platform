@@ -14,6 +14,12 @@ module Api
           end
         end
 
+        def show
+          goal = Goal.find(params[:id])
+
+          render json: goal
+        end
+
         private
 
         def create_goal_params
