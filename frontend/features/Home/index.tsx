@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaPen } from "react-icons/fa";
-import { TOKEN_KEY } from '@context/AuthContext';
+import { TOKEN_KEY } from "@context/AuthContext";
 
 type GoalType = {
   id: number;
