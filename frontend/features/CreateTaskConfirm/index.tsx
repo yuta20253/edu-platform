@@ -1,104 +1,37 @@
 "use client";
 
 import { Box, Typography, Button, Snackbar, Alert } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { apiClient } from "@/libs/http/apiClient";
-import { TOKEN_KEY } from "@context/AuthContext";
-
-type UnitType = {
-  id: number;
-  course_id: number;
-  unit_name: string;
-};
-
-type CourseType = {
-  id: number;
-  level_number: number;
-  level_name: string;
-  description: string;
-  units: UnitType[];
-};
-
-type GoalType = {
-  title: string;
-  description: string;
-  formatted_due_date: string;
-};
+import { useRegisterTask } from "./hooks";
+import { useCreateTaskConfirmData } from "./useCreateTaskConfirmData";
+import { priorityMap } from "./constants";
+import { useFetchGoal } from "./useFetchGoal";
+import { buildGroupedUnits } from "./utils";
 
 export const CreateTaskConfirm = (): React.JSX.Element => {
-  const [goal, setGoal] = useState<GoalType | null>(null);
+  const router = useRouter();
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  const router = useRouter();
+  const { courses, task, selectedUnitIds } = useCreateTaskConfirmData();
 
-  const stored = sessionStorage.getItem("CreateTaskData");
-  const parsed = stored ? JSON.parse(stored) : null;
-
-  const form = parsed.form ?? {};
-  const courses: CourseType[] = parsed?.courses ?? [];
-  const task = parsed?.form?.task ?? {};
-  const selectedUnitIds = form?.task.unit_ids ?? [];
-
-  const groupedUnits = courses
-    .map((course: CourseType) => ({
-      courseId: course.id,
-      courseName: course.level_name,
-      levelNumber: course.level_number,
-      units: course.units.filter((unit: UnitType) =>
-        selectedUnitIds.includes(unit.id),
-      ),
-    }))
-    .filter((course) => course.units.length > 0);
-
-  const priorityMap: Record<string, string> = {
-    very_low: "とても低い",
-    low: "低い",
-    normal: "普通",
-    high: "高い",
-    very_high: "とても高い",
-  };
+  const groupedUnits = buildGroupedUnits(courses, selectedUnitIds);
 
   const params = useParams();
   const goalId = Number(params.goalId);
 
-  useEffect(() => {
-    const fetchGoal = async () => {
-      try {
-        const token = localStorage.getItem(TOKEN_KEY);
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        };
+  const { goal } = useFetchGoal(goalId);
 
-        const res = await apiClient.get(`/api/v1/student/goals/${goalId}`, {
-          headers,
-        });
-
-        setGoal(res.data);
-        console.log(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchGoal();
-  }, [goalId]);
+  const { registerTask } = useRegisterTask();
 
   const handleRegister = async () => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      };
-
-      console.log(task);
-      await apiClient.post(`/api/v1/student/tasks`, { task }, { headers });
+      await registerTask(task);
 
       setSnackbar({
         open: true,
