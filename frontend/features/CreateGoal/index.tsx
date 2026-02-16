@@ -1,11 +1,9 @@
 "use client";
 
 import { Box, TextField, Typography, Button } from "@mui/material";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { apiClient } from "@/libs/http/apiClient";
-import { TOKEN_KEY } from "@context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useSubmit } from "./hooks";
 
 type CreateGoalForm = {
   goal: {
@@ -16,36 +14,15 @@ type CreateGoalForm = {
 };
 
 export const CreateGoal = (): React.JSX.Element => {
-  const router = useRouter();
   const [dueDate, setDueDate] = useState<string>("");
 
   const {
     register,
-    handleSubmit,
+    handleSubmit,　
     formState: { errors },
   } = useForm<CreateGoalForm>();
 
-  const onSubmit: SubmitHandler<CreateGoalForm> = async (
-    data: CreateGoalForm,
-  ) => {
-    try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      };
-
-      const res = await apiClient.post("/api/v1/student/goals", data, {
-        headers,
-      });
-
-      const goalId = res.data;
-
-      router.push(`/goals/${goalId}/tasks/new`);
-    } catch (error) {
-      console.error("目標の作成に失敗しました。");
-    }
-  };
+  const { onSubmit } = useSubmit();
 
   return (
     <Box
