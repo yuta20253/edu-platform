@@ -1,17 +1,10 @@
-'use client'
+'use client';
 
 import { apiClient } from "@/libs/http/apiClient";
+import { CreateGoalForm } from "@/types/goal/new/form";
 import { TOKEN_KEY } from "@context/AuthContext";
 import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
-
-type CreateGoalForm = {
-  goal: {
-    title: string;
-    description: string;
-    due_date: string;
-  };
-};
 
 export const useSubmit = () => {
   const router = useRouter();
