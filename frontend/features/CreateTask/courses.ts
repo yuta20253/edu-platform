@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { apiClient } from "@/libs/http/apiClient";
 import { CourseType } from "@/types/task/new/form";
@@ -37,5 +37,14 @@ export const useCourses = () => {
 
   const displayedCourses = showAllCourses ? courses : courses?.slice(0, 3);
 
-  return { courses, selectedCourseId, showAllCourses, selectSubject, selectedCourse, displayedCourses, setSelectedCourseId, setShowAllCourses }
+  return {
+    courses,
+    selectedCourseId,
+    showAllCourses,
+    selectSubject,
+    selectedCourse,
+    displayedCourses,
+    setSelectedCourseId,
+    setShowAllCourses,
+  };
 };

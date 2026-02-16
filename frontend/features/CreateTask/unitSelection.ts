@@ -10,5 +10,5 @@ export const useUnitSelection = () => {
     );
   };
 
-  return { selectedUnitIds, handleToggleUnit }
+  return { selectedUnitIds, handleToggleUnit };
 };

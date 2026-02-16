@@ -11,7 +11,7 @@ export const CreateGoal = (): React.JSX.Element => {
 
   const {
     register,
-    handleSubmit,　
+    handleSubmit,
     formState: { errors },
   } = useForm<CreateGoalForm>();
 

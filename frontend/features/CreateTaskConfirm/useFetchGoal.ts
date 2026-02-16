@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useEffect, useState } from "react";
 import { apiClient } from "@/libs/http/apiClient";
@@ -31,5 +31,5 @@ export const useFetchGoal = (goalId: number) => {
     fetchGoal();
   }, [goalId]);
 
-  return { goal }
+  return { goal };
 };

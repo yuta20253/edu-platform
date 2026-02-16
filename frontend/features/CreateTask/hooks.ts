@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";

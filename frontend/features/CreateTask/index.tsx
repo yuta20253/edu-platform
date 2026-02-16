@@ -27,7 +27,16 @@ export const CreateTask = (): React.JSX.Element => {
 
   const goalId = Number(params.goalId);
 
-  const { courses, selectedCourseId, showAllCourses, selectSubject, selectedCourse, displayedCourses, setSelectedCourseId, setShowAllCourses } = useCourses();
+  const {
+    courses,
+    selectedCourseId,
+    showAllCourses,
+    selectSubject,
+    selectedCourse,
+    displayedCourses,
+    setSelectedCourseId,
+    setShowAllCourses,
+  } = useCourses();
 
   const { selectedUnitIds, handleToggleUnit } = useUnitSelection();
 
@@ -49,7 +58,7 @@ export const CreateTask = (): React.JSX.Element => {
     },
   });
 
-  const { onSubmit } = useSubmit({ selectedUnitIds, courses, goalId  });
+  const { onSubmit } = useSubmit({ selectedUnitIds, courses, goalId });
 
   return (
     <Box

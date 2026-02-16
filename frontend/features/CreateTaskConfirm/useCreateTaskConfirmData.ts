@@ -10,5 +10,5 @@ export const useCreateTaskConfirmData = () => {
   const task: CreateTaskForm["task"] = parsed?.form?.task ?? {};
   const selectedUnitIds = form?.task.unit_ids ?? [];
 
-  return { courses, task, selectedUnitIds }
+  return { courses, task, selectedUnitIds };
 };

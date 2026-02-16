@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { apiClient } from "@/libs/http/apiClient";
 import { CreateGoalForm } from "@/types/goal/new/form";
@@ -8,9 +8,7 @@ import { SubmitHandler } from "react-hook-form";
 
 export const useSubmit = () => {
   const router = useRouter();
-  const onSubmit: SubmitHandler<CreateGoalForm> = async (
-    data
-  ) => {
+  const onSubmit: SubmitHandler<CreateGoalForm> = async (data) => {
     try {
       const token = localStorage.getItem(TOKEN_KEY);
       const headers = {
