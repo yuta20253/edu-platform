@@ -13,115 +13,23 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { TOKEN_KEY } from "@context/AuthContext";
-import { apiClient } from "@/libs/http/apiClient";
-
-type CreateTaskForm = {
-  task: {
-    goal_id: number;
-    title: string;
-    content: string;
-    priority: number;
-    due_date: string;
-    unit_ids: number[] | null;
-  };
-};
-
-type UnitType = {
-  id: number;
-  course_id: number;
-  unit_name: string;
-};
-
-type CourseType = {
-  id: number;
-  level_number: number;
-  level_name: string;
-  description: string;
-  units: UnitType[];
-};
-
-type SubjectName =
-  | "英語"
-  | "数学"
-  | "現代文"
-  | "古文"
-  | "日本史"
-  | "世界史"
-  | "地理"
-  | "物理"
-  | "化学"
-  | "生物"
-  | "地学";
+import { useSubmit } from "./hooks";
+import { CreateTaskForm } from "@/types/task/new/form";
+import { SubjectName } from "@/types/task/new/subject";
+import { useCourses } from "./courses";
+import { priorities, subjectLists } from "./constants";
+import { useUnitSelection } from "./unitSelection";
 
 export const CreateTask = (): React.JSX.Element => {
-  const [courses, setCourses] = useState<CourseType[] | null>(null);
-  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-  const [showAllCourses, setShowAllCourses] = useState<boolean>(false);
-  const [selectedUnitIds, setSelectedUnitIds] = useState<number[]>([]);
   const params = useParams();
-  const router = useRouter();
 
   const goalId = Number(params.goalId);
 
-  const priorities = [
-    { value: 1, label: "とても低い" },
-    { value: 2, label: "低い" },
-    { value: 3, label: "普通" },
-    { value: 4, label: "高い" },
-    { value: 5, label: "とても高い" },
-  ];
-  const subjectLists: SubjectName[] = [
-    "英語",
-    "数学",
-    "現代文",
-    "古文",
-    "日本史",
-    "世界史",
-    "地理",
-    "物理",
-    "化学",
-    "生物",
-    "地学",
-  ];
+  const { courses, selectedCourseId, showAllCourses, selectSubject, selectedCourse, displayedCourses, setSelectedCourseId, setShowAllCourses } = useCourses();
 
-  const selectSubject = async (name: SubjectName) => {
-    setSelectedCourseId(null);
-    setShowAllCourses(false);
-    try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      };
-
-      const res = await apiClient.get<CourseType[]>(
-        `/api/v1/student/courses?subject=${name}`,
-        { headers },
-      );
-
-      setCourses(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleToggleUnit = (unitId: number) => {
-    setSelectedUnitIds((prev) =>
-      prev?.includes(unitId)
-        ? prev.filter((id) => id !== unitId)
-        : [...prev, unitId],
-    );
-  };
-
-  const selectedCourse =
-    courses?.find((c) => c.id === selectedCourseId) ?? null;
-
-  const displayedCourses = showAllCourses ? courses : courses?.slice(0, 3);
+  const { selectedUnitIds, handleToggleUnit } = useUnitSelection();
 
   const {
     control,
@@ -141,20 +49,7 @@ export const CreateTask = (): React.JSX.Element => {
     },
   });
 
-  const onSubmit: SubmitHandler<CreateTaskForm> = async (data) => {
-    const payload = {
-      form: {
-        ...data,
-        task: {
-          ...data.task,
-          unit_ids: selectedUnitIds,
-        },
-      },
-      courses: courses,
-    };
-    sessionStorage.setItem("CreateTaskData", JSON.stringify(payload));
-    router.push(`/goals/${goalId}/tasks/confirm`);
-  };
+  const { onSubmit } = useSubmit({ selectedUnitIds, courses, goalId  });
 
   return (
     <Box
