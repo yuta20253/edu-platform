@@ -16,11 +16,14 @@ export const useSubmit = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      const postData = {
-        goal: data
+      const formattedPostData = {
+        ...data,
+        due_date: data.due_date
+          ? data.due_date.toISOString().split("T")[0]
+          : null,
       };
 
-      const res = await apiClient.post("/api/v1/student/goals", postData, {
+      const res = await apiClient.post("/api/v1/student/goals", { goal: formattedPostData }, {
         headers,
       });
 

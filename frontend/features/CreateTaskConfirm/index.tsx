@@ -142,7 +142,10 @@ export const CreateTaskConfirm = (): React.JSX.Element => {
               </Typography>
               <Typography sx={{ mb: 2 }}>
                 <strong>期限：</strong>
-                {task.due_date}
+                  {task.due_date
+                    ? new Date(task.due_date).toLocaleDateString("ja-JP")
+                    : "未設定"
+                  }
               </Typography>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>

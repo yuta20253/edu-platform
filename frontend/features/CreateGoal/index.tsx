@@ -2,18 +2,24 @@
 
 import { Box, TextField, Typography, Button } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { useSubmit } from "./hooks";
 import { CreateGoalForm } from "./types";
+import { Controller } from "react-hook-form";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { ja } from "date-fns/locale";
 
 export const CreateGoal = (): React.JSX.Element => {
-  const [dueDate, setDueDate] = useState<string>("");
-
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateGoalForm>();
+  } = useForm<CreateGoalForm>({
+  defaultValues: {
+    due_date: null,
+  },});
 
   const { onSubmit } = useSubmit();
 
@@ -64,18 +70,27 @@ export const CreateGoal = (): React.JSX.Element => {
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography>期限</Typography>
-              <TextField
-                type="date"
-                variant="outlined"
-                value={dueDate}
-                {...register("due_date")}
-                onChange={(e) => setDueDate(e.target.value)}
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+                <Controller
+                  name="due_date"
+                  control={control}
+                  rules={{ required: "期限を選択してください" }}
+                  render={({ field }) => (
+                    <DatePicker
+                      format="yyyy/MM/dd"
+                      value={field.value || null}
+                      onChange={(date) => field.onChange(date)}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          error: !!errors.due_date,
+                          helperText: errors.due_date?.message,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
             </Box>
             <Box sx={{ my: 4 }}>
               <Button

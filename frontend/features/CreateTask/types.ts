@@ -3,7 +3,7 @@ export type CreateTaskForm = {
   title: string;
   content: string;
   priority: number;
-  due_date: string;
+  due_date: Date | null;
   unit_ids: number[] | null;
 };
 

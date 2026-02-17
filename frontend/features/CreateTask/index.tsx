@@ -14,6 +14,10 @@ import {
   Checkbox,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { ja } from "date-fns/locale";
 import { useParams } from "next/navigation";
 import { useSubmit } from "./hooks";
 import { CreateTaskForm } from "./types";
@@ -51,7 +55,7 @@ export const CreateTask = (): React.JSX.Element => {
       title: "",
       content: "",
       priority: 3,
-      due_date: "",
+      due_date: null,
       unit_ids: [],
     },
   });
@@ -61,11 +65,11 @@ export const CreateTask = (): React.JSX.Element => {
   return (
     <Box
       sx={{
-        minHeight: "80vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
         px: 2,
+        py: 4,
       }}
     >
       <Box sx={{ width: "100%", maxWidth: 600, pb: 4 }}>
@@ -105,7 +109,7 @@ export const CreateTask = (): React.JSX.Element => {
               />
             </Box>
             <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
-              <Box sx={{ flex: 1 }}>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography>優先度</Typography>
                 <Controller
                   name="priority"
@@ -114,8 +118,8 @@ export const CreateTask = (): React.JSX.Element => {
                     <TextField
                       select
                       fullWidth
-                      value={field.value ?? ""}
-                      onChange={field.onChange}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                       error={!!errors.priority}
                       helperText={errors.priority?.message}
                     >
@@ -129,18 +133,29 @@ export const CreateTask = (): React.JSX.Element => {
                   )}
                 />
               </Box>
-              <Box sx={{ flex: 1 }}>
+              <Box sx={{ flex: 1.5, minWidth: 0 }}>
                 <Typography>期限</Typography>
-                <TextField
-                  type="date"
-                  variant="outlined"
-                  {...register("due_date")}
-                  slotProps={{
-                    inputLabel: {
-                      shrink: true,
-                    },
-                  }}
-                />
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+                  <Controller
+                    name="due_date"
+                    control={control}
+                    rules={{ required: "期限を選択してください" }}
+                    render={({ field }) => (
+                      <DatePicker
+                        format="yyyy/MM/dd"
+                        value={field.value || null}
+                        onChange={(date) => field.onChange(date)}
+                        slotProps={{
+                          textField: {
+                          fullWidth: true,
+                          error: !!errors.due_date,
+                          helperText: errors.due_date?.message,
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
               </Box>
             </Box>
             <Box
