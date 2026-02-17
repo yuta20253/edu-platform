@@ -17,9 +17,10 @@ export const CreateGoal = (): React.JSX.Element => {
     handleSubmit,
     formState: { errors },
   } = useForm<CreateGoalForm>({
-  defaultValues: {
-    due_date: null,
-  },});
+    defaultValues: {
+      due_date: null,
+    },
+  });
 
   const { onSubmit } = useSubmit();
 
@@ -70,7 +71,10 @@ export const CreateGoal = (): React.JSX.Element => {
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography>期限</Typography>
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+              <LocalizationProvider
+                dateAdapter={AdapterDateFns}
+                adapterLocale={ja}
+              >
                 <Controller
                   name="due_date"
                   control={control}

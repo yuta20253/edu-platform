@@ -23,9 +23,13 @@ export const useSubmit = () => {
           : null,
       };
 
-      const res = await apiClient.post("/api/v1/student/goals", { goal: formattedPostData }, {
-        headers,
-      });
+      const res = await apiClient.post(
+        "/api/v1/student/goals",
+        { goal: formattedPostData },
+        {
+          headers,
+        },
+      );
 
       const goalId = res.data;
 

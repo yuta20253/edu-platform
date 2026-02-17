@@ -14,10 +14,10 @@ export const useRegisterTask = () => {
     };
 
     const postData = {
-        task: task
-    }
+      task: task,
+    };
 
-    return await apiClient.post(`/api/v1/student/tasks`, postData , { headers });
+    return await apiClient.post(`/api/v1/student/tasks`, postData, { headers });
   };
 
   return { registerTask };

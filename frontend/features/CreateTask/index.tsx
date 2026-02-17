@@ -135,7 +135,10 @@ export const CreateTask = (): React.JSX.Element => {
               </Box>
               <Box sx={{ flex: 1.5, minWidth: 0 }}>
                 <Typography>期限</Typography>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={ja}
+                >
                   <Controller
                     name="due_date"
                     control={control}
@@ -147,10 +150,10 @@ export const CreateTask = (): React.JSX.Element => {
                         onChange={(date) => field.onChange(date)}
                         slotProps={{
                           textField: {
-                          fullWidth: true,
-                          error: !!errors.due_date,
-                          helperText: errors.due_date?.message,
-                          }
+                            fullWidth: true,
+                            error: !!errors.due_date,
+                            helperText: errors.due_date?.message,
+                          },
                         }}
                       />
                     )}
