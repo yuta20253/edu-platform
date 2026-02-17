@@ -31,7 +31,7 @@ export const CreateTask = (): React.JSX.Element => {
     courses,
     selectedCourseId,
     showAllCourses,
-    selectSubject,
+    fetchCourse,
     selectedCourse,
     displayedCourses,
     setSelectedCourseId,
@@ -174,7 +174,7 @@ export const CreateTask = (): React.JSX.Element => {
                   select
                   fullWidth
                   defaultValue=""
-                  onChange={(e) => selectSubject(e.target.value as SubjectName)}
+                  onChange={(e) => fetchCourse(e.target.value as SubjectName)}
                   slotProps={{
                     select: {
                       MenuProps: {

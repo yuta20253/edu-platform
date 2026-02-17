@@ -11,7 +11,7 @@ export const useCourses = () => {
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [showAllCourses, setShowAllCourses] = useState<boolean>(false);
 
-  const selectSubject = async (name: SubjectName) => {
+  const fetchCourse = async (name: SubjectName) => {
     setSelectedCourseId(null);
     setShowAllCourses(false);
     try {
@@ -41,7 +41,7 @@ export const useCourses = () => {
     courses,
     selectedCourseId,
     showAllCourses,
-    selectSubject,
+    fetchCourse,
     selectedCourse,
     displayedCourses,
     setSelectedCourseId,
