@@ -1,7 +1,9 @@
-export const priorityMap: Record<string, string> = {
-  very_low: "とても低い",
-  low: "低い",
-  normal: "普通",
-  high: "高い",
-  very_high: "とても高い",
+import { PRIORITY } from "../CreateTask/constants";
+
+export const priorityMap: Record<number, string> = {
+  [PRIORITY.VERY_LOW]: "とても低い",
+  [PRIORITY.LOW]: "低い",
+  [PRIORITY.NORMAL]: "普通",
+  [PRIORITY.HIGH]: "高い",
+  [PRIORITY.VERY_HIGH]: "とても高い",
 };
