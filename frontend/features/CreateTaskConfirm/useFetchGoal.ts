@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/libs/http/apiClient";
 import { TOKEN_KEY } from "@context/AuthContext";
-import { GoalType } from "@/types/task/confirm/confirm";
+import { GoalType } from "./types";
 
 export const useFetchGoal = (goalId: number) => {
   const [goal, setGoal] = useState<GoalType | null>(null);

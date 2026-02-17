@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { CreateGoalForm } from "@/types/goal/new/form";
+import { CreateGoalForm } from "./types";
 import { TOKEN_KEY } from "@context/AuthContext";
 import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";

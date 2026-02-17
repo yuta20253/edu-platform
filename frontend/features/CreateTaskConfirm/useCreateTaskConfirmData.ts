@@ -1,5 +1,5 @@
-import { CourseType } from "@/types/task/confirm/confirm";
-import { CreateTaskForm } from "@/types/task/new/form";
+import { CourseType } from "./types";
+import { CreateTaskForm } from "@/features/CreateTask/types";
 
 export const useCreateTaskConfirmData = () => {
   const stored = sessionStorage.getItem("CreateTaskData");

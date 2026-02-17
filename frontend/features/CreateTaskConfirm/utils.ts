@@ -1,4 +1,4 @@
-import { CourseType, UnitType } from "@/types/task/confirm/confirm";
+import { CourseType, UnitType } from "./types";
 
 export const buildGroupedUnits = (
   courses: CourseType[],

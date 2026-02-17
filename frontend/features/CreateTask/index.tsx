@@ -16,8 +16,8 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { useParams } from "next/navigation";
 import { useSubmit } from "./hooks";
-import { CreateTaskForm } from "@/types/task/new/form";
-import { SubjectName } from "@/types/task/new/subject";
+import { CreateTaskForm } from "./types";
+import { SubjectName } from "@/features/CreateTask/subject";
 import { useCourses } from "./courses";
 import { priorities, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";

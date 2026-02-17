@@ -4,7 +4,7 @@ import { Box, TextField, Typography, Button } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useSubmit } from "./hooks";
-import { CreateGoalForm } from "@/types/goal/new/form";
+import { CreateGoalForm } from "./types";
 
 export const CreateGoal = (): React.JSX.Element => {
   const [dueDate, setDueDate] = useState<string>("");

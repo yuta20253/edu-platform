@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { CreateTaskForm } from "@/types/task/new/form";
+import { CreateTaskForm } from "@/features/CreateTask/types";
 import { TOKEN_KEY } from "@context/AuthContext";
 
 export const useRegisterTask = () => {

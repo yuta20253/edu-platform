@@ -1,4 +1,4 @@
-import { SubjectName } from "@/types/task/new/subject";
+import { SubjectName } from "@/features/CreateTask/subject";
 
 export const priorities = [
   { value: 1, label: "とても低い" },

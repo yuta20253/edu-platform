@@ -2,7 +2,7 @@
 
 import { SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { CreateTaskForm, Props } from "@/types/task/new/form";
+import { CreateTaskForm, Props } from "./types";
 
 export const useSubmit = ({ selectedUnitIds, courses, goalId }: Props) => {
   const router = useRouter();
