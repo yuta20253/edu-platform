@@ -23,7 +23,7 @@ import { useSubmit } from "./hooks";
 import { CreateTaskForm } from "./types";
 import { SubjectName } from "@/features/CreateTask/subject";
 import { useCourses } from "./courses";
-import { priorities, subjectLists } from "./constants";
+import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
 
 export const CreateTask = (): React.JSX.Element => {
@@ -54,7 +54,7 @@ export const CreateTask = (): React.JSX.Element => {
       goal_id: goalId,
       title: "",
       content: "",
-      priority: 3,
+      priority: PRIORITY.NORMAL,
       due_date: null,
       unit_ids: [],
     },
