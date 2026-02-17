@@ -10,10 +10,7 @@ export const useSubmit = ({ selectedUnitIds, courses, goalId }: Props) => {
     const payload = {
       form: {
         ...data,
-        task: {
-          ...data.task,
-          unit_ids: selectedUnitIds,
-        },
+        unit_ids: selectedUnitIds,
       },
       courses: courses,
     };

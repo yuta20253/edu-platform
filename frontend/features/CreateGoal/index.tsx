@@ -45,11 +45,11 @@ export const CreateGoal = (): React.JSX.Element => {
               <TextField
                 fullWidth
                 variant="outlined"
-                {...register("goal.title", {
+                {...register("title", {
                   required: "目標名を入力してください",
                 })}
-                error={!!errors.goal?.title}
-                helperText={errors.goal?.title?.message}
+                error={!!errors.title}
+                helperText={errors.title?.message}
               />
             </Box>
             <Box sx={{ mb: 2 }}>
@@ -59,7 +59,7 @@ export const CreateGoal = (): React.JSX.Element => {
                 rows={4}
                 fullWidth
                 variant="outlined"
-                {...register("goal.description")}
+                {...register("description")}
               />
             </Box>
             <Box sx={{ mb: 2 }}>
@@ -68,7 +68,7 @@ export const CreateGoal = (): React.JSX.Element => {
                 type="date"
                 variant="outlined"
                 value={dueDate}
-                {...register("goal.due_date")}
+                {...register("due_date")}
                 onChange={(e) => setDueDate(e.target.value)}
                 slotProps={{
                   inputLabel: {

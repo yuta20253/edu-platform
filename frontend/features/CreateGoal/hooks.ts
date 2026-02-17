@@ -16,7 +16,11 @@ export const useSubmit = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      const res = await apiClient.post("/api/v1/student/goals", data, {
+      const postData = {
+        goal: data
+      };
+
+      const res = await apiClient.post("/api/v1/student/goals", postData, {
         headers,
       });
 

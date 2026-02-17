@@ -47,14 +47,12 @@ export const CreateTask = (): React.JSX.Element => {
     formState: { errors },
   } = useForm<CreateTaskForm>({
     defaultValues: {
-      task: {
-        goal_id: goalId,
-        title: "",
-        content: "",
-        priority: 3,
-        due_date: "",
-        unit_ids: [],
-      },
+      goal_id: goalId,
+      title: "",
+      content: "",
+      priority: 3,
+      due_date: "",
+      unit_ids: [],
     },
   });
 
@@ -89,11 +87,11 @@ export const CreateTask = (): React.JSX.Element => {
               <TextField
                 fullWidth
                 variant="outlined"
-                {...register("task.title", {
+                {...register("title", {
                   required: "目標名を入力してください",
                 })}
-                error={!!errors.task?.title}
-                helperText={errors.task?.title?.message}
+                error={!!errors.title}
+                helperText={errors.title?.message}
               />
             </Box>
             <Box sx={{ mb: 2 }}>
@@ -103,14 +101,14 @@ export const CreateTask = (): React.JSX.Element => {
                 rows={4}
                 fullWidth
                 variant="outlined"
-                {...register("task.content")}
+                {...register("content")}
               />
             </Box>
             <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
               <Box sx={{ flex: 1 }}>
                 <Typography>優先度</Typography>
                 <Controller
-                  name="task.priority"
+                  name="priority"
                   control={control}
                   render={({ field }) => (
                     <TextField
@@ -118,8 +116,8 @@ export const CreateTask = (): React.JSX.Element => {
                       fullWidth
                       value={field.value ?? ""}
                       onChange={field.onChange}
-                      error={!!errors.task?.priority}
-                      helperText={errors.task?.priority?.message}
+                      error={!!errors.priority}
+                      helperText={errors.priority?.message}
                     >
                       <MenuItem value="">選択してください</MenuItem>
                       {priorities.map((priority) => (
@@ -136,7 +134,7 @@ export const CreateTask = (): React.JSX.Element => {
                 <TextField
                   type="date"
                   variant="outlined"
-                  {...register("task.due_date")}
+                  {...register("due_date")}
                   slotProps={{
                     inputLabel: {
                       shrink: true,

@@ -5,7 +5,7 @@ import { CreateTaskForm } from "@/features/CreateTask/types";
 import { TOKEN_KEY } from "@context/AuthContext";
 
 export const useRegisterTask = () => {
-  const registerTask = async (task: CreateTaskForm["task"]) => {
+  const registerTask = async (task: CreateTaskForm) => {
     const token = localStorage.getItem(TOKEN_KEY);
 
     const headers = {
@@ -13,7 +13,11 @@ export const useRegisterTask = () => {
       Authorization: `Bearer ${token}`,
     };
 
-    return await apiClient.post(`/api/v1/student/tasks`, { task }, { headers });
+    const postData = {
+        task: task
+    }
+
+    return await apiClient.post(`/api/v1/student/tasks`, postData , { headers });
   };
 
   return { registerTask };
