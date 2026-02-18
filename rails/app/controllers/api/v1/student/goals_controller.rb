@@ -4,6 +4,12 @@ module Api
   module V1
     module Student
       class GoalsController < Api::V1::Student::BaseController
+        def show
+          goal = Goal.find(params[:id])
+
+          render json: goal
+        end
+
         def create
           form = ::Student::CreateGoalForm.new(current_user: current_user, **create_goal_params.to_h.symbolize_keys)
 
@@ -12,12 +18,6 @@ module Api
           else
             render json: { errors: form.errors }, status: :unprocessable_content
           end
-        end
-
-        def show
-          goal = Goal.find(params[:id])
-
-          render json: goal
         end
 
         private
