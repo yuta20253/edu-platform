@@ -12,6 +12,8 @@ import {
   Divider,
   FormControlLabel,
   Checkbox,
+  Select,
+  FormControl
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -114,22 +116,20 @@ export const CreateTask = (): React.JSX.Element => {
                 <Controller
                   name="priority"
                   control={control}
+                  rules={{ required: "優先度を選択してください" }}
                   render={({ field }) => (
-                    <TextField
-                      select
-                      fullWidth
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      error={!!errors.priority}
-                      helperText={errors.priority?.message}
-                    >
-                      <MenuItem value="">選択してください</MenuItem>
-                      {priorities.map((priority) => (
-                        <MenuItem key={priority.value} value={priority.value}>
-                          {priority.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    <FormControl fullWidth error={!!errors.priority}>
+                      <Select
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      >
+                        {priorities.map((priority) => (
+                          <MenuItem key={priority.value} value={priority.value}>
+                            {priority.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   )}
                 />
               </Box>
