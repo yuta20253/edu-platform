@@ -19,10 +19,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useParams } from "next/navigation";
-import { useSubmit } from "./hooks";
+import { useSubmit } from "./hooks/useSubmit";
 import { CreateTaskForm } from "./types";
 import { SubjectName } from "@/features/CreateTask/subject";
-import { useCourses } from "./courses";
+import { useCourses } from "./hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
 

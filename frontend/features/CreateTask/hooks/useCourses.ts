@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { CourseType } from "./types";
+import { CourseType } from "../types";
 import { SubjectName } from "@/features/CreateTask/subject";
 import { useState } from "react";
 import { TOKEN_KEY } from "@context/AuthContext";
