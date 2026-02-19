@@ -4,6 +4,6 @@ type CreateTaskPageProps = {
   params: { goalId: string };
 };
 
-export default function CreateTaskPage({ params }: CreateTaskPageProps) {
-  return <CreateTask goalId={Number(params.goalId)} />;
+export default async function CreateTaskPage({ params }: CreateTaskPageProps) {
+  return await (<CreateTask goalId={Number(params.goalId)} />);
 }
