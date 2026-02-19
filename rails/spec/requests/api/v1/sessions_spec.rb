@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'devise/jwt/test_helpers'
 
 RSpec.describe 'Api::V1::Sessions', type: :request do
-  include Devise::Test::IntegrationHelpers
-
   describe 'POST /api/v1/user/login' do
     let!(:user) { create(:user, email: 'student@example.com', password: 'password') }
 
@@ -24,10 +21,33 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
     end
 
     context '正常系' do
-      it 'ログインできる' do
+      it 'ログインでき、HttpOnly CookieにJWTがセットされる' do
         post '/api/v1/user/login', params: valid_params.to_json, headers: headers
 
         expect(response).to have_http_status(:ok)
+
+        set_cookie = response.headers['Set-Cookie']
+        expect(set_cookie).to be_present
+        expect(set_cookie).to include('access_token=')
+
+        # HttpOnlyであること
+        expect(set_cookie).to match(/HttpOnly/i)
+
+        expect(response.headers['Authorization']).to be_nil
+      end
+
+      it 'ログイン後、Cookieをつけて /api/v1/user を実行すると current_user が取得できる' do
+        post '/api/v1/user/login', params: valid_params.to_json, headers: headers
+
+        expect(response).to have_http_status(:ok)
+
+        set_cookie = response.headers['Set-Cookie']
+        cookie_header = set_cookie.split(';').first
+
+        get '/api/v1/user', headers: headers.merge('Cookie' => cookie_header)
+
+        body = response.parsed_body
+        expect(body['email']).to eq('student@example.com')
       end
     end
 
