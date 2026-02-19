@@ -4,7 +4,12 @@ module Api
   module V1
     class UsersController < ApplicationController
       def show
-        render json: current_user, serializer: CurrentUserSerializer
+        render json: {
+          user: ActivemodelSerializers::SerializableResource.new(
+            current_user,
+            serializer: CurrentUserSerializer
+          )
+        }
       end
     end
   end
