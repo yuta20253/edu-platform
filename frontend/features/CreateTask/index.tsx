@@ -309,7 +309,7 @@ export const CreateTask = ({ goalId }: GoldIdProps): React.JSX.Element => {
                 </Box>
               </Box>
             )}
-            <Box sx={{ my: 4, display: 'flex', gap: 2 }}>
+            <Box sx={{ my: 4, display: "flex", gap: 2 }}>
               <Button
                 type="button"
                 href="/"
@@ -322,8 +322,11 @@ export const CreateTask = ({ goalId }: GoldIdProps): React.JSX.Element => {
                   "&:hover": {
                     backgroundColor: "#ddd",
                   },
-               }}>
-                <Typography sx={{ fontSize: "large", textAlign: "center" }}>後で作成する</Typography>
+                }}
+              >
+                <Typography sx={{ fontSize: "large", textAlign: "center" }}>
+                  後で作成する
+                </Typography>
               </Button>
 
               <Button
