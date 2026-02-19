@@ -309,11 +309,27 @@ export const CreateTask = ({ goalId }: GoldIdProps): React.JSX.Element => {
                 </Box>
               </Box>
             )}
-            <Box sx={{ my: 4 }}>
+            <Box sx={{ my: 4, display: 'flex', gap: 2 }}>
+              <Button
+                type="button"
+                href="/"
+                sx={{
+                  flex: 1,
+                  backgroundColor: "#eee",
+                  color: "#333",
+                  p: 2,
+                  fontSize: "large",
+                  "&:hover": {
+                    backgroundColor: "#ddd",
+                  },
+               }}>
+                <Typography sx={{ fontSize: "large", textAlign: "center" }}>後で作成する</Typography>
+              </Button>
+
               <Button
                 type="submit"
                 sx={{
-                  width: "100%",
+                  flex: 1,
                   backgroundColor: "#0068b7",
                   color: "#ffffff",
                   p: 2,
