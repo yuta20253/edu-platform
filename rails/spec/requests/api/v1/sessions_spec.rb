@@ -74,4 +74,31 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
       end
     end
   end
+
+  describe 'DELETE /api/v1/user/logout' do
+    let!(:user) { create(:user, email: 'student@example.com', password: 'password') }
+
+    let(:headers) do
+      { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+    end
+
+    it 'ログアウトができ、Cookieが削除される' do
+      post '/api/v1/user/login',
+        params: { email: 'student@example.com', password: 'password' }.to_json,
+        headers: headers
+
+      set_cookie = response.headers['Set-Cookie']
+      cookie_header = set_cookie.split(';').first
+
+      delete '/api/v1/user/logout', headers: headers.merge('Cookie' => cookie_header)
+      expect(response).to have_http_status(:ok)
+
+      logout_set_cookie = response.headers['Set-Cookie']
+      expect(logout_set_cookie).to be_present
+      expect(logout_set_cookie).to include('access_token=')
+
+      get '/api/v1/user', headers: headers.merge('Cookie' => cookie_header)
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end
