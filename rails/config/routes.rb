@@ -11,6 +11,9 @@ Rails.application.routes.draw do
         post "/admin/signup",   to: "registrations#create"
       end
 
+      post "/password/reset/request", to: "password_resets#create"
+      patch "password/reset", to: "password_resets#update"
+
       resource :users, only: :show
 
       namespace :student do
