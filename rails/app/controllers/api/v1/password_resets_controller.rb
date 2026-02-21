@@ -3,7 +3,7 @@
 module Api
   module V1
     class PasswordResetsController < ApplicationController
-      skip_before_action :authenticate_user!, only: %i[create update]
+      skip_before_action :authenticate_user!, only: %i[create]
 
       def create
         user = User.find_by(email: params[:email])
