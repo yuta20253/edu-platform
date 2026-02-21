@@ -59,6 +59,7 @@ group :development, :test do
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
   gem 'shoulda-matchers'
+ gem 'letter_opener_web'
 end
 
 group :development do
