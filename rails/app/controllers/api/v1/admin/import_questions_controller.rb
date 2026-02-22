@@ -4,6 +4,8 @@ module Api
   module V1
     module Admin
       class ImportQuestionsController < ApplicationController
+        def create
+        end
       end
     end
   end
