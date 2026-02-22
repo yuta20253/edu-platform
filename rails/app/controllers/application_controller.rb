@@ -8,10 +8,15 @@ class ApplicationController < ActionController::API
   before_action :authenticate_user!
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   private
 
   def user_not_authorized(_exception)
     render json: { errors: 'この操作を行う権限がありません' }, status: :forbidden
+  end
+
+  def not_found(_e)
+    render json: { message: '目標が見つかりません' }, status: :not_found
   end
 end

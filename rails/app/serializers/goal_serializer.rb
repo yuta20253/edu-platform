@@ -17,6 +17,8 @@
 class GoalSerializer < ActiveModel::Serializer
   attributes :id, :title, :description, :formatted_status, :formatted_due_date
 
+  has_many :tasks, each_serializer: TaskSerializer
+
   def formatted_status
     {
       'not_started' => '未着手',

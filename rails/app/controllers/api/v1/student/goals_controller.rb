@@ -10,6 +10,11 @@ module Api
           render json: goals, each_serializer: GoalSerializer, status: :ok
         end
 
+        def show
+          goal = GoalsQuery.new(current_user.goals).includes_tasks.find(params[:id])
+          render json: goal, serializer: GoalSerializer, status: :ok
+        end
+
         def create
           form = ::Student::CreateGoalForm.new(current_user: current_user, **create_goal_params.to_h.symbolize_keys)
 
