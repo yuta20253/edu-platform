@@ -1,21 +1,23 @@
-class Auth::ChangePasswordService
-  def initialize(form)
-    @form = form
-  end
+# frozen_string_literal: true
 
-  def call
-    raise ValidationError.new(@form.errors.full_messages) unless @form.valid?
+module Auth
+  class ChangePasswordService
+    def initialize(form)
+      @form = form
+    end
 
-    user = User.reset_password_by_token(
-      reset_password_token: @form.reset_password_token,
-      password: @form.password,
-      password_confirmation: @form.password_confirmation
-    )
+    def call
+      raise ValidationError, @form.errors.full_messages unless @form.valid?
 
-    if user.errors.empty?
-      "パスワードを更新しました。"
-    else
-      raise ActiveRecord::RecordInvalid.new(user)
+      user = User.reset_password_by_token(
+        reset_password_token: @form.reset_password_token,
+        password: @form.password,
+        password_confirmation: @form.password_confirmation
+      )
+
+      raise ActiveRecord::RecordInvalid, user unless user.errors.empty?
+
+      'パスワードを更新しました。'
     end
   end
 end
