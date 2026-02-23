@@ -47,7 +47,7 @@ export const useSubmit = ({ setErrorMessage, userRole }: SignUpProps) => {
         throw new Error(messageFromApi ?? "新規登録に失敗しました");
       }
 
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } catch (error) {
       const message =
