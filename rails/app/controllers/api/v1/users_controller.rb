@@ -5,7 +5,7 @@ module Api
     class UsersController < ApplicationController
       def show
         render json: {
-          user: ActivemodelSerializers::SerializableResource.new(
+          user: ActiveModelSerializers::SerializableResource.new(
             current_user,
             serializer: CurrentUserSerializer
           )
