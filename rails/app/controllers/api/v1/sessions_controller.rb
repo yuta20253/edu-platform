@@ -18,7 +18,17 @@ module Api
 
         sign_in(user, store: false)
 
-        render json: user, serializer: CurrentUserSerializer, status: :ok
+        token = request.env['warden-jwt_auth.token']
+
+          cookies[:access_token] = {
+            value: token,
+            httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            path: "/"
+          }
+
+        render json: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: CurrentUserSerializer) }, status: :ok
       rescue Auth::LoginService::LoginError => e
         render json: { errors: [e.message] }, status: :unauthorized
       end

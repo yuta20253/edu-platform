@@ -43,6 +43,9 @@ module RailsApp
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Cookie を使う
+    config.middleware.use ActionDispatch::Cookies
+
     config.autoload_paths << Rails.root.join('app/forms')
     config.autoload_paths << Rails.root.join('app/services')
     config.autoload_paths << Rails.root.join('app/queries')

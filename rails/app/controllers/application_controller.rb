@@ -5,6 +5,8 @@ class ApplicationController < ActionController::API
   include Devise::Controllers::Helpers
   include Pundit::Authorization
 
+  include ActionController::Cookies
+
   before_action :authenticate_user!
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
