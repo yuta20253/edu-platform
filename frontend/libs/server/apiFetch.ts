@@ -19,7 +19,7 @@ export const apiFetch = async (
     },
   });
 
-  const data = (await response.json()).cache(() => null) as Json;
+  const data = (await response.json().catch(() => null)) as Json;
 
   return { response, data };
 };
