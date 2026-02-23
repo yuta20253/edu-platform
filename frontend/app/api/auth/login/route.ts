@@ -1,4 +1,4 @@
-import { apiFetch } from "@/libs/server/api";
+import { apiFetch } from "@/libs/server/apiFetch";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
