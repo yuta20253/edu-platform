@@ -5,20 +5,44 @@ import { useRouter } from "next/navigation";
 import { LoginFormType } from "@/types/login/form";
 
 type LoginProps = {
-  login: (p: { email: string; password: string }) => Promise<void>;
   setErrorMessage: (message: string) => void;
 };
 
-export const useSubmit = ({ login, setErrorMessage }: LoginProps) => {
+type ErrorResponse = {
+  errors?: string[] | string;
+};
+
+export const useSubmit = ({ setErrorMessage }: LoginProps) => {
   const router = useRouter();
+
   const onSubmit: SubmitHandler<LoginFormType> = async (
     data: LoginFormType,
   ) => {
-    const email = data.email;
-    const password = data.password;
+    setErrorMessage("");
+
     try {
-      await login({ email, password });
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data }),
+      });
+
+      if (!response.ok) {
+        const body = (await response
+          .json()
+          .catch(() => null)) as ErrorResponse | null;
+
+        const messageFromApi =
+          typeof body?.errors === "string"
+            ? body.errors
+            : Array.isArray(body?.errors)
+              ? body.errors[0]
+              : null;
+
+        throw new Error(messageFromApi ?? "ログインに失敗しました");
+      }
       router.push("/");
+      router.refresh();
     } catch (error) {
       const message =
         error instanceof Error

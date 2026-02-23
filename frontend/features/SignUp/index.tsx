@@ -14,7 +14,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { useAuthActions } from "@/context/AuthContext";
 import { UserRole } from "@/types/signUp/user_role";
 import { useSubmit } from "./hooks";
 
@@ -27,14 +26,14 @@ export const SignUp = ({
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState<boolean>(false);
-  const { signUp } = useAuthActions();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<User>();
 
-  const { onSubmit } = useSubmit({ signUp, setErrorMessage, userRole });
+  const { onSubmit } = useSubmit({ setErrorMessage, userRole });
 
   const roleTitleMap: Record<UserRole, string> = {
     student: "生徒",
