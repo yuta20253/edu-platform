@@ -5,6 +5,22 @@ module Api
     module Admin
       class ImportQuestionsController < ApplicationController
         def create
+          import_history = current_user.import_histories.create!(
+            unit_id: import_questions_csv_params[:unit_id],
+            status: :processing
+          )
+
+          import_history.file.attach(import_questions_csv_params[:file])
+
+          Admin::QuestionCsvImportJob.perform_later(import_history.id)
+
+          render json: { message: 'インポートを開始しました' }, status: :accepted
+        end
+
+        private
+
+        def import_questions_csv_params
+          params.permit(:file, :unit_id)
         end
       end
     end
