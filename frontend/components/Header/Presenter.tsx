@@ -8,11 +8,7 @@ import Link from "next/link";
 import { JSX } from "react";
 import { MeUser } from "@/libs/server/me";
 
-export const HeaderClient = ({
-  user,
-}: {
-  user: MeUser | null;
-}): JSX.Element => (
+export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => (
   <>
     <AppBar position="fixed">
       <ToolBar>
