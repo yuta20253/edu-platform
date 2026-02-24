@@ -17,7 +17,7 @@ class ApplicationController < ActionController::API
   end
 
   def not_found(exception)
-    model = exception.model.constantize
+    model = exception.model.safe_constantize
     render json: { message: "#{model.model_name.human}が見つかりません" }, status: :not_found
   end
 end
