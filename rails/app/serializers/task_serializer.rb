@@ -20,32 +20,14 @@
 #  updated_at     :datetime         not null
 #
 class TaskSerializer < ActiveModel::Serializer
-  attributes :id, :user_id, :goal_id, :title, :content, :formatted_due_date, :formatted_priority, :formatted_status,
+  attributes :id, :user_id, :goal_id, :title, :content, :due_date, :priority, :status,
              :completed_at
 
-  def formatted_status
-    {
-      'not_started' => '未着手',
-      'in_progress' => '進行中',
-      'completed' => '完了'
-    }[object.status]
-  end
-
-  def formatted_priority
-    {
-      'very_low' => 'とても低い',
-      'low' => '低い',
-      'normal' => '普通',
-      'high' => '高い',
-      'very_high' => 'とても高い'
-    }[object.priority]
-  end
-
-  def formatted_due_date
+  def due_date
     object.due_date&.strftime('%Y/%m/%d')
   end
 
-  def formatted_completed_at
+  def completed_at
     object.completed_at&.strftime('%Y/%m/%d')
   end
 end
