@@ -16,7 +16,8 @@ class ApplicationController < ActionController::API
     render json: { errors: 'この操作を行う権限がありません' }, status: :forbidden
   end
 
-  def not_found(_e)
-    render json: { message: '目標が見つかりません' }, status: :not_found
+  def not_found(exception)
+    model = exception.model.constantize
+    render json: { message: "#{model.model_name.human}が見つかりません" }, status: :not_found
   end
 end
