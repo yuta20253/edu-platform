@@ -15,7 +15,7 @@ module Auth
         password_confirmation: @form.password_confirmation
       )
 
-      raise ActiveRecord::RecordInvalid, user unless user.errors.empty?
+      raise ValidationError, user.errors.full_messages unless user.persisted?
 
       'パスワードを更新しました。'
     end
