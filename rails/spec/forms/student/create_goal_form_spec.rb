@@ -37,14 +37,15 @@ RSpec.describe Student::CreateGoalForm, type: :model do
         expect(subject.goal.due_date).to eq(Date.new(2026, 4, 11))
       end
 
-      it "trueを返す" do
+      it 'trueを返す' do
         expect(subject.save).to be true
       end
     end
 
-    context "descriptionが空でも保存できる" do
+    context 'descriptionが空でも保存できる' do
       let(:params) { super().merge(description: nil) }
-      it "保存できる" do
+
+      it '保存できる' do
         expect(subject.save).to be true
         expect(subject.goal).to be_persisted
         expect(subject.goal.description).to be_nil
@@ -53,6 +54,7 @@ RSpec.describe Student::CreateGoalForm, type: :model do
 
     context 'titleがない時' do
       let(:params) { super().merge(title: nil) }
+
       it '保存されない' do
         form = described_class.new(**params)
 

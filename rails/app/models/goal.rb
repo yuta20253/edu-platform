@@ -15,6 +15,8 @@
 #  updated_at  :datetime         not null
 #
 class Goal < ApplicationRecord
+  default_scope { where(deleted_at: nil) }
+
   belongs_to :user
   has_many :tasks, dependent: :destroy
 

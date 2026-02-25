@@ -14,7 +14,7 @@ Rails.application.routes.draw do
       post "/password/reset/request", to: "password_resets#create"
       patch "password/reset", to: "password_resets#update"
 
-      resource :users, only: :show
+      get "/me", to: "users#show"
 
       namespace :student do
         resource :dashboard, only: :show
