@@ -18,6 +18,8 @@ require "action_view/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+require_relative "../lib/jwt_cookie_to_header"
+
 module RailsApp
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -42,8 +44,14 @@ module RailsApp
     config.api_only = true
     config.i18n.default_locale = :ja
 
+    # Cookie を使う
+    config.middleware.use ActionDispatch::Cookies
+
     config.autoload_paths << Rails.root.join('app/forms')
     config.autoload_paths << Rails.root.join('app/services')
     config.autoload_paths << Rails.root.join('app/queries')
+
+    config.autoload_paths << Rails.root.join('lib')
+    config.middleware.insert_before Warden::Manager, JwtCookieToHeader
   end
 end

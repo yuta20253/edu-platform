@@ -12,7 +12,6 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { useAuthActions } from "@/context/AuthContext";
 import { useState } from "react";
 import { useSubmit } from "./hooks";
 import { LoginFormType } from "@/types/login/form";
@@ -21,15 +20,13 @@ export const Login = (): React.JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const { login } = useAuthActions();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormType>();
 
-  const { onSubmit } = useSubmit({ login, setErrorMessage });
+  const { onSubmit } = useSubmit({ setErrorMessage });
 
   return (
     <Box

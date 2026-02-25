@@ -11,7 +11,7 @@ Rails.application.routes.draw do
         post "/admin/signup",   to: "registrations#create"
       end
 
-      resource :users, only: :show
+      get "/me", to: "users#show"
 
       namespace :student do
         resource :dashboard, only: :show
