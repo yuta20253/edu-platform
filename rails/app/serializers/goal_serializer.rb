@@ -15,17 +15,11 @@
 #  updated_at  :datetime         not null
 #
 class GoalSerializer < ActiveModel::Serializer
-  attributes :id, :title, :description, :formatted_status, :formatted_due_date
+  attributes :id, :title, :description, :status, :due_date
 
-  def formatted_status
-    {
-      'not_started' => '未着手',
-      'in_progress' => '進行中',
-      'completed' => '完了'
-    }[object.status]
-  end
+  has_many :tasks, each_serializer: TaskSerializer
 
-  def formatted_due_date
+  def due_date
     object.due_date&.strftime('%Y/%m/%d')
   end
 end
