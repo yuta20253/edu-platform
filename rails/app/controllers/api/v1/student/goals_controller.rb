@@ -4,10 +4,15 @@ module Api
   module V1
     module Student
       class GoalsController < Api::V1::Student::BaseController
-        def show
-          goal = Goal.find(params[:id])
+        def index
+          goals = GoalsQuery.new(current_user.goals).due_soon.paginate(page: params[:page],
+                                                                       per_page: params[:per_page] || 10).result
+          render json: goals, each_serializer: GoalSerializer, status: :ok
+        end
 
-          render json: goal
+        def show
+          goal = GoalsQuery.new(current_user.goals).includes_tasks.find(params[:id])
+          render json: goal, serializer: GoalSerializer, status: :ok
         end
 
         def create
