@@ -12,7 +12,7 @@ Rails.application.routes.draw do
       end
 
       post "/password/reset/request", to: "password_resets#create"
-      patch "password/reset", to: "password_resets#update"
+      patch "/password/reset", to: "password_resets#update"
 
       get "/me", to: "users#show"
 
