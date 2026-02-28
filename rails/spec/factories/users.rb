@@ -19,6 +19,7 @@
 #  updated_at             :datetime         not null
 #  high_school_id         :bigint
 #  address_id             :bigint
+#  grade_id               :bigint
 #
 FactoryBot.define do
   factory :user do
