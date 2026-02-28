@@ -29,9 +29,11 @@ class User < ApplicationRecord
   belongs_to :user_role, optional: true
   belongs_to :address, optional: true
   belongs_to :high_school, optional: true
+  belongs_to :grade, optional: true
 
   has_one :user_personal_info, dependent: :destroy
   has_one :user_overall_question_stat, dependent: :destroy
+  has_one :teacher_permissions, dependent: :destroy
 
   has_many :goals, dependent: :destroy
   has_many :tasks, dependent: :destroy
@@ -41,10 +43,13 @@ class User < ApplicationRecord
   has_many :user_subject_question_stats, dependent: :destroy
   has_many :subjects, through: :user_subject_question_stats
   has_many :user_unit_question_stats, dependent: :destroy
+  has_many :teacher_grades
+  has_many :grades, through: :teacher_grades, source: :grade
 
   validates :name, :name_kana, presence: true, on: :update
   validates :user_role, presence: true
   validates :high_school, presence: true, if: -> { student? || teacher? }
+  validates :grade, presence: true, if: :student?
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
