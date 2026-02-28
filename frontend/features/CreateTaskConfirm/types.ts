@@ -15,5 +15,5 @@ export type CourseType = {
 export type GoalType = {
   title: string;
   description: string;
-  formatted_due_date: string;
+  due_date: string;
 };

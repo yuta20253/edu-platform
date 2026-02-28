@@ -103,7 +103,7 @@ export const CreateTaskConfirm = (): React.JSX.Element => {
               </Typography>
               <Typography sx={{ mb: 1 }}>
                 <strong>期限：</strong>
-                {goal?.formatted_due_date}
+                {goal?.due_date}
               </Typography>
               <Typography sx={{ mb: 1 }}>
                 <strong>説明：</strong>

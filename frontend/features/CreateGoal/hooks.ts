@@ -2,7 +2,6 @@
 
 import { apiClient } from "@/libs/http/apiClient";
 import { CreateGoalForm } from "./types";
-import { TOKEN_KEY } from "@context/AuthContext";
 import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
 
@@ -10,12 +9,6 @@ export const useSubmit = () => {
   const router = useRouter();
   const onSubmit: SubmitHandler<CreateGoalForm> = async (data) => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      };
-
       const formattedPostData = {
         ...data,
         due_date: data.due_date
@@ -26,9 +19,6 @@ export const useSubmit = () => {
       const res = await apiClient.post(
         "/api/v1/student/goals",
         { goal: formattedPostData },
-        {
-          headers,
-        },
       );
 
       const goalId = res.data;

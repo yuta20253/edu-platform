@@ -4,7 +4,6 @@ import { apiClient } from "@/libs/http/apiClient";
 import { CourseType } from "../types";
 import { SubjectName } from "@/features/CreateTask/subject";
 import { useState } from "react";
-import { TOKEN_KEY } from "@context/AuthContext";
 
 export const useCourses = () => {
   const [courses, setCourses] = useState<CourseType[] | null>(null);
@@ -15,15 +14,8 @@ export const useCourses = () => {
     setSelectedCourseId(null);
     setShowAllCourses(false);
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      };
-
       const res = await apiClient.get<CourseType[]>(
         `/api/v1/student/courses?subject=${name}`,
-        { headers },
       );
 
       setCourses(res.data);
