@@ -10,6 +10,7 @@
 #
 FactoryBot.define do
   factory :grade do
-    
+    association :high_school
+    sequence(:year) { |n| n }
   end
 end
