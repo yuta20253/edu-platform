@@ -1,9 +1,17 @@
-class Api::V1::Teacher::BaseController < ApplicationController
-  before_action :authorize_teacher_service
+# frozen_string_literal: true
 
-  private
+module Api
+  module V1
+    module Teacher
+      class BaseController < ApplicationController
+        before_action :authorize_teacher_service
 
-  def authorize_teacher_service
-    authorize :teacher_service, :access?
+        private
+
+        def authorize_teacher_service
+          authorize :teacher_service, :access?
+        end
+      end
+    end
   end
 end

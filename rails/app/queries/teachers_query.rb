@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TeachersQuery
   def initialize(relation)
     @relation = relation
