@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: teacher_grades
@@ -11,7 +13,7 @@
 require 'rails_helper'
 
 RSpec.describe TeacherGrade, type: :model do
-  it "teacherなら有効" do
+  it 'teacherなら有効' do
     teacher = create(:user, :teacher)
     grade = create(:grade)
 
@@ -31,7 +33,7 @@ RSpec.describe TeacherGrade, type: :model do
     expect(teacher_grade.errors[:user]).to include('教職員アカウントのみ設定可能です')
   end
 
-  it "gradeがないと無効" do
+  it 'gradeがないと無効' do
     teacher = create(:user, :teacher)
 
     tg = build(:teacher_grade, user: teacher, grade: nil)
@@ -39,11 +41,11 @@ RSpec.describe TeacherGrade, type: :model do
     expect(tg).to be_invalid
   end
 
-  it "user削除でteacher_gradeも削除される" do
+  it 'user削除でteacher_gradeも削除される' do
     teacher = create(:user, :teacher)
     grade = create(:grade)
     create(:teacher_grade, user: teacher, grade: grade)
 
-    expect { teacher.destroy }.to change { TeacherGrade.count }.by(-1)
+    expect { teacher.destroy }.to change(described_class, :count).by(-1)
   end
 end
