@@ -1,7 +1,7 @@
 import { CreateTaskConfirm } from "@features/CreateTaskConfirm";
 
 type CreateTaskConfirmPageProps = {
-  params: { goalId: string };
+  params: { goalId: number };
 };
 
 export default async function CreateTaskConfirmPage({ params }: CreateTaskConfirmPageProps) {

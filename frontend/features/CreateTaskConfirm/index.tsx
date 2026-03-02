@@ -10,7 +10,7 @@ import { useFetchGoal } from "./useFetchGoal";
 import { buildGroupedUnits } from "./utils";
 
 type GoalIdProps = {
-  goalId: string;
+  goalId: number;
 };
 
 export const CreateTaskConfirm = ({ goalId }: GoalIdProps): React.JSX.Element => {
