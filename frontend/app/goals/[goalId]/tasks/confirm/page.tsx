@@ -1,9 +1,10 @@
 import { CreateTaskConfirm } from "@features/CreateTaskConfirm";
 
 type CreateTaskConfirmPageProps = {
-  params: { goalId: number };
+  params: { goalId: string };
 };
 
 export default async function CreateTaskConfirmPage({ params }: CreateTaskConfirmPageProps) {
-  return (<CreateTaskConfirm goalId={params.goalId} />);
+  const goalId = Number(params.goalId);
+  return (<CreateTaskConfirm goalId={goalId} />);
 }

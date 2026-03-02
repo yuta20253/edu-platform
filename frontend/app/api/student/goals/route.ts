@@ -25,9 +25,9 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET (req: Request, { params }: { params: { goalId: number } }) {
+export async function GET (req: Request, { params }: { params: { goalId: string } }) {
   try {
-    const { goalId } = params
+    const goalId = Number(params.goalId)
 
     const { status, data, setCookie } = await railsFetch(`/api/v1/student/goals/${goalId}`, {
       method: "GET"

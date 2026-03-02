@@ -21,7 +21,7 @@ export const useSubmit = () => {
         { goal: formattedPostData },
       );
 
-      const goalId = res.data;
+      const goalId = String(res.data);
 
       router.push(`/goals/${goalId}/tasks/new`);
     } catch (error) {

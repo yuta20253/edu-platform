@@ -27,11 +27,11 @@ import { useCourses } from "./hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
 
-type GoldIdProps = {
+type GoalIdProps = {
   goalId: number;
 };
 
-export const CreateTask = ({ goalId }: GoldIdProps): React.JSX.Element => {
+export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
   const {
     courses,
     selectedCourseId,
@@ -61,7 +61,7 @@ export const CreateTask = ({ goalId }: GoldIdProps): React.JSX.Element => {
     },
   });
 
-  const { onSubmit } = useSubmit({ selectedUnitIds, courses, goalId });
+  const { onSubmit } = useSubmit({ selectedUnitIds, courses, String(goalId) });
 
   return (
     <Box

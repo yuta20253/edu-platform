@@ -5,5 +5,6 @@ type CreateTaskPageProps = {
 };
 
 export default async function CreateTaskPage({ params }: CreateTaskPageProps) {
-  return await (<CreateTask goalId={Number(params.goalId)} />);
+  const goalId = Number(params.goalId)
+  return await (<CreateTask goalId={goalId} />);
 }
