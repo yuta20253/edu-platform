@@ -9,7 +9,7 @@ export const useRegisterTask = () => {
       task: task,
     };
 
-    return await apiClient.post(`/api/v1/student/tasks`, postData);
+    return await apiClient.post(`/api/student/tasks`, postData);
   };
 
   return { registerTask };
