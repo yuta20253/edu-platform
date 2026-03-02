@@ -11,7 +11,7 @@ export const useFetchGoal = (goalId: number) => {
     if (!goalId) return;
     const fetchGoal = async () => {
       try {
-        const res = await apiClient.get(`/api/v1/student/goals/${goalId}`);
+        const res = await apiClient.get(`/api/student/goals/${goalId}`);
 
         setGoal(res.data);
         console.log(res.data);

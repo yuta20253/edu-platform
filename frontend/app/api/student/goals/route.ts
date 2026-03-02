@@ -24,3 +24,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "INTERNAL_SERVER_ERROR"}, { status: 500})
   }
 }
+
+export async function GET (req: Request, { params }: { params: { goalId: number } }) {
+  try {
+    const { goalId } = params
+
+    const { status, data, setCookie } = await railsFetch(`/api/v1/student/goals/${goalId}`, {
+      method: "GET"
+    })
+
+    const nextResponse = NextResponse.json(data, { status })
+
+    if (setCookie) nextResponse.headers.set('set-cookie', setCookie)
+
+    return nextResponse
+
+  } catch (error) {
+    if (error instanceof RailsUnauthorizedError) {
+        return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 })
+    }
+
+    return NextResponse.json({ message: "INTERNAL_SERVER_ERROR" }, { status: 500 })
+  }
+}
