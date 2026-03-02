@@ -61,7 +61,7 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
     },
   });
 
-  const { onSubmit } = useSubmit({ selectedUnitIds, courses, String(goalId) });
+  const { onSubmit } = useSubmit({ selectedUnitIds, courses, goalId });
 
   return (
     <Box

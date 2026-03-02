@@ -24,5 +24,5 @@ export type CourseType = {
 export type Props = {
   selectedUnitIds: number[] | null;
   courses: CourseType[] | null;
-  goalId: string;
+  goalId: number;
 };
