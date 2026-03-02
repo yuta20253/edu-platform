@@ -17,7 +17,7 @@ export const useSubmit = () => {
       };
 
       const res = await apiClient.post(
-        "/api/v1/student/goals",
+        "/api/student/goals",
         { goal: formattedPostData },
       );
 

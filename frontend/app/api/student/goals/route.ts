@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       return nextResponse
   } catch (error) {
     if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: 'UNAUTHRIZED'}, { status: 401})
+      return NextResponse.json({ message: 'UNAUTHORIZED'}, { status: 401})
     }
 
     return NextResponse.json({ message: "INTERNAL_SERVER_ERROR"}, { status: 500})
