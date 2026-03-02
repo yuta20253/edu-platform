@@ -9,11 +9,11 @@ import { priorityMap } from "./constants";
 import { useFetchGoal } from "./useFetchGoal";
 import { buildGroupedUnits } from "./utils";
 
-type GoldIdProps = {
-  goalId: number;
+type GoalIdProps = {
+  goalId: string;
 };
 
-export const CreateTaskConfirm = ({ goalId }: GoldIdProps): React.JSX.Element => {
+export const CreateTaskConfirm = ({ goalId }: GoalIdProps): React.JSX.Element => {
   const router = useRouter();
   const [snackbar, setSnackbar] = useState<{
     open: boolean;

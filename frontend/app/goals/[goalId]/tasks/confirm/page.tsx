@@ -5,5 +5,5 @@ type CreateTaskConfirmPageProps = {
 };
 
 export default async function CreateTaskConfirmPage({ params }: CreateTaskConfirmPageProps) {
-  return (<CreateTaskConfirm goldId={params.goalId} />);
+  return (<CreateTaskConfirm goalId={params.goalId} />);
 }
