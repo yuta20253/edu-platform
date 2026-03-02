@@ -15,7 +15,7 @@ export async function GET (req: Request) {
 
         if (setCookie) nextResponse.headers.set('set-cookie', setCookie)
 
-        return NextResponse.json(data, { status })
+        return nextResponse
     } catch (error) {
         if (error instanceof RailsUnauthorizedError) {
             return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 })
