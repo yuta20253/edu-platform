@@ -15,7 +15,7 @@ export async function POST(req: Request){
 
         if (setCookie) nextResponse.headers.set('set-cookie', setCookie)
 
-            return nextResponse
+        return nextResponse
     } catch (error) {
         if (error instanceof RailsUnauthorizedError) {
         return NextResponse.json({ message: 'UNAUTHRIZED'}, { status: 401})
