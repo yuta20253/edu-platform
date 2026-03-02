@@ -2,7 +2,6 @@
 
 import { Box, Typography, Button, Snackbar, Alert } from "@mui/material";
 import { useState } from "react";
-import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useRegisterTask } from "./hooks";
 import { useCreateTaskConfirmData } from "./useCreateTaskConfirmData";
@@ -10,7 +9,11 @@ import { priorityMap } from "./constants";
 import { useFetchGoal } from "./useFetchGoal";
 import { buildGroupedUnits } from "./utils";
 
-export const CreateTaskConfirm = (): React.JSX.Element => {
+type GoldIdProps = {
+  goalId: number;
+};
+
+export const CreateTaskConfirm = ({ goalId }: GoldIdProps): React.JSX.Element => {
   const router = useRouter();
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -21,9 +24,6 @@ export const CreateTaskConfirm = (): React.JSX.Element => {
   const { courses, task, selectedUnitIds } = useCreateTaskConfirmData();
 
   const groupedUnits = buildGroupedUnits(courses, selectedUnitIds);
-
-  const params = useParams();
-  const goalId = Number(params.goalId);
 
   const { goal } = useFetchGoal(goalId);
 
