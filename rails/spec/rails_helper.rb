@@ -72,6 +72,8 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
   config.include Devise::Test::IntegrationHelpers, type: :request
+
+  Rails.application.routes.default_url_options[:host] = 'localhost'
 end
 
 Shoulda::Matchers.configure do |config|
