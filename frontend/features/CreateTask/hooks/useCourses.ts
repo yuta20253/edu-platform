@@ -15,7 +15,7 @@ export const useCourses = () => {
     setShowAllCourses(false);
     try {
       const res = await apiClient.get<CourseType[]>(
-        `/api/v1/student/courses?subject=${name}`,
+        `/api/student/courses?subject=${name}`,
       );
 
       setCourses(res.data);
