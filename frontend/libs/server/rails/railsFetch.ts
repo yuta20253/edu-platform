@@ -24,7 +24,7 @@ export async function railsFetch<T = unknown>(
   path: string,
   opts: RailsFetchOptions = {},
 ): Promise<RailsFetchResult<T>> {
-  const origin = process.env.API_URL;
+  const origin = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!origin) {
     throw new Error("API_URL is not set");
   }
