@@ -15,7 +15,7 @@ export const useSubmit = ({ selectedUnitIds, courses, goalId }: Props) => {
       courses: courses,
     };
     sessionStorage.setItem("CreateTaskData", JSON.stringify(payload));
-    router.push(`/goals/${String(goalId)}/tasks/confirm`);
+    router.push(`/goals/${goalId}/tasks/confirm`);
   };
 
   return { onSubmit };
