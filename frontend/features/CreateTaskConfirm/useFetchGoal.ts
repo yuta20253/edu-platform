@@ -14,7 +14,6 @@ export const useFetchGoal = (goalId: number) => {
         const res = await apiClient.get(`/api/student/goals/${goalId}`);
 
         setGoal(res.data);
-        console.log(res.data);
       } catch (error) {
         console.error(error);
       }
