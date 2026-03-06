@@ -5,12 +5,17 @@ import { Box, Button } from "@mui/material";
 import ToolBar from "@mui/material/Toolbar";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { JSX } from "react";
 import { MeUser } from "@/libs/server/me";
 
-export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => (
+export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith("/admin");
+
+  return (
   <>
-    <AppBar position="fixed">
+    <AppBar position="fixed" sx={isAdmin ? { bgcolor: "admin.main" } : undefined}>
       <ToolBar>
         <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
           <Link
@@ -70,4 +75,5 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => (
       </ToolBar>
     </AppBar>
   </>
-);
+  );
+};

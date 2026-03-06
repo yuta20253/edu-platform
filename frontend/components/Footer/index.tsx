@@ -1,12 +1,13 @@
 "use client";
 
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { usePathname } from "next/navigation";
 
 export const Footer = (): React.JSX.Element => {
+  const theme = useTheme();
   const pathName = usePathname();
-  const hiddenPaths = ["/login", "/signup"];
-  const hidden = hiddenPaths.includes(pathName);
+  const hidden = pathName === "/login" || pathName.endsWith("/signup");
+  const isAdmin = pathName.startsWith("/admin");
 
   if (hidden) return <></>;
 
@@ -19,7 +20,9 @@ export const Footer = (): React.JSX.Element => {
         left: 0,
         width: "100%",
         height: 48,
-        backgroundColor: "#0068b7",
+        backgroundColor: isAdmin
+          ? theme.palette.admin.main
+          : theme.palette.primary.main,
         boxShadow: "0 -2px 8px rgba(0,0,0,0.1)",
         display: "flex",
         justifyContent: "center",
