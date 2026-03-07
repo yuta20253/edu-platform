@@ -4,8 +4,8 @@ export type GoalType = {
   id: number;
   title: string;
   description: string;
-  formatted_status: string;
-  formatted_due_date: string;
+  status: string;
+  due_date: string;
 };
 
 export const getStudentDashboard = async (

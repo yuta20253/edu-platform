@@ -83,8 +83,8 @@ export const Presenter = ({
             >
               {goal.title}
             </Box>
-            <Box sx={{ textAlign: "center" }}>{goal.formatted_status}</Box>
-            <Box sx={{ textAlign: "center" }}>{goal.formatted_due_date}</Box>
+            <Box sx={{ textAlign: "center" }}>{goal.status}</Box>
+            <Box sx={{ textAlign: "center" }}>{goal.due_date}</Box>
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
               <Link href={`/goals/${goal.id}/edit`}>
                 <FaPen size={20} />
