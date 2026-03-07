@@ -3,19 +3,24 @@
 import { SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { CreateTaskForm, Props } from "../types";
+import { apiClient } from "@/libs/http/apiClient";
 
-export const useSubmit = ({ selectedUnitIds, courses, goalId }: Props) => {
+export const useSubmit = ({ selectedUnitIds }: Props) => {
   const router = useRouter();
   const onSubmit: SubmitHandler<CreateTaskForm> = async (data) => {
-    const payload = {
-      form: {
-        ...data,
-        unit_ids: selectedUnitIds,
-      },
-      courses: courses,
+    const formattedPostData = {
+      ...data,
+      unit_ids: selectedUnitIds,
     };
-    sessionStorage.setItem("CreateTaskData", JSON.stringify(payload));
-    router.push(`/goals/${goalId}/tasks/confirm`);
+
+    const res = await apiClient.post(
+      "/api/student/draft_tasks",
+      { draft_task: formattedPostData },
+    )
+
+    const draftTaskId = Number(res.data);
+
+    router.push(`/goals/${data.goal_id}/tasks/confirm?draft_task_id=${draftTaskId}`);
   };
 
   return { onSubmit };

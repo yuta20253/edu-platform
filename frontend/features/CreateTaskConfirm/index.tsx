@@ -4,16 +4,16 @@ import { Box, Typography, Button, Snackbar, Alert } from "@mui/material";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegisterTask } from "./hooks";
-import { useCreateTaskConfirmData } from "./useCreateTaskConfirmData";
 import { priorityMap } from "./constants";
 import { useFetchGoal } from "./useFetchGoal";
-import { buildGroupedUnits } from "./utils";
+import { useFetchDraftTask } from "./useFetchDraftTask";
 
 type GoalIdProps = {
   goalId: number;
+  draftTaskId: number;
 };
 
-export const CreateTaskConfirm = ({ goalId }: GoalIdProps): React.JSX.Element => {
+export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.JSX.Element => {
   const router = useRouter();
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -21,17 +21,16 @@ export const CreateTaskConfirm = ({ goalId }: GoalIdProps): React.JSX.Element =>
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  const { courses, task, selectedUnitIds } = useCreateTaskConfirmData();
-
-  const groupedUnits = buildGroupedUnits(courses, selectedUnitIds);
-
   const { goal } = useFetchGoal(goalId);
+  const { draftTask } = useFetchDraftTask(draftTaskId);
 
   const { registerTask } = useRegisterTask();
 
   const handleRegister = async () => {
     try {
-      await registerTask(task);
+      if (!draftTask) return;
+
+      await registerTask(draftTask);
 
       setSnackbar({
         open: true,
@@ -130,31 +129,31 @@ export const CreateTaskConfirm = ({ goalId }: GoalIdProps): React.JSX.Element =>
               </Typography>
               <Typography sx={{ mb: 1 }}>
                 <strong>タイトル：</strong>
-                {task.title}
+                {draftTask?.title}
               </Typography>
               <Typography sx={{ mb: 1 }}>
                 <strong>内容：</strong>
-                {task.content}
+                {draftTask?.content}
               </Typography>
               <Typography sx={{ mb: 1 }}>
                 <strong>優先度：</strong>
-                {priorityMap[task.priority ?? "normal"]}
+                {priorityMap[draftTask?.priority ?? "normal"]}
               </Typography>
               <Typography sx={{ mb: 2 }}>
                 <strong>期限：</strong>
-                {task.due_date
-                  ? new Date(task.due_date).toLocaleDateString("ja-JP")
+                {draftTask?.due_date
+                  ? new Date(draftTask?.due_date).toLocaleDateString("ja-JP")
                   : "未設定"}
               </Typography>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {groupedUnits.map((course) => (
-                  <Box key={course.courseId}>
+                {draftTask?.units.map((unit) => (
+                  <Box key={unit.id}>
                     <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                      {course.courseName}レベル{course.levelNumber}
+                      {unit.course.level_name}レベル{unit.course.level_number}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                      {course.units.map((unit) => (
+                      {draftTask.units.map((unit) => (
                         <Box
                           key={unit.id}
                           sx={{
