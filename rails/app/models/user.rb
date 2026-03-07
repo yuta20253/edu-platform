@@ -19,6 +19,7 @@
 #  updated_at             :datetime         not null
 #  high_school_id         :bigint
 #  address_id             :bigint
+#  grade_id               :bigint
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -34,6 +35,7 @@ class User < ApplicationRecord
   has_one :user_overall_question_stat, dependent: :destroy
 
   has_many :goals, dependent: :destroy
+  has_many :draft_tasks, dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :study_logs, dependent: :destroy
   has_many :reflections, dependent: :destroy
