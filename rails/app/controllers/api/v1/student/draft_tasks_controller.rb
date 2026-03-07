@@ -4,6 +4,11 @@ module Api
   module V1
     module Student
       class DraftTasksController < Api::V1::Student::BaseController
+        def show
+          draft_task = current_user.draft_tasks.includes(units: :course).find(params[:id])
+          render json: draft_task, include: ['units.course'], status: :ok
+        end
+
         def create
           form = ::Student::CreateDraftTaskForm.new(current_user: current_user,
                                                **create_draft_task_params.to_h.symbolize_keys)

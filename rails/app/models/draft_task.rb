@@ -23,8 +23,8 @@
 class DraftTask < ApplicationRecord
   belongs_to :user
   belongs_to :goal
-  has_many :draft_task_cources, dependent: :destroy
-  has_many :courses, through: :draft_task_cources
+  has_many :draft_task_courses, dependent: :destroy
+  has_many :courses, through: :draft_task_courses
   has_many :draft_task_units, dependent: :destroy
   has_many :units, through: :draft_task_units
 
