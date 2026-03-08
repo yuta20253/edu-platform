@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       end
       namespace :teacher do
         resources :colleagues, controller: "teachers"
+        resources :students
       end
       namespace :admin do
       end
