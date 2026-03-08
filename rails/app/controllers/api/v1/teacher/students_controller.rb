@@ -5,13 +5,21 @@ module Api
     module Teacher
       class StudentsController < Api::V1::Teacher::BaseController
         def index
-          if current_user.teacher_permission.own_grade?
-            students = current_user.high_school.users.where(user_role: 2).where(grade_id: current_user.grade_id)
-            render json: students, status: :ok
-          else
-            students = current_user.high_school.users.where(user_role: 2)
-            render json: students, status: :ok
-          end
+          students = students_scope
+          render json: students, each_serializer: StudentSerializer, status: :ok
+        end
+
+        def show
+          student = students_scope.find(params[:id])
+          render json: student, serializer: StudentSerializer, status: :ok
+        end
+
+        private
+
+        def students_scope
+          query = ::Teacher::StudentsQuery.new(current_user.high_school.users).students
+          query = query.my_grade(current_user.grade_id) if current_user.teacher_permission.own_grade?
+          query.result
         end
       end
     end

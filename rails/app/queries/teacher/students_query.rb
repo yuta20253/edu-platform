@@ -1,19 +1,23 @@
-class Teacher::StudentsQuery
-  def initialize(relation)
-    @relation = relation
-  end
+# frozen_string_literal: true
 
-  def students
-    @relation = @relation.where(user_role: :student)
-    self
-  end
+module Teacher
+  class StudentsQuery
+    def initialize(relation)
+      @relation = relation
+    end
 
-  def my_grade(grade_id)
-    @relation = @relation.where(grade_id: grade_id)
-    self
-  end
+    def students
+      @relation = @relation.where(user_role: 2)
+      self
+    end
 
-  def result
-    @relation
+    def my_grade(grade_id)
+      @relation = @relation.where(grade_id: grade_id)
+      self
+    end
+
+    def result
+      @relation
+    end
   end
 end
