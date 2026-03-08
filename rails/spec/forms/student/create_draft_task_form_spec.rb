@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Student::CreateDraftTaskForm, type: :model do
@@ -91,7 +93,7 @@ RSpec.describe Student::CreateDraftTaskForm, type: :model do
         subject.goal_id = nil
 
         expect(subject).not_to be_valid
-        expect(subject.errors[:goal_id]).to include("が不正です")
+        expect(subject.errors[:goal_id]).to include('が不正です')
       end
 
       it '存在しないgoal_idだとinvalid' do

@@ -11,7 +11,7 @@ module Api
 
         def create
           form = ::Student::CreateDraftTaskForm.new(current_user: current_user,
-                                               **create_draft_task_params.to_h.symbolize_keys)
+                                                    **create_draft_task_params.to_h.symbolize_keys)
 
           if form.save
             render json: form.draft_task_id, status: :created

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DraftTaskSerializer < ActiveModel::Serializer
   attributes :id, :user_id, :goal_id, :title, :content, :due_date, :priority, :status,
              :completed_at
