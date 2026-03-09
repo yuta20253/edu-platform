@@ -2,16 +2,17 @@
 
 # == Schema Information
 #
-# Table name: high_schools
+# Table name: teacher_grades
 #
 #  id         :bigint           not null, primary key
-#  name       :string(50)       not null
+#  user_id    :bigint           not null
+#  grade_id   :bigint           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
-class HighSchool < ApplicationRecord
-  has_many :users
-  has_many :grades
-
-  validates :name, presence: true
+FactoryBot.define do
+  factory :teacher_grade do
+    user { nil }
+    grade { nil }
+  end
 end

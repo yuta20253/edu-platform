@@ -10,7 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_28_085047) do
+  create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
     t.string "prefecture", limit: 20, null: false
@@ -45,11 +73,48 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
+  create_table "grades", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "high_school_id", null: false
+    t.integer "year", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["high_school_id", "year"], name: "index_grades_on_high_school_id_and_year", unique: true
+    t.index ["high_school_id"], name: "index_grades_on_high_school_id"
+  end
+
   create_table "high_schools", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", limit: 50, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_high_schools_on_name", unique: true
+  end
+
+  create_table "import_errors", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "import_history_id", null: false
+    t.integer "row_number", null: false
+    t.text "message", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["import_history_id"], name: "index_import_errors_on_import_history_id"
+  end
+
+  create_table "import_histories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "unit_id", null: false
+    t.string "file_name", null: false
+    t.bigint "file_size"
+    t.string "content_type"
+    t.integer "status", default: 0, null: false
+    t.integer "toral_count", default: 0, null: false
+    t.integer "success_count", default: 0, null: false
+    t.integer "error_count", default: 0, null: false
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_import_histories_on_unit_id"
+    t.index ["user_id"], name: "index_import_histories_on_user_id"
   end
 
   create_table "question_choices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -218,6 +283,25 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
+  create_table "teacher_grades", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "grade_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grade_id"], name: "index_teacher_grades_on_grade_id"
+    t.index ["user_id", "grade_id"], name: "index_teacher_grades_on_user_id_and_grade_id", unique: true
+    t.index ["user_id"], name: "index_teacher_grades_on_user_id"
+  end
+
+  create_table "teacher_permissions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "grade_scope"
+    t.boolean "manage_other_teachers"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_teacher_permissions_on_user_id", unique: true
+  end
+
   create_table "units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "course_id", null: false
     t.string "unit_name", null: false
@@ -304,15 +388,23 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
     t.datetime "updated_at", null: false
     t.bigint "high_school_id"
     t.bigint "address_id"
+    t.bigint "grade_id"
     t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["grade_id"], name: "index_users_on_grade_id"
     t.index ["high_school_id"], name: "index_users_on_high_school_id"
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["user_role_id"], name: "index_users_on_user_role_id"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "goals", "users"
+  add_foreign_key "grades", "high_schools"
+  add_foreign_key "import_errors", "import_histories"
+  add_foreign_key "import_histories", "units"
+  add_foreign_key "import_histories", "users"
   add_foreign_key "question_choices", "questions"
   add_foreign_key "question_explanations", "questions"
   add_foreign_key "question_hints", "questions"
@@ -335,6 +427,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
   add_foreign_key "task_units", "units"
   add_foreign_key "tasks", "goals"
   add_foreign_key "tasks", "users"
+  add_foreign_key "teacher_grades", "grades"
+  add_foreign_key "teacher_grades", "users"
+  add_foreign_key "teacher_permissions", "users"
   add_foreign_key "units", "courses"
   add_foreign_key "user_overall_question_stats", "users"
   add_foreign_key "user_personal_infos", "users"
@@ -344,6 +439,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_24_114802) do
   add_foreign_key "user_unit_question_stats", "units"
   add_foreign_key "user_unit_question_stats", "users"
   add_foreign_key "users", "addresses"
+  add_foreign_key "users", "grades"
   add_foreign_key "users", "high_schools"
   add_foreign_key "users", "user_roles"
 end

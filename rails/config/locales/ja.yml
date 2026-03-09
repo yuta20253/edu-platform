@@ -3,3 +3,13 @@ ja:
     models:
       goal: 目標
       task: タスク
+    errors:
+      models:
+        teacher_grade:
+          attributes:
+            user:
+              not_teacher: "教職員アカウントのみ設定可能です"
+        teacher_permission:
+          attributes:
+            user:
+              not_teacher: "教職員アカウントのみ設定可能です"
