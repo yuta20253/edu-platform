@@ -5,13 +5,21 @@ class ApplicationController < ActionController::API
   include Devise::Controllers::Helpers
   include Pundit::Authorization
 
+  include ActionController::Cookies
+
   before_action :authenticate_user!
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   private
 
   def user_not_authorized(_exception)
     render json: { errors: 'この操作を行う権限がありません' }, status: :forbidden
+  end
+
+  def not_found(exception)
+    model = exception.model.safe_constantize
+    render json: { message: "#{model.model_name.human}が見つかりません" }, status: :not_found
   end
 end

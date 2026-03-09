@@ -3,7 +3,6 @@ import theme from "./theme/theme";
 import { Inter } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,15 +22,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <AuthProvider>
-            <Box display="flex" flexDirection="column" minHeight="100vh">
-              <Header />
-              <Box p={2} maxWidth="960px" width="100%" margin="0 auto">
-                {children}
-              </Box>
-              <Footer />
+          <Box display="flex" flexDirection="column" minHeight="100vh">
+            <Header />
+            <Box p={2} maxWidth="960px" width="100%" margin="0 auto">
+              {children}
             </Box>
-          </AuthProvider>
+            <Footer />
+          </Box>
         </ThemeProvider>
       </body>
     </html>

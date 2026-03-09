@@ -11,6 +11,7 @@
 #
 class HighSchool < ApplicationRecord
   has_many :users
+  has_many :grades
 
   validates :name, presence: true
 end

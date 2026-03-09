@@ -37,6 +37,13 @@ gem 'rack-cors'
 # レスポンスJSONを制御する
 gem 'active_model_serializers'
 
+# 認可用
+gem 'pundit'
+
+gem 'csv'
+
+gem 'kaminari'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
 
@@ -45,14 +52,10 @@ group :development, :test do
   # N+1の検知
   gem 'bullet'
 
-  # 認可用
-  gem 'pundit'
-
-  gem 'csv'
-
   gem 'debug', platforms: %i[mri windows]
   gem 'factory_bot_rails'
   gem 'faker'
+  gem 'letter_opener_web'
   gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-performance', require: false

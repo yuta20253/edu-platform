@@ -27,7 +27,7 @@ Devise.setup do |config|
   config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
 
   # Configure the class responsible to send e-mails.
-  # config.mailer = 'Devise::Mailer'
+  config.mailer = 'AuthMailer'
 
   # Configure the parent class responsible to send e-mails.
   # config.parent_mailer = 'ActionMailer::Base'
@@ -311,16 +311,14 @@ Devise.setup do |config|
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
 
-  Devise.setup do |config|
-    config.jwt do |jwt|
-      jwt.secret = Rails.application.credentials.devise_jwt_secret_key!
-      jwt.dispatch_requests = [
-        ['POST', %r{^/api/v1/.+/login$}]
-      ]
-      jwt.revocation_requests = [
-        ['DELETE', %r{^/api/v1/.+/logout$}],
-      ]
-      jwt.expiration_time = 1.day.to_i
-    end
+  config.jwt do |jwt|
+    jwt.secret = Rails.application.credentials.devise_jwt_secret_key!
+    jwt.dispatch_requests = [
+      ['POST', %r{^/api/v1/user/login$}]
+    ]
+    jwt.revocation_requests = [
+      ['DELETE', %r{^/api/v1/user/logout$}]
+    ]
+    jwt.expiration_time = 1.day.to_i
   end
 end
