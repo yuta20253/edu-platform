@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: teacher_permissions
@@ -16,7 +18,7 @@ RSpec.describe TeacherPermission, type: :model do
     teacher = create(:user, :teacher)
     permission = build(:teacher_permission, user: teacher)
 
-    expect(permission). to be_valid
+    expect(permission).to be_valid
   end
 
   it 'teacher以外なら無効' do
@@ -28,26 +30,26 @@ RSpec.describe TeacherPermission, type: :model do
     expect(permission.errors[:user]).to include('教職員アカウントのみ設定可能です')
   end
 
-  it "userがないと無効" do
+  it 'userがないと無効' do
     permission = build(:teacher_permission, user: nil)
     expect(permission).to be_invalid
   end
 
-  it "不正なgrade_scopeはエラーになる" do
+  it '不正なgrade_scopeはエラーになる' do
     teacher = create(:user, :teacher)
 
-    expect {
-      TeacherPermission.create!(
+    expect do
+      described_class.create!(
         user: teacher,
         grade_scope: 99
       )
-    }.to raise_error(ArgumentError)
+    end.to raise_error(ArgumentError)
   end
 
-  it "user削除でpermissionも削除される" do
+  it 'user削除でpermissionも削除される' do
     teacher = create(:user, :teacher)
     create(:teacher_permission, user: teacher)
 
-    expect { teacher.destroy }.to change { TeacherPermission.count }.by(-1)
+    expect { teacher.destroy }.to change(described_class, :count).by(-1)
   end
 end
