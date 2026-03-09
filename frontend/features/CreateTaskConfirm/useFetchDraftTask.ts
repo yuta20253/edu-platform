@@ -33,7 +33,7 @@ export const useFetchDraftTask = (draftTaskId: number) => {
     if (!draftTaskId) return;
     const fetchDraftTask = async () => {
         try {
-            const res = await apiClient.get(`/api/student/draft_tasks/${draftTaskId}`);
+            const res = await apiClient.get(`/api/student/draft-tasks/${draftTaskId}`);
 
             setDraftTask(res.data);
         } catch (error) {

@@ -14,7 +14,7 @@ export const useSubmit = ({ selectedUnitIds }: Props) => {
     };
 
     const res = await apiClient.post(
-      "/api/student/draft_tasks",
+      "/api/student/draft-tasks",
       { draft_task: formattedPostData },
     )
 
