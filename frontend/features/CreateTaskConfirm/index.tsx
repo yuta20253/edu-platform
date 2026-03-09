@@ -67,7 +67,7 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
         <Typography
           variant="h4"
           component="p"
-          sx={{ fontWeight: "bold", mt: 4, textAlign: "center" }}
+          sx={{ fontWeight: "bold", mt: 8, textAlign: "center" }}
         >
           確認
         </Typography>

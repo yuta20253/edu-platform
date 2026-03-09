@@ -77,7 +77,7 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
         <Typography
           variant="h4"
           component="p"
-          sx={{ fontWeight: "bold", mt: 4, textAlign: "center" }}
+          sx={{ fontWeight: "bold", mt: 8, textAlign: "center" }}
         >
           タスク作成
         </Typography>

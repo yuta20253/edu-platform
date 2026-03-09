@@ -27,17 +27,18 @@ export const CreateGoal = (): React.JSX.Element => {
   return (
     <Box
       sx={{
-        minHeight: "80vh",
         display: "flex",
-        alignItems: "center",
+        justifyContent: "center",
+        alignItems: "flex-start",
         px: 2,
+        py: 4,
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 600 }}>
+      <Box sx={{ width: "100%", maxWidth: 600, pb: 4 }}>
         <Typography
           variant="h4"
           component="p"
-          sx={{ fontWeight: "bold", mt: 4, textAlign: "center" }}
+          sx={{ fontWeight: "bold", mt: 8, textAlign: "center" }}
         >
           目標設定
         </Typography>
