@@ -35,10 +35,12 @@ type GoalIdProps = {
 };
 
 export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
-  const searchParams = useSearchParams()
-  const draftTaskId = searchParams.get("draftTaskId")
+  const searchParams = useSearchParams();
+  const draftTaskId = searchParams.get("draftTaskId");
 
-  const { draftTask } = useFetchDraftTask(draftTaskId ? Number(draftTaskId) : null)
+  const { draftTask } = useFetchDraftTask(
+    draftTaskId ? Number(draftTaskId) : null,
+  );
 
   const {
     courses,
@@ -51,7 +53,8 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
     setShowAllCourses,
   } = useCourses();
 
-  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } = useUnitSelection();
+  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
+    useUnitSelection();
 
   const {
     control,
@@ -73,14 +76,14 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
   const { onSubmit } = useSubmit({ selectedUnitIds });
 
   useEffect(() => {
-    if (!draftTask) return
+    if (!draftTask) return;
 
     const priority =
       typeof draftTask.priority === "number"
         ? draftTask.priority
-        : PRIORITY.NORMAL
+        : PRIORITY.NORMAL;
 
-    const unitIds = draftTask.units?.map((u) => u.id) ?? []
+    const unitIds = draftTask.units?.map((u) => u.id) ?? [];
     reset({
       goal_id: draftTask.goal_id,
       title: draftTask.title ?? "",
@@ -88,10 +91,10 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
       priority: priority,
       due_date: draftTask.due_date ? new Date(draftTask.due_date) : null,
       unit_ids: unitIds,
-    })
+    });
 
-    setSelectedUnitIds(unitIds)
-  }, [draftTask, reset, setSelectedUnitIds])
+    setSelectedUnitIds(unitIds);
+  }, [draftTask, reset, setSelectedUnitIds]);
 
   return (
     <Box

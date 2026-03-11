@@ -70,7 +70,11 @@ export async function railsFetch<T = unknown>(
   if (!response.ok) {
     const bodyText =
       typeof data === "string" ? data : JSON.stringify(data).slice(0, 2000);
-    throw new RailsFetchError(response.status, `Rails request failed: ${response.status}`, bodyText);
+    throw new RailsFetchError(
+      response.status,
+      `Rails request failed: ${response.status}`,
+      bodyText,
+    );
   }
 
   return { status: response.status, data, setCookie };

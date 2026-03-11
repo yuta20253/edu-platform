@@ -13,14 +13,15 @@ export const useSubmit = ({ selectedUnitIds }: Props) => {
       unit_ids: selectedUnitIds,
     };
 
-    const res = await apiClient.post(
-      "/api/student/draft-tasks",
-      { draft_task: formattedPostData },
-    )
+    const res = await apiClient.post("/api/student/draft-tasks", {
+      draft_task: formattedPostData,
+    });
 
     const draftTaskId = Number(res.data);
 
-    router.push(`/goals/${data.goal_id}/tasks/confirm?draft_task_id=${draftTaskId}`);
+    router.push(
+      `/goals/${data.goal_id}/tasks/confirm?draft_task_id=${draftTaskId}`,
+    );
   };
 
   return { onSubmit };
