@@ -42,6 +42,8 @@ export const useFetchDraftTask = (draftTaskId: number) => {
           setIsLoading(false);
         } catch (error) {
             console.error(error);
+        } finally {
+          setIsLoading(false)
         }
     };
     fetchDraftTask();

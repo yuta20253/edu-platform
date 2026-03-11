@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, Button, Snackbar, Alert, CircularProgress } from "@mui/material";
+import { Box, Backdrop, Typography, Button, Snackbar, Alert, CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegisterTask } from "./hooks";
@@ -55,7 +55,6 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
 
   return (
     <>
-      {!isLoading ? (
         <Box
           sx={{
             minHeight: "80vh",
@@ -139,13 +138,11 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
                   </Typography>
                   <Typography sx={{ mb: 1 }}>
                     <strong>優先度：</strong>
-                    {priorityMap[draftTask?.priority ?? "normal"]}
+                    {priorityMap[draftTask?.priority]}
                   </Typography>
                   <Typography sx={{ mb: 2 }}>
                     <strong>期限：</strong>
-                    {draftTask?.due_date
-                      ? new Date(draftTask?.due_date).toLocaleDateString("ja-JP")
-                      : "未設定"}
+                    {draftTask?.due_date}
                   </Typography>
 
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -231,11 +228,21 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
             </Alert>
           </Snackbar>
         </Box>
-      ) : (
-        <Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}>
-          <CircularProgress size="4rem" />
-        </Box>
-      )}
+        <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, }}>
+          <Box
+            sx={{
+              bgcolor: "background.paper",
+              p: 4,
+              borderRadius: 2,
+              boxShadow: 3,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress size="4rem" />
+          </Box>
+        </Backdrop>
     </>
   );
 };
