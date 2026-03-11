@@ -138,7 +138,7 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
                   </Typography>
                   <Typography sx={{ mb: 1 }}>
                     <strong>優先度：</strong>
-                    {priorityMap[draftTask?.priority]}
+                    {draftTask?.priority && priorityMap[draftTask?.priority]}
                   </Typography>
                   <Typography sx={{ mb: 2 }}>
                     <strong>期限：</strong>
