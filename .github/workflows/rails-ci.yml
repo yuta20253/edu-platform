@@ -1,0 +1,73 @@
+name: Rails CI
+
+on:
+  pull_request:
+    paths:
+      - 'rails/**'
+
+defaults:
+  run:
+    working-directory: rails
+
+jobs:
+  rubocop:
+    name: RuboCop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: true
+          working-directory: rails
+
+      - name: Run RuboCop
+        run: bundle exec rubocop
+
+  rspec:
+    name: RSpec
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'false'
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -u root -ppassword"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 30s
+
+    env:
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 3306
+      DATABASE_USER: root
+      DATABASE_PASSWORD: password
+      RAILS_ENV: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: true
+          working-directory: rails
+
+      - name: Create and migrate test database
+        run: |
+          bundle exec rails db:create
+          bundle exec rails db:migrate
+
+      - name: Run RSpec
+        run: bundle exec rspec
