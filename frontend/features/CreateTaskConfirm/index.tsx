@@ -20,10 +20,9 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const { goal } = useFetchGoal(goalId);
-  const { draftTask } = useFetchDraftTask({draftTaskId, setIsLoading});
+  const { draftTask, isLoading } = useFetchDraftTask(draftTaskId);
 
   const { registerTask } = useRegisterTask();
 

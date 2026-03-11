@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { apiClient } from "@/libs/http/apiClient";
 
 type CourseType = {
@@ -26,13 +26,9 @@ export type DraftTaskType = {
   units: UnitType[];
 };
 
-type Props = {
-  draftTaskId: number;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
-}
-
-export const useFetchDraftTask = ({draftTaskId, setIsLoading}: Props) => {
+export const useFetchDraftTask = (draftTaskId: number) => {
   const [draftTask, setDraftTask] = useState<DraftTaskType | null>(null);
+   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
     if (!draftTaskId) return;
@@ -51,5 +47,5 @@ export const useFetchDraftTask = ({draftTaskId, setIsLoading}: Props) => {
     fetchDraftTask();
   }, [draftTaskId, setIsLoading]);
 
-  return { draftTask };
+  return { draftTask, isLoading };
 };
