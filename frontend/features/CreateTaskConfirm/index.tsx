@@ -144,31 +144,27 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
                     <strong>期限：</strong>
                     {draftTask?.due_date}
                   </Typography>
-
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    {draftTask?.units.map((unit) => (
-                      <Box key={unit.id}>
-                        <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                          {unit.course.level_name}レベル{unit.course.level_number}
-                        </Typography>
-                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                          {draftTask.units.map((unit) => (
-                            <Box
-                              key={unit.id}
-                              sx={{
-                                px: 2,
-                                py: 0.5,
-                                borderRadius: 10,
-                                backgroundColor: "#e3f2fd",
-                                fontSize: 14,
-                              }}
-                            >
-                              {unit.unit_name}
-                            </Box>
-                          ))}
+                    <Typography sx={{ fontWeight: 600, mb: 1 }}>
+                      {draftTask?.units?.[0]?.course.level_name}レベル
+                      {draftTask?.units?.[0]?.course.level_number}
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                      {draftTask?.units.map((unit) => (
+                        <Box
+                          key={unit.id}
+                          sx={{
+                            px: 2,
+                            py: 0.5,
+                            borderRadius: 10,
+                            backgroundColor: "#e3f2fd",
+                            fontSize: 14,
+                          }}
+                        >
+                          {unit.unit_name}
                         </Box>
-                      </Box>
-                    ))}
+                      ))}
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -176,7 +172,7 @@ export const CreateTaskConfirm = ({ goalId, draftTaskId }: GoalIdProps): React.J
             <Box sx={{ my: 4, display: "flex", gap: 2 }}>
               <Button
                 type="button"
-                onClick={() => window.history.back()}
+                onClick={() => router.push(`/goals/${goalId}/tasks/new?draftTaskId=${draftTaskId}`)}
                 sx={{
                   flex: 1,
                   backgroundColor: "#eee",

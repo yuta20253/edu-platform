@@ -26,12 +26,20 @@ import { SubjectName } from "@/features/CreateTask/subject";
 import { useCourses } from "./hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
+import { useSearchParams } from "next/navigation";
+import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
+import { useEffect } from "react";
 
 type GoalIdProps = {
   goalId: number;
 };
 
 export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
+  const searchParams = useSearchParams()
+  const draftTaskId = searchParams.get("draftTaskId")
+
+  const { draftTask } = useFetchDraftTask(draftTaskId ? Number(draftTaskId) : null)
+
   const {
     courses,
     selectedCourseId,
@@ -43,12 +51,13 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
     setShowAllCourses,
   } = useCourses();
 
-  const { selectedUnitIds, handleToggleUnit } = useUnitSelection();
+  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } = useUnitSelection();
 
   const {
     control,
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CreateTaskForm>({
     defaultValues: {
@@ -62,6 +71,27 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
   });
 
   const { onSubmit } = useSubmit({ selectedUnitIds });
+
+  useEffect(() => {
+    if (!draftTask) return
+
+    const priority =
+      typeof draftTask.priority === "number"
+        ? draftTask.priority
+        : PRIORITY.NORMAL
+
+    const unitIds = draftTask.units?.map((u) => u.id) ?? []
+    reset({
+      goal_id: draftTask.goal_id,
+      title: draftTask.title ?? "",
+      content: draftTask.content ?? "",
+      priority: priority,
+      due_date: draftTask.due_date ? new Date(draftTask.due_date) : null,
+      unit_ids: unitIds,
+    })
+
+    setSelectedUnitIds(unitIds)
+  }, [draftTask, reset, setSelectedUnitIds])
 
   return (
     <Box

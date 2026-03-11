@@ -26,7 +26,7 @@ export type DraftTaskType = {
   units: UnitType[];
 };
 
-export const useFetchDraftTask = (draftTaskId: number) => {
+export const useFetchDraftTask = (draftTaskId: number | null) => {
   const [draftTask, setDraftTask] = useState<DraftTaskType | null>(null);
    const [isLoading, setIsLoading] = useState<boolean>(false)
 
