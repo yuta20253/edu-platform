@@ -26,7 +26,6 @@ import { SubjectName } from "@/features/CreateTask/subject";
 import { useCourses } from "./hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
-import { useSearchParams } from "next/navigation";
 import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
 import { useEffect } from "react";
 
