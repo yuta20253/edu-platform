@@ -21,13 +21,13 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
-import { CreateTaskForm } from "./types";
 import { SubjectName } from "@/features/CreateTask/subject";
 import { useCourses } from "./hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
 import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
 import { useEffect } from "react";
+import { useDefaultValues } from "./hooks/useDefaultValues";
 
 type Props = {
   goalId: number;
@@ -53,21 +53,16 @@ export const CreateTask = ({ goalId, draftTaskId }: Props): React.JSX.Element =>
   const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
     useUnitSelection();
 
+  const defaultValues = useDefaultValues({ draftTask, goalId })
+
   const {
     control,
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateTaskForm>({
-    defaultValues: {
-      goal_id: goalId,
-      title: "",
-      content: "",
-      priority: PRIORITY.NORMAL,
-      due_date: null,
-      unit_ids: [],
-    },
+  } = useForm({
+    defaultValues
   });
 
   const { onSubmit } = useSubmit({ selectedUnitIds });
