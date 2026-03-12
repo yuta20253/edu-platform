@@ -30,14 +30,12 @@ import { useSearchParams } from "next/navigation";
 import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
 import { useEffect } from "react";
 
-type GoalIdProps = {
+type Props = {
   goalId: number;
+  draftTaskId: number;
 };
 
-export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
-  const searchParams = useSearchParams();
-  const draftTaskId = searchParams.get("draftTaskId");
-
+export const CreateTask = ({ goalId, draftTaskId }: Props): React.JSX.Element => {
   const { draftTask } = useFetchDraftTask(
     draftTaskId ? Number(draftTaskId) : null,
   );
