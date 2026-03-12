@@ -245,7 +245,6 @@ export const CreateTaskConfirm = ({
       >
         <Box
           sx={{
-            bgcolor: "background.paper",
             p: 4,
             borderRadius: 2,
             boxShadow: 3,
