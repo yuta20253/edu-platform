@@ -34,7 +34,10 @@ type Props = {
   draftTaskId: number;
 };
 
-export const CreateTask = ({ goalId, draftTaskId }: Props): React.JSX.Element => {
+export const CreateTask = ({
+  goalId,
+  draftTaskId,
+}: Props): React.JSX.Element => {
   const { draftTask } = useFetchDraftTask(
     draftTaskId ? Number(draftTaskId) : null,
   );
@@ -53,7 +56,7 @@ export const CreateTask = ({ goalId, draftTaskId }: Props): React.JSX.Element =>
   const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
     useUnitSelection();
 
-  const defaultValues = useDefaultValues({ draftTask, goalId })
+  const defaultValues = useDefaultValues({ draftTask, goalId });
 
   const {
     control,
@@ -62,7 +65,7 @@ export const CreateTask = ({ goalId, draftTaskId }: Props): React.JSX.Element =>
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues
+    defaultValues,
   });
 
   const { onSubmit } = useSubmit({ selectedUnitIds });
