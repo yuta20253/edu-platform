@@ -5,12 +5,16 @@ module Api
     module Admin
       class ImportQuestionsController < Api::V1::Admin::BaseController
         def create
+          file = import_questions_csv_params[:file]
+
+          Csv::File::FileValidator.new(file).call
+
           import_history = current_user.import_histories.create!(
             unit_id: import_questions_csv_params[:unit_id],
             status: :processing
           )
 
-          import_history.file.attach(import_questions_csv_params[:file])
+          import_history.file.attach(file)
 
           Admin::QuestionCsvImportJob.perform_later(import_history.id)
 

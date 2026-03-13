@@ -6,6 +6,10 @@ module Api
       class BaseController < ApplicationController
         before_action :authorize_admin_service
 
+        rescue_from Csv::Errors::InvalidFileType do |e|
+          render json: { error: e.message }, status: :unprocessable_content
+        end
+
         private
 
         def authorize_admin_service
