@@ -243,18 +243,7 @@ export const CreateTaskConfirm = ({
         open={isLoading}
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Box
-          sx={{
-            p: 4,
-            borderRadius: 2,
-            boxShadow: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <CircularProgress size="4rem" />
-        </Box>
+        <CircularProgress size="4rem" />
       </Backdrop>
     </>
   );
