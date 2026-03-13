@@ -3,7 +3,7 @@
 module Api
   module V1
     module Admin
-      class ImportQuestionsController < ApplicationController
+      class ImportQuestionsController < Api::V1::Admin::BaseController
         def create
           import_history = current_user.import_histories.create!(
             unit_id: import_questions_csv_params[:unit_id],
