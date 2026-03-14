@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/services/admin/question_csv_batch_import_service_spec.rb
 require 'rails_helper'
 
@@ -23,7 +25,7 @@ RSpec.describe Admin::QuestionCsvBatchImportService, type: :service do
 
       it 'Questionが作成されImportHistoryがcompletedになる' do
         service = described_class.new(import_history)
-        expect { service.call }.to change { Question.count }.by(1)
+        expect { service.call }.to change(Question, :count).by(1)
         import_history.reload
         expect(import_history.status).to eq('completed')
         expect(import_history.success_count).to eq(1)
@@ -41,10 +43,10 @@ RSpec.describe Admin::QuestionCsvBatchImportService, type: :service do
 
       it 'ImportErrorが作成されfailedになる' do
         service = described_class.new(import_history)
-        expect {
+        expect do
           # transaction干渉回避のため、countをトランザクション外で確認
           service.call
-        }.to change { ImportError.count }.by(1)
+        end.to change(ImportError, :count).by(1)
         import_history.reload
         expect(import_history.status).to eq('failed')
         expect(import_history.error_count).to eq(1)
@@ -61,7 +63,7 @@ RSpec.describe Admin::QuestionCsvBatchImportService, type: :service do
 
       it 'ImportErrorが作成されfailedになる' do
         service = described_class.new(import_history)
-        expect { service.call }.to change { ImportError.count }.by(1)
+        expect { service.call }.to change(ImportError, :count).by(1)
         import_history.reload
         expect(import_history.status).to eq('failed')
         expect(import_history.error_count).to eq(1)
@@ -79,7 +81,7 @@ RSpec.describe Admin::QuestionCsvBatchImportService, type: :service do
 
       it 'transactionがrollbackされQuestionは作成されない' do
         service = described_class.new(import_history)
-        expect { service.call }.not_to change { Question.count }
+        expect { service.call }.not_to(change(Question, :count))
         import_history.reload
         expect(import_history.status).to eq('failed')
         expect(import_history.error_count).to eq(1)

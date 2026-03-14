@@ -24,13 +24,13 @@ FactoryBot.define do
   factory :import_history do
     association :user
     association :unit
-    file_name {"questions.csv"}
+    file_name { 'questions.csv' }
 
     after(:build) do |history|
       history.file.attach(
         io: StringIO.new("問題文,正解番号,解説,選択肢1,選択肢2,選択肢3,選択肢4\n問題1,1,解説,A,B,C,D"),
-        filename: "questions.csv",
-        content_type: "text/csv"
+        filename: 'questions.csv',
+        content_type: 'text/csv'
       )
     end
   end

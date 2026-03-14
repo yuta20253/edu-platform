@@ -91,6 +91,7 @@ module Admin
 
     def save_errors
       return if @errors.empty?
+
       ImportError.insert_all(@errors)
     end
 
