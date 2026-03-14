@@ -14,24 +14,26 @@ module Admin
     def call
       start_import!
 
-      ActiveRecord::Base.transaction do
-        @file.open do |template|
-          CSV.foreach(template.path, headers: true, encoding: 'bom|utf-8').with_index(2) do |row, line_number|
-            @total_count += 1
-            process_row(row, line_number)
+      begin
+        ActiveRecord::Base.transaction do
+          @file.open do |template|
+            CSV.foreach(template.path, headers: true, encoding: 'bom|utf-8').with_index(2) do |row, line_number|
+              @total_count += 1
+              process_row(row, line_number)
+            end
           end
+
+          raise CsvImportError if @errors.any?
         end
 
-        raise CsvImportError if @errors.any?
+        complete_import!
+      rescue CsvImportError
+        save_errors
+        fail_import!
+      rescue StandardError => e
+        fail_import!
+        raise e
       end
-
-      complete_import!
-    rescue CsvImportError
-      save_errors
-      fail_import!
-    rescue StandardError => e
-      fail_import!
-      raise e
     end
 
     private
@@ -51,10 +53,6 @@ module Admin
       end
 
       Admin::QuestionCsvImportService.new(form, @unit_id).call
-    end
-
-    def save_errors
-      ImportError.insert_all(@errors) if @errors.any?
     end
 
     def build_form(row)
@@ -89,6 +87,11 @@ module Admin
         success_count: @total_count,
         total_count: @total_count
       )
+    end
+
+    def save_errors
+      return if @errors.empty?
+      ImportError.insert_all(@errors)
     end
 
     def fail_import!
