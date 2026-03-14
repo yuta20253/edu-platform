@@ -30,7 +30,7 @@ module Admin
       save_errors
       fail_import!
     rescue StandardError => e
-      @import_history.failed!
+      fail_import!
       raise e
     end
 
