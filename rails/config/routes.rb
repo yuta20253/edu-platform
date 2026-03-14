@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       namespace :student do
         resource :dashboard, only: :show
         resources :goals
+        resources :draft_tasks
         resources :tasks
         resources :courses, only: :index
       end
