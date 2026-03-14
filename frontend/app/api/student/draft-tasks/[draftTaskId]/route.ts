@@ -3,14 +3,14 @@ import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  _: Request,
-  { params }: { params: Promise<{ goalId: string }> },
+  req: Request,
+  { params }: { params: Promise<{ draftTaskId: string }> },
 ) {
   try {
-    const { goalId } = await params;
+    const { draftTaskId } = await params;
 
     const { status, data, setCookie } = await railsFetch(
-      `/api/v1/student/goals/${goalId}`,
+      `/api/v1/student/draft_tasks/${draftTaskId}`,
       {
         method: "GET",
       },

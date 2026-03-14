@@ -21,17 +21,27 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
-import { CreateTaskForm } from "./types";
 import { SubjectName } from "@/features/CreateTask/subject";
 import { useCourses } from "./hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
+import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
+import { useEffect } from "react";
+import { useDefaultValues } from "./hooks/useDefaultValues";
 
-type GoalIdProps = {
+type Props = {
   goalId: number;
+  draftTaskId: number;
 };
 
-export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
+export const CreateTask = ({
+  goalId,
+  draftTaskId,
+}: Props): React.JSX.Element => {
+  const { draftTask } = useFetchDraftTask(
+    draftTaskId ? Number(draftTaskId) : null,
+  );
+
   const {
     courses,
     selectedCourseId,
@@ -43,25 +53,43 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
     setShowAllCourses,
   } = useCourses();
 
-  const { selectedUnitIds, handleToggleUnit } = useUnitSelection();
+  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
+    useUnitSelection();
+
+  const defaultValues = useDefaultValues({ draftTask, goalId });
 
   const {
     control,
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<CreateTaskForm>({
-    defaultValues: {
-      goal_id: goalId,
-      title: "",
-      content: "",
-      priority: PRIORITY.NORMAL,
-      due_date: null,
-      unit_ids: [],
-    },
+  } = useForm({
+    defaultValues,
   });
 
-  const { onSubmit } = useSubmit({ selectedUnitIds, courses, goalId });
+  const { onSubmit } = useSubmit({ selectedUnitIds });
+
+  useEffect(() => {
+    if (!draftTask) return;
+
+    const priority =
+      typeof draftTask.priority === "number"
+        ? draftTask.priority
+        : PRIORITY.NORMAL;
+
+    const unitIds = draftTask.units?.map((u) => u.id) ?? [];
+    reset({
+      goal_id: draftTask.goal_id,
+      title: draftTask.title ?? "",
+      content: draftTask.content ?? "",
+      priority: priority,
+      due_date: draftTask.due_date ? new Date(draftTask.due_date) : null,
+      unit_ids: unitIds,
+    });
+
+    setSelectedUnitIds(unitIds);
+  }, [draftTask, reset, setSelectedUnitIds]);
 
   return (
     <Box
@@ -77,7 +105,7 @@ export const CreateTask = ({ goalId }: GoalIdProps): React.JSX.Element => {
         <Typography
           variant="h4"
           component="p"
-          sx={{ fontWeight: "bold", mt: 4, textAlign: "center" }}
+          sx={{ fontWeight: "bold", mt: 8, textAlign: "center" }}
         >
           タスク作成
         </Typography>

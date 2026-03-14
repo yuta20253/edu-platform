@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 module Student
-  class CreateTaskForm
+  class CreateDraftTaskForm
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
 
-    attr_reader :current_user
+    attr_reader :current_user, :draft_task_id
 
     attribute :goal_id, :integer
     attribute :title, :string
     attribute :content, :string
-    attribute :priority, :string
+    attribute :priority, :integer
     attribute :due_date, :string
     attribute :memo, :string
     attribute :unit_ids, default: []
@@ -33,7 +33,7 @@ module Student
     def save
       return false unless valid?
 
-      ::Student::CreateTaskService.new(self).call
+      @draft_task_id = ::Student::CreateDraftTaskService.new(self).call
       true
     end
 

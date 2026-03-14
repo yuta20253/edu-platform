@@ -382,8 +382,8 @@ DEPENDENCIES
   devise-jwt (~> 0.12.1)
   factory_bot_rails
   faker
-  letter_opener_web
   kaminari
+  letter_opener_web
   mysql2 (~> 0.5)
   puma (>= 5.0)
   pundit

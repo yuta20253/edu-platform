@@ -2,17 +2,15 @@ import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  _: Request,
-  { params }: { params: Promise<{ goalId: string }> },
-) {
+export async function POST(req: Request) {
   try {
-    const { goalId } = await params;
+    const body = await req.json();
 
     const { status, data, setCookie } = await railsFetch(
-      `/api/v1/student/goals/${goalId}`,
+      "/api/v1/student/draft_tasks",
       {
-        method: "GET",
+        method: "POST",
+        body,
       },
     );
 
@@ -23,7 +21,7 @@ export async function GET(
     return nextResponse;
   } catch (error) {
     if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
+      return NextResponse.json({ message: "UNAUTHRIZED" }, { status: 401 });
     }
 
     return NextResponse.json(

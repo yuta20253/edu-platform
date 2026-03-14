@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_28_085047) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_07_064131) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -61,6 +61,45 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_085047) do
     t.index ["subject_id"], name: "index_courses_on_subject_id"
   end
 
+  create_table "draft_task_courses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "draft_task_id", null: false
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_draft_task_courses_on_course_id"
+    t.index ["draft_task_id"], name: "index_draft_task_courses_on_draft_task_id"
+  end
+
+  create_table "draft_task_units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "draft_task_id", null: false
+    t.bigint "unit_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["draft_task_id", "unit_id"], name: "index_draft_task_units_on_draft_task_id_and_unit_id", unique: true
+    t.index ["draft_task_id"], name: "index_draft_task_units_on_draft_task_id"
+    t.index ["unit_id"], name: "index_draft_task_units_on_unit_id"
+  end
+
+  create_table "draft_tasks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "goal_id"
+    t.bigint "course_id"
+    t.string "title", limit: 100, null: false
+    t.text "content", null: false
+    t.integer "priority", default: 3, null: false
+    t.date "due_date"
+    t.integer "estimated_time"
+    t.integer "status", default: 0, null: false
+    t.text "memo"
+    t.datetime "completed_at"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_draft_tasks_on_course_id"
+    t.index ["goal_id"], name: "index_draft_tasks_on_goal_id"
+    t.index ["user_id"], name: "index_draft_tasks_on_user_id"
+  end
+
   create_table "goals", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "title", null: false
@@ -82,11 +121,48 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_085047) do
     t.index ["high_school_id"], name: "index_grades_on_high_school_id"
   end
 
+  create_table "grades", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "high_school_id", null: false
+    t.integer "year", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["high_school_id", "year"], name: "index_grades_on_high_school_id_and_year", unique: true
+    t.index ["high_school_id"], name: "index_grades_on_high_school_id"
+  end
+
   create_table "high_schools", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", limit: 50, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_high_schools_on_name", unique: true
+  end
+
+  create_table "import_errors", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "import_history_id", null: false
+    t.integer "row_number", null: false
+    t.text "message", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["import_history_id"], name: "index_import_errors_on_import_history_id"
+  end
+
+  create_table "import_histories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "unit_id", null: false
+    t.string "file_name", null: false
+    t.bigint "file_size"
+    t.string "content_type"
+    t.integer "status", default: 0, null: false
+    t.integer "toral_count", default: 0, null: false
+    t.integer "success_count", default: 0, null: false
+    t.integer "error_count", default: 0, null: false
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_import_histories_on_unit_id"
+    t.index ["user_id"], name: "index_import_histories_on_user_id"
   end
 
   create_table "import_errors", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -400,7 +476,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_085047) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "draft_task_courses", "courses"
+  add_foreign_key "draft_task_courses", "draft_tasks"
+  add_foreign_key "draft_task_units", "draft_tasks"
+  add_foreign_key "draft_task_units", "units"
+  add_foreign_key "draft_tasks", "goals"
+  add_foreign_key "draft_tasks", "users"
   add_foreign_key "goals", "users"
+  add_foreign_key "grades", "high_schools"
+  add_foreign_key "import_errors", "import_histories"
+  add_foreign_key "import_histories", "units"
+  add_foreign_key "import_histories", "users"
   add_foreign_key "grades", "high_schools"
   add_foreign_key "import_errors", "import_histories"
   add_foreign_key "import_histories", "units"

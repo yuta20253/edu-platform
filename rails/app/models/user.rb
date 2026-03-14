@@ -37,6 +37,7 @@ class User < ApplicationRecord
   has_one :teacher_permission, dependent: :destroy
 
   has_many :goals, dependent: :destroy
+  has_many :draft_tasks, dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :study_logs, dependent: :destroy
   has_many :reflections, dependent: :destroy
