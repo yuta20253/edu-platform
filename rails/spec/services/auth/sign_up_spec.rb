@@ -13,6 +13,7 @@ RSpec.describe Auth::SignUpService, type: :service do
       Auth::SignUpForm,
       user_role_name: user_role_name,
       school_name: school_name,
+      grade_id: 1,
       to_attributes: {
         email: 'test@example.com',
         password: 'password',
