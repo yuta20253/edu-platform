@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Admin::QuestionCsvImportService do
   describe '#call' do
+    subject(:service_call) { described_class.new(form, unit.id).call }
+
     let(:unit) { create(:unit) }
 
     let(:form) do
@@ -11,12 +13,10 @@ RSpec.describe Admin::QuestionCsvImportService do
         question_text: '1+1は？',
         correct_answer: 2,
         explanation_text: '1+1=2です',
-        choices: ['1', '2', '3', '4'],
-        hints: ['まず1を考える', '次に1を足す']
+        choices: %w[1 2 3 4],
+        hints: %w[まず1を考える 次に1を足す]
       )
     end
-
-    subject(:service_call) { described_class.new(form, unit.id).call }
 
     context '正常系' do
       it 'questionを作成する' do
@@ -40,7 +40,7 @@ RSpec.describe Admin::QuestionCsvImportService do
 
         expect(
           QuestionChoice.order(:choice_number).pluck(:choice_number)
-        ).to eq [1,2,3,4]
+        ).to eq [1, 2, 3, 4]
       end
 
       it 'step_numberが正しく保存される' do
@@ -48,7 +48,7 @@ RSpec.describe Admin::QuestionCsvImportService do
 
         expect(
           QuestionHint.order(:step_number).pluck(:step_number)
-        ).to eq [1,2]
+        ).to eq [1, 2]
       end
     end
 
