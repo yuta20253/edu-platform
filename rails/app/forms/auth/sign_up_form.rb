@@ -26,7 +26,7 @@ module Auth
         name_kana:,
         password:,
         password_confirmation:,
-        grade_id:,
+        grade_id:
       }
     end
 
