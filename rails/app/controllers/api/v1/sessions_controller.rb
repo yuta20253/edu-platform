@@ -28,7 +28,12 @@ module Api
           path: '/'
         }
 
-        render json: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: CurrentUserSerializer) },
+        render json: {
+                 user: ActiveModelSerializers::SerializableResource.new(
+                   user,
+                   serializer: CurrentUserSerializer
+                 )
+               },
                status: :ok
       rescue Auth::LoginService::LoginError => e
         render json: { errors: [e.message] }, status: :unauthorized
