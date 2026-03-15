@@ -13,7 +13,7 @@ module Student
           goal: @form.goal,
           title: @form.title,
           content: @form.content,
-          priority: @form.priority.to_i,
+          priority: @form.priority,
           due_date: @form.parsed_due_date,
           estimated_time: 0,
           memo: @form.memo

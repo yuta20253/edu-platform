@@ -45,8 +45,8 @@ RSpec.describe User, type: :model do
         user.name_kana = nil
 
         expect(user.valid?).to be false
-        expect(user.errors[:name]).to include("can't be blank")
-        expect(user.errors[:name_kana]).to include("can't be blank")
+        expect(user.errors[:name]).to include("を入力してください")
+        expect(user.errors[:name_kana]).to include("を入力してください")
       end
     end
 

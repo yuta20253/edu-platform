@@ -2,6 +2,7 @@ ja:
   errors:
     messages:
       blank: "を入力してください"
+      invalid: "が不正です"
   activerecord:
     models:
       goal: 目標
