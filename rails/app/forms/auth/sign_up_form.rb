@@ -27,7 +27,7 @@ module Auth
         password:,
         password_confirmation:,
       }
-      attrs[:grade_id] = grade_id if student?
+      attrs[:grade_id] = grade_id if school_required?
       attrs
     end
 
