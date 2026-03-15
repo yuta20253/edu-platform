@@ -20,14 +20,15 @@ module Auth
     validates :grade_id, presence: true, if: :student?
 
     def to_attributes
-      {
+      attrs = {
         email:,
         name:,
         name_kana:,
         password:,
         password_confirmation:,
-        grade_id:
       }
+      attrs[:grade_id] = grade_id if student?
+      attrs
     end
 
     private
