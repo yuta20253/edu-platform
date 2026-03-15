@@ -16,7 +16,7 @@ module Admin
 
       QuestionExplanation.find_or_create_by!(
         question_id: question.id,
-        explanation_type: '基本解説',
+        explanation_type: QuestionExplanation::BASIC,
         explanation_text: @form.explanation_text
       )
 
