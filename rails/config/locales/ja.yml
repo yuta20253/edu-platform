@@ -1,4 +1,7 @@
 ja:
+  errors:
+    messages:
+      blank: "を入力してください"
   activerecord:
     models:
       goal: 目標
