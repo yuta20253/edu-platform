@@ -9,16 +9,15 @@ RSpec.describe Auth::SignUpService, type: :service do
   let!(:user_role) { create(:user_role, name: :student) }
 
   let(:form) do
-    instance_double(
-      Auth::SignUpForm,
+    Auth::SignUpForm.new(
+      email: 'test@example.com',
+      name: '山田太郎',
+      name_kana: 'ヤマダタロウ',
+      password: 'password',
+      password_confirmation: 'password',
       user_role_name: user_role_name,
       school_name: school_name,
-      grade_id: 1,
-      to_attributes: {
-        email: 'test@example.com',
-        password: 'password',
-        password_confirmation: 'password'
-      }
+      grade_id: 1
     )
   end
 
