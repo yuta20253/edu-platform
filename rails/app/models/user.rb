@@ -48,7 +48,8 @@ class User < ApplicationRecord
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
 
-  validates :name, :name_kana, presence: true, on: :update
+  validates :name, presence: true, on: :update
+  validates :name_kana, presence: true, on: :update
   validates :user_role, presence: true
   validates :high_school, presence: true, if: -> { student? || teacher? }
   validates :grade, presence: true, if: :student?
