@@ -8,6 +8,8 @@ ja:
       goal: 目標
       task: タスク
     errors:
+      messages:
+        record_invalid: "バリデーションに失敗しました"
       models:
         teacher_grade:
           attributes:

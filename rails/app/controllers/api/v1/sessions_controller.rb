@@ -66,8 +66,6 @@ module Api
           path: '/',
           expires: 1.day.from_now
         }
-
-        response.headers.delete('Authorization')
       end
     end
   end
