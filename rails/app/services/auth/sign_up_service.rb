@@ -19,7 +19,7 @@ module Auth
           raise SignUpError, '学校が見つかりません' unless high_school
         end
 
-        user = User.create!(@form.to_attributes.merge(user_role_id: role.id, high_school: high_school))
+        user = User.create!(@form.to_attributes.merge(user_role_id: role.id, high_school: high_school, grade_id: @form.grade_id))
 
         user
       end
