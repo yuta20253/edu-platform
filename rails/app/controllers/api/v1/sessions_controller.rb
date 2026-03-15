@@ -28,6 +28,8 @@ module Api
           path: '/'
         }
 
+        response.headers.delete('Authorization')
+
         render json: {
                  user: ActiveModelSerializers::SerializableResource.new(
                    user,
@@ -43,6 +45,7 @@ module Api
         current_user.update!(jti: SecureRandom.uuid)
 
         cookies.delete(:access_token, path: '/')
+        request.headers.delete('Authorization')
 
         render json: { message: 'ログアウトしました。' }, status: :ok
       end
@@ -50,7 +53,7 @@ module Api
       private
 
       def set_jwt_cookie
-        auth = response.header['Authorization']
+        auth = response.headers['Authorization']
         return unless auth&.start_with?('Bearer ')
 
         token = auth.split(' ', 2).last
@@ -64,7 +67,7 @@ module Api
           expires: 1.day.from_now
         }
 
-        response.delete_header('Authorization')
+        response.headers.delete('Authorization')
       end
     end
   end
