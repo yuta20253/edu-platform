@@ -52,6 +52,7 @@ jobs:
       DATABASE_USER: root
       DATABASE_PASSWORD: password
       RAILS_ENV: test
+      DEVISE_JWT_SECRET_KEY: test_secret
 
     steps:
       - name: Checkout code

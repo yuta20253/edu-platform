@@ -25,7 +25,6 @@ class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
 
   before_validation :set_jti, on: :create
-  before_create :set_jti
 
   belongs_to :user_role, optional: true
   belongs_to :address, optional: true
@@ -48,9 +47,10 @@ class User < ApplicationRecord
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
 
-  validates :name, :name_kana, presence: true, on: :update
+  validates :name, presence: true, on: :update
+  validates :name_kana, presence: true, on: :update
   validates :user_role, presence: true
-  validates :high_school, presence: true, if: -> { student? || teacher? }
+  validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
 
   # Include default devise modules. Others available are:
@@ -73,6 +73,10 @@ class User < ApplicationRecord
 
   def guardian?
     user_role&.guardian?
+  end
+
+  def requires_high_school?
+    user_role&.student? || user_role&.teacher?
   end
 
   private
