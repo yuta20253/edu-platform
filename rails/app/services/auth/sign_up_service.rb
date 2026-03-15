@@ -17,7 +17,8 @@ module Auth
         if role.student? || role.teacher?
           high_school = HighSchool.find_by(name: @form.school_name)
           raise SignUpError, '学校が見つかりません' unless high_school
-          grade = Grade.find_by(id: @form.grade_id, high_school_id: high_school.id)
+
+          grade = Grade.find_by(id: @form.grade_id)
           raise SignUpError, '学年が見つかりません' unless grade
         end
 

@@ -17,7 +17,7 @@ module Auth
 
     validates :user_role_name, presence: true
     validates :school_name, presence: true, if: :school_required?
-    validates :grade_id, presence: true, if: :student?
+    validates :grade_id, presence: true, if: :school_required?
 
     def to_attributes
       attrs = {
@@ -25,7 +25,7 @@ module Auth
         name:,
         name_kana:,
         password:,
-        password_confirmation:,
+        password_confirmation:
       }
       attrs[:grade_id] = grade_id if school_required?
       attrs
