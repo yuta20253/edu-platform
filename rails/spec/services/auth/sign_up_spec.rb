@@ -7,6 +7,7 @@ RSpec.describe Auth::SignUpService, type: :service do
 
   let!(:high_school) { create(:high_school, name: 'テスト高校') }
   let!(:user_role) { create(:user_role, name: :student) }
+  let!(:grade) { create(:grade, high_school: high_school, year: 1) }
 
   let(:form) do
     Auth::SignUpForm.new(
@@ -17,7 +18,7 @@ RSpec.describe Auth::SignUpService, type: :service do
       password_confirmation: 'password',
       user_role_name: user_role_name,
       school_name: school_name,
-      grade_id: 1
+      grade_id: grade.id
     )
   end
 
