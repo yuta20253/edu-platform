@@ -31,6 +31,8 @@ FactoryBot.define do
 
     association :user_role, factory: %i[user_role student]
     association :high_school
+    association :grade
+    association :address
 
     trait :admin do
       user_role { association :user_role, :admin }
