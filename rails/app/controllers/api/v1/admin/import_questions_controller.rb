@@ -9,12 +9,16 @@ module Api
 
           Csv::File::FileValidator.new(file).call
 
-          import_history = current_user.import_histories.create!(
-            unit_id: import_questions_csv_params[:unit_id],
-            status: :processing
-          )
-
-          import_history.file.attach(file)
+          ActiveRecord::Base.transaction do
+            import_history = current_user.import_histories.create!(
+              unit_id: import_questions_csv_params[:unit_id],
+              status: :processing,
+              file_name: file.original_filename,
+              file_size: file.size,
+              content_type: file.content_type
+            )
+            import_history.file.attach(file)
+          end
 
           Admin::QuestionCsvImportJob.perform_later(import_history.id)
 
