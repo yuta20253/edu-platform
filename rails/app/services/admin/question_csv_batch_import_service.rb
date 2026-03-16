@@ -69,7 +69,7 @@ module Admin
         hints: [
           row['ヒント1'],
           row['ヒント2']
-        ].compact
+        ].compact_blank
       )
     end
 
