@@ -9,6 +9,7 @@ module Api
 
           Csv::File::FileValidator.new(file).call
 
+          import_history = nil
           ActiveRecord::Base.transaction do
             import_history = current_user.import_histories.create!(
               unit_id: import_questions_csv_params[:unit_id],
