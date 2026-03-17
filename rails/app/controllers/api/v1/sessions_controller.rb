@@ -4,7 +4,6 @@ module Api
   module V1
     class SessionsController < Devise::SessionsController
       before_action :authenticate_user!, only: [:destroy]
-      skip_after_action :verify_signed_out_user, only: [:destroy]
       respond_to :json
 
       after_action :set_jwt_cookie, only: [:create]
@@ -45,14 +44,7 @@ module Api
       def destroy
         current_user.update!(jti: SecureRandom.uuid)
 
-        cookies[:access_token] = {
-          value: '',
-          httponly: true,
-          secure: Rails.env.production?,
-          same_site: :lax,
-          path: '/',
-          expires: Time.zone.at(0)
-        }
+        cookies.delete(:access_token, path: '/')
         request.headers.delete('Authorization')
 
         render json: { message: 'ログアウトしました。' }, status: :ok
