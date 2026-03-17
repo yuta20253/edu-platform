@@ -59,7 +59,7 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
         get '/api/v1/me', headers: headers.merge('Cookie' => cookie_header)
 
         body = response.parsed_body
-        expect(body['email']).to eq(email)
+        expect(body['user']['email']).to eq(email)
       end
     end
 
