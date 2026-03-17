@@ -47,6 +47,7 @@ class User < ApplicationRecord
   has_many :user_unit_question_stats, dependent: :destroy
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
+  has_many :import_histories, dependent: :destroy
 
   validates :name, :name_kana, presence: true, on: :update
   validates :user_role, presence: true
