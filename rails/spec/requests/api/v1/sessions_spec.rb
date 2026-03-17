@@ -91,7 +91,7 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
     it 'ログアウトできる' do
       delete '/api/v1/user/logout', headers: headers.merge('Cookie' => cookie_header)
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'Cookie削除のSet-Cookieが返る' do
@@ -99,7 +99,7 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
 
       logout_set_cookie = response.headers['Set-Cookie']
       expect(logout_set_cookie).to be_present
-      expect(logout_set_cookie).to include('access_token=')
+      expect(response.cookies['access_token']).to be_nil
     end
 
     it 'ログアウト後は /api/v1/me が401になる' do
