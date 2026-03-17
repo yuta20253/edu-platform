@@ -51,7 +51,7 @@ module Api
           secure: Rails.env.production?,
           same_site: :lax,
           path: '/',
-          expires: Time.at(0)
+          expires: Time.zone.at(0)
         }
         request.headers.delete('Authorization')
 
