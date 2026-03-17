@@ -52,11 +52,11 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
         expect(response.headers['Authorization']).to be_nil
       end
 
-      it 'Cookieを付けて /api/v1/users を叩くと current_user が取得できる' do
+      it 'Cookieを付けて /api/v1/me を叩くと current_user が取得できる' do
         cookie_header = login_and_cookie_header(headers: headers, params: valid_params)
         expect(cookie_header).to be_present
 
-        get '/api/v1/users', headers: headers.merge('Cookie' => cookie_header)
+        get '/api/v1/me', headers: headers.merge('Cookie' => cookie_header)
 
         body = response.parsed_body
         expect(body['email']).to eq(email)
@@ -101,10 +101,10 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
       expect(logout_set_cookie).to include('access_token=')
     end
 
-    it 'ログアウト後は /api/v1/users が401になる' do
+    it 'ログアウト後は /api/v1/me が401になる' do
       delete '/api/v1/user/logout', headers: headers.merge('Cookie' => cookie_header)
 
-      get '/api/v1/users', headers: headers.merge('Cookie' => cookie_header)
+      get '/api/v1/me', headers: headers.merge('Cookie' => cookie_header)
 
       expect(response).to have_http_status(:unauthorized)
     end
