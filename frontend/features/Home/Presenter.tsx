@@ -95,7 +95,7 @@ export const Presenter = ({
         ))}
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
           <Link
-            href={`/goals/create`}
+            href={`/goals/new`}
             style={{
               backgroundColor: "#0068b7",
               color: "#fff",

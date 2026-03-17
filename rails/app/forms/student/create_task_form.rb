@@ -11,7 +11,7 @@ module Student
     attribute :goal_id, :integer
     attribute :title, :string
     attribute :content, :string
-    attribute :priority, :integer
+    attribute :priority, :string
     attribute :due_date, :string
     attribute :memo, :string
     attribute :unit_ids, default: []

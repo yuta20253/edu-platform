@@ -37,6 +37,7 @@ class User < ApplicationRecord
   has_one :teacher_permission, dependent: :destroy
 
   has_many :goals, dependent: :destroy
+  has_many :draft_tasks, dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :study_logs, dependent: :destroy
   has_many :reflections, dependent: :destroy
@@ -46,6 +47,7 @@ class User < ApplicationRecord
   has_many :user_unit_question_stats, dependent: :destroy
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
+  has_many :import_histories, dependent: :destroy
 
   validates :name, :name_kana, presence: true, on: :update
   validates :user_role, presence: true

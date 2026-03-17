@@ -1,12 +1,12 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { CreateTaskForm } from "@/features/CreateTask/types";
+import { DraftTaskType } from "./useFetchDraftTask";
 
 export const useRegisterTask = () => {
-  const registerTask = async (task: CreateTaskForm) => {
+  const registerTask = async (draftTask: DraftTaskType) => {
     const postData = {
-      task: task,
+      task: draftTask,
     };
 
     return await apiClient.post(`/api/student/tasks`, postData);

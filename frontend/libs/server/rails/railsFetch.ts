@@ -24,7 +24,7 @@ export async function railsFetch<T = unknown>(
   path: string,
   opts: RailsFetchOptions = {},
 ): Promise<RailsFetchResult<T>> {
-  const origin = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const origin = process.env.API_URL;
   if (!origin) {
     throw new Error("API_URL is not set");
   }
@@ -70,7 +70,11 @@ export async function railsFetch<T = unknown>(
   if (!response.ok) {
     const bodyText =
       typeof data === "string" ? data : JSON.stringify(data).slice(0, 2000);
-    throw new RailsFetchError(response.status, `Rails request failed: ${response.status}`, bodyText);
+    throw new RailsFetchError(
+      response.status,
+      `Rails request failed: ${response.status}`,
+      bodyText,
+    );
   }
 
   return { status: response.status, data, setCookie };

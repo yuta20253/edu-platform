@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       namespace :student do
         resource :dashboard, only: :show
         resources :goals
+        resources :draft_tasks
         resources :tasks
         resources :courses, only: :index
       end
@@ -27,6 +28,11 @@ Rails.application.routes.draw do
         resources :students
       end
       namespace :admin do
+        resources :courses do
+          resources :units do
+            resource :import_questions, only: :create
+          end
+        end
       end
     end
   end

@@ -1,27 +1,34 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError"
-import { railsFetch } from "@/libs/server/rails/railsFetch"
-import { NextResponse } from "next/server"
+import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { NextResponse } from "next/server";
 
-export async function GET (req: Request, { params }: { params: Promise<{ goalId: string }> }) {
+export async function GET(
+  _: Request,
+  { params }: { params: Promise<{ goalId: string }> },
+) {
   try {
-    const { goalId } = await params
+    const { goalId } = await params;
 
-    const { status, data, setCookie } = await railsFetch(`/api/v1/student/goals/${goalId}`, {
-      method: "GET"
-    })
+    const { status, data, setCookie } = await railsFetch(
+      `/api/v1/student/goals/${goalId}`,
+      {
+        method: "GET",
+      },
+    );
 
-    const nextResponse = NextResponse.json(data, { status })
+    const nextResponse = NextResponse.json(data, { status });
 
-    if (setCookie) nextResponse.headers.set('set-cookie', setCookie)
+    if (setCookie) nextResponse.headers.set("set-cookie", setCookie);
 
-    return nextResponse
-
+    return nextResponse;
   } catch (error) {
-
     if (error instanceof RailsUnauthorizedError) {
-        return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 })
+      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    return NextResponse.json({ message: "INTERNAL_SERVER_ERROR" }, { status: 500 })
+    return NextResponse.json(
+      { message: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
   }
 }
