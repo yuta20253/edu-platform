@@ -44,7 +44,14 @@ module Api
       def destroy
         current_user.update!(jti: SecureRandom.uuid)
 
-        cookies.delete(:access_token, path: '/')
+        cookies[:access_token] = {
+          value: '',
+          httponly: true,
+          secure: Rails.env.production?,
+          same_site: :lax,
+          path: '/',
+          expires: Time.at(0)
+        }
         request.headers.delete('Authorization')
 
         render json: { message: 'ログアウトしました。' }, status: :ok
