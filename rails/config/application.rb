@@ -47,11 +47,6 @@ module RailsApp
     # Cookie を使う
     config.middleware.use ActionDispatch::Cookies
 
-    config.autoload_paths << Rails.root.join('app/forms')
-    config.autoload_paths << Rails.root.join('app/services')
-    config.autoload_paths << Rails.root.join('app/queries')
-
-    config.autoload_paths << Rails.root.join('lib')
     config.middleware.insert_before Warden::Manager, JwtCookieToHeader
   end
 end
