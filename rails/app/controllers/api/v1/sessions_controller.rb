@@ -3,7 +3,6 @@
 module Api
   module V1
     class SessionsController < Devise::SessionsController
-      before_action :authenticate_user!, only: [:destroy]
       respond_to :json
 
       after_action :set_jwt_cookie, only: [:create]
@@ -18,18 +17,6 @@ module Api
 
         sign_in(user, store: false)
 
-        token = request.env['warden-jwt_auth.token']
-
-        cookies[:access_token] = {
-          value: token,
-          httponly: true,
-          secure: Rails.env.production?,
-          same_site: :lax,
-          path: '/'
-        }
-
-        response.headers.delete('Authorization')
-
         render json: {
                  user: ActiveModelSerializers::SerializableResource.new(
                    user,
@@ -42,10 +29,12 @@ module Api
       end
 
       def destroy
-        current_user.update!(jti: SecureRandom.uuid)
+        current_user&.update!(jti: SecureRandom.uuid)
+        super
+      end
 
+      def respond_to_on_destroy
         cookies.delete(:access_token, path: '/')
-        request.headers.delete('Authorization')
 
         render json: { message: 'ログアウトしました。' }, status: :ok
       end
