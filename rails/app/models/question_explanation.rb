@@ -14,4 +14,6 @@
 #
 class QuestionExplanation < ApplicationRecord
   belongs_to :question
+
+  BASIC = '基本解説'
 end
