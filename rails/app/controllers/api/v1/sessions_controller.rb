@@ -4,7 +4,6 @@ module Api
   module V1
     class SessionsController < Devise::SessionsController
       before_action :authenticate_user!, only: [:destroy]
-      skip_after_action :verify_signed_out_user, only: [:destroy]
       respond_to :json
 
       after_action :set_jwt_cookie, only: [:create]
