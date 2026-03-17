@@ -7,8 +7,6 @@ module Api
       skip_after_action :verify_signed_out_user, only: [:destroy]
       respond_to :json
 
-      after_action :set_jwt_cookie, only: [:create]
-
       def create
         request.env['devise.mapping'] = Devise.mappings[:user]
         form = Auth::LoginForm.new(email: params[:email], password: params[:password])
@@ -28,8 +26,6 @@ module Api
           same_site: :lax,
           path: '/'
         }
-
-        response.headers.delete('Authorization')
 
         render json: {
                  user: ActiveModelSerializers::SerializableResource.new(
@@ -58,25 +54,6 @@ module Api
         render json: { message: 'ログアウトしました。' }, status: :ok
       end
 
-      private
-
-      def set_jwt_cookie
-        auth = response.headers['Authorization']
-        return unless auth&.start_with?('Bearer ')
-
-        token = auth.split(' ', 2).last
-
-        cookies[:access_token] = {
-          value: token,
-          httponly: true,
-          secure: Rails.env.production?,
-          same_site: :lax,
-          path: '/',
-          expires: 1.day.from_now
-        }
-
-        response.headers.delete('Authorization')
-      end
     end
   end
 end

@@ -19,6 +19,7 @@ require "action_view/railtie"
 Bundler.require(*Rails.groups)
 
 require_relative "../lib/jwt_cookie_to_header"
+require_relative "../lib/strip_authorization_response_header"
 
 module RailsApp
   class Application < Rails::Application
@@ -53,5 +54,6 @@ module RailsApp
 
     config.autoload_paths << Rails.root.join('lib')
     config.middleware.insert_before Warden::Manager, JwtCookieToHeader
+    config.middleware.insert_before 0, StripAuthorizationResponseHeader
   end
 end
