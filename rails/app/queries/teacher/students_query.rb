@@ -7,7 +7,7 @@ module Teacher
     end
 
     def students
-      @relation = @relation.where(user_role: 2)
+      @relation = @relation.joins(:user_role).where(user_roles: { name: :student })
       self
     end
 
