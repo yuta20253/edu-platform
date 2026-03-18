@@ -46,20 +46,21 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
         expect(set_cookie).to match(/HttpOnly/i)
       end
 
-      it 'Authorizationヘッダは返さない' do
+      it 'Authorizationヘッダは無視される（cookieが使われる）' do
         post '/api/v1/user/login', params: valid_params.to_json, headers: headers
 
-        expect(response.headers['Authorization']).to be_nil
+        set_cookie = response.headers['Set-Cookie']
+        expect(set_cookie).to include('access_token=')
       end
 
-      it 'Cookieを付けて /api/v1/users を叩くと current_user が取得できる' do
+      it 'Cookieを付けて /api/v1/me を叩くと current_user が取得できる' do
         cookie_header = login_and_cookie_header(headers: headers, params: valid_params)
         expect(cookie_header).to be_present
 
-        get '/api/v1/users', headers: headers.merge('Cookie' => cookie_header)
+        get '/api/v1/me', headers: headers.merge('Cookie' => cookie_header)
 
         body = response.parsed_body
-        expect(body['email']).to eq(email)
+        expect(body['user']['email']).to eq(email)
       end
     end
 
@@ -98,13 +99,13 @@ RSpec.describe 'Api::V1::Sessions', type: :request do
 
       logout_set_cookie = response.headers['Set-Cookie']
       expect(logout_set_cookie).to be_present
-      expect(logout_set_cookie).to include('access_token=')
+      expect(response.cookies['access_token']).to be_nil
     end
 
-    it 'ログアウト後は /api/v1/users が401になる' do
+    it 'ログアウト後は /api/v1/me が401になる' do
       delete '/api/v1/user/logout', headers: headers.merge('Cookie' => cookie_header)
 
-      get '/api/v1/users', headers: headers.merge('Cookie' => cookie_header)
+      get '/api/v1/me', headers: headers.merge('Cookie' => cookie_header)
 
       expect(response).to have_http_status(:unauthorized)
     end

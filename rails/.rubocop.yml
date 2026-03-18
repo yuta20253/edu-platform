@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-rails
   - rubocop-performance
   - rubocop-rspec
@@ -43,4 +43,50 @@ Rails/EnumSyntax:
 
 # モデルのcallbackは許可
 Rails/SaveBang:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/ContextWording:
+  Enabled: false
+
+RSpec/NamedSubject:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'db/seeds/**/*'
+
+Naming/PredicateMethod:
+  Enabled: false
+
+Lint/EmptyBlock:
   Enabled: false

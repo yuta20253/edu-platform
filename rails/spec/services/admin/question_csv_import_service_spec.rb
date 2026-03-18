@@ -54,9 +54,9 @@ RSpec.describe Admin::QuestionCsvImportService do
 
     context '同じデータを再インポートした場合' do
       it 'questionは重複作成されない' do
-        service_call
+        described_class.new(form, unit.id).call
 
-        expect { service_call }.not_to change(Question, :count)
+        expect { described_class.new(form, unit.id).call }.not_to change(Question, :count)
       end
     end
   end

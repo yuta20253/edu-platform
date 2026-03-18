@@ -13,24 +13,28 @@ module Auth
     attribute :password_confirmation, :string
     attribute :user_role_name, :string
     attribute :school_name, :string
+    attribute :grade_id, :integer
 
     validates :user_role_name, presence: true
     validates :school_name, presence: true, if: :school_required?
+    validates :grade_id, presence: true, if: :school_required?
 
     def to_attributes
-      {
+      attrs = {
         email:,
         name:,
         name_kana:,
         password:,
         password_confirmation:
       }
+      attrs[:grade_id] = grade_id if school_required?
+      attrs
     end
 
     private
 
     def school_required?
-      user_role_name.in?(%i[student teacher])
+      user_role_name.in?(%w[student teacher])
     end
   end
 end

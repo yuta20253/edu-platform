@@ -52,6 +52,17 @@ module Student
       Array(super).compact_blank.map(&:to_i)
     end
 
+    def priority
+      value = super
+      return if value.blank?
+
+      if value.to_s.match?(/\A\d+\z/)
+        Task.priorities.key(value.to_i)
+      else
+        value
+      end
+    end
+
     private
 
     def due_date_must_be_valid
@@ -71,7 +82,7 @@ module Student
     end
 
     def goal_must_exist
-      errors.add(:goal_id, 'が不正です') if goal.nil?
+      errors.add(:goal_id, :invalid) if goal.nil?
     end
   end
 end
