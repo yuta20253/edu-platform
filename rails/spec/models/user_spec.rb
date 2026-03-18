@@ -29,12 +29,13 @@ RSpec.describe User, type: :model do
   let(:teacher_role) { create(:user_role, :teacher) }
   let(:guardian_role) { create(:user_role, :guardian) }
   let(:high_school) { create(:high_school, name: 'テスト高校') }
+  let(:grade) { create(:grade) }
 
   describe 'バリデーション' do
     context 'nameとname_kana' do
       it '新規作成時は必須ではない' do
         user = described_class.new(email: 'test@example.com', password: 'password', user_role: student_role,
-                                   high_school: high_school)
+                                   high_school: high_school, grade: grade)
         expect(user.valid?).to be true
       end
 
@@ -45,8 +46,8 @@ RSpec.describe User, type: :model do
         user.name_kana = nil
 
         expect(user.valid?).to be false
-        expect(user.errors[:name]).to include("can't be blank")
-        expect(user.errors[:name_kana]).to include("can't be blank")
+        expect(user.errors[:name]).to include('を入力してください')
+        expect(user.errors[:name_kana]).to include('を入力してください')
       end
     end
 

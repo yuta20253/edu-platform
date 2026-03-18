@@ -93,7 +93,7 @@ RSpec.describe Student::CreateTaskForm, type: :model do
         subject.goal_id = nil
 
         expect(subject).not_to be_valid
-        expect(subject.errors[:goal_id]).to include("can't be blank")
+        expect(subject.errors[:goal_id]).to include('を入力してください')
       end
 
       it '存在しないgoal_idだとinvalid' do
