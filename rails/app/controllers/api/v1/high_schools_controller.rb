@@ -3,12 +3,12 @@
 module Api
   module V1
     class HighSchoolsController < ApplicationController
+      skip_before_action :authenticate_user!
+
       def index
-        schools = if params[:keyword].present?
-                    HighSchool.where('name LIKE ?', "%#{params[:keyword]}%").limit(20)
-                  else
-                    HighSchool.all
-                  end
+        return render json: [], status: :ok if params[:keyword].blank?
+
+        schools = HighSchool.where('name LIKE ?', "%#{params[:keyword]}%").order(:name).limit(20)
 
         render json: schools, each_serializer: HighSchoolSerializer, status: :ok
       end
