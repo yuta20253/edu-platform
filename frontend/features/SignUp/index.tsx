@@ -2,6 +2,7 @@
 
 import { User } from "@/types/signUp/user";
 import {
+  Autocomplete,
   Alert,
   Box,
   Button,
@@ -9,13 +10,28 @@ import {
   InputAdornment,
   TextField,
   Typography,
+  FormControl,
+  Select,
+  MenuItem
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import Link from "next/link";
 import { UserRole } from "@/types/signUp/user_role";
 import { useSubmit } from "./hooks";
+import debounce from "lodash/debounce";
+
+type HighSchoolType = {
+  id: number;
+  name: string;
+};
+
+type GradeType = {
+  id: number;
+  year: number;
+  display_name: string;
+};
 
 export const SignUp = ({
   userRole,
@@ -24,12 +40,51 @@ export const SignUp = ({
 }): React.JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [options, setOptions] = useState<HighSchoolType[]>([]);
+  const [grades, setGrades] = useState<GradeType[]>([]);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState<boolean>(false);
+
+  const fetchSchools = useMemo(() => {
+    return debounce(async (keyword: string) => {
+      if (keyword.length < 2 ) return;
+
+      const res = await fetch(`/api/v1/high_schools?keyword=${keyword}`);
+
+      const data = await res.json();
+      console.log(data);
+
+      setOptions(data);
+  }, 300);
+  }, []);
+
+  const fetchGrades = useMemo(() => {
+    return async (highSchoolId: number) => {
+      const res = await fetch(`/api/v1/high_schools/${highSchoolId}/grades`);
+
+      const data = await res.json();
+
+      setGrades(data);
+    };
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      fetchSchools.cancel();
+    };
+  }, [fetchSchools]);
+
+  useEffect(() => {
+    return () => {
+      setGrades([]);
+    };
+  }, [fetchSchools]);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<User>();
 
@@ -113,14 +168,50 @@ export const SignUp = ({
               />
             </Box>
             {(userRole === "student" || userRole === "teacher") && (
-              <Box sx={{ mb: 2 }}>
+              <>
                 <Typography>在籍高校</Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  {...register("user.school_name")}
+                <Autocomplete
+                  options={options}
+                  getOptionLabel={(option) => option.name}
+                  onInputChange={(_, value) => {
+                    fetchSchools(value);
+                  }}
+                  onChange={(_, value) => {
+                    if (value) {
+                      setValue("user.high_school_id", value.id);
+                      fetchGrades(value.id)
+                    } else {
+                      setGrades([]);
+                      setValue("user.high_school_id", undefined);
+                      setValue("user.grade_id", "");
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} />
+                  )}
                 />
-              </Box>
+                <Box sx={{ mb: 2 }}>
+                  <Typography>学年</Typography>
+                  <Controller
+                    name="user.grade_id"
+                    disabled={grades.length === 0}
+                    rules={{ required: "学年を選択してください" }}
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <FormControl fullWidth>
+                        <Select {...field} onChange={(e) => field.onChange(Number(e.target.value))}>
+                          {grades.map((grade) => (
+                            <MenuItem key={grade.id} value={grade.id}>
+                              {grade.display_name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Box>
+              </>
             )}
             <Box sx={{ mb: 2 }}>
               <Typography>パスワード</Typography>

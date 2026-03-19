@@ -8,6 +8,7 @@ export type User = {
     password: string;
     password_confirmation: string;
     user_role_name: UserRole;
-    school_name: string;
+    high_school_id?: number;
+    grade_id?: number | "";
   };
 };
