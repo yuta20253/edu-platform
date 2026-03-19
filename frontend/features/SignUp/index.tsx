@@ -12,7 +12,7 @@ import {
   Typography,
   FormControl,
   Select,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
@@ -47,7 +47,7 @@ export const SignUp = ({
 
   const fetchSchools = useMemo(() => {
     return debounce(async (keyword: string) => {
-      if (keyword.length < 2 ) return;
+      if (keyword.length < 2) return;
 
       const res = await fetch(`/api/v1/high_schools?keyword=${keyword}`);
 
@@ -55,7 +55,7 @@ export const SignUp = ({
       console.log(data);
 
       setOptions(data);
-  }, 300);
+    }, 300);
   }, []);
 
   const fetchGrades = useMemo(() => {
@@ -66,7 +66,7 @@ export const SignUp = ({
 
       setGrades(data);
     };
-  }, [])
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -179,16 +179,14 @@ export const SignUp = ({
                   onChange={(_, value) => {
                     if (value) {
                       setValue("user.high_school_id", value.id);
-                      fetchGrades(value.id)
+                      fetchGrades(value.id);
                     } else {
                       setGrades([]);
                       setValue("user.high_school_id", undefined);
                       setValue("user.grade_id", "");
                     }
                   }}
-                  renderInput={(params) => (
-                    <TextField {...params} />
-                  )}
+                  renderInput={(params) => <TextField {...params} />}
                 />
                 <Box sx={{ mb: 2 }}>
                   <Typography>学年</Typography>
@@ -200,7 +198,12 @@ export const SignUp = ({
                     defaultValue=""
                     render={({ field }) => (
                       <FormControl fullWidth>
-                        <Select {...field} onChange={(e) => field.onChange(Number(e.target.value))}>
+                        <Select
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        >
                           {grades.map((grade) => (
                             <MenuItem key={grade.id} value={grade.id}>
                               {grade.display_name}
