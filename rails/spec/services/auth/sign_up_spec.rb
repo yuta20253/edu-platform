@@ -48,7 +48,7 @@ RSpec.describe Auth::SignUpService, type: :service do
 
     context 'schoolが存在しない場合' do
       let(:user_role_name) { 'student' }
-      let(:high_school_id) { 9999999999999 }
+      let(:high_school_id) { 9_999_999_999_999 }
 
       it 'SignUpErrorをraiseする' do
         expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '学校が見つかりません')
