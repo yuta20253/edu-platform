@@ -6,6 +6,7 @@ RSpec.describe Auth::SignUpService, type: :service do
   subject { described_class.new(form).call }
 
   let!(:high_school) { create(:high_school, name: 'テスト高校') }
+  let(:high_school_id) { high_school.id }
   let!(:user_role) { create(:user_role, name: :student) }
   let!(:grade) { create(:grade, high_school: high_school, year: 1) }
 
@@ -17,7 +18,7 @@ RSpec.describe Auth::SignUpService, type: :service do
       password: 'password',
       password_confirmation: 'password',
       user_role_name: user_role_name,
-      high_school_id: high_school.id,
+      high_school_id: high_school_id,
       grade_id: grade.id
     )
   end
@@ -47,7 +48,7 @@ RSpec.describe Auth::SignUpService, type: :service do
 
     context 'schoolが存在しない場合' do
       let(:user_role_name) { 'student' }
-      let(:school_name) { '存在しない高校' }
+      let(:high_school_id) { 9999999999999 }
 
       it 'SignUpErrorをraiseする' do
         expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '学校が見つかりません')

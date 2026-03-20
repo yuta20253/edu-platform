@@ -60,7 +60,7 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
 
       it 'schoolが存在しない場合は422を返す' do
         invalid_params = valid_params.deep_merge(
-          user: { school_name: '存在しない高校' }
+          user: { high_school_id: 99999999999 }
         )
         post '/api/v1/student/signup', params: invalid_params.to_json, headers: headers
 
