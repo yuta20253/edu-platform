@@ -21,6 +21,7 @@ import Link from "next/link";
 import { UserRole } from "@/types/signUp/user_role";
 import { useSubmit } from "./hooks";
 import debounce from "lodash/debounce";
+import { apiClient } from "@/libs/http/apiClient";
 
 type HighSchoolType = {
   id: number;
@@ -40,7 +41,7 @@ export const SignUp = ({
 }): React.JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [options, setOptions] = useState<HighSchoolType[]>([]);
+  const [highSchools, setHighSchools] = useState<HighSchoolType[]>([]);
   const [grades, setGrades] = useState<GradeType[]>([]);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState<boolean>(false);
@@ -48,23 +49,29 @@ export const SignUp = ({
   const fetchSchools = useMemo(() => {
     return debounce(async (keyword: string) => {
       if (keyword.length < 2) return;
+      try {
+        const res = await apiClient.get<HighSchoolType[]>(
+          `/api/auth/high-schools?keyword=${keyword}`,
+        );
 
-      const res = await fetch(`/api/v1/high_schools?keyword=${keyword}`);
-
-      const data = await res.json();
-      console.log(data);
-
-      setOptions(data);
+        setHighSchools(res.data);
+      } catch (error) {
+        console.error(error);
+      }
     }, 300);
   }, []);
 
   const fetchGrades = useMemo(() => {
     return async (highSchoolId: number) => {
-      const res = await fetch(`/api/v1/high_schools/${highSchoolId}/grades`);
+      try {
+        const res = await apiClient.get<GradeType[]>(
+          `/api/v1/high_schools/${highSchoolId}/grades`,
+        );
 
-      const data = await res.json();
-
-      setGrades(data);
+        setGrades(res.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
   }, []);
 
@@ -171,8 +178,8 @@ export const SignUp = ({
               <>
                 <Typography>在籍高校</Typography>
                 <Autocomplete
-                  options={options}
-                  getOptionLabel={(option) => option.name}
+                  options={highSchools}
+                  getOptionLabel={(highSchool) => highSchool.name}
                   onInputChange={(_, value) => {
                     fetchSchools(value);
                   }}
