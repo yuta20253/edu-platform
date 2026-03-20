@@ -16,6 +16,10 @@ Rails.application.routes.draw do
 
       get "/me", to: "users#show"
 
+      resources :high_schools do
+        resources :grades, only: :index
+      end
+
       namespace :student do
         resource :dashboard, only: :show
         resources :goals

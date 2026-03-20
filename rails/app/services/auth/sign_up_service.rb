@@ -14,16 +14,18 @@ module Auth
         raise SignUpError, '無効なユーザーロールです' unless role
 
         high_school = nil
+        grade = nil
+
         if role.student? || role.teacher?
-          high_school = HighSchool.find_by(name: @form.school_name)
+          high_school = HighSchool.find_by(id: @form.high_school_id)
           raise SignUpError, '学校が見つかりません' unless high_school
 
-          grade = Grade.find_by(id: @form.grade_id)
+          grade = high_school.grades.find_by(id: @form.grade_id)
           raise SignUpError, '学年が見つかりません' unless grade
         end
 
         user = User.create!(@form.to_attributes.merge(user_role_id: role.id, high_school: high_school,
-                                                      grade_id: @form.grade_id))
+                                                      grade: grade))
 
         user
       end

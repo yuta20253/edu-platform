@@ -12,11 +12,11 @@ module Auth
     attribute :password, :string
     attribute :password_confirmation, :string
     attribute :user_role_name, :string
-    attribute :school_name, :string
+    attribute :high_school_id, :integer
     attribute :grade_id, :integer
 
     validates :user_role_name, presence: true
-    validates :school_name, presence: true, if: :school_required?
+    validates :high_school_id, presence: true, if: :school_required?
     validates :grade_id, presence: true, if: :school_required?
 
     def to_attributes

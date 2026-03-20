@@ -2,6 +2,7 @@
 
 import { User } from "@/types/signUp/user";
 import {
+  Autocomplete,
   Alert,
   Box,
   Button,
@@ -9,13 +10,19 @@ import {
   InputAdornment,
   TextField,
   Typography,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Link from "next/link";
 import { UserRole } from "@/types/signUp/user_role";
-import { useSubmit } from "./hooks";
+import { useSubmit } from "./hooks/hooks";
+import { useFetchSchools } from "./hooks/useFetchSchools";
+import { useFetchGrades } from "./hooks/useFetchGrades";
+import { HighSchoolType } from "./types";
 
 export const SignUp = ({
   userRole,
@@ -26,12 +33,22 @@ export const SignUp = ({
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState<boolean>(false);
+  const [selectedHighSchool, setSelectedHighSchool] =
+    useState<HighSchoolType | null>(null);
+
+  const { highSchools, fetchSchools } = useFetchSchools();
+  const { grades, setGrades, fetchGrades } = useFetchGrades();
 
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
+    watch,
     formState: { errors },
   } = useForm<User>();
+
+  const password = watch("user.password");
 
   const { onSubmit } = useSubmit({ setErrorMessage, userRole });
 
@@ -113,14 +130,56 @@ export const SignUp = ({
               />
             </Box>
             {(userRole === "student" || userRole === "teacher") && (
-              <Box sx={{ mb: 2 }}>
+              <>
                 <Typography>在籍高校</Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  {...register("user.school_name")}
+                <Autocomplete
+                  value={selectedHighSchool}
+                  options={highSchools}
+                  getOptionLabel={(highSchool) => highSchool.name}
+                  onInputChange={(_, value) => {
+                    fetchSchools(value);
+                  }}
+                  onChange={(_, value) => {
+                    setSelectedHighSchool(value);
+                    if (value) {
+                      setValue("user.high_school_id", value.id);
+                      setValue("user.grade_id", "");
+                      fetchGrades(value.id);
+                    } else {
+                      setGrades([]);
+                      setValue("user.high_school_id", undefined);
+                      setValue("user.grade_id", "");
+                    }
+                  }}
+                  renderInput={(params) => <TextField {...params} />}
                 />
-              </Box>
+                <Box sx={{ mb: 2 }}>
+                  <Typography>学年</Typography>
+                  <Controller
+                    name="user.grade_id"
+                    disabled={grades.length === 0}
+                    rules={{ required: "学年を選択してください" }}
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <FormControl fullWidth>
+                        <Select
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        >
+                          {grades.map((grade) => (
+                            <MenuItem key={grade.id} value={grade.id}>
+                              {grade.display_name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Box>
+              </>
             )}
             <Box sx={{ mb: 2 }}>
               <Typography>パスワード</Typography>
@@ -162,6 +221,8 @@ export const SignUp = ({
                 variant="outlined"
                 {...register("user.password_confirmation", {
                   required: "パスワードを入力してください",
+                  validate: (value) =>
+                    value === password || "パスワードが一致しません",
                   minLength: {
                     value: 8,
                     message: "8文字以上で入力してください",

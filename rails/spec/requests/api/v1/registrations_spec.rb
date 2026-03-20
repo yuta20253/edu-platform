@@ -20,7 +20,7 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
           name: 'テスト太郎',
           name_kana: 'テストタロウ',
           user_role_name: student_role.name,
-          school_name: high_school.name,
+          high_school_id: high_school.id,
           grade_id: grade.id
         }
       }
@@ -60,7 +60,7 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
 
       it 'schoolが存在しない場合は422を返す' do
         invalid_params = valid_params.deep_merge(
-          user: { school_name: '存在しない高校' }
+          user: { high_school_id: 99_999_999_999 }
         )
         post '/api/v1/student/signup', params: invalid_params.to_json, headers: headers
 
@@ -77,7 +77,8 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
               name: '',
               name_kana: '',
               user_role_name: student_role.name,
-              school_name: high_school.name
+              high_school_id: high_school.id,
+              grade_id: grade.id
             }
           }
         end
