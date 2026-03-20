@@ -19,9 +19,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Link from "next/link";
 import { UserRole } from "@/types/signUp/user_role";
-import { useSubmit } from "./hooks";
-import debounce from "lodash/debounce";
-import { apiClient } from "@/libs/http/apiClient";
+import { useSubmit } from "./hooks/hooks";
+import { useFetchSchools } from "./hooks/useFetchSchools";
+import { useFetchGrades } from "./hooks/useFetchGrades";
 
 type HighSchoolType = {
   id: number;
@@ -41,59 +41,24 @@ export const SignUp = ({
 }): React.JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [highSchools, setHighSchools] = useState<HighSchoolType[]>([]);
-  const [grades, setGrades] = useState<GradeType[]>([]);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState<boolean>(false);
+  const [selectedHighSchool, setSelectedHighSchool] =
+    useState<HighSchoolType | null>(null);
 
-  const fetchSchools = useMemo(() => {
-    return debounce(async (keyword: string) => {
-      if (keyword.length < 2) return;
-      try {
-        const res = await apiClient.get<HighSchoolType[]>(
-          `/api/auth/high-schools?keyword=${keyword}`,
-        );
-
-        setHighSchools(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    }, 300);
-  }, []);
-
-  const fetchGrades = useMemo(() => {
-    return async (highSchoolId: number) => {
-      try {
-        const res = await apiClient.get<GradeType[]>(
-          `/api/v1/high_schools/${highSchoolId}/grades`,
-        );
-
-        setGrades(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      fetchSchools.cancel();
-    };
-  }, [fetchSchools]);
-
-  useEffect(() => {
-    return () => {
-      setGrades([]);
-    };
-  }, [fetchSchools]);
+  const { highSchools, fetchSchools } = useFetchSchools();
+  const { grades, setGrades, fetchGrades } = useFetchGrades();
 
   const {
     register,
     handleSubmit,
     setValue,
     control,
+    watch,
     formState: { errors },
   } = useForm<User>();
+
+  const password = watch("user.password");
 
   const { onSubmit } = useSubmit({ setErrorMessage, userRole });
 
@@ -178,14 +143,17 @@ export const SignUp = ({
               <>
                 <Typography>在籍高校</Typography>
                 <Autocomplete
+                  value={selectedHighSchool}
                   options={highSchools}
                   getOptionLabel={(highSchool) => highSchool.name}
                   onInputChange={(_, value) => {
                     fetchSchools(value);
                   }}
                   onChange={(_, value) => {
+                    setSelectedHighSchool(value);
                     if (value) {
                       setValue("user.high_school_id", value.id);
+                      setValue("user.grade_id", "");
                       fetchGrades(value.id);
                     } else {
                       setGrades([]);
@@ -263,6 +231,8 @@ export const SignUp = ({
                 variant="outlined"
                 {...register("user.password_confirmation", {
                   required: "パスワードを入力してください",
+                  validate: (value) =>
+                    value === password || "パスワードが一致しません",
                   minLength: {
                     value: 8,
                     message: "8文字以上で入力してください",
