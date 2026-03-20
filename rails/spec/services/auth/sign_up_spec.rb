@@ -17,7 +17,7 @@ RSpec.describe Auth::SignUpService, type: :service do
       password: 'password',
       password_confirmation: 'password',
       user_role_name: user_role_name,
-      school_name: school_name,
+      high_school_id: high_school.id,
       grade_id: grade.id
     )
   end
