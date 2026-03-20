@@ -1,11 +1,7 @@
 import { useMemo, useState } from "react";
 import debounce from "lodash/debounce";
 import { apiClient } from "@/libs/http/apiClient";
-
-type HighSchoolType = {
-  id: number;
-  name: string;
-};
+import { HighSchoolType } from "../types";
 
 export const useFetchSchools = () => {
   const [highSchools, setHighSchools] = useState<HighSchoolType[]>([]);

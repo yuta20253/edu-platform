@@ -15,24 +15,14 @@ import {
   MenuItem,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Link from "next/link";
 import { UserRole } from "@/types/signUp/user_role";
 import { useSubmit } from "./hooks/hooks";
 import { useFetchSchools } from "./hooks/useFetchSchools";
 import { useFetchGrades } from "./hooks/useFetchGrades";
-
-type HighSchoolType = {
-  id: number;
-  name: string;
-};
-
-type GradeType = {
-  id: number;
-  year: number;
-  display_name: string;
-};
+import { HighSchoolType } from "./types";
 
 export const SignUp = ({
   userRole,
