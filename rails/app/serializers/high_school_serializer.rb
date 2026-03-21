@@ -8,7 +8,7 @@
 #  name          :string(50)       not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  prefecture_id :bigint
+#  prefecture_id :bigint           not null
 #
 class HighSchoolSerializer < ActiveModel::Serializer
   attributes :id, :name
