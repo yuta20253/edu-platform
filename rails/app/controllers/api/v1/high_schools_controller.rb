@@ -6,9 +6,12 @@ module Api
       skip_before_action :authenticate_user!
 
       def index
-        return render json: [], status: :ok if params[:keyword].blank?
+        schools = HighSchoolsQuery.new(HighSchool.all)
 
-        schools = HighSchool.where('name LIKE ?', "%#{params[:keyword]}%").order(:name).limit(20)
+        schools = schools.filter_prefecture(params[:prefecture_id]) if params[:prefecture_id].present?
+        schools = schools.filter_high_school(params[:keyword]) if params[:keyword].present?
+
+        schools = schools.result.order(:name).limit(20)
 
         render json: schools, each_serializer: HighSchoolSerializer, status: :ok
       end
