@@ -144,8 +144,6 @@ export const SignUp = ({
                   setSelectedHighSchool(null);
                   setHighSchools([]);
                   setGrades([]);
-
-                  fetchSchools("", prefectureId);
                 }}
               >
                 {prefectures.map((prefecture) => (
@@ -166,7 +164,7 @@ export const SignUp = ({
                   onInputChange={(_, value) => {
                     if (!selectedPrefectureId) return;
                     const trimmed = value.trim();
-                    if (trimmed === "") {
+                    if (trimmed.length < 2) {
                       setHighSchools([]);
                       return;
                     }

@@ -7,8 +7,6 @@ export const useFetchSchools = () => {
   const [highSchools, setHighSchools] = useState<HighSchoolType[]>([]);
   const fetchSchools = useMemo(() => {
     const fn = debounce(async (keyword: string, prefectureId: number) => {
-      if (!prefectureId) return;
-      if (keyword.length < 2) return;
       try {
         const res = await apiClient.get<HighSchoolType[]>(
           "/api/auth/high-schools",
