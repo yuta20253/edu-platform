@@ -41,7 +41,7 @@ export const SignUp = ({
   >(null);
 
   const { prefectures } = useFetchPrefectures();
-  const { highSchools, fetchSchools } = useFetchSchools();
+  const { highSchools, setHighSchools, fetchSchools } = useFetchSchools();
   const { grades, setGrades, fetchGrades } = useFetchGrades();
 
   const {
@@ -142,6 +142,7 @@ export const SignUp = ({
                   const prefectureId = Number(e.target.value);
                   setSelectedPrefectureId(prefectureId);
                   setSelectedHighSchool(null);
+                  setHighSchools([]);
                   setGrades([]);
 
                   fetchSchools("", prefectureId);
@@ -159,11 +160,17 @@ export const SignUp = ({
                 <Typography>在籍高校</Typography>
                 <Autocomplete
                   value={selectedHighSchool}
+                  disabled={selectedPrefectureId === null}
                   options={highSchools}
                   getOptionLabel={(highSchool) => highSchool.name}
                   onInputChange={(_, value) => {
                     if (!selectedPrefectureId) return;
-                    fetchSchools(value, selectedPrefectureId);
+                    const trimmed = value.trim();
+                    if (trimmed === "") {
+                      setHighSchools([]);
+                      return;
+                    }
+                    fetchSchools(trimmed, selectedPrefectureId);
                   }}
                   onChange={(_, value) => {
                     setSelectedHighSchool(value);
