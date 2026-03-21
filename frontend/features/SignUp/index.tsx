@@ -36,7 +36,9 @@ export const SignUp = ({
     useState<boolean>(false);
   const [selectedHighSchool, setSelectedHighSchool] =
     useState<HighSchoolType | null>(null);
-  const [selectedPrefectureId, setSelectedPrefectureId] = useState<number | null>(null)
+  const [selectedPrefectureId, setSelectedPrefectureId] = useState<
+    number | null
+  >(null);
 
   const { prefectures } = useFetchPrefectures();
   const { highSchools, fetchSchools } = useFetchSchools();
@@ -135,23 +137,21 @@ export const SignUp = ({
             <FormControl fullWidth sx={{ mb: 2 }}>
               <Typography>都道府県</Typography>
               <Select
-                value={selectedPrefectureId ?? "" }
+                value={selectedPrefectureId ?? ""}
                 onChange={(e) => {
-                  const prefectureId = Number(e.target.value)
-                  setSelectedPrefectureId(prefectureId)
-                  setSelectedHighSchool(null)
-                  setGrades([])
+                  const prefectureId = Number(e.target.value);
+                  setSelectedPrefectureId(prefectureId);
+                  setSelectedHighSchool(null);
+                  setGrades([]);
 
-                  fetchSchools("", prefectureId)
+                  fetchSchools("", prefectureId);
                 }}
               >
-                {
-                  prefectures.map((prefecture) => (
-                    <MenuItem key={prefecture.id} value={prefecture.id}>
-                      {prefecture.name}
-                    </MenuItem>
-                  ))
-                }
+                {prefectures.map((prefecture) => (
+                  <MenuItem key={prefecture.id} value={prefecture.id}>
+                    {prefecture.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             {(userRole === "student" || userRole === "teacher") && (
@@ -162,7 +162,7 @@ export const SignUp = ({
                   options={highSchools}
                   getOptionLabel={(highSchool) => highSchool.name}
                   onInputChange={(_, value) => {
-                    if (!selectedPrefectureId) return
+                    if (!selectedPrefectureId) return;
                     fetchSchools(value, selectedPrefectureId);
                   }}
                   onChange={(_, value) => {

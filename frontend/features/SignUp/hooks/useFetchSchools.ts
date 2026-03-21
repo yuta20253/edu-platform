@@ -10,13 +10,13 @@ export const useFetchSchools = () => {
       if (!prefectureId) return;
       try {
         const res = await apiClient.get<HighSchoolType[]>(
-          '/api/auth/high-schools',
+          "/api/auth/high-schools",
           {
             params: {
               keyword,
               prefectureId,
             },
-          }
+          },
         );
 
         setHighSchools(res.data);
