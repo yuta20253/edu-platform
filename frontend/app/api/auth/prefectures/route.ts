@@ -1,7 +1,7 @@
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const { data, status } = await railsFetch("/api/v1/prefectures", {
       method: "GET",
