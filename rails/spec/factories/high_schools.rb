@@ -13,6 +13,6 @@
 FactoryBot.define do
   factory :high_school do
     sequence(:name) { |n| "テスト高校#{n}" }
-    prefecture { Prefecture.find_or_create_by(name: '東京都') }
+    association :prefecture
   end
 end

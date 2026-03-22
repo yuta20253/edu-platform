@@ -13,8 +13,4 @@ FactoryBot.define do
   factory :prefecture do
     sequence(:name) { |n| "都道府県#{n}" }
   end
-
-  trait :tokyo do
-    name { '東京都' }
-  end
 end
