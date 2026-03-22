@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_21_184551) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_22_070400) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -126,7 +126,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_21_184551) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "prefecture_id", null: false
-    t.index ["name"], name: "index_high_schools_on_name", unique: true
+    t.index ["name", "prefecture_id"], name: "index_high_schools_on_name_and_prefecture_id", unique: true
     t.index ["prefecture_id"], name: "index_high_schools_on_prefecture_id"
   end
 
@@ -456,6 +456,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_21_184551) do
   add_foreign_key "draft_tasks", "users"
   add_foreign_key "goals", "users"
   add_foreign_key "grades", "high_schools"
+  add_foreign_key "high_schools", "prefectures"
   add_foreign_key "import_errors", "import_histories"
   add_foreign_key "import_histories", "units"
   add_foreign_key "import_histories", "users"
