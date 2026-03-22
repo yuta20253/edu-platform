@@ -8,7 +8,8 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
 
   describe 'POST /api/v1/student/signup' do
     let!(:student_role) { create(:user_role, :student) }
-    let!(:high_school) { create(:high_school) }
+    let!(:prefecture) { create(:prefecture, name: '東京都') }
+    let!(:high_school) { create(:high_school, prefecture: prefecture) }
     let!(:grade) { create(:grade, high_school: high_school, year: 1) }
 
     let(:valid_params) do
