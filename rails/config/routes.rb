@@ -27,8 +27,11 @@ Rails.application.routes.draw do
         resources :tasks
         resources :courses, only: :index
       end
+
       namespace :teacher do
+        resource :dashboard, only: :show
       end
+
       namespace :admin do
         resources :courses do
           resources :units do
