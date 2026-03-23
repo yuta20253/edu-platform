@@ -19,5 +19,11 @@ module Teacher
     def result
       @relation
     end
+
+    def call(grade_id: nil)
+      students
+      my_grade(grade_id) if grade_id.present?
+      result
+    end
   end
 end
