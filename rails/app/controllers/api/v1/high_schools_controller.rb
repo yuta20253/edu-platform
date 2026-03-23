@@ -6,9 +6,8 @@ module Api
       skip_before_action :authenticate_user!
 
       def index
-        schools = HighSchoolsQuery.new(HighSchool.all)
+        schools = HighSchoolsQuery.new(HighSchool.all).filter_prefecture(params[:prefecture_id])
 
-        schools = schools.filter_prefecture(params[:prefecture_id]) if params[:prefecture_id].present?
         schools = schools.filter_high_school(params[:keyword]) if params[:keyword].present?
 
         schools = schools.result.order(:name).limit(20)
