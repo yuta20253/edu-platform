@@ -5,18 +5,18 @@ module Api
     module Teacher
       class TeachersController < Api::V1::Teacher::BaseController
         def index
-          teachers = teachers_scope
+          teachers = teachers_query
           render json: teachers, each_serializer: TeacherSerializer, status: :ok
         end
 
         def show
-          teacher = teachers_scope.find(params[:id])
+          teacher = teachers_query.find(params[:id])
           render json: teacher, serializer: TeacherSerializer, status: :ok
         end
 
         private
 
-        def teachers_scope
+        def teachers_query
           query = ::Teacher::TeachersQuery.new(current_user.high_school.users).colleagues
           query.result
         end
