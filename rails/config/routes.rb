@@ -30,6 +30,7 @@ Rails.application.routes.draw do
       namespace :teacher do
       end
       namespace :admin do
+        resource :dashboard, only: :show
         resources :courses do
           resources :units do
             resource :import_questions, only: :create
