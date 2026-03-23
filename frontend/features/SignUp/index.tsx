@@ -184,6 +184,7 @@ export const SignUp = ({
                   }}
                   renderInput={(params) => <TextField {...params} />}
                 />
+                <Typography sx={{ color: "red" }}>都道府県を選択してキーワード検索できます。</Typography>
                 <Box sx={{ mb: 2 }}>
                   <Typography>学年</Typography>
                   <Controller
