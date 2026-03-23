@@ -7,7 +7,7 @@ module Teacher
     end
 
     def students
-      @relation = @relation.joins(:user_role).where(user_roles: { name: :student })
+      @relation = @relation.includes(:grade).joins(:user_role).where(user_roles: { name: :student })
       self
     end
 
