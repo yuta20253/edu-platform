@@ -185,7 +185,7 @@ export const SignUp = ({
                   renderInput={(params) => <TextField {...params} />}
                 />
                 <Typography sx={{ color: "red" }}>
-                  都道府県を選択してキーワード検索できます。
+                  都道府県を選択後、学校名を2文字以上入力すると候補が表示されます
                 </Typography>
                 <Box sx={{ mb: 2 }}>
                   <Typography>学年</Typography>
