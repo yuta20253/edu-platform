@@ -19,6 +19,8 @@ RSpec.describe 'Api::V1::Admin::Dashboards', type: :request do
 
   describe 'GET /api/v1/admin/dashboard' do
     context '正常系' do
+      subject { get '/api/v1/admin/dashboard', headers: headers.merge('Cookie' => cookie) }
+
       let!(:admin_user) { create(:user, :admin, high_school: nil) }
       let!(:students)   { create_list(:user, 3) }
       let!(:teachers)   { create_list(:user, 2, :teacher) }
@@ -27,8 +29,6 @@ RSpec.describe 'Api::V1::Admin::Dashboards', type: :request do
       let!(:imports)    { create_list(:import_history, 6, user: admin_user, unit: unit) }
 
       let(:cookie) { login_and_get_cookie(admin_user) }
-
-      subject { get '/api/v1/admin/dashboard', headers: headers.merge('Cookie' => cookie) }
 
       it 'ステータス200が返される' do
         subject
@@ -63,7 +63,8 @@ RSpec.describe 'Api::V1::Admin::Dashboards', type: :request do
       it 'recent_imports に必要なフィールドが含まれる' do
         subject
         import = response.parsed_body['recent_imports'].first
-        expect(import.keys).to include('id', 'file_name', 'status', 'success_count', 'error_count', 'total_count', 'created_at')
+        expect(import.keys).to include('id', 'file_name', 'status', 'success_count', 'error_count', 'total_count',
+                                       'created_at')
       end
     end
 
