@@ -49,7 +49,9 @@ export const useSubmit = ({ setErrorMessage }: LoginProps) => {
 
         throw new Error(messageFromApi ?? "ログインに失敗しました");
       }
-      const body = (await response.json().catch(() => null)) as LoginResponse | null;
+      const body = (await response
+        .json()
+        .catch(() => null)) as LoginResponse | null;
       const isAdmin = body?.user?.user_role?.name === "admin";
       router.push(isAdmin ? "/admin/dashboard" : "/");
       router.refresh();
