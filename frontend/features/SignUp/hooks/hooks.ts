@@ -47,7 +47,8 @@ export const useSubmit = ({ setErrorMessage, userRole }: SignUpProps) => {
         throw new Error(messageFromApi ?? "新規登録に失敗しました");
       }
 
-      router.push("/");
+      const redirectPath = userRole === "admin" ? "/admin/dashboard" : "/";
+      router.push(redirectPath);
       router.refresh();
     } catch (error) {
       const message =
