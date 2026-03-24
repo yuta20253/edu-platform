@@ -76,6 +76,10 @@ RSpec.configure do |config|
 
   Rails.application.routes.default_url_options[:host] = 'localhost'
 
+  config.before(:each, type: :request) do
+    host! 'localhost'
+  end
+
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
     DatabaseCleaner.strategy = :transaction

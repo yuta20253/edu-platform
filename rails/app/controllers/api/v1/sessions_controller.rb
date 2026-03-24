@@ -4,6 +4,7 @@ module Api
   module V1
     class SessionsController < Devise::SessionsController
       respond_to :json
+      skip_before_action :authenticate_user!, only: %i[create]
 
       def create
         request.env['devise.mapping'] = Devise.mappings[:user]
