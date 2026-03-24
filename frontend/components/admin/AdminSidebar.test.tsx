@@ -3,17 +3,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AdminSidebar } from './AdminSidebar'
 import type { MeUser } from '@/libs/server/me'
 
-// next/navigation モック
-const mockPush = vi.fn()
-const mockPathname = vi.fn(() => '/admin/dashboard')
+const mockPush = vi.hoisted(() => vi.fn())
+const mockPathname = vi.hoisted(() => vi.fn(() => '/admin/dashboard'))
+const mockPost = vi.hoisted(() => vi.fn(() => Promise.resolve()))
 
 vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname(),
   useRouter: () => ({ push: mockPush }),
 }))
 
-// apiClient モック
-const mockPost = vi.fn(() => Promise.resolve())
 vi.mock('@/libs/http/apiClient', () => ({
   apiClient: { post: mockPost },
 }))
@@ -48,11 +46,11 @@ describe('AdminSidebar', () => {
     expect(screen.getByText('管理者太郎')).toBeInTheDocument()
   })
 
-  it('現在のパスに一致する項目がアクティブになる', () => {
+  it('現在のパスに一致する項目が aria-current="page" を持つ', () => {
     mockPathname.mockReturnValue('/admin/dashboard')
     render(<AdminSidebar user={mockUser} />)
-    const activeItem = screen.getByText('ダッシュボード').closest('li')
-    expect(activeItem).toHaveStyle({ backgroundColor: '#1d4ed8' })
+    const activeLink = screen.getByText('ダッシュボード').closest('a')
+    expect(activeLink).toHaveAttribute('aria-current', 'page')
   })
 
   it('ログアウトボタンのクリックで apiClient.post が呼ばれる', async () => {
