@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import {
   Alert,
   Box,
@@ -110,8 +111,8 @@ export const Login = (): React.JSX.Element => {
                 type="submit"
                 sx={{
                   width: "100%",
-                  backgroundColor: "#0068b7",
-                  color: "#ffffff",
+                  backgroundColor: colors.brand.primary,
+                  color: colors.text.inverse,
                   p: 2,
                   fontSize: "large",
                 }}

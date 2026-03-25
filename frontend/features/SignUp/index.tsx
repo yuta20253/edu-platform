@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import { User } from "@/types/signUp/user";
 import {
   Autocomplete,
@@ -292,8 +293,8 @@ export const SignUp = ({
                 type="submit"
                 sx={{
                   width: "100%",
-                  backgroundColor: "#0068b7",
-                  color: "#ffffff",
+                  backgroundColor: colors.brand.primary,
+                  color: colors.text.inverse,
                   p: 2,
                   fontSize: "large",
                 }}
