@@ -66,7 +66,7 @@ type Props = {
   user: MeUser;
 };
 
-export function AdminSidebar({ user }: Props) {
+export const AdminSidebar = ({ user }: Props) => {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -192,4 +192,4 @@ export function AdminSidebar({ user }: Props) {
       </Box>
     </Box>
   );
-}
+};

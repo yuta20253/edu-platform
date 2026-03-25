@@ -61,7 +61,7 @@ const statusConfig: Record<ImportStatus, { label: string; color: string }> = {
   pending: { label: "待機中", color: "#64748b" },
 };
 
-export function AdminDashboardPresenter({ data }: Props) {
+export const Presenter = ({ data }: Props) => {
   const { stats, recent_imports } = data;
 
   return (
@@ -217,4 +217,4 @@ export function AdminDashboardPresenter({ data }: Props) {
       </Box>
     </Box>
   );
-}
+};

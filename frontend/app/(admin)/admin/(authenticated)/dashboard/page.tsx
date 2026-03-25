@@ -1,5 +1,5 @@
 import { AdminDashboard } from "@/features/AdminDashboard";
 
-export default function DashboardPage() {
-  return <AdminDashboard />;
-}
+const DashboardPage = () => <AdminDashboard />;
+
+export default DashboardPage;
