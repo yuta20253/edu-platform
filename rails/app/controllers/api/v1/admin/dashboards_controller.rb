@@ -5,11 +5,13 @@ module Api
     module Admin
       class DashboardsController < BaseController
         def show
+          role_counts = User.joins(:user_role).group("user_roles.name").count
+
           render json: {
             stats: {
-              student_count: count_by_role(:student),
-              teacher_count: count_by_role(:teacher),
-              admin_count: count_by_role(:admin),
+              student_count: role_counts["student"] || 0,
+              teacher_count: role_counts["teacher"] || 0,
+              admin_count: role_counts["admin"] || 0,
               total_questions: Question.count
             },
             recent_imports: recent_imports
@@ -17,12 +19,6 @@ module Api
         end
 
         private
-
-        def count_by_role(role)
-          User.joins(:user_role)
-              .where(user_roles: { name: UserRole.names[role] })
-              .count
-        end
 
         def recent_imports
           ImportHistory.order(created_at: :desc).limit(5).map do |h|
