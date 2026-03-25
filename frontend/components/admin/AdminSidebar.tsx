@@ -90,7 +90,13 @@ export const AdminSidebar = ({ user }: Props) => {
       }}
     >
       {/* ロゴ */}
-      <Box sx={{ px: 3, py: 2.5, borderBottom: `1px solid ${colors.sidebar.border}` }}>
+      <Box
+        sx={{
+          px: 3,
+          py: 2.5,
+          borderBottom: `1px solid ${colors.sidebar.border}`,
+        }}
+      >
         <Typography
           sx={{
             color: colors.sidebar.text,
@@ -127,12 +133,20 @@ export const AdminSidebar = ({ user }: Props) => {
                       color: colors.sidebar.textSecondary,
                       borderRadius: 1,
                       mb: 0.5,
-                      "&:hover": { bgcolor: colors.sidebar.hover, color: colors.sidebar.text },
+                      "&:hover": {
+                        bgcolor: colors.sidebar.hover,
+                        color: colors.sidebar.text,
+                      },
                     }
               }
             >
               <ListItemIcon
-                sx={{ minWidth: 36, color: isActive ? colors.text.inverse : colors.sidebar.textSecondary }}
+                sx={{
+                  minWidth: 36,
+                  color: isActive
+                    ? colors.text.inverse
+                    : colors.sidebar.textSecondary,
+                }}
               >
                 {item.icon}
               </ListItemIcon>
@@ -146,7 +160,9 @@ export const AdminSidebar = ({ user }: Props) => {
       </List>
 
       {/* 下部エリア */}
-      <Box sx={{ borderTop: `1px solid ${colors.sidebar.border}`, px: 2, py: 1.5 }}>
+      <Box
+        sx={{ borderTop: `1px solid ${colors.sidebar.border}`, px: 2, py: 1.5 }}
+      >
         <IconButton disabled sx={{ color: colors.sidebar.textMuted, mb: 1 }}>
           <NotificationsIcon />
         </IconButton>
@@ -162,7 +178,11 @@ export const AdminSidebar = ({ user }: Props) => {
             {user.name.charAt(0)}
           </Avatar>
           <Typography
-            sx={{ color: colors.sidebar.textBody, fontSize: "0.875rem", flex: 1 }}
+            sx={{
+              color: colors.sidebar.textBody,
+              fontSize: "0.875rem",
+              flex: 1,
+            }}
             noWrap
           >
             {user.name}
@@ -184,7 +204,10 @@ export const AdminSidebar = ({ user }: Props) => {
             px: 1,
             py: 0.5,
             borderRadius: 1,
-            "&:hover": { bgcolor: colors.sidebar.hover, color: colors.sidebar.text },
+            "&:hover": {
+              bgcolor: colors.sidebar.hover,
+              color: colors.sidebar.text,
+            },
           }}
         >
           <LogoutIcon fontSize="small" />
