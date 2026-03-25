@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import {
   Box,
   Button,
@@ -193,13 +194,13 @@ export const CreateTask = ({
                 mt: 4,
                 borderRadius: 2,
                 overflow: "hidden",
-                border: "1px solid #e0e0e0",
+                border: `1px solid ${colors.border.default}`,
               }}
             >
               <Box
                 sx={{
-                  backgroundColor: "#0068b7",
-                  color: "#ffffff",
+                  backgroundColor: colors.brand.primary,
+                  color: colors.text.inverse,
                   px: 3,
                   py: 2,
                 }}
@@ -230,7 +231,7 @@ export const CreateTask = ({
                     },
                   }}
                   sx={{
-                    backgroundColor: "#fff",
+                    backgroundColor: colors.surface.white,
                   }}
                 >
                   <MenuItem value="">選択してください</MenuItem>
@@ -259,8 +260,8 @@ export const CreateTask = ({
                       <Button
                         onClick={() => setSelectedCourseId(course.id)}
                         sx={{
-                          backgroundColor: "#0068b7",
-                          color: "#ffffff",
+                          backgroundColor: colors.brand.primary,
+                          color: colors.text.inverse,
                           fontSize: "small",
                         }}
                       >
@@ -273,7 +274,7 @@ export const CreateTask = ({
                   <Box sx={{ textAlign: "center", mt: 2 }}>
                     <Button
                       onClick={() => setShowAllCourses((prev) => !prev)}
-                      sx={{ color: "#0068b7" }}
+                      sx={{ color: colors.brand.primary }}
                     >
                       {showAllCourses ? "閉じる" : "もっと見る"}
                     </Button>
@@ -287,13 +288,13 @@ export const CreateTask = ({
                   mt: 4,
                   borderRadius: 2,
                   overflow: "hidden",
-                  border: "1px solid #e0e0e0",
+                  border: `1px solid ${colors.border.default}`,
                 }}
               >
                 <Box
                   sx={{
-                    backgroundColor: "#0068b7",
-                    color: "#ffffff",
+                    backgroundColor: colors.brand.primary,
+                    color: colors.text.inverse,
                     px: 3,
                     py: 2,
                   }}
@@ -343,12 +344,12 @@ export const CreateTask = ({
                 href="/"
                 sx={{
                   flex: 1,
-                  backgroundColor: "#eee",
-                  color: "#333",
+                  backgroundColor: colors.border.subtle,
+                  color: colors.text.primary,
                   p: 2,
                   fontSize: "large",
                   "&:hover": {
-                    backgroundColor: "#ddd",
+                    backgroundColor: colors.border.muted,
                   },
                 }}
               >
@@ -361,8 +362,8 @@ export const CreateTask = ({
                 type="submit"
                 sx={{
                   flex: 1,
-                  backgroundColor: "#0068b7",
-                  color: "#ffffff",
+                  backgroundColor: colors.brand.primary,
+                  color: colors.text.inverse,
                   p: 2,
                   fontSize: "large",
                 }}
