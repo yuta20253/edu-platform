@@ -23,7 +23,7 @@ export default async function AdminAuthenticatedLayout({
 
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      <AdminSidebar />
+      <AdminSidebar user={user} />
       <Box
         component="main"
         sx={{ flex: 1, overflowY: "auto", bgcolor: "#f8fafc" }}
