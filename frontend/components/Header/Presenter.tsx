@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import { AppBar } from "@mui/material";
 import { Box, Button } from "@mui/material";
 import ToolBar from "@mui/material/Toolbar";
@@ -35,7 +36,7 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
                 style={{
                   fontSize: "0.8rem",
                   letterSpacing: "0.25em",
-                  textShadow: "0 0 6px rgba(0, 0, 0, 0.25)",
+                  textShadow: `0 0 6px ${colors.shadow.header}`,
                 }}
               >
                 学習App(仮)
@@ -49,7 +50,7 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
                 display: "flex",
                 alignItems: "center",
                 gap: 2,
-                color: "#fff",
+                color: colors.text.inverse,
               }}
             >
               <AccountCircleIcon />

@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import { Box, useTheme } from "@mui/material";
 import { usePathname } from "next/navigation";
 
@@ -23,7 +24,7 @@ export const Footer = (): React.JSX.Element => {
         backgroundColor: isAdmin
           ? theme.palette.admin.main
           : theme.palette.primary.main,
-        boxShadow: "0 -2px 8px rgba(0,0,0,0.1)",
+        boxShadow: `0 -2px 8px ${colors.shadow.footer}`,
         display: "flex",
         justifyContent: "center",
         px: 4,
