@@ -57,7 +57,7 @@ RSpec.describe 'Api::V1::Admin::Dashboards', type: :request do
 
       it 'recent_imports は最大5件返される' do
         subject
-        expect(response.parsed_body['recent_imports'].length).to eq(5)
+        expect(response.parsed_body['recent_imports'].size).to eq(5)
       end
 
       it 'recent_imports に必要なフィールドが含まれる' do
