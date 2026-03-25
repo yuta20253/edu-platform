@@ -6,6 +6,7 @@ module Api
       class DashboardsController < BaseController
         def show
           role_counts = User.joins(:user_role).group("user_roles.name").count
+          recent_imports = ImportHistory.order(created_at: :desc).limit(5)
 
           render json: {
             stats: {
@@ -14,24 +15,8 @@ module Api
               admin_count: role_counts["admin"] || 0,
               total_questions: Question.count
             },
-            recent_imports: recent_imports
+            recent_imports: ActiveModelSerializers::SerializableResource.new(recent_imports, each_serializer: ImportHistorySerializer)
           }
-        end
-
-        private
-
-        def recent_imports
-          ImportHistory.order(created_at: :desc).limit(5).map do |h|
-            {
-              id: h.id,
-              file_name: h.file_name,
-              status: h.status,
-              success_count: h.success_count,
-              error_count: h.error_count,
-              total_count: h.total_count,
-              created_at: h.created_at
-            }
-          end
         end
       end
     end
