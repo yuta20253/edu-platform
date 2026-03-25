@@ -20,6 +20,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { MeUser } from "@/libs/server/me";
 import { apiClient } from "@/libs/http/apiClient";
@@ -62,13 +63,17 @@ const navItems = [
   },
 ];
 
-type Props = {
-  user: MeUser;
-};
-
-export const AdminSidebar = ({ user }: Props) => {
+export const AdminSidebar = () => {
+  const [user, setUser] = useState<MeUser | null>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    apiClient
+      .get<MeUser>("/api/admin/me")
+      .then((res) => setUser(res.data))
+      .catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     await apiClient.post("/api/auth/logout");
@@ -158,13 +163,13 @@ export const AdminSidebar = ({ user }: Props) => {
               fontSize: "0.875rem",
             }}
           >
-            {user.name.charAt(0)}
+            {user?.name.charAt(0)}
           </Avatar>
           <Typography
             sx={{ color: "#cbd5e1", fontSize: "0.875rem", flex: 1 }}
             noWrap
           >
-            {user.name}
+            {user?.name}
           </Typography>
         </Box>
         <Box
