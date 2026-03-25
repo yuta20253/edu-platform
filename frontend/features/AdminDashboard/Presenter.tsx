@@ -111,7 +111,7 @@ export const Presenter = ({ data }: Props) => {
         {/* CSVインポート履歴 */}
         <Card
           elevation={0}
-          sx={{ border: "1px solid #e2e8f0", borderRadius: 2 }}
+          sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
         >
           <CardContent>
             <Typography fontWeight={600} sx={{ mb: 2 }}>
@@ -178,7 +178,7 @@ export const Presenter = ({ data }: Props) => {
         {/* クイックアクション */}
         <Card
           elevation={0}
-          sx={{ border: "1px solid #e2e8f0", borderRadius: 2 }}
+          sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
         >
           <CardContent>
             <Typography fontWeight={600} sx={{ mb: 2 }}>
