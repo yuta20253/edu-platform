@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import {
   Box,
   Backdrop,
@@ -91,7 +92,7 @@ export const CreateTaskConfirm = ({
               </Typography>
               <Box
                 sx={{
-                  border: "1px solid #eee",
+                  border: `1px solid ${colors.border.subtle}`,
                   borderRadius: 2,
                   p: 3,
                   mb: 4,
@@ -102,7 +103,7 @@ export const CreateTaskConfirm = ({
                     mb: 2,
                     fontWeight: 700,
                     fontSize: "1.1rem",
-                    borderBottom: "1px solid #ddd",
+                    borderBottom: `1px solid ${colors.border.muted}`,
                     pb: 1,
                   }}
                 >
@@ -123,7 +124,7 @@ export const CreateTaskConfirm = ({
               </Box>
               <Box
                 sx={{
-                  border: "1px solid #eee",
+                  border: `1px solid ${colors.border.subtle}`,
                   borderRadius: 2,
                   p: 3,
                 }}
@@ -168,7 +169,7 @@ export const CreateTaskConfirm = ({
                           px: 2,
                           py: 0.5,
                           borderRadius: 10,
-                          backgroundColor: "#e3f2fd",
+                          backgroundColor: colors.surface.info,
                           fontSize: 14,
                         }}
                       >
@@ -190,12 +191,12 @@ export const CreateTaskConfirm = ({
               }
               sx={{
                 flex: 1,
-                backgroundColor: "#eee",
-                color: "#333",
+                backgroundColor: colors.border.subtle,
+                color: colors.text.primary,
                 p: 2,
                 fontSize: "large",
                 "&:hover": {
-                  backgroundColor: "#ddd",
+                  backgroundColor: colors.border.muted,
                 },
               }}
             >
@@ -208,12 +209,12 @@ export const CreateTaskConfirm = ({
               type="submit"
               sx={{
                 flex: 1,
-                backgroundColor: "#0068b7",
-                color: "#ffffff",
+                backgroundColor: colors.brand.primary,
+                color: colors.text.inverse,
                 p: 2,
                 fontSize: "large",
                 "&:hover": {
-                  backgroundColor: "#0055a3",
+                  backgroundColor: colors.brand.primaryHover,
                 },
               }}
               onClick={handleRegister}
