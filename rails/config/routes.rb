@@ -16,6 +16,7 @@ Rails.application.routes.draw do
 
       get "/me", to: "users#show"
 
+      resources :prefectures, only: :index
       resources :high_schools do
         resources :grades, only: :index
       end
