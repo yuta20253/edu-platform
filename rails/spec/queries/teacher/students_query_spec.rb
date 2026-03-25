@@ -15,7 +15,7 @@ RSpec.describe Teacher::StudentsQuery, type: :model do
   let!(:student2) { create(:user, user_role: student_role, grade: grade2, high_school: high_school1) }
   let!(:student3) { create(:user, user_role: student_role, grade: grade3, high_school: high_school2) }
   let!(:teacher1) { create(:user, user_role: teacher_role, grade: grade1, high_school: high_school1) }
-  let!(:teacher2) { create(:user, user_role: teacher_role, grade: grade2, high_school: high_school2) }
+  let!(:teacher2) { create(:user, user_role: teacher_role, grade: grade3, high_school: high_school2) }
 
   it 'grade指定ありなら所属する高校のstudentのみ返す' do
     result = described_class.new(teacher1.high_school.users).call(grade_id: grade1.id)
