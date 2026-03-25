@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import {
   Avatar,
   Box,
@@ -82,17 +83,17 @@ export const AdminSidebar = ({ user }: Props) => {
         width: 240,
         minWidth: 240,
         height: "100vh",
-        bgcolor: "#1e293b",
+        bgcolor: colors.sidebar.background,
         display: "flex",
         flexDirection: "column",
-        borderRight: "1px solid #334155",
+        borderRight: `1px solid ${colors.sidebar.border}`,
       }}
     >
       {/* ロゴ */}
-      <Box sx={{ px: 3, py: 2.5, borderBottom: "1px solid #334155" }}>
+      <Box sx={{ px: 3, py: 2.5, borderBottom: `1px solid ${colors.sidebar.border}` }}>
         <Typography
           sx={{
-            color: "#f1f5f9",
+            color: colors.sidebar.text,
             fontWeight: 700,
             fontSize: "1rem",
             letterSpacing: 1,
@@ -115,23 +116,23 @@ export const AdminSidebar = ({ user }: Props) => {
               sx={
                 isActive
                   ? {
-                      bgcolor: "#1d4ed8",
-                      color: "#ffffff",
+                      bgcolor: colors.sidebar.active,
+                      color: colors.text.inverse,
                       borderRadius: 1,
                       mb: 0.5,
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                      "&:hover": { bgcolor: "#1e40af" },
+                      "& .MuiListItemIcon-root": { color: colors.text.inverse },
+                      "&:hover": { bgcolor: colors.sidebar.active },
                     }
                   : {
-                      color: "#94a3b8",
+                      color: colors.sidebar.textSecondary,
                       borderRadius: 1,
                       mb: 0.5,
-                      "&:hover": { bgcolor: "#334155", color: "#f1f5f9" },
+                      "&:hover": { bgcolor: colors.sidebar.hover, color: colors.sidebar.text },
                     }
               }
             >
               <ListItemIcon
-                sx={{ minWidth: 36, color: isActive ? "#ffffff" : "#94a3b8" }}
+                sx={{ minWidth: 36, color: isActive ? colors.text.inverse : colors.sidebar.textSecondary }}
               >
                 {item.icon}
               </ListItemIcon>
@@ -145,8 +146,8 @@ export const AdminSidebar = ({ user }: Props) => {
       </List>
 
       {/* 下部エリア */}
-      <Box sx={{ borderTop: "1px solid #334155", px: 2, py: 1.5 }}>
-        <IconButton disabled sx={{ color: "#64748b", mb: 1 }}>
+      <Box sx={{ borderTop: `1px solid ${colors.sidebar.border}`, px: 2, py: 1.5 }}>
+        <IconButton disabled sx={{ color: colors.sidebar.textMuted, mb: 1 }}>
           <NotificationsIcon />
         </IconButton>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
@@ -154,14 +155,14 @@ export const AdminSidebar = ({ user }: Props) => {
             sx={{
               width: 32,
               height: 32,
-              bgcolor: "#334155",
+              bgcolor: colors.sidebar.avatar,
               fontSize: "0.875rem",
             }}
           >
             {user.name.charAt(0)}
           </Avatar>
           <Typography
-            sx={{ color: "#cbd5e1", fontSize: "0.875rem", flex: 1 }}
+            sx={{ color: colors.sidebar.textBody, fontSize: "0.875rem", flex: 1 }}
             noWrap
           >
             {user.name}
@@ -178,12 +179,12 @@ export const AdminSidebar = ({ user }: Props) => {
             background: "none",
             border: "none",
             cursor: "pointer",
-            color: "#94a3b8",
+            color: colors.sidebar.textSecondary,
             fontSize: "0.875rem",
             px: 1,
             py: 0.5,
             borderRadius: 1,
-            "&:hover": { bgcolor: "#334155", color: "#f1f5f9" },
+            "&:hover": { bgcolor: colors.sidebar.hover, color: colors.sidebar.text },
           }}
         >
           <LogoutIcon fontSize="small" />
