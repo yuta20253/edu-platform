@@ -12,6 +12,14 @@ type ErrorResponse = {
   errors?: string[] | string;
 };
 
+type LoginResponse = {
+  user?: {
+    user_role?: {
+      name?: string;
+    };
+  };
+};
+
 export const useSubmit = ({ setErrorMessage }: LoginProps) => {
   const router = useRouter();
 
@@ -41,7 +49,17 @@ export const useSubmit = ({ setErrorMessage }: LoginProps) => {
 
         throw new Error(messageFromApi ?? "ログインに失敗しました");
       }
-      router.push("/");
+      const body = (await response
+        .json()
+        .catch(() => null)) as LoginResponse | null;
+      const role = body?.user?.user_role?.name;
+      const redirect =
+        role === "admin"
+          ? "/admin/dashboard"
+          : role === "teacher"
+            ? "/teacher/dashboard"
+            : "/";
+      router.push(redirect);
       router.refresh();
     } catch (error) {
       const message =
