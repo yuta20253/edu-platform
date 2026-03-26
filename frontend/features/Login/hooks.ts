@@ -52,8 +52,14 @@ export const useSubmit = ({ setErrorMessage }: LoginProps) => {
       const body = (await response
         .json()
         .catch(() => null)) as LoginResponse | null;
-      const isAdmin = body?.user?.user_role?.name === "admin";
-      router.push(isAdmin ? "/admin/dashboard" : "/");
+      const role = body?.user?.user_role?.name;
+      const redirect =
+        role === "admin"
+          ? "/admin/dashboard"
+          : role === "teacher"
+            ? "/teacher/dashboard"
+            : "/";
+      router.push(redirect);
       router.refresh();
     } catch (error) {
       const message =
