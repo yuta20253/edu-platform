@@ -16,6 +16,7 @@ Rails.application.routes.draw do
 
       get "/me", to: "users#show"
 
+      resources :prefectures, only: :index
       resources :high_schools do
         resources :grades, only: :index
       end
@@ -33,6 +34,7 @@ Rails.application.routes.draw do
       end
 
       namespace :admin do
+        resource :dashboard, only: :show
         resources :courses do
           resources :units do
             resource :import_questions, only: :create

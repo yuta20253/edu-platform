@@ -4,7 +4,7 @@
 require 'spec_helper'
 require 'shoulda/matchers'
 require 'database_cleaner/active_record'
-ENV['RAILS_ENV'] ||= 'test'
+ENV['RAILS_ENV'] = 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
@@ -75,6 +75,10 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :request
 
   Rails.application.routes.default_url_options[:host] = 'localhost'
+
+  config.before(:each, type: :request) do
+    host! 'localhost'
+  end
 
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)

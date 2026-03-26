@@ -23,6 +23,7 @@ import { useSubmit } from "./hooks/hooks";
 import { useFetchSchools } from "./hooks/useFetchSchools";
 import { useFetchGrades } from "./hooks/useFetchGrades";
 import { HighSchoolType } from "./types";
+import { useFetchPrefectures } from "./hooks/useFetchPrefectures";
 
 export const SignUp = ({
   userRole,
@@ -35,8 +36,12 @@ export const SignUp = ({
     useState<boolean>(false);
   const [selectedHighSchool, setSelectedHighSchool] =
     useState<HighSchoolType | null>(null);
+  const [selectedPrefectureId, setSelectedPrefectureId] = useState<
+    number | null
+  >(null);
 
-  const { highSchools, fetchSchools } = useFetchSchools();
+  const { prefectures } = useFetchPrefectures();
+  const { highSchools, setHighSchools, fetchSchools } = useFetchSchools();
   const { grades, setGrades, fetchGrades } = useFetchGrades();
 
   const {
@@ -129,15 +134,41 @@ export const SignUp = ({
                 helperText={errors.user?.email?.message}
               />
             </Box>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <Typography>都道府県</Typography>
+              <Select
+                value={selectedPrefectureId ?? ""}
+                onChange={(e) => {
+                  const prefectureId = Number(e.target.value);
+                  setSelectedPrefectureId(prefectureId);
+                  setSelectedHighSchool(null);
+                  setHighSchools([]);
+                  setGrades([]);
+                }}
+              >
+                {prefectures.map((prefecture) => (
+                  <MenuItem key={prefecture.id} value={prefecture.id}>
+                    {prefecture.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             {(userRole === "student" || userRole === "teacher") && (
               <>
                 <Typography>在籍高校</Typography>
                 <Autocomplete
                   value={selectedHighSchool}
+                  disabled={selectedPrefectureId === null}
                   options={highSchools}
                   getOptionLabel={(highSchool) => highSchool.name}
                   onInputChange={(_, value) => {
-                    fetchSchools(value);
+                    if (!selectedPrefectureId) return;
+                    const trimmed = value.trim();
+                    if (trimmed.length < 2) {
+                      setHighSchools([]);
+                      return;
+                    }
+                    fetchSchools(trimmed, selectedPrefectureId);
                   }}
                   onChange={(_, value) => {
                     setSelectedHighSchool(value);
@@ -153,6 +184,9 @@ export const SignUp = ({
                   }}
                   renderInput={(params) => <TextField {...params} />}
                 />
+                <Typography sx={{ color: "red" }}>
+                  都道府県を選択後、学校名を2文字以上入力すると候補が表示されます
+                </Typography>
                 <Box sx={{ mb: 2 }}>
                   <Typography>学年</Typography>
                   <Controller
@@ -268,6 +302,9 @@ export const SignUp = ({
                   登録
                 </Typography>
               </Button>
+            </Box>
+            <Box sx={{ width: "100%", textAlign: "center", mb: 2 }}>
+              <Link href="/login">すでに登録済みの方はこちら</Link>
             </Box>
             {renderTabs(userRole).map(({ role, title }) => (
               <Box

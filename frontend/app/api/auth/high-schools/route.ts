@@ -4,10 +4,11 @@ import { NextResponse } from "next/server";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const keyword = searchParams.get("keyword");
+    const keyword = searchParams.get("keyword") ?? "";
+    const prefectureId = searchParams.get("prefectureId") ?? "";
 
     const { status, data } = await railsFetch(
-      `/api/v1/high_schools?keyword=${keyword}`,
+      `/api/v1/high_schools?prefecture_id=${prefectureId}&keyword=${keyword}`,
       {
         method: "GET",
       },
