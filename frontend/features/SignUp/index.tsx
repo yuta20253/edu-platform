@@ -303,6 +303,9 @@ export const SignUp = ({
                 </Typography>
               </Button>
             </Box>
+            <Box sx={{ width: "100%", textAlign: "center", mb: 2 }}>
+              <Link href="/login">すでに登録済みの方はこちら</Link>
+            </Box>
             {renderTabs(userRole).map(({ role, title }) => (
               <Box
                 key={role}
