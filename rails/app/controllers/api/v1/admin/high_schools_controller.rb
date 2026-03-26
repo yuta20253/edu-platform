@@ -27,9 +27,9 @@ module Api
             ),
             meta: {
               current_page: schools.current_page,
-              total_pages:  schools.total_pages,
-              total_count:  schools.total_count,
-              per_page:     20
+              total_pages: schools.total_pages,
+              total_count: schools.total_count,
+              per_page: 20
             }
           }
         end

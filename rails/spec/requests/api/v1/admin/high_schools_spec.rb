@@ -75,7 +75,7 @@ RSpec.describe 'Api::V1::Admin::HighSchools', type: :request do
           get '/api/v1/admin/high_schools',
               params: { prefecture_id: school.prefecture_id },
               headers: headers.merge('Cookie' => cookie)
-          ids = response.parsed_body['schools'].map { |s| s['id'] }
+          ids = response.parsed_body['schools'].pluck('id')
           expect(ids).to include(school.id)
           expect(ids).not_to include(other_school.id)
         end
@@ -119,7 +119,7 @@ RSpec.describe 'Api::V1::Admin::HighSchools', type: :request do
       it '必要なフィールドが含まれる' do
         subject
         expect(response.parsed_body.keys).to include('id', 'name', 'prefecture_name', 'student_count',
-                                                      'teacher_count', 'created_at', 'updated_at')
+                                                     'teacher_count', 'created_at', 'updated_at')
       end
 
       it 'student_count が正しい' do
