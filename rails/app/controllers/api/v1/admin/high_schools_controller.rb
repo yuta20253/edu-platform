@@ -21,7 +21,7 @@ module Api
           render json: {
             schools: ActiveModelSerializers::SerializableResource.new(
               schools,
-              each_serializer: Admin::HighSchoolSerializer,
+              each_serializer: ::Admin::HighSchoolSerializer,
               student_counts: student_counts,
               teacher_counts: teacher_counts
             ),
@@ -42,7 +42,7 @@ module Api
                               .where(high_school_id: school.id, user_roles: { name: 'teacher' }).count
 
           render json: school,
-                 serializer: Admin::HighSchoolSerializer,
+                 serializer: ::Admin::HighSchoolSerializer,
                  student_counts: { school.id => student_count },
                  teacher_counts: { school.id => teacher_count }
         end
