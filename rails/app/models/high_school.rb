@@ -15,5 +15,7 @@ class HighSchool < ApplicationRecord
   has_many :users
   has_many :grades
 
+  scope :by_prefecture, ->(prefecture_id) { prefecture_id.present? ? where(prefecture_id: prefecture_id) : all }
+
   validates :name, presence: true
 end

@@ -6,9 +6,9 @@ module Api
       class HighSchoolsController < BaseController
         def index
           schools = HighSchool.includes(:prefecture)
-                              .order(:name)
+                              .order(:id)
+                              .by_prefecture(params[:prefecture_id])
                               .page(params[:page]).per(20)
-          schools = schools.where(prefecture_id: params[:prefecture_id]) if params[:prefecture_id].present?
 
           school_ids = schools.map(&:id)
           student_counts = User.joins(:user_role)
