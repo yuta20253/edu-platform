@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: announcements
@@ -13,7 +15,7 @@
 #
 class Announcement < ApplicationRecord
   has_many :announcement_targets, dependent: :destroy
-  belongs_to :publisher, class_name: "User"
+  belongs_to :publisher, class_name: 'User'
 
   enum status: {
     draft: 0,
