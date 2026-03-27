@@ -11,12 +11,8 @@ module Api
                               .page(params[:page]).per(20)
 
           school_ids = schools.pluck(:id)
-          student_counts = User.joins(:user_role)
-                               .where(high_school_id: school_ids, user_roles: { name: 'student' })
-                               .group(:high_school_id).count
-          teacher_counts = User.joins(:user_role)
-                               .where(high_school_id: school_ids, user_roles: { name: 'teacher' })
-                               .group(:high_school_id).count
+          student_counts = User.students.by_high_school(school_ids).group(:high_school_id).count
+          teacher_counts = User.teachers.by_high_school(school_ids).group(:high_school_id).count
 
           render json: {
             schools: ActiveModelSerializers::SerializableResource.new(
@@ -36,10 +32,8 @@ module Api
 
         def show
           school = HighSchool.includes(:prefecture).find(params[:id])
-          student_count = User.joins(:user_role)
-                              .where(high_school_id: school.id, user_roles: { name: 'student' }).count
-          teacher_count = User.joins(:user_role)
-                              .where(high_school_id: school.id, user_roles: { name: 'teacher' }).count
+          student_count = User.students.by_high_school(school.id).count
+          teacher_count = User.teachers.by_high_school(school.id).count
 
           render json: school,
                  serializer: ::Admin::HighSchoolSerializer,
