@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       end
       namespace :admin do
         resource :dashboard, only: :show
+        resources :high_schools, only: [:index, :show]
         resources :courses do
           resources :units do
             resource :import_questions, only: :create
