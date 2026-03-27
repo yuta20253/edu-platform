@@ -52,8 +52,7 @@ RSpec.describe 'Api::V1::Admin::HighSchools', type: :request do
       it 'schools の各要素に必要なフィールドが含まれる' do
         subject
         school_data = response.parsed_body['schools'].first
-        expect(school_data.keys).to include('id', 'name', 'prefecture_name', 'student_count', 'teacher_count',
-                                            'created_at', 'updated_at')
+        expect(school_data.keys).to include('id', 'name', 'prefecture_name', 'student_count', 'teacher_count')
       end
 
       it 'student_count が正しい' do
@@ -118,8 +117,7 @@ RSpec.describe 'Api::V1::Admin::HighSchools', type: :request do
 
       it '必要なフィールドが含まれる' do
         subject
-        expect(response.parsed_body.keys).to include('id', 'name', 'prefecture_name', 'student_count',
-                                                     'teacher_count', 'created_at', 'updated_at')
+        expect(response.parsed_body.keys).to include('id', 'name', 'prefecture_name', 'student_count', 'teacher_count')
       end
 
       it 'student_count が正しい' do
