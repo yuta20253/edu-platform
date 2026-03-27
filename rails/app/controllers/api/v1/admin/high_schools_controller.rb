@@ -10,7 +10,7 @@ module Api
                               .by_prefecture(params[:prefecture_id])
                               .page(params[:page]).per(20)
 
-          school_ids = schools.map(&:id)
+          school_ids = schools.pluck(:id)
           student_counts = User.joins(:user_role)
                                .where(high_school_id: school_ids, user_roles: { name: 'student' })
                                .group(:high_school_id).count
