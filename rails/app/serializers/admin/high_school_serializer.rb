@@ -2,7 +2,7 @@
 
 module Admin
   class HighSchoolSerializer < ActiveModel::Serializer
-    attributes :id, :name, :prefecture_name, :student_count, :teacher_count, :created_at, :updated_at
+    attributes :id, :name, :prefecture_name, :student_count, :teacher_count
 
     def prefecture_name
       object.prefecture.name
