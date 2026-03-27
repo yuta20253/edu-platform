@@ -29,6 +29,8 @@ Rails.application.routes.draw do
         resources :courses, only: :index
       end
       namespace :teacher do
+        resources :colleagues, controller: "teachers"
+        resources :students
       end
       namespace :admin do
         resource :dashboard, only: :show
