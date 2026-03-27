@@ -48,6 +48,10 @@ class User < ApplicationRecord
   has_many :grades, through: :teacher_grades, source: :grade
   has_many :import_histories, dependent: :destroy
 
+  scope :students, -> { joins(:user_role).where(user_roles: { name: 'student' }) }
+  scope :teachers, -> { joins(:user_role).where(user_roles: { name: 'teacher' }) }
+  scope :by_high_school, ->(high_school_ids) { where(high_school_id: high_school_ids) }
+
   validates :name, presence: true, on: :update
   validates :name_kana, presence: true, on: :update
   validates :user_role, presence: true
