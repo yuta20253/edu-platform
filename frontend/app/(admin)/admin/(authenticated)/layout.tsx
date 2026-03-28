@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getMeFromRails } from "@/libs/server/me";
+import { colors } from "@/app/theme/colors";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Box } from "@mui/material";
 
@@ -26,7 +27,7 @@ export default async function AdminAuthenticatedLayout({
       <AdminSidebar user={user} />
       <Box
         component="main"
-        sx={{ flex: 1, overflowY: "auto", bgcolor: "#f8fafc" }}
+        sx={{ flex: 1, overflowY: "auto", bgcolor: colors.surface.default }}
       >
         {children}
       </Box>

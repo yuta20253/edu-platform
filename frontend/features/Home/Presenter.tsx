@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import { GoalType } from "@/libs/server/studentDashboard";
 import { Box, Typography } from "@mui/material";
 import Link from "next/link";
@@ -53,7 +54,7 @@ export const Presenter = ({
           {goalTitles.map((title, i) => (
             <Box
               key={i}
-              sx={{ borderLeft: "2px solid #bbb" }}
+              sx={{ borderLeft: `2px solid ${colors.border.divider}` }}
               textAlign="center"
             >
               {title}
@@ -97,8 +98,8 @@ export const Presenter = ({
           <Link
             href={`/goals/new`}
             style={{
-              backgroundColor: "#0068b7",
-              color: "#fff",
+              backgroundColor: colors.brand.primary,
+              color: colors.text.inverse,
               padding: "8px 12px",
               borderRadius: 10,
               fontSize: 16,
@@ -114,8 +115,8 @@ export const Presenter = ({
               key={link.href}
               href={link.href}
               style={{
-                backgroundColor: "#0068b7",
-                color: "#fff",
+                backgroundColor: colors.brand.primary,
+                color: colors.text.inverse,
                 padding: "4px 8px",
                 borderRadius: 10,
                 fontSize: 16,

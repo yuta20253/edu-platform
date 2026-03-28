@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import {
   Avatar,
   Box,
@@ -32,33 +33,33 @@ const kpiCards = (stats: AdminDashboardData["stats"]) => [
     label: "生徒数",
     value: stats.student_count,
     icon: <SchoolIcon />,
-    color: "#2563eb",
+    color: colors.kpi.blue,
   },
   {
     label: "教師数",
     value: stats.teacher_count,
     icon: <PeopleIcon />,
-    color: "#7c3aed",
+    color: colors.kpi.purple,
   },
   {
     label: "総問題数",
     value: stats.total_questions,
     icon: <QuizIcon />,
-    color: "#d97706",
+    color: colors.kpi.amber,
   },
   {
     label: "管理者数",
     value: stats.admin_count,
     icon: <AdminPanelSettingsIcon />,
-    color: "#059669",
+    color: colors.kpi.green,
   },
 ];
 
 const statusConfig: Record<ImportStatus, { label: string; color: string }> = {
-  completed: { label: "完了", color: "#059669" },
-  failed: { label: "失敗", color: "#dc2626" },
-  processing: { label: "処理中", color: "#2563eb" },
-  pending: { label: "待機中", color: "#64748b" },
+  completed: { label: "完了", color: colors.status.success },
+  failed: { label: "失敗", color: colors.status.error },
+  processing: { label: "処理中", color: colors.status.info },
+  pending: { label: "待機中", color: colors.status.pending },
 };
 
 export const Presenter = ({ data }: Props) => {
@@ -69,7 +70,7 @@ export const Presenter = ({ data }: Props) => {
       <Typography
         variant="h5"
         fontWeight={700}
-        sx={{ mb: 3, color: "#0f172a" }}
+        sx={{ mb: 3, color: colors.text.primary }}
       >
         ダッシュボード
       </Typography>
@@ -87,7 +88,7 @@ export const Presenter = ({ data }: Props) => {
           <Card
             key={card.label}
             elevation={0}
-            sx={{ border: "1px solid #e2e8f0", borderRadius: 2 }}
+            sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
           >
             <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Avatar sx={{ bgcolor: card.color, width: 44, height: 44 }}>
@@ -110,7 +111,7 @@ export const Presenter = ({ data }: Props) => {
         {/* CSVインポート履歴 */}
         <Card
           elevation={0}
-          sx={{ border: "1px solid #e2e8f0", borderRadius: 2 }}
+          sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
         >
           <CardContent>
             <Typography fontWeight={600} sx={{ mb: 2 }}>
@@ -160,7 +161,7 @@ export const Presenter = ({ data }: Props) => {
                           size="small"
                           sx={{
                             bgcolor: statusConfig[item.status].color,
-                            color: "#fff",
+                            color: colors.text.inverse,
                             fontWeight: 600,
                             fontSize: "0.7rem",
                           }}
@@ -177,7 +178,7 @@ export const Presenter = ({ data }: Props) => {
         {/* クイックアクション */}
         <Card
           elevation={0}
-          sx={{ border: "1px solid #e2e8f0", borderRadius: 2 }}
+          sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
         >
           <CardContent>
             <Typography fontWeight={600} sx={{ mb: 2 }}>
