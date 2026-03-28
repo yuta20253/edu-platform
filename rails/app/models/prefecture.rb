@@ -10,5 +10,6 @@
 #  updated_at :datetime         not null
 #
 class Prefecture < ApplicationRecord
+  has_many :addresses
   has_many :high_schools
 end

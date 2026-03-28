@@ -15,5 +15,6 @@
 #  updated_at     :datetime         not null
 #
 class Address < ApplicationRecord
+  belongs_to :prefecture
   has_many :users
 end

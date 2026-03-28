@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_22_070400) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_28_200627) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -41,13 +41,40 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_22_070400) do
 
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
-    t.string "prefecture", limit: 20, null: false
     t.string "city", limit: 50, null: false
     t.string "town", limit: 50
     t.string "street_address", limit: 100
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "prefecture_id"
+    t.index ["prefecture_id"], name: "index_addresses_on_prefecture_id"
+  end
+
+  create_table "announcement_targets", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "announcement_id", null: false
+    t.bigint "user_role_id"
+    t.bigint "grade_id"
+    t.bigint "high_school_id"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["announcement_id"], name: "index_announcement_targets_on_announcement_id"
+    t.index ["grade_id"], name: "index_announcement_targets_on_grade_id"
+    t.index ["high_school_id"], name: "index_announcement_targets_on_high_school_id"
+    t.index ["user_id"], name: "index_announcement_targets_on_user_id"
+    t.index ["user_role_id"], name: "index_announcement_targets_on_user_role_id"
+  end
+
+  create_table "announcements", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "content", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "published_at"
+    t.bigint "publisher_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["publisher_id"], name: "index_announcements_on_publisher_id"
   end
 
   create_table "courses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -448,6 +475,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_22_070400) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "addresses", "prefectures"
+  add_foreign_key "announcement_targets", "announcements"
+  add_foreign_key "announcement_targets", "grades"
+  add_foreign_key "announcement_targets", "high_schools"
+  add_foreign_key "announcement_targets", "user_roles"
+  add_foreign_key "announcement_targets", "users"
+  add_foreign_key "announcements", "users", column: "publisher_id"
   add_foreign_key "draft_task_courses", "courses"
   add_foreign_key "draft_task_courses", "draft_tasks"
   add_foreign_key "draft_task_units", "draft_tasks"
