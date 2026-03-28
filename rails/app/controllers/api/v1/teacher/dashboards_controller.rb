@@ -13,10 +13,12 @@ module Api
           # 昨日学習した生徒数(高１〜３年生のみ)
 
           render json: {
-            # 利用している所属高校の生徒数(高１〜３年生のみ)
-            grade_one: grade_counts[1] || 0,
-            grade_two: grade_counts[2] || 0,
-            grade_three: grade_counts[3] || 0
+            stats: {
+              # 利用している所属高校の生徒数(高１〜３年生のみ)
+              grade_one_students_count: grade_counts[1] || 0,
+              grade_two_students_count: grade_counts[2] || 0,
+              grade_three_students_count: grade_counts[3] || 0
+            }
           }, status: :ok
         end
 
