@@ -19,7 +19,7 @@ RSpec.describe 'Api::V1::Teacher::Dashboards', type: :request do
 
   describe 'GET /api/v1/teacher/dashboard' do
     context '正常系' do
-      subject { get '/api/v1/teacher/dashboard', headers: headers.merge('Cookie' => cookie)}
+      subject { get '/api/v1/teacher/dashboard', headers: headers.merge('Cookie' => cookie) }
 
       let!(:high_school) { create(:high_school) }
 
