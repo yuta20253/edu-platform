@@ -84,6 +84,8 @@ class User < ApplicationRecord
     user_role&.student? || user_role&.teacher?
   end
 
+  scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
+
   private
 
   def set_jti
