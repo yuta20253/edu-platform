@@ -4,38 +4,24 @@ module Api
   module V1
     class ProfilesController < ApplicationController
       def update
-        ActiveRecord::Base.transaction do
-          update_user!
-          update_user_personal_info!
-        end
+        form = ProfileUpdateForm.new(profile_params.merge(user: current_user))
 
-        render json: {
-          user: ActiveModelSerializers::SerializableResource.new(
-            current_user,
-            serializer: CurrentUserSerializer
-          ), status: :ok
-        }
-      rescue ActiveRecord::RecordInvalid => e
-        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+        if form.save
+          render json: {
+            user: ActiveModelSerializers::SerializableResource.new(
+              current_user,
+              serializer: CurrentUserSerializer
+            )
+          }, status: :ok
+        else
+          render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+        end
       end
 
       private
 
-      def update_user!
-        current_user.update!(user_params)
-      end
-
-      def update_user_personal_info!
-        info = current_user.user_personal_info || current_user.build_user_personal_info
-        info.update!(personal_info_params)
-      end
-
-      def user_params
-        params.permit(:name, :name_kana, :email, :address_id)
-      end
-
-      def personal_info_params
-        params.permit(:phone_number, :birthday, :gender)
+      def profile_params
+        params.permit(:name, :name_kana, :address_id, :birthday, :gender, :phone_number)
       end
     end
   end
