@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 
 csv_file_path = Rails.root.join('lib/csv/addresses/address.csv')
@@ -13,17 +15,13 @@ ActiveRecord::Base.transaction do
     city_name = row['市区町村']
     town = row['町名']
 
-    if prefecture_name.blank?
-      raise "[ERROR] line=#{i} prefecture is blank: #{row.to_h}"
-    end
+    raise "[ERROR] line=#{i} prefecture is blank: #{row.to_h}" if prefecture_name.blank?
 
     next if town == '以下に掲載がない場合'
 
     prefecture = prefectures[prefecture_name]
 
-    unless prefecture
-      raise "[ERROR] line=#{i} Prefecture not found: #{prefecture_name} / #{row.to_h}"
-    end
+    raise "[ERROR] line=#{i} Prefecture not found: #{prefecture_name} / #{row.to_h}" unless prefecture
 
     records << {
       postal_code: postal_code,
