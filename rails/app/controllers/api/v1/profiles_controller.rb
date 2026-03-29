@@ -31,7 +31,7 @@ module Api
       end
 
       def user_params
-        params.permit(:address_id)
+        params.permit(:name, :name_kana, :email, :address_id)
       end
 
       def personal_info_params
