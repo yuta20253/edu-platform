@@ -84,6 +84,16 @@ class User < ApplicationRecord
     user_role&.student? || user_role&.teacher?
   end
 
+  def profile_completed?
+    info = user_personal_info
+    return false unless info
+
+    address_id.present? &&
+      info.phone_number.present? &&
+      info.birthday.present? &&
+      info.gender.present?
+  end
+
   private
 
   def set_jti
