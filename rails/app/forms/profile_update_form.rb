@@ -15,10 +15,8 @@ class ProfileUpdateForm
 
   validates :name, presence: true
   validates :name_kana, presence: true
-  validates :address_id, presence: true
-  validates :phone_number, presence: true, format: { with: /\A\d{10,11}\z/ }
-  validates :birthday, presence: true
-  validates :gender, presence: true, inclusion: { in: UserPersonalInfo.genders.keys }
+  validates :phone_number, format: { with: /\A\d{10,11}\z/ }
+  validates :gender, inclusion: { in: UserPersonalInfo.genders.keys }
   validate :birthday_cannot_be_future
 
   def save
