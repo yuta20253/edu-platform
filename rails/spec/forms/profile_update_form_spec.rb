@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ProfileUpdateForm, type: :model do
@@ -32,7 +34,6 @@ RSpec.describe ProfileUpdateForm, type: :model do
         expect(info.birthday).to eq Date.new(2000, 1, 1)
         expect(info.gender).to eq 'male'
         expect(info.phone_number).to eq '08012345678'
-
       end
     end
 
