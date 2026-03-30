@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_27_202532) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -41,13 +41,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_202532) do
 
   create_table "addresses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "postal_code", limit: 8, null: false
-    t.string "prefecture", limit: 20, null: false
     t.string "city", limit: 50, null: false
     t.string "town", limit: 50
     t.string "street_address", limit: 100
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "prefecture_id"
+    t.index ["prefecture_id"], name: "index_addresses_on_prefecture_id"
   end
 
   create_table "announcement_targets", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -58,6 +59,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_202532) do
     t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "target_type", default: 0, null: false
     t.index ["announcement_id"], name: "index_announcement_targets_on_announcement_id"
     t.index ["grade_id"], name: "index_announcement_targets_on_grade_id"
     t.index ["high_school_id"], name: "index_announcement_targets_on_high_school_id"
@@ -474,6 +476,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_27_202532) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "addresses", "prefectures"
   add_foreign_key "announcement_targets", "announcements"
   add_foreign_key "announcement_targets", "grades"
   add_foreign_key "announcement_targets", "high_schools"

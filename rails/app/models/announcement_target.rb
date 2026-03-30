@@ -19,4 +19,12 @@ class AnnouncementTarget < ApplicationRecord
   belongs_to :grade, optional: true
   belongs_to :high_school, optional: true
   belongs_to :user, optional: true
+
+  enum target_type: {
+    all_users: 0,
+    by_role: 1,
+    by_grade: 2,
+    by_school: 3,
+    by_user: 4
+  }
 end
