@@ -21,10 +21,7 @@ ActiveRecord::Base.transaction do
 
     prefecture = prefectures[prefecture_name]
 
-    unless prefecture
-      raise "[ERROR] line=#{i} Prefecture not found: #{prefecture_name} / #{row.to_h}"
-      next
-    end
+    raise "[ERROR] line=#{i} Prefecture not found: #{prefecture_name} / #{row.to_h}" unless prefecture
 
     records << {
       postal_code: postal_code,
