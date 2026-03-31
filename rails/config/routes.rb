@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       patch "/password/reset", to: "password_resets#update"
 
       get "/me", to: "users#show"
+      patch "/profile", to: "profiles#update"
 
       resources :prefectures, only: :index
       resources :high_schools do
