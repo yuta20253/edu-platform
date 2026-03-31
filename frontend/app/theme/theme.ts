@@ -1,6 +1,7 @@
 "use client";
 
 import { createTheme } from "@mui/material/styles";
+import { colors } from "./colors";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -15,13 +16,13 @@ const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#0068b7",
+      main: colors.brand.primary,
     },
     secondary: {
-      main: "#F2A541",
+      main: colors.brand.secondary,
     },
     admin: {
-      main: "#e65100",
+      main: colors.brand.admin,
     },
   },
   typography: {
