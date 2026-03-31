@@ -22,4 +22,39 @@ class Announcement < ApplicationRecord
     scheduled: 1,
     published: 2
   }
+
+  scope :for_user, lambda { |user|
+    base = joins(:announcement_targets)
+
+    base
+      .where(announcement_targets: { target_type: :all_users })
+      .or(
+        base
+          .where(announcement_targets: { target_type: :by_role, user_role_id: user.user_role_id })
+      )
+      .or(
+        base
+          .where(announcement_targets: { target_type: :by_school, high_school_id: user.high_school_id })
+      )
+      .distinct
+  }
+
+  scope :targeting_all_users, lambda {
+    joins(:announcement_targets).where(announcement_targets: { target_type: :all_users })
+  }
+
+  scope :targeting_by_role, lambda { |role_id|
+    joins(:announcement_targets)
+      .where(announcement_targets: { target_type: :by_role, user_role_id: role_id })
+  }
+
+  scope :targeting_by_school, lambda { |school_id|
+    joins(:announcement_targets)
+      .where(announcement_targets: { target_type: :by_school, high_school_id: school_id })
+  }
+
+  scope :targeting_by_grade, lambda { |grade_id|
+    joins(:announcement_targets)
+      .where(announcement_targets: { target_type: :by_grade, grade_id: grade_id })
+  }
 end
