@@ -75,6 +75,16 @@ RSpec.describe ProfileUpdateForm, type: :model do
       end
     end
 
+    context '存在しないaddress_idのとき' do
+      it '保存できない' do
+        form = described_class.new(params.merge(address_id: 9999999999999))
+        form.user = user
+
+        expect(form.save).to be false
+        expect(form.errors[:address_id]).to include('が不正です。')
+      end
+    end
+
     context '誕生日が未来日のとき' do
       it '保存できない' do
         form = described_class.new(params.merge(birthday: Date.new(2030, 1, 1)))
