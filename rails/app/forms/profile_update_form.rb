@@ -17,6 +17,7 @@ class ProfileUpdateForm
   validates :name_kana, presence: true
   validates :phone_number, format: { with: /\A\d{10,11}\z/ }
   validates :gender, inclusion: { in: UserPersonalInfo.genders.keys }
+  validate :address_must_exist
   validate :birthday_cannot_be_future
 
   def save
@@ -52,6 +53,12 @@ class ProfileUpdateForm
       gender: gender
     )
     info.save!
+  end
+
+  def address_must_exist
+    return if address_id.blank?
+
+    errors.add(:address_id, 'が不正です。') unless Address.exists?(address_id)
   end
 
   def birthday_cannot_be_future
