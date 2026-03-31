@@ -77,7 +77,7 @@ RSpec.describe ProfileUpdateForm, type: :model do
 
     context '存在しないaddress_idのとき' do
       it '保存できない' do
-        form = described_class.new(params.merge(address_id: 9999999999999))
+        form = described_class.new(params.merge(address_id: 9_999_999_999_999))
         form.user = user
 
         expect(form.save).to be false
