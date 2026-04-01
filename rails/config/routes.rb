@@ -29,10 +29,13 @@ Rails.application.routes.draw do
         resources :tasks
         resources :courses, only: :index
       end
+
       namespace :teacher do
         resources :colleagues, controller: "teachers"
         resources :students
+        resource :dashboard, only: :show
       end
+
       namespace :admin do
         resource :dashboard, only: :show
         resources :high_schools, only: [:index, :show]
