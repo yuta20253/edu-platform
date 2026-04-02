@@ -35,7 +35,7 @@ module Api
         private
 
         def students
-          current_user.high_school.users
+          current_user.high_school.users.students
         end
       end
     end
