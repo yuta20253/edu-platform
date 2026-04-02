@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
 import type { AdminSchoolsData } from "./types";
@@ -55,11 +55,12 @@ const defaultProps = {
 describe("AdminSchoolsPresenter", () => {
   it("テーブルヘッダーに「高校名」「都道府県」「生徒数」「教師数」「詳細」が表示される", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByText("高校名")).toBeInTheDocument();
-    expect(screen.getByText("都道府県")).toBeInTheDocument();
-    expect(screen.getByText("生徒数")).toBeInTheDocument();
-    expect(screen.getByText("教師数")).toBeInTheDocument();
-    expect(screen.getByText("詳細")).toBeInTheDocument();
+    const headers = screen.getAllByRole("columnheader").map((h) => h.textContent);
+    expect(headers).toContain("高校名");
+    expect(headers).toContain("都道府県");
+    expect(headers).toContain("生徒数");
+    expect(headers).toContain("教師数");
+    expect(headers).toContain("詳細");
   });
 
   it("schools データが行として正しくレンダリングされる", () => {
@@ -72,9 +73,11 @@ describe("AdminSchoolsPresenter", () => {
     expect(screen.getByText("大阪府")).toBeInTheDocument();
   });
 
-  it("都道府県プルダウンに「すべて」オプションが表示される", () => {
+  it("都道府県プルダウンを開くと「すべて」オプションが表示される", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByText("すべて")).toBeInTheDocument();
+    const select = screen.getByRole("combobox");
+    fireEvent.mouseDown(select);
+    expect(screen.getByRole("option", { name: "すべて" })).toBeInTheDocument();
   });
 
   it("ページネーションが表示される", () => {
