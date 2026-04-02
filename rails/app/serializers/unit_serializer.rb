@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: units
+#
+#  id         :bigint           not null, primary key
+#  course_id  :bigint           not null
+#  unit_name  :string(255)      not null
+#  deleted_at :datetime
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 class UnitSerializer < ActiveModel::Serializer
-  attributes :id, :course_id, :unit_name
+  attributes :id, :course_id, :unit_name, :course
 
-  belongs_to :course, serializer: CourseSerializer
+  def course
+    {
+      id: object.course.id,
+      level_number: object.course.level_number,
+      level_name: object.course.level_name
+    }
+  end
 end
