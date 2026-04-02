@@ -27,7 +27,8 @@ module Api
               grade_two_students_count: grade_counts[2] || 0,
               grade_three_students_count: grade_counts[3] || 0
             },
-            announcements: announcements
+            announcements: ActiveModelSerializers::SerializableResource.new(announcements,
+                                                                            each_serializer: AnnouncementSerializer)
           }, status: :ok
         end
 
