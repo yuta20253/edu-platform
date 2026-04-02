@@ -54,13 +54,18 @@ export const Presenter = ({
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography
-        variant="h5"
-        fontWeight={700}
-        sx={{ mb: 3, color: colors.text.primary }}
-      >
-        高校一覧
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 3 }}>
+        <Typography
+          variant="h5"
+          fontWeight={700}
+          sx={{ color: colors.text.primary }}
+        >
+          高校一覧
+        </Typography>
+        <Typography variant="body2" sx={{ color: colors.text.muted }}>
+          {meta.total_count} 件
+        </Typography>
+      </Box>
 
       {/* 都道府県フィルター */}
       <Box sx={{ mb: 3 }}>
