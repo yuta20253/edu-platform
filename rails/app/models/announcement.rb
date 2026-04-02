@@ -36,6 +36,10 @@ class Announcement < ApplicationRecord
         base
           .where(announcement_targets: { target_type: :by_school, high_school_id: user.high_school_id })
       )
+      .or(
+        base
+          .where(announcement_targets: { target_type: :by_grade, grade_id: user.grade_id })
+      )
       .distinct
   }
 
