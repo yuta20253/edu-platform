@@ -12,7 +12,7 @@ type Prefecture = {
   name: string;
 };
 
-export function AdminSchools() {
+export const AdminSchools = () => {
   const [data, setData] = useState<AdminSchoolsData | null>(null);
   const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
   const [selectedPrefectureId, setSelectedPrefectureId] = useState<
@@ -74,4 +74,4 @@ export function AdminSchools() {
       onPageChange={setPage}
     />
   );
-}
+};
