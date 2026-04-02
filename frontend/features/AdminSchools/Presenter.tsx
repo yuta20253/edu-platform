@@ -73,7 +73,9 @@ export const Presenter = ({
           <InputLabel>都道府県</InputLabel>
           <Select
             label="都道府県"
-            value={selectedPrefectureId === null ? "" : String(selectedPrefectureId)}
+            value={
+              selectedPrefectureId === null ? "" : String(selectedPrefectureId)
+            }
             onChange={handlePrefectureChange}
           >
             <MenuItem value="">すべて</MenuItem>
@@ -89,7 +91,11 @@ export const Presenter = ({
       {/* テーブル */}
       <Card
         elevation={0}
-        sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2, mb: 3 }}
+        sx={{
+          border: `1px solid ${colors.border.light}`,
+          borderRadius: 2,
+          mb: 3,
+        }}
       >
         <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
           {schools.length === 0 ? (

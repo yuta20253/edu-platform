@@ -55,7 +55,9 @@ const defaultProps = {
 describe("AdminSchoolsPresenter", () => {
   it("テーブルヘッダーに「高校名」「都道府県」「生徒数」「教師数」「詳細」が表示される", () => {
     render(<Presenter {...defaultProps} />);
-    const headers = screen.getAllByRole("columnheader").map((h) => h.textContent);
+    const headers = screen
+      .getAllByRole("columnheader")
+      .map((h) => h.textContent);
     expect(headers).toContain("高校名");
     expect(headers).toContain("都道府県");
     expect(headers).toContain("生徒数");
@@ -93,12 +95,7 @@ describe("AdminSchoolsPresenter", () => {
   });
 
   it("schools が空のとき「高校が見つかりません」が表示される", () => {
-    render(
-      <Presenter
-        {...defaultProps}
-        data={{ ...mockData, schools: [] }}
-      />,
-    );
+    render(<Presenter {...defaultProps} data={{ ...mockData, schools: [] }} />);
     expect(screen.getByText("高校が見つかりません")).toBeInTheDocument();
   });
 });
