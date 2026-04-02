@@ -11,36 +11,20 @@
 #
 FactoryBot.define do
   factory :user_role do
-    trait :student do
-      name { 'student' }
+    name { :student }
 
-      initialize_with do
-        UserRole.find_or_create_by!(name: name)
-      end
-    end
+    initialize_with { UserRole.find_or_create_by!(name: name) }
 
     trait :admin do
-      name { 'admin' }
-
-      initialize_with do
-        UserRole.find_or_create_by!(name: name)
-      end
+      name { :admin }
     end
 
     trait :teacher do
-      name { 'teacher' }
-
-      initialize_with do
-        UserRole.find_or_create_by!(name: name)
-      end
+      name { :teacher }
     end
 
     trait :guardian do
-      name { 'guardian' }
-
-      initialize_with do
-        UserRole.find_or_create_by!(name: name)
-      end
+      name { :guardian }
     end
   end
 end
