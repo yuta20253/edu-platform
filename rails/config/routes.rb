@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       namespace :teacher do
         resources :colleagues, controller: "teachers"
         resources :students
+        resources :announcements
         resource :dashboard, only: :show
       end
 
