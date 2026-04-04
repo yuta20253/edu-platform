@@ -47,6 +47,12 @@ RSpec.describe 'Api::V1::Teacher::Dashboards', type: :request do
         end
       end
 
+      let!(:draft_announcements) do
+        create_list(:announcement, 6, :draft, published_at: Time.current, publisher: login_teacher).each do |a|
+          create(:announcement_target, announcement: a, target_type: :all_users)
+        end
+      end
+
       let(:cookie) { login_and_get_cookie(login_teacher) }
 
       it 'ステータス200が返される' do
@@ -72,6 +78,15 @@ RSpec.describe 'Api::V1::Teacher::Dashboards', type: :request do
       it 'announcementsが最大5件返される' do
         subject
         expect(response.parsed_body['announcements'].size).to eq(5)
+      end
+
+      it 'publishedのannouncementsだけが返される' do
+        subject
+
+        ids = response.parsed_body['announcements'].pluck('id')
+
+        expect(ids).to all(be_in(announcements.map(&:id)))
+        expect(ids).not_to include(*draft_announcements.map(&:id))
       end
     end
 
