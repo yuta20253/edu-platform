@@ -54,9 +54,7 @@ describe("AdminSchoolDetailPresenter", () => {
     it("「概要」「教師管理」タブが表示される", () => {
       render(<Presenter {...defaultProps} />);
       expect(screen.getByRole("tab", { name: "概要" })).toBeInTheDocument();
-      expect(
-        screen.getByRole("tab", { name: "教師管理" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "教師管理" })).toBeInTheDocument();
     });
 
     it("初期表示では「概要」タブが選択されている", () => {
