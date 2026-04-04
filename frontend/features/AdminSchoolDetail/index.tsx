@@ -1,30 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Box, CircularProgress } from "@mui/material";
-import { apiClient } from "@/libs/http/apiClient";
 import { Presenter } from "./Presenter";
-import type { AdminSchoolDetail } from "./types";
+import { useAdminSchoolDetail } from "./hooks";
 
 type Props = {
   schoolId: number;
 };
 
 export const AdminSchoolDetail = ({ schoolId }: Props) => {
-  const [school, setSchool] = useState<AdminSchoolDetail | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    apiClient
-      .get<AdminSchoolDetail>(`/api/admin/schools/${schoolId}`)
-      .then((res) => setSchool(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-        }
-      });
-  }, [schoolId, router]);
+  const { school } = useAdminSchoolDetail(schoolId);
 
   if (!school) {
     return (

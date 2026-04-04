@@ -3,7 +3,7 @@ import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  _request: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<{ schoolId: string }> },
 ) {
   const { schoolId } = await params;

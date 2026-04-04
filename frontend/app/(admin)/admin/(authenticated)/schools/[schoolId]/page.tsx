@@ -4,7 +4,9 @@ type Props = {
   params: Promise<{ schoolId: string }>;
 };
 
-export default async function AdminSchoolDetailPage({ params }: Props) {
+const AdminSchoolDetailPage = async ({ params }: Props) => {
   const { schoolId } = await params;
   return <AdminSchoolDetail schoolId={Number(schoolId)} />;
-}
+};
+
+export default AdminSchoolDetailPage;
