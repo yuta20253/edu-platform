@@ -91,10 +91,12 @@ describe("AdminSchoolDetailPresenter", () => {
   });
 
   describe("教師管理タブ", () => {
-    it("タブ切り替え後に「最初の教師を追加する」が表示される", () => {
+    it("タブ切り替え後に「最初の教師を追加する」ボタンが表示される", () => {
       render(<Presenter {...defaultProps} />);
       fireEvent.click(screen.getByRole("tab", { name: "教師管理" }));
-      expect(screen.getByText("最初の教師を追加する")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "最初の教師を追加する" }),
+      ).toBeInTheDocument();
     });
   });
 });

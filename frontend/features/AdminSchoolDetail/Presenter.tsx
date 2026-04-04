@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Box,
   Breadcrumbs,
+  Button,
   Card,
   CardContent,
   Divider,
@@ -118,9 +119,9 @@ export const Presenter = ({ school }: Props) => {
           <Typography variant="h6" sx={{ color: colors.text.secondary }}>
             まだ教師が登録されていません
           </Typography>
-          <Typography variant="body2" sx={{ color: colors.text.muted }}>
+          <Button variant="contained" disabled>
             最初の教師を追加する
-          </Typography>
+          </Button>
         </Box>
       )}
     </Box>
