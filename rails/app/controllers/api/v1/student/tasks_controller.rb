@@ -13,12 +13,12 @@ module Api
                 tasks,
                 each_serializer: TaskSerializer
               ),
-              meta: {
-                current_page: tasks.current_page,
-                total_pages: tasks.total_pages,
-                total_count: tasks.total_count,
-                per_page: 10
-              }
+            meta: {
+              current_page: tasks.current_page,
+              total_pages: tasks.total_pages,
+              total_count: tasks.total_count,
+              per_page: 10
+            }
           }, status: :ok
         end
 
