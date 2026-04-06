@@ -12,6 +12,7 @@
 #  user_id         :bigint
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  target_type     :integer          default("all_users"), not null
 #
 class AnnouncementTarget < ApplicationRecord
   belongs_to :announcement
