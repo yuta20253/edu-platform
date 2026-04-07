@@ -75,4 +75,58 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
       end
     end
   end
+
+  describe 'GET /api/v1/student/tasks/id' do
+    context '正常系' do
+      subject { get "/api/v1/student/tasks/#{task.id}", headers: headers.merge('Cookie' => cookie) }
+
+      let!(:prefecture) { create(:prefecture, name: '東京都') }
+      let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+      let!(:user) { create(:user, high_school: high_school) }
+      let!(:goal) { create(:goal, user: user) }
+      let!(:course) { create(:course) }
+      let!(:units) { create_list(:unit, 3, course: course) }
+      let!(:task) { create(:task, user: user, goal: goal, units: units) }
+      let!(:other_task) { create(:task, user: user, goal: goal) }
+
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it 'ステータス200が返される' do
+        subject
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '該当タスクが取得される' do
+        subject
+        json = response.parsed_body
+        expect(json['id']).to eq(task.id)
+        expect(json['id']).not_to eq(other_task.id)
+      end
+
+      it '紐づくUnitも返却される' do
+        subject
+        json = response.parsed_body
+
+        expect(json['units'].size).to eq(3)
+        expect(json['units'].pluck('id')).to match_array(units.map(&:id))
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        get '/api/v1/student/tasks', headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - ログイン生徒以外のアクセス' do
+      let!(:other_user) { create(:user, :teacher) }
+
+      it '403が返される' do
+        cookie = login_and_get_cookie(other_user)
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
