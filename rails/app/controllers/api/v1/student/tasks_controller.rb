@@ -5,7 +5,12 @@ module Api
     module Student
       class TasksController < Api::V1::Student::BaseController
         def index
-          tasks = current_user.tasks.page(params[:page]).per(10)
+          tasks = current_user
+                  .tasks
+                  .by_status(params[:status])
+                  .order(due_date: :desc)
+                  .page(params[:page])
+                  .per(10)
 
           render json: {
             tasks:

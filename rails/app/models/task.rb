@@ -36,4 +36,7 @@ class Task < ApplicationRecord
   }
 
   enum status: { not_started: 0, in_progress: 1, completed: 2 }
+
+  scope :active_status, -> { where(status: %i[not_started in_progress]) }
+  scope :by_status, ->(status) { status.present? && statuses.key?(status) ? where(status: status) : active_status }
 end
