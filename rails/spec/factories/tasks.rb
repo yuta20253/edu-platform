@@ -25,7 +25,18 @@ FactoryBot.define do
     content { 'テスト内容' }
     priority { :normal }
     status { :not_started }
+    completed_at { nil }
 
     due_date { Time.zone.today + 1.day }
+
+    trait :in_progress do
+      status { :in_progress }
+      completed_at { nil }
+    end
+
+    trait :completed do
+      status { :completed }
+      completed_at { Time.current }
+    end
   end
 end
