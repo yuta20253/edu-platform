@@ -114,8 +114,8 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
     context '並び順' do
       let!(:cookie) { login_and_get_cookie(user) }
 
-      it 'due_dateの降順で返る' do
-        create(:task, user: user, goal: goal, due_date: Time.zone.today)
+      it 'due_dateの昇順で返る' do
+        task1 = create(:task, user: user, goal: goal, due_date: Date.current)
         task2 = create(:task, user: user, goal: goal, due_date: Date.tomorrow)
 
         get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
@@ -123,7 +123,8 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
         json = response.parsed_body
         ids = json['tasks'].pluck('id')
 
-        expect(ids.first).to eq(task2.id)
+        expect(ids.first).to eq(task1.id)
+        expect(ids.first).not_to eq(task2.id)
       end
     end
 

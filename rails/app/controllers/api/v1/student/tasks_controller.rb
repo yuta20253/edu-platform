@@ -8,7 +8,7 @@ module Api
           tasks = current_user
                   .tasks
                   .by_status(params[:status])
-                  .order(due_date: :desc)
+                  .order(due_date: :asc)
                   .page(params[:page])
                   .per(10)
 
