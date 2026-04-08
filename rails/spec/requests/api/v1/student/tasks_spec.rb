@@ -18,16 +18,16 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
   end
 
   describe 'GET /api/v1/student/tasks' do
+    let!(:prefecture) { create(:prefecture, name: '東京都') }
+    let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+    let!(:user) { create(:user, high_school: high_school) }
+    let!(:goal) { create(:goal, user: user) }
+
     context '正常系' do
       subject { get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie) }
 
-      let!(:prefecture) { create(:prefecture, name: '東京都') }
-      let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
-      let!(:user) { create(:user, high_school: high_school) }
-      let!(:goal) { create(:goal, user: user) }
-      let!(:tasks) { create_list(:task, 3, user: user, goal: goal) }
-
       let!(:cookie) { login_and_get_cookie(user) }
+      let!(:tasks) { create_list(:task, 3, user: user, goal: goal) }
 
       it 'ステータス200が返される' do
         subject
@@ -58,15 +58,85 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
       end
     end
 
+    context 'status指定あり' do
+      subject do
+        get '/api/v1/student/tasks',
+            params: { status: 'completed' },
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      let!(:cookie) { login_and_get_cookie(user) }
+      let!(:completed_task) { create(:task, :completed, user: user, goal: goal) }
+      let!(:in_progress_task) { create(:task, :in_progress, user: user, goal: goal) }
+
+      it 'completedのみ返る' do
+        subject
+        json = response.parsed_body
+
+        expect(json['tasks'].size).to eq(1)
+        expect(json['tasks'].first['id']).to eq(completed_task.id)
+      end
+    end
+
+    context 'status未指定' do
+      let!(:not_started_task) { create(:task, user: user, goal: goal) }
+      let!(:in_progress_task) { create(:task, :in_progress, user: user, goal: goal) }
+      let!(:completed_task) { create(:task, :completed, user: user, goal: goal) }
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it '未完了タスクのみ返る' do
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+        ids = json['tasks'].pluck('id')
+
+        expect(ids).to include(not_started_task.id, in_progress_task.id)
+        expect(ids).not_to include(completed_task.id)
+      end
+    end
+
+    context '不正なstatus' do
+      let!(:not_started_task) { create(:task, user: user, goal: goal) }
+      let!(:completed_task) { create(:task, :completed, user: user, goal: goal) }
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it '未完了タスクのみ返る' do
+        get '/api/v1/student/tasks',
+            params: { status: 'hoge' },
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['tasks'].any? { |t| t['status'] == 'completed' }).to be false
+      end
+    end
+
+    context '並び順' do
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it 'due_dateの降順で返る' do
+        create(:task, user: user, goal: goal, due_date: Time.zone.today)
+        task2 = create(:task, user: user, goal: goal, due_date: Date.tomorrow)
+
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+        ids = json['tasks'].pluck('id')
+
+        expect(ids.first).to eq(task2.id)
+      end
+    end
+
     context '異常系 - 未認証アクセス' do
       it '401が返される' do
-        get '/api/v1/student/tasks', headers: headers
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => nil)
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
     context '異常系 - ログイン生徒以外のアクセス' do
       let!(:other_user) { create(:user, :teacher) }
+      let!(:cookie) { login_and_get_cookie(user) }
 
       it '403が返される' do
         cookie = login_and_get_cookie(other_user)
@@ -76,7 +146,7 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
     end
   end
 
-  describe 'GET /api/v1/student/tasks/id' do
+  describe 'GET /api/v1/student/tasks/:id' do
     context '正常系' do
       subject { get "/api/v1/student/tasks/#{task.id}", headers: headers.merge('Cookie' => cookie) }
 
@@ -99,6 +169,7 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
       it '該当タスクが取得される' do
         subject
         json = response.parsed_body
+
         expect(json['id']).to eq(task.id)
         expect(json['id']).not_to eq(other_task.id)
       end
@@ -114,7 +185,7 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
 
     context '異常系 - 未認証アクセス' do
       it '401が返される' do
-        get '/api/v1/student/tasks', headers: headers
+        get '/api/v1/student/tasks/1', headers: headers.merge('Cookie' => nil)
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -124,7 +195,7 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
 
       it '403が返される' do
         cookie = login_and_get_cookie(other_user)
-        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+        get '/api/v1/student/tasks/1', headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:forbidden)
       end
     end
