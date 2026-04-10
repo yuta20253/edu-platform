@@ -94,7 +94,9 @@ export const Presenter = ({
             </Box>
           </Box>
         ))}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4, gap: 2 }}>
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", mt: 4, gap: 2 }}
+        >
           <Box>
             <Link
               href={`/goals`}

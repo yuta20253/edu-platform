@@ -1,5 +1,5 @@
-import { Goals } from '@features/Goals';
+import { Goals } from "@features/Goals";
 
-export default function GoalsPage () {
-    return <Goals />;
+export default function GoalsPage() {
+  return <Goals />;
 }

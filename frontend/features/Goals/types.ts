@@ -1,8 +1,8 @@
 export type Goal = {
-    id: number;
-    title: string;
-    status: number;
-    due_date: Date;
+  id: number;
+  title: string;
+  status: number;
+  due_date: Date;
 };
 
 // export type GoalMeta = {
