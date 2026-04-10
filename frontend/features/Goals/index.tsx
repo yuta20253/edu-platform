@@ -24,7 +24,7 @@ export const Goals = () => {
           router.push("/login");
         }
       });
-  }, []);
+  }, [router]);
 
   if (!data) {
     return (
