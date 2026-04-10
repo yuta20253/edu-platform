@@ -105,4 +105,119 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/admin/high_schools/:high_school_id/teachers' do
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let!(:school)     { create(:high_school) }
+    let!(:grade)      { create(:grade, high_school: school, year: 1) }
+    let(:cookie)      { login_and_get_cookie(admin_user) }
+
+    let(:valid_params) do
+      {
+        teacher: {
+          name: '田中太郎',
+          email: 'tanaka@example.com',
+          password: 'abc123xyz',
+          password_confirmation: 'abc123xyz',
+          grade_scope: 'all_grades',
+          manage_other_teachers: false,
+          grade_ids: [grade.id]
+        }
+      }.to_json
+    end
+
+    context '正常系' do
+      subject do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: valid_params,
+             headers: headers.merge('Cookie' => cookie)
+      end
+
+      it 'ステータス201が返される' do
+        subject
+        expect(response).to have_http_status(:created)
+      end
+
+      it '作成した teacher オブジェクトが返される' do
+        subject
+        teacher_data = response.parsed_body['teacher']
+        expect(teacher_data.keys).to include('id', 'name', 'email', 'grade_scope', 'manage_other_teachers', 'grades')
+        expect(teacher_data['name']).to eq('田中太郎')
+        expect(teacher_data['email']).to eq('tanaka@example.com')
+      end
+
+      it 'User が作成される' do
+        expect { subject }.to change(User, :count).by(1)
+      end
+
+      it 'TeacherPermission が作成される' do
+        expect { subject }.to change(TeacherPermission, :count).by(1)
+      end
+
+      it 'TeacherGrade が作成される' do
+        expect { subject }.to change(TeacherGrade, :count).by(1)
+      end
+    end
+
+    context '異常系 - email 重複' do
+      before { create(:user, :teacher, email: 'tanaka@example.com', high_school: school, grade: nil) }
+
+      it '422が返される' do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: valid_params,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'errors キーが含まれる' do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: valid_params,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body).to have_key('errors')
+      end
+    end
+
+    context '異常系 - 必須パラメータ欠損 (name なし)' do
+      let(:invalid_params) do
+        {
+          teacher: {
+            email: 'tanaka@example.com',
+            password: 'abc123xyz',
+            password_confirmation: 'abc123xyz',
+            grade_scope: 'all_grades',
+            manage_other_teachers: false,
+            grade_ids: [grade.id]
+          }
+        }.to_json
+      end
+
+      it '422が返される' do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: invalid_params,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: valid_params,
+             headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - 管理者以外のアクセス（生徒）' do
+      let!(:student_user) { create(:user) }
+
+      it '403が返される' do
+        student_cookie = login_and_get_cookie(student_user)
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: valid_params,
+             headers: headers.merge('Cookie' => student_cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
