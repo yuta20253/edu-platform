@@ -109,19 +109,13 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
   describe 'POST /api/v1/admin/high_schools/:high_school_id/teachers' do
     let!(:admin_user) { create(:user, :admin, high_school: nil) }
     let!(:school)     { create(:high_school) }
-    let!(:grade)      { create(:grade, high_school: school, year: 1) }
     let(:cookie)      { login_and_get_cookie(admin_user) }
 
     let(:valid_params) do
       {
         teacher: {
           name: '田中太郎',
-          email: 'tanaka@example.com',
-          password: 'abc123xyz',
-          password_confirmation: 'abc123xyz',
-          grade_scope: 'all_grades',
-          manage_other_teachers: false,
-          grade_ids: [grade.id]
+          email: 'tanaka@example.com'
         }
       }.to_json
     end
@@ -150,12 +144,12 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect { subject }.to change(User, :count).by(1)
       end
 
-      it 'TeacherPermission が作成される' do
-        expect { subject }.to change(TeacherPermission, :count).by(1)
-      end
-
-      it 'TeacherGrade が作成される' do
-        expect { subject }.to change(TeacherGrade, :count).by(1)
+      it 'TeacherPermission がデフォルト値で作成される' do
+        subject
+        user = User.find_by(email: 'tanaka@example.com')
+        expect(user.teacher_permission).to be_present
+        expect(user.teacher_permission.grade_scope).to eq('own_grade')
+        expect(user.teacher_permission.manage_other_teachers).to eq(false)
       end
     end
 
@@ -179,16 +173,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
 
     context '異常系 - 必須パラメータ欠損 (name なし)' do
       let(:invalid_params) do
-        {
-          teacher: {
-            email: 'tanaka@example.com',
-            password: 'abc123xyz',
-            password_confirmation: 'abc123xyz',
-            grade_scope: 'all_grades',
-            manage_other_teachers: false,
-            grade_ids: [grade.id]
-          }
-        }.to_json
+        { teacher: { email: 'tanaka@example.com' } }.to_json
       end
 
       it '422が返される' do
