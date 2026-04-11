@@ -16,7 +16,6 @@ export const Goals = () => {
     apiClient
       .get<Goal[]>("api/student/goals")
       .then((res) => {
-        console.log(res);
         setData(res.data);
       })
       .catch((err) => {
