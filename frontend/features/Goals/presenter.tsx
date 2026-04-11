@@ -83,19 +83,23 @@ export const Presenter = ({ data }: Props) => {
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        flexDirection: "column",
+                        gap: 1,
                         width: "100%",
                       }}
                     >
                       <Box
                         sx={{
                           display: "flex",
-                          flexDirection: "column",
-                          gap: 0.5,
-                          flex: 1,
+                          justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
+                        <Typography
+                          sx={{ fontSize: 12, color: "text.secondary" }}
+                        >
+                          期限: {goal.due_date}
+                        </Typography>
                         <Typography
                           sx={{
                             fontSize: 12,
@@ -119,45 +123,33 @@ export const Presenter = ({ data }: Props) => {
                         >
                           {statusLabel[goal.status as keyof typeof statusLabel]}
                         </Typography>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Box sx={{ flex: 1 }}>
-                            <LinearProgress
-                              variant="determinate"
-                              value={progress}
-                              sx={{
-                                height: 6,
-                                borderRadius: 3,
-                                backgroundColor: "#eee",
-                                "& .MuiLinearProgress-bar": {
-                                  backgroundColor:
-                                    progress === 100
-                                      ? "#2e7d32"
-                                      : progress > 50
-                                        ? "#1565c0"
-                                        : "#9e9e9e",
-                                },
-                              }}
-                            />
-                          </Box>
-
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              minWidth: 40,
-                            }}
-                          >
-                            {progress}%
-                          </Typography>
-                        </Box>
                       </Box>
-                      <Typography
-                        sx={{ fontSize: 12, color: "text.secondary" }}
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        期限: {goal.due_date}
-                      </Typography>
+                        <Box sx={{ flex: 1 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={progress}
+                            sx={{
+                              height: 6,
+                              borderRadius: 3,
+                              backgroundColor: "#eee",
+                              "& .MuiLinearProgress-bar": {
+                                backgroundColor:
+                                  progress === 100
+                                    ? "#2e7d32"
+                                    : progress > 50
+                                      ? "#1565c0"
+                                      : "#9e9e9e",
+                              },
+                            }}
+                          />
+                        </Box>
+                        <Typography sx={{ fontSize: 12, minWidth: 40 }}>
+                          進捗率:{progress}%
+                        </Typography>
+                      </Box>
                     </Box>
                   </CardContent>
                 </Card>
