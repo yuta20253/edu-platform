@@ -19,17 +19,24 @@
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #
-class TaskSerializer < ActiveModel::Serializer
-  attributes :id, :user_id, :goal_id, :title, :content, :due_date, :priority, :status,
-             :completed_at
+FactoryBot.define do
+  factory :task do
+    title { 'テストタスク' }
+    content { 'テスト内容' }
+    priority { :normal }
+    status { :not_started }
+    completed_at { nil }
 
-  has_many :units, each_serializer: UnitSerializer
+    due_date { Time.zone.today + 1.day }
 
-  def due_date
-    object.due_date&.strftime('%Y/%m/%d')
-  end
+    trait :in_progress do
+      status { :in_progress }
+      completed_at { nil }
+    end
 
-  def completed_at
-    object.completed_at&.strftime('%Y/%m/%d')
+    trait :completed do
+      status { :completed }
+      completed_at { Time.current }
+    end
   end
 end
