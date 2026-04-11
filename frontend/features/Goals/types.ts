@@ -1,17 +1,17 @@
+export type Task = {
+  goal_id: number;
+  title: string;
+  content: string;
+  status: string;
+  priority: number;
+  due_date: Date | null;
+  unit_ids: number[] | null;
+};
+
 export type Goal = {
   id: number;
   title: string;
-  status: number;
-  due_date: Date;
+  status: string;
+  due_date: string;
+  tasks: Task[];
 };
-
-// export type GoalMeta = {
-//   current_page: number;
-//   total_pages: number;
-//   total_count: number;
-//   per_page: number;
-// };
-
-// export type GoalData = {
-//     goals: Goal[];
-// }
