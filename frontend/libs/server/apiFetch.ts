@@ -1,6 +1,6 @@
 import "server-only";
 
-export const API_ORIGIN = process.env.API_URL ?? "http://localhost:5000";
+export const API_ORIGIN = process.env.API_URL ?? "http://localhost:5001";
 
 type Json = Record<string, unknown> | unknown[] | null;
 
