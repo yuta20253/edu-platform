@@ -2,22 +2,17 @@
 
 module Admin
   class CreateTeacherService
-    class ValidationError < StandardError; end
-
-    def initialize(school:, name:, email:)
+    def initialize(school:, email:)
       @school = school
-      @name = name
       @email = email
     end
 
     def call
-      raise ValidationError, '名前を入力してください' if @name.blank?
-
       ActiveRecord::Base.transaction do
         teacher_role = UserRole.find_or_create_by!(name: :teacher)
         password = SecureRandom.hex(16)
         user = User.create!(
-          name: @name,
+          name: @email.split('@').first,
           email: @email,
           password: password,
           password_confirmation: password,

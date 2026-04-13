@@ -2,16 +2,12 @@
 
 module Admin
   class UpdateTeacherService
-    class ValidationError < StandardError; end
-
     def initialize(user:, params:)
       @user = user
       @params = params
     end
 
     def call
-      raise ValidationError, 'パスワード確認を入力してください' if @params[:password].present? && @params[:password_confirmation].blank?
-
       ActiveRecord::Base.transaction do
         update_user_attributes
         update_permission_attributes
@@ -24,10 +20,6 @@ module Admin
 
     def update_user_attributes
       user_attrs = @params.slice(:name, :email).compact
-      if @params[:password].present?
-        user_attrs[:password] = @params[:password]
-        user_attrs[:password_confirmation] = @params[:password_confirmation]
-      end
       @user.update!(user_attrs) if user_attrs.present?
     end
 

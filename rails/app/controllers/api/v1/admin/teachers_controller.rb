@@ -18,14 +18,8 @@ module Api
 
         def create
           school = HighSchool.find(params[:high_school_id])
-          user = ::Admin::CreateTeacherService.new(
-            school: school,
-            name: teacher_params[:name],
-            email: teacher_params[:email]
-          ).call
+          user = ::Admin::CreateTeacherService.new(school: school, email: create_params[:email]).call
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :created
-        rescue ::Admin::CreateTeacherService::ValidationError => e
-          render json: { errors: [e.message] }, status: :unprocessable_content
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
         end
@@ -33,21 +27,20 @@ module Api
         def update
           school = HighSchool.find(params[:high_school_id])
           user = school.users.teachers.find(params[:id])
-          user = ::Admin::UpdateTeacherService.new(user: user, params: teacher_params).call
+          user = ::Admin::UpdateTeacherService.new(user: user, params: update_params).call
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :ok
-        rescue ::Admin::UpdateTeacherService::ValidationError => e
-          render json: { errors: [e.message] }, status: :unprocessable_content
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
         end
 
         private
 
-        def teacher_params
-          params.permit(
-            :name, :email, :password, :password_confirmation,
-            :grade_scope, :manage_other_teachers, grade_ids: []
-          )
+        def create_params
+          params.permit(:email)
+        end
+
+        def update_params
+          params.permit(:name, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
         end
       end
     end

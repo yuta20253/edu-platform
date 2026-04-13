@@ -112,10 +112,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
     let(:cookie)      { login_and_get_cookie(admin_user) }
 
     let(:valid_params) do
-      {
-        name: '田中太郎',
-        email: 'tanaka@example.com'
-      }.to_json
+      { email: 'tanaka@example.com' }.to_json
     end
 
     context '正常系' do
@@ -134,7 +131,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         subject
         teacher_data = response.parsed_body['teacher']
         expect(teacher_data.keys).to include('id', 'name', 'email', 'grade_scope', 'manage_other_teachers', 'grades')
-        expect(teacher_data['name']).to eq('田中太郎')
+        expect(teacher_data['name']).to eq('tanaka')
         expect(teacher_data['email']).to eq('tanaka@example.com')
       end
     end
@@ -154,19 +151,6 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
              params: valid_params,
              headers: headers.merge('Cookie' => cookie)
         expect(response.parsed_body).to have_key('errors')
-      end
-    end
-
-    context '異常系 - 必須パラメータ欠損 (name なし)' do
-      let(:invalid_params) do
-        { email: 'tanaka@example.com' }.to_json
-      end
-
-      it '422が返される' do
-        post "/api/v1/admin/high_schools/#{school.id}/teachers",
-             params: invalid_params,
-             headers: headers.merge('Cookie' => cookie)
-        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -234,37 +218,6 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['email']).to eq('updated@example.com')
         expect(teacher_data['grade_scope']).to eq('all_grades')
         expect(teacher_data['manage_other_teachers']).to be(true)
-      end
-    end
-
-    context '正常系 - password + password_confirmation 送信時にパスワードが更新される' do
-      let(:password_params) do
-        {
-          password: 'newpassword123',
-          password_confirmation: 'newpassword123'
-        }.to_json
-      end
-
-      it '200が返される' do
-        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
-              params: password_params,
-              headers: headers.merge('Cookie' => cookie)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context '異常系 - password のみで password_confirmation なし' do
-      let(:invalid_password_params) do
-        {
-          password: 'newpassword123'
-        }.to_json
-      end
-
-      it '422が返される' do
-        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
-              params: invalid_password_params,
-              headers: headers.merge('Cookie' => cookie)
-        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 

@@ -33,26 +33,6 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
-  context '正常系 - password と password_confirmation を指定した場合' do
-    let(:params) { { password: 'newpassword123', password_confirmation: 'newpassword123' } }
-
-    it 'パスワードが更新される' do
-      service.call
-      expect(teacher.reload.valid_password?('newpassword123')).to be(true)
-    end
-  end
-
-  context '異常系 - password_confirmation なし' do
-    let(:params) { { password: 'newpassword123' } }
-
-    it 'ValidationError を raise する' do
-      expect { service.call }.to raise_error(
-        Admin::UpdateTeacherService::ValidationError,
-        'パスワード確認を入力してください'
-      )
-    end
-  end
-
   context '異常系 - email が重複している' do
     let(:params) { { email: 'duplicate@example.com' } }
 
