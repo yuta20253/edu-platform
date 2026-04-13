@@ -205,4 +205,152 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
   end
+
+  describe 'PATCH /api/v1/admin/high_schools/:high_school_id/teachers/:id' do
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let!(:school)     { create(:high_school) }
+    let!(:grade1)     { create(:grade, high_school: school, year: 1) }
+    let!(:grade2)     { create(:grade, high_school: school, year: 2) }
+    let!(:teacher) do
+      user = create(:user, :teacher, high_school: school, grade: nil)
+      create(:teacher_permission, user: user, grade_scope: :own_grade, manage_other_teachers: false)
+      create(:teacher_grade, user: user, grade: grade1)
+      user
+    end
+    let(:cookie) { login_and_get_cookie(admin_user) }
+
+    let(:valid_params) do
+      {
+        teacher: {
+          name: '更新太郎',
+          email: 'updated@example.com',
+          grade_scope: 'all_grades',
+          manage_other_teachers: true,
+          grade_ids: [grade1.id, grade2.id]
+        }
+      }.to_json
+    end
+
+    context '正常系' do
+      subject do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+      end
+
+      it 'ステータス200が返される' do
+        subject
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '更新した teacher オブジェクトが返される' do
+        subject
+        teacher_data = response.parsed_body['teacher']
+        expect(teacher_data['name']).to eq('更新太郎')
+        expect(teacher_data['email']).to eq('updated@example.com')
+        expect(teacher_data['grade_scope']).to eq('all_grades')
+        expect(teacher_data['manage_other_teachers']).to eq(true)
+      end
+
+      it 'TeacherGrade が差分更新される' do
+        subject
+        expect(teacher.reload.grades.pluck(:id)).to match_array([grade1.id, grade2.id])
+      end
+    end
+
+    context '正常系 - grade_ids 省略時は既存 TeacherGrade を保持' do
+      let(:params_without_grade_ids) do
+        {
+          teacher: {
+            name: '更新太郎',
+            grade_scope: 'all_grades',
+            manage_other_teachers: false
+          }
+        }.to_json
+      end
+
+      it '既存の TeacherGrade が変わらない' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: params_without_grade_ids,
+              headers: headers.merge('Cookie' => cookie)
+        expect(teacher.reload.grades.pluck(:id)).to eq([grade1.id])
+      end
+    end
+
+    context '正常系 - password + password_confirmation 送信時にパスワードが更新される' do
+      let(:password_params) do
+        {
+          teacher: {
+            password: 'newpassword123',
+            password_confirmation: 'newpassword123'
+          }
+        }.to_json
+      end
+
+      it '200が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: password_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context '異常系 - password のみで password_confirmation なし' do
+      let(:invalid_password_params) do
+        {
+          teacher: {
+            password: 'newpassword123'
+          }
+        }.to_json
+      end
+
+      it '422が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: invalid_password_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context '異常系 - email 重複' do
+      before { create(:user, :teacher, email: 'updated@example.com', high_school: school, grade: nil) }
+
+      it '422が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context '異常系 - 対象教師が存在しない' do
+      it '404が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/0",
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: valid_params,
+              headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - 管理者以外のアクセス（生徒）' do
+      let!(:student_user) { create(:user) }
+
+      it '403が返される' do
+        student_cookie = login_and_get_cookie(student_user)
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: valid_params,
+              headers: headers.merge('Cookie' => student_cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
