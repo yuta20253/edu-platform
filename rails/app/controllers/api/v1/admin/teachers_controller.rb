@@ -41,6 +41,32 @@ module Api
         end
 
         def update
+          school = HighSchool.find(params[:high_school_id])
+          user = school.users.teachers.find(params[:id])
+
+          ActiveRecord::Base.transaction do
+            user_attrs = teacher_params.slice(:name, :email).compact
+
+            if teacher_params[:password].present?
+              user_attrs[:password] = teacher_params[:password]
+              user_attrs[:password_confirmation] = teacher_params[:password_confirmation]
+            end
+
+            user.update!(user_attrs) if user_attrs.present?
+
+            permission_attrs = teacher_params.slice(:grade_scope, :manage_other_teachers).compact
+            user.teacher_permission.update!(permission_attrs) if permission_attrs.present?
+
+            if teacher_params.key?(:grade_ids)
+              user.teacher_grades.destroy_all
+              teacher_params[:grade_ids].each { |grade_id| user.teacher_grades.create!(grade_id: grade_id) }
+            end
+
+            user.reload
+            render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :ok
+          end
+        rescue ActiveRecord::RecordInvalid => e
+          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
         end
 
         private
