@@ -149,7 +149,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         user = User.find_by(email: 'tanaka@example.com')
         expect(user.teacher_permission).to be_present
         expect(user.teacher_permission.grade_scope).to eq('own_grade')
-        expect(user.teacher_permission.manage_other_teachers).to eq(false)
+        expect(user.teacher_permission.manage_other_teachers).to be(false)
       end
     end
 
@@ -249,12 +249,12 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['name']).to eq('更新太郎')
         expect(teacher_data['email']).to eq('updated@example.com')
         expect(teacher_data['grade_scope']).to eq('all_grades')
-        expect(teacher_data['manage_other_teachers']).to eq(true)
+        expect(teacher_data['manage_other_teachers']).to be(true)
       end
 
       it 'TeacherGrade が差分更新される' do
         subject
-        expect(teacher.reload.grades.pluck(:id)).to match_array([grade1.id, grade2.id])
+        expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade1.id, grade2.id)
       end
     end
 
