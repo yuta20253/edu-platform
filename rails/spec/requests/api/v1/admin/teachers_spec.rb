@@ -113,10 +113,8 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
 
     let(:valid_params) do
       {
-        teacher: {
-          name: '田中太郎',
-          email: 'tanaka@example.com'
-        }
+        name: '田中太郎',
+        email: 'tanaka@example.com'
       }.to_json
     end
 
@@ -161,7 +159,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
 
     context '異常系 - 必須パラメータ欠損 (name なし)' do
       let(:invalid_params) do
-        { teacher: { email: 'tanaka@example.com' } }.to_json
+        { email: 'tanaka@example.com' }.to_json
       end
 
       it '422が返される' do
@@ -209,13 +207,11 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
 
     let(:valid_params) do
       {
-        teacher: {
-          name: '更新太郎',
-          email: 'updated@example.com',
-          grade_scope: 'all_grades',
-          manage_other_teachers: true,
-          grade_ids: [grade1.id, grade2.id]
-        }
+        name: '更新太郎',
+        email: 'updated@example.com',
+        grade_scope: 'all_grades',
+        manage_other_teachers: true,
+        grade_ids: [grade1.id, grade2.id]
       }.to_json
     end
 
@@ -244,10 +240,8 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
     context '正常系 - password + password_confirmation 送信時にパスワードが更新される' do
       let(:password_params) do
         {
-          teacher: {
-            password: 'newpassword123',
-            password_confirmation: 'newpassword123'
-          }
+          password: 'newpassword123',
+          password_confirmation: 'newpassword123'
         }.to_json
       end
 
@@ -262,9 +256,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
     context '異常系 - password のみで password_confirmation なし' do
       let(:invalid_password_params) do
         {
-          teacher: {
-            password: 'newpassword123'
-          }
+          password: 'newpassword123'
         }.to_json
       end
 

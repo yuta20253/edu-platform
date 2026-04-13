@@ -44,7 +44,7 @@ module Api
         private
 
         def teacher_params
-          params.require(:teacher).permit(
+          params.permit(
             :name, :email, :password, :password_confirmation,
             :grade_scope, :manage_other_teachers, grade_ids: []
           )
