@@ -12,6 +12,7 @@ module Admin
         update_user_attributes
         update_permission_attributes
         update_teacher_grades
+
         @user.reload
       end
     end

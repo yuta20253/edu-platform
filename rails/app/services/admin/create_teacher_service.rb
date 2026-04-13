@@ -19,9 +19,12 @@ module Admin
           user_role: teacher_role,
           high_school: @school
         )
+
         user.create_teacher_permission!(grade_scope: :own_grade, manage_other_teachers: false)
+
         token = user.send(:set_reset_password_token)
         AuthMailer.invite_teacher(user, token).deliver_later
+
         user.reload
       end
     end
