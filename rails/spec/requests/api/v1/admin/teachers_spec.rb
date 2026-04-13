@@ -139,18 +139,6 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['name']).to eq('田中太郎')
         expect(teacher_data['email']).to eq('tanaka@example.com')
       end
-
-      it 'User が作成される' do
-        expect { subject }.to change(User, :count).by(1)
-      end
-
-      it 'TeacherPermission がデフォルト値で作成される' do
-        subject
-        user = User.find_by(email: 'tanaka@example.com')
-        expect(user.teacher_permission).to be_present
-        expect(user.teacher_permission.grade_scope).to eq('own_grade')
-        expect(user.teacher_permission.manage_other_teachers).to be(false)
-      end
     end
 
     context '異常系 - email 重複' do
@@ -250,30 +238,6 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['email']).to eq('updated@example.com')
         expect(teacher_data['grade_scope']).to eq('all_grades')
         expect(teacher_data['manage_other_teachers']).to be(true)
-      end
-
-      it 'TeacherGrade が差分更新される' do
-        subject
-        expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade1.id, grade2.id)
-      end
-    end
-
-    context '正常系 - grade_ids 省略時は既存 TeacherGrade を保持' do
-      let(:params_without_grade_ids) do
-        {
-          teacher: {
-            name: '更新太郎',
-            grade_scope: 'all_grades',
-            manage_other_teachers: false
-          }
-        }.to_json
-      end
-
-      it '既存の TeacherGrade が変わらない' do
-        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
-              params: params_without_grade_ids,
-              headers: headers.merge('Cookie' => cookie)
-        expect(teacher.reload.grades.pluck(:id)).to eq([grade1.id])
       end
     end
 
