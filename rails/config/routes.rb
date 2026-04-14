@@ -26,7 +26,9 @@ Rails.application.routes.draw do
         resource :dashboard, only: :show
         resources :goals
         resources :draft_tasks
-        resources :tasks
+        resources :tasks do
+          resources :units, only: :show
+        end
         resources :courses, only: :index
       end
 
