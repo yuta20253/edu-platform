@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import type { Goal, GoalStatus } from "./types";
+import { statusLabel } from "./constants";
 
 type Props = {
   data: Goal[];
@@ -16,12 +17,6 @@ type Props = {
 
 export const Presenter = ({ data }: Props) => {
   const goals = data;
-
-  const statusLabel: Record<GoalStatus, string> = {
-    not_started: "未着手",
-    in_progress: "進行中",
-    completed: "完了",
-  };
 
   const calcProgress = (tasks: Goal["tasks"] = []) => {
     if (tasks.length === 0) return 0;
