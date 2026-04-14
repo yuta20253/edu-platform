@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Goal } from "./types";
 import { Box, CircularProgress } from "@mui/material";
-import { Presenter } from "./presenter";
+import { Presenter } from "./Presenter";
 
 export const Goals = () => {
   const [data, setData] = useState<Goal[]>([]);
