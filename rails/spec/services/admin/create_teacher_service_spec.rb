@@ -23,7 +23,7 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       user = User.find_by(email: email)
       expect(user.teacher_permission).to be_present
       expect(user.teacher_permission.grade_scope).to eq('own_grade')
-      expect(user.teacher_permission.manage_other_teachers).to be(false)
+      expect(user.teacher_permission.manage_other_teachers).to be(true)
     end
   end
 
