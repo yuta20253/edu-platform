@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { Goal, GoalStatus } from "./types";
 import { statusLabel } from "./constants";
 import { calcProgress } from "./utils/calcProgress";
+import { colors } from "@/app/theme/colors";
 
 type Props = {
   data: Goal[];
@@ -37,6 +38,13 @@ export const Presenter = ({ data }: Props) => {
           ) : (
             goals.map((goal) => {
               const progress = calcProgress(goal.tasks);
+              const statusColor = colors.statusUi[goal.status as GoalStatus];
+              const progressColor =
+                progress === 100
+                  ? colors.progress.completed
+                  : progress > 50
+                    ? colors.progress.in_progress
+                    : colors.progress.not_started;
 
               return (
                 <Card
@@ -90,18 +98,8 @@ export const Presenter = ({ data }: Props) => {
                             px: 1,
                             py: 0.3,
                             borderRadius: 1,
-                            bgcolor:
-                              goal.status === "completed"
-                                ? "#e8f5e9"
-                                : goal.status === "in_progress"
-                                  ? "#e3f2fd"
-                                  : "#f5f5f5",
-                            color:
-                              goal.status === "completed"
-                                ? "#2e7d32"
-                                : goal.status === "in_progress"
-                                  ? "#1565c0"
-                                  : "#616161",
+                            bgcolor: statusColor.bg,
+                            color: statusColor.text,
                             width: "fit-content",
                           }}
                         >
@@ -118,14 +116,9 @@ export const Presenter = ({ data }: Props) => {
                             sx={{
                               height: 6,
                               borderRadius: 3,
-                              backgroundColor: "#eee",
+                              backgroundColor: colors.border.subtle,
                               "& .MuiLinearProgress-bar": {
-                                backgroundColor:
-                                  progress === 100
-                                    ? "#2e7d32"
-                                    : progress > 50
-                                      ? "#1565c0"
-                                      : "#9e9e9e",
+                                backgroundColor: progressColor,
                               },
                             }}
                           />

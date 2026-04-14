@@ -53,4 +53,23 @@ export const colors = {
     footer: "rgba(0,0,0,0.1)",
     header: "rgba(0, 0, 0, 0.25)",
   },
+  statusUi: {
+    completed: {
+      bg: "#e8f5e9",
+      text: "#2e7d32",
+    },
+    in_progress: {
+      bg: "#e3f2fd",
+      text: "#1565c0",
+    },
+    not_started: {
+      bg: "#f5f5f5",
+      text: "#616161",
+    },
+  },
+  progress: {
+    completed: "#059669",
+    in_progress: "#2563eb",
+    not_started: "#64748b",
+  },
 } as const;
