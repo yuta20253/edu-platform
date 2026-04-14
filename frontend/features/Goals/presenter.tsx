@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import type { Goal, GoalStatus } from "./types";
 import { statusLabel } from "./constants";
+import { calcProgress } from "./utils/calcProgress";
 
 type Props = {
   data: Goal[];
@@ -17,16 +18,6 @@ type Props = {
 
 export const Presenter = ({ data }: Props) => {
   const goals = data;
-
-  const calcProgress = (tasks: Goal["tasks"] = []) => {
-    if (tasks.length === 0) return 0;
-    const score = tasks.reduce((sum, task) => {
-      if (task.status === "completed") return sum + 1;
-      if (task.status === "in_progress") return sum + 0.5;
-      return sum;
-    }, 0);
-    return Math.round((score / tasks.length) * 100);
-  };
 
   return (
     <Box sx={{ p: 3 }}>
