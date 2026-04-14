@@ -6,9 +6,7 @@ import {
   LinearProgress,
 } from "@mui/material";
 import Link from "next/link";
-import type { Goal } from "./types";
-
-type GoalStatus = "not_started" | "in_progress" | "completed";
+import type { Goal, GoalStatus } from "./types";
 
 type Props = {
   data: Goal[];
@@ -121,7 +119,7 @@ export const Presenter = ({ data }: Props) => {
                             width: "fit-content",
                           }}
                         >
-                          {statusLabel[goal.status as keyof typeof statusLabel]}
+                          {statusLabel[goal.status as GoalStatus]}
                         </Typography>
                       </Box>
                       <Box
