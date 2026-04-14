@@ -15,6 +15,10 @@ FactoryBot.define do
 
     initialize_with { UserRole.find_or_create_by!(name: name) }
 
+    trait :student do
+      name { :student }
+    end
+
     trait :admin do
       name { :admin }
     end

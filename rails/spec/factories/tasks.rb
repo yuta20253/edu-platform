@@ -29,6 +29,8 @@ FactoryBot.define do
 
     due_date { Time.zone.today + 1.day }
 
+    association :goal
+
     trait :in_progress do
       status { :in_progress }
       completed_at { nil }
