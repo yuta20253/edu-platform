@@ -67,4 +67,9 @@ export const colors = {
       text: "#616161",
     },
   },
+  progress: {
+    completed: "#059669",
+    in_progress: "#2563eb",
+    not_started: "#64748b",
+  },
 } as const;
