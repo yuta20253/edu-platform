@@ -21,7 +21,7 @@ services:
     build: ./rails
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
     ports:
-      - "5000:3000"
+      - "5001:3000"
     volumes:
       - ./rails:/rails
       - gem_data:/usr/local/bundle
