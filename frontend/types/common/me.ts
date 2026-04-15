@@ -17,12 +17,10 @@ export type MeUser = {
   };
 
   high_school: {
-    id: number;
     name: string;
   };
 
   grade: {
-    id: number;
     year: number;
     display_name: string;
   };

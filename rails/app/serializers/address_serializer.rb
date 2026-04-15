@@ -15,7 +15,7 @@
 #  prefecture_id  :bigint
 #
 class AddressSerializer < ActiveModel::Serializer
-  attributes :id, :postal_code, :city, :town, :prefecture
+  attributes :postal_code, :city, :town, :prefecture
 
   belongs_to :prefecture, serializer: PrefectureSerializer
 
