@@ -10,5 +10,5 @@
 #  updated_at :datetime         not null
 #
 class UserRoleSerializer < ActiveModel::Serializer
-  attributes :name
+  attributes :id, :name
 end
