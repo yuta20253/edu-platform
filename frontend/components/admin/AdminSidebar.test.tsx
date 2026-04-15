@@ -28,11 +28,11 @@ const mockUser: MeUser = {
     id: 0,
     phone_number: "",
     birthday: "",
-    gender: ""
+    gender: "",
   },
   grade: {
     year: 0,
-    display_name: ""
+    display_name: "",
   },
   address: {
     postal_code: "",
@@ -40,9 +40,9 @@ const mockUser: MeUser = {
     town: "",
     prefecture: {
       id: 0,
-      name: ""
-    }
-  }
+      name: "",
+    },
+  },
 };
 
 describe("AdminSidebar", () => {
