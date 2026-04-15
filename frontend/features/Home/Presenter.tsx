@@ -89,7 +89,9 @@ export const Presenter = ({
               >
                 {goal.title}
               </Box>
-              <Box sx={{ textAlign: "center", bgcolor: statusColor.bg }}>{statusLabel[goal.status as GoalStatus]}</Box>
+              <Box sx={{ textAlign: "center", bgcolor: statusColor.bg }}>
+                {statusLabel[goal.status as GoalStatus]}
+              </Box>
               <Box sx={{ textAlign: "center" }}>{goal.due_date}</Box>
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                 <Link href={`/goals/${goal.id}/edit`}>
