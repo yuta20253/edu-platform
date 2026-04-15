@@ -1,17 +1,6 @@
 import "server-only";
 import { API_ORIGIN } from "./apiFetch";
-
-export type MeUser = {
-  id: number;
-  email: string;
-  name: string;
-  user_role: {
-    name: string;
-  };
-  high_school: {
-    name: string;
-  };
-};
+import { MeUser } from "@/types/common/me";
 
 export const getMeFromRails = async (
   cookieHeader: string,

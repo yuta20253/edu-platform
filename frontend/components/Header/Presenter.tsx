@@ -8,7 +8,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { JSX } from "react";
-import { MeUser } from "@/libs/server/me";
+import { MeUser } from "@/types/common/me";
 
 export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
   const pathname = usePathname();
