@@ -7,6 +7,8 @@ import Link from "next/link";
 import { JSX, useMemo } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaPen } from "react-icons/fa";
+import { statusLabel } from "./constants";
+import { GoalStatus } from "./types";
 
 export const Presenter = ({
   initialGoals,
@@ -63,37 +65,41 @@ export const Presenter = ({
           <Box textAlign="right"></Box>
         </Box>
 
-        {goals?.map((goal) => (
-          <Box
-            key={goal.id}
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "1fr 80px 90px 60px",
-              alignItems: "center",
-              px: 1,
-              py: 0.75,
-              fontSize: 16,
-            }}
-          >
+        {goals?.map((goal) => {
+          const statusColor = colors.statusUi[goal.status as GoalStatus];
+
+          return (
             <Box
+              key={goal.id}
               sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                display: "grid",
+                gridTemplateColumns: "1fr 80px 90px 60px",
+                alignItems: "center",
+                px: 1,
+                py: 0.75,
+                fontSize: 16,
               }}
             >
-              {goal.title}
+              <Box
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {goal.title}
+              </Box>
+              <Box sx={{ textAlign: "center", bgcolor: statusColor.bg }}>{statusLabel[goal.status as GoalStatus]}</Box>
+              <Box sx={{ textAlign: "center" }}>{goal.due_date}</Box>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                <Link href={`/goals/${goal.id}/edit`}>
+                  <FaPen size={20} />
+                </Link>
+                <FaRegTrashAlt size={20} />
+              </Box>
             </Box>
-            <Box sx={{ textAlign: "center" }}>{goal.status}</Box>
-            <Box sx={{ textAlign: "center" }}>{goal.due_date}</Box>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-              <Link href={`/goals/${goal.id}/edit`}>
-                <FaPen size={20} />
-              </Link>
-              <FaRegTrashAlt size={20} />
-            </Box>
-          </Box>
-        ))}
+          );
+        })}
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
           <Link
             href={`/goals/new`}
