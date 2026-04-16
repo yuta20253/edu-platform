@@ -6,10 +6,10 @@ module Api
       def show
         user = User
                .includes(
+                 :user_personal_info,
+                 :user_role,
+                 :high_school,
                  address: :prefecture,
-                 user_personal_info: {},
-                 user_role: {},
-                 high_school: {}
                )
                .find(current_user.id)
 
