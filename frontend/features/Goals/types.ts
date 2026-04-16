@@ -15,5 +15,3 @@ export type Goal = {
   due_date: string;
   tasks: Task[];
 };
-
-export type GoalStatus = "not_started" | "in_progress" | "completed";

@@ -1,4 +1,4 @@
-import { GoalStatus } from "./types";
+import { GoalStatus } from "@/types/goals/goals";
 
 export const statusLabel: Record<GoalStatus, string> = {
   not_started: "未着手",
