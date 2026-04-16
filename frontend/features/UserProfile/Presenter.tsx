@@ -122,7 +122,9 @@ export const Presenter = ({ user }: Props) => {
           }}
         >
           <Button variant="outlined">戻る</Button>
-          <Button variant="contained">編集する</Button>
+          <Button variant="contained" href="/profile/edit">
+            編集する
+          </Button>
         </Box>
       </Box>
     </Box>
