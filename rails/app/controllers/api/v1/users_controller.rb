@@ -9,7 +9,7 @@ module Api
                  :user_personal_info,
                  :user_role,
                  :high_school,
-                 address: :prefecture,
+                 address: :prefecture
                )
                .find(current_user.id)
 
