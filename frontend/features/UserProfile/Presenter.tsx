@@ -8,6 +8,8 @@ type Props = {
 };
 
 export const Presenter = ({ user }: Props) => {
+  const addressLabel = AddressLabel(user.address);
+
   return (
     <Box sx={{ px: 2, py: 4, bgcolor: "#f8fafc", minHeight: "100vh" }}>
       <Box sx={{ maxWidth: 800, width: "100%" }}>
@@ -84,7 +86,7 @@ export const Presenter = ({ user }: Props) => {
                 住所
               </Typography>
               <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
-                {user.address ? AddressLabel(user.address) : "未設定"}
+                {user.address ? addressLabel : "未設定"}
               </Typography>
             </Box>
 
