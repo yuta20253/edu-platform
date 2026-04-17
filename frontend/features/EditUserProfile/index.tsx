@@ -2,9 +2,11 @@ import { getMeFromRails } from "@/libs/server/me";
 import { Box, CircularProgress } from "@mui/material";
 import { cookies } from "next/headers";
 import { Presenter } from "./Presenter";
+import { getPrefectures } from "@/libs/server/prefectures";
 
 export const EditUserProfile = async () => {
   const cookieStore = await cookies();
+  const prefectures = await getPrefectures();
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
@@ -27,5 +29,5 @@ export const EditUserProfile = async () => {
     );
   }
 
-  return <Presenter user={user} />;
+  return <Presenter user={user} prefectures={prefectures} />;
 };

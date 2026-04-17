@@ -10,6 +10,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  MenuItem,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -18,6 +19,7 @@ import { ja } from "date-fns/locale";
 
 type Props = {
   user: MeUser;
+  prefectures: Prefecture[];
 };
 
 type ProfileForm = {
@@ -31,9 +33,16 @@ type ProfileForm = {
   postal_code: string;
   city: string;
   town: string;
+  street_address: string;
+  prefecture_id: number;
 };
 
-export const Presenter = ({ user }: Props) => {
+type Prefecture = {
+  id: number;
+  name: string;
+};
+
+export const Presenter = ({ user, prefectures }: Props) => {
   const phone = user.user_personal_info?.phone_number ?? "";
 
   const {
@@ -53,6 +62,8 @@ export const Presenter = ({ user }: Props) => {
       postal_code: user.address?.postal_code ?? "",
       city: user.address?.city ?? "",
       town: user.address?.town ?? "",
+      street_address: user.address?.street_address ?? "",
+      prefecture_id: user.address?.prefecture?.id ?? undefined,
     },
   });
 
@@ -208,9 +219,54 @@ export const Presenter = ({ user }: Props) => {
               <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
                 住所
               </Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 500 }}>
-                {/* {user.address ? addressLabel(user.address) : "未設定"} */}
-              </Typography>
+
+              <TextField
+                fullWidth
+                placeholder="郵便番号"
+                {...register("postal_code")}
+                sx={{ mb: 2 }}
+              />
+
+              <Controller
+                name="prefecture_id"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    select
+                    fullWidth
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                    sx={{ mb: 2 }}
+                  >
+                    <MenuItem value="">選択してください</MenuItem>
+                    {prefectures?.map((prefecture) => (
+                      <MenuItem key={prefecture.id} value={prefecture.id}>
+                        {prefecture.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
+              <TextField
+                fullWidth
+                placeholder="市区町村"
+                {...register("city")}
+                sx={{ mb: 2 }}
+              />
+
+              <TextField
+                fullWidth
+                placeholder="町名・丁目"
+                {...register("town")}
+                sx={{ mb: 2 }}
+              />
+
+              <TextField
+                fullWidth
+                placeholder="番地・建物名等"
+                {...register("street_address")}
+                sx={{ mb: 2 }}
+              />
             </Box>
 
             <Divider />
