@@ -9,7 +9,7 @@ import Link from "next/link";
 import type { Goal } from "./types";
 import { calcProgress } from "./utils/calcProgress";
 import { colors } from "@/app/theme/colors";
-import { GoalStatus } from "@/types/goals/goals";
+import { GoalStatus } from "@/types/goals/status";
 import { statusLabel } from "@/constants/goals";
 
 type Props = {

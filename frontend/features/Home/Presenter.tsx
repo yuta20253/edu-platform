@@ -3,7 +3,7 @@
 import { colors } from "@/app/theme/colors";
 import { statusLabel } from "@/constants/goals";
 import { GoalType } from "@/libs/server/studentDashboard";
-import { GoalStatus } from "@/types/goals/goals";
+import { GoalStatus } from "@/types/goals/status";
 import { Box, Typography } from "@mui/material";
 import Link from "next/link";
 import { JSX, useMemo } from "react";
