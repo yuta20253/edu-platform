@@ -12,10 +12,11 @@ import {
   Radio,
   MenuItem,
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
+import { format } from "date-fns";
 
 type Props = {
   user: MeUser;
@@ -67,6 +68,27 @@ export const Presenter = ({ user, prefectures }: Props) => {
     },
   });
 
+  const onSubmit: SubmitHandler<ProfileForm> = async (data) => {
+    try {
+        const formattedData = {
+            name: data.name,
+            name_kana: data.name_kana,
+            gender: data.gender,
+            birthday: data.birthday,
+            phone_number: data.phone1 + data.phone2 + data.phone3,
+            postal_code: data.postal_code,
+            city: data.city,
+            town: data.town,
+            street_address: data.street_address,
+            prefecture_id: data.prefecture_id
+        };
+
+        console.log(formattedData);
+    } catch (error) {
+        console.error('ユーザー情報の更新に失敗しました。');
+    }
+  };
+
   return (
     <Box sx={{ px: 2, py: 4, bgcolor: "#f8fafc", minHeight: "100vh" }}>
       <Box sx={{ maxWidth: 800, width: "100%" }}>
@@ -83,7 +105,7 @@ export const Presenter = ({ user, prefectures }: Props) => {
           <Box
             component="form"
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-            onSubmit={handleSubmit((data) => console.log(data))}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <Box>
               <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
@@ -135,7 +157,7 @@ export const Presenter = ({ user, prefectures }: Props) => {
                       format="yyyy-MM-dd"
                       value={field.value ? new Date(field.value) : null}
                       onChange={(date) =>
-                        field.onChange(date?.toISOString() ?? "")
+                        field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                       }
                       slotProps={{
                         textField: {

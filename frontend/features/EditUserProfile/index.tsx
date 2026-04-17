@@ -6,13 +6,13 @@ import { getPrefectures } from "@/libs/server/prefectures";
 
 export const EditUserProfile = async () => {
   const cookieStore = await cookies();
-  const prefectures = await getPrefectures();
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join(";");
 
   const user = await getMeFromRails(cookieHeader);
+  const prefectures = await getPrefectures();
 
   if (!user) {
     return (
@@ -21,7 +21,7 @@ export const EditUserProfile = async () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100%",
+          height: "100vh",
         }}
       >
         <CircularProgress />
