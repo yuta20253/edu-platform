@@ -6,10 +6,11 @@ import {
   LinearProgress,
 } from "@mui/material";
 import Link from "next/link";
-import type { Goal, GoalStatus } from "./types";
-import { statusLabel } from "./constants";
+import type { Goal } from "./types";
 import { calcProgress } from "./utils/calcProgress";
 import { colors } from "@/app/theme/colors";
+import { GoalStatus } from "@/types/goals/status";
+import { statusLabel } from "@/constants/goals";
 
 type Props = {
   data: Goal[];
