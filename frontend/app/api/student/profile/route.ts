@@ -1,0 +1,29 @@
+import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { NextResponse } from "next/server";
+
+export async function PATCH(req: Request) {
+  try {
+    const body = await req.json();
+
+    const { status, data, setCookie } = await railsFetch(`/api/v1/profile`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+
+    const nextResponse = NextResponse.json(data, { status });
+
+    if (setCookie) return nextResponse.headers.set("set-cookies", setCookie);
+
+    return nextResponse;
+  } catch (error) {
+    if (error instanceof RailsUnauthorizedError) {
+      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
+    }
+
+    return NextResponse.json(
+      { message: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
+  }
+}
