@@ -82,5 +82,20 @@ RSpec.describe 'Api::V1::Student::Units', type: :request do
         expect(response).to have_http_status(:forbidden)
       end
     end
+
+    context '異常系 - 他の生徒のタスクにアクセス' do
+      let!(:user) { create(:user) }
+      let!(:other_user) { create(:user) }
+      let!(:goal) { create(:goal, user: other_user) }
+      let!(:course) { create(:course) }
+      let!(:units) { create_list(:unit, 3, course: course) }
+      let!(:task) { create(:task, user: other_user, goal: goal, units: units) }
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it '404が返される' do
+        get "/api/v1/student/tasks/#{task.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 end
