@@ -83,7 +83,7 @@ export const Presenter = ({ user, prefectures }: Props) => {
                 fullWidth
                 variant="outlined"
                 {...register("name_kana", {
-                  required: "氏名は必須です",
+                  required: "氏名カナは必須です",
                 })}
                 error={!!errors.name_kana}
                 helperText={errors.name_kana?.message}
