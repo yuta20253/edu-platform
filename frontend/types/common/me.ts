@@ -5,7 +5,7 @@ export type MeUser = {
   email: string;
   profile_completed: boolean;
 
-  user_personal_info: {
+  user_personal_info?: {
     id: number;
     phone_number: string;
     birthday: string;
@@ -16,19 +16,20 @@ export type MeUser = {
     name: string;
   };
 
-  high_school: {
+  high_school?: {
     name: string;
   };
 
-  grade: {
+  grade?: {
     year: number;
     display_name: string;
   };
 
-  address: {
+  address?: {
     postal_code: string;
     city: string;
     town: string;
+    street_address: string;
     prefecture: {
       id: number;
       name: string;
