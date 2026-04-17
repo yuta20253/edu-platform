@@ -34,6 +34,10 @@ FactoryBot.define do
     association :grade
     association :address
 
+    trait :student do
+      user_role { association :user_role, :student }
+    end
+
     trait :admin do
       user_role { association :user_role, :admin }
     end
