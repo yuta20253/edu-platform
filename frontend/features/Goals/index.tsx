@@ -8,7 +8,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { Presenter } from "./Presenter";
 
 export const Goals = () => {
-  const [data, setData] = useState<Goal[]>([]);
+  const [data, setData] = useState<Goal[] | null>(null);
   const [page, setPage] = useState<number>(1);
   const router = useRouter();
 
@@ -32,7 +32,7 @@ export const Goals = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100%",
+          height: "100vh",
         }}
       >
         <CircularProgress />
