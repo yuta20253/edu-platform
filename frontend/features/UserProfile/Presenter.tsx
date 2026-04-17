@@ -8,7 +8,7 @@ type Props = {
 };
 
 export const Presenter = ({ user }: Props) => {
-  const addressLabel = AddressLabel(user.address);
+  const addressLabel = user.address ? AddressLabel(user.address) : undefined;
 
   return (
     <Box sx={{ px: 2, py: 4, bgcolor: "#f8fafc", minHeight: "100vh" }}>
