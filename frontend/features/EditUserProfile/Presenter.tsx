@@ -12,30 +12,17 @@ import {
   Radio,
   MenuItem,
 } from "@mui/material";
-import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { format } from "date-fns";
+import { useSubmit } from "./hooks/useSubmit";
+import { useDefaultValues } from "./hooks/useDefaultValues";
 
 type Props = {
   user: MeUser;
   prefectures: Prefecture[];
-};
-
-type ProfileForm = {
-  name: string;
-  name_kana: string;
-  phone1: string;
-  phone2: string;
-  phone3: string;
-  birthday: string;
-  gender: string;
-  postal_code: string;
-  city: string;
-  town: string;
-  street_address: string;
-  prefecture_id: number;
 };
 
 type Prefecture = {
@@ -44,50 +31,14 @@ type Prefecture = {
 };
 
 export const Presenter = ({ user, prefectures }: Props) => {
-  const phone = user.user_personal_info?.phone_number ?? "";
-
   const {
     control,
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProfileForm>({
-    defaultValues: {
-      name: user.name,
-      name_kana: user.name_kana,
-      phone1: phone.slice(0, 3),
-      phone2: phone.slice(3, 7),
-      phone3: phone.slice(7),
-      birthday: user.user_personal_info?.birthday ?? "",
-      gender: user.user_personal_info?.gender ?? "",
-      postal_code: user.address?.postal_code ?? "",
-      city: user.address?.city ?? "",
-      town: user.address?.town ?? "",
-      street_address: user.address?.street_address ?? "",
-      prefecture_id: user.address?.prefecture?.id ?? undefined,
-    },
-  });
+  } = useDefaultValues(user);
 
-  const onSubmit: SubmitHandler<ProfileForm> = async (data) => {
-    try {
-        const formattedData = {
-            name: data.name,
-            name_kana: data.name_kana,
-            gender: data.gender,
-            birthday: data.birthday,
-            phone_number: data.phone1 + data.phone2 + data.phone3,
-            postal_code: data.postal_code,
-            city: data.city,
-            town: data.town,
-            street_address: data.street_address,
-            prefecture_id: data.prefecture_id
-        };
-
-        console.log(formattedData);
-    } catch (error) {
-        console.error('ユーザー情報の更新に失敗しました。');
-    }
-  };
+  const { onSubmit } = useSubmit();
 
   return (
     <Box sx={{ px: 2, py: 4, bgcolor: "#f8fafc", minHeight: "100vh" }}>
