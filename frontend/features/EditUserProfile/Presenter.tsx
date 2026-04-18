@@ -354,7 +354,7 @@ export const Presenter = ({ user, prefectures }: Props) => {
                 mt: 3,
               }}
             >
-              <Button variant="outlined">戻る</Button>
+              <Button variant="outlined" href="/profile">戻る</Button>
 
               <Button type="submit" variant="contained">
                 更新
