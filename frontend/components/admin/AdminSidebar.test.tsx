@@ -35,9 +35,11 @@ const mockUser: MeUser = {
     display_name: "",
   },
   address: {
+    id: 0,
     postal_code: "",
     city: "",
     town: "",
+    street_address: "",
     prefecture: {
       id: 0,
       name: "",
