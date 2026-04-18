@@ -15,11 +15,14 @@
 #  prefecture_id  :bigint
 #
 class AddressSerializer < ActiveModel::Serializer
-  attributes :postal_code, :city, :town, :prefecture
-
-  belongs_to :prefecture, serializer: PrefectureSerializer
+  attributes :id, :postal_code, :city, :town, :prefecture
 
   def prefecture
-    object.prefecture&.slice(:id, :name)
+    return nil unless object.prefecture
+
+    {
+      id: object.prefecture.id,
+      name: object.prefecture.name
+    }
   end
 end
