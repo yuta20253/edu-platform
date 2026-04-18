@@ -18,6 +18,8 @@ Rails.application.routes.draw do
       patch "/profile", to: "profiles#update"
 
       resources :prefectures, only: :index
+      resources :addresses, only: :index
+
       resources :high_schools do
         resources :grades, only: :index
       end
