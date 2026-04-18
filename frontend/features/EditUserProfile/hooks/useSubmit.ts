@@ -1,4 +1,15 @@
+"use client";
+
+import { apiClient } from "@/libs/http/apiClient";
+import { MeUser } from "@/types/common/me";
+import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
+
+type Address = {
+  id: number;
+  city: string;
+  town: string;
+};
 
 type ProfileForm = {
   name: string;
@@ -12,28 +23,41 @@ type ProfileForm = {
   city: string;
   town: string;
   street_address: string;
-  prefecture_id: number;
+  prefecture_id: number | null;
+  address_id: number | null;
 };
 
-export const useSubmit = () => {
+export const useSubmit = (townOptions: Address[], user: MeUser) => {
+  const router = useRouter();
+
   const onSubmit: SubmitHandler<ProfileForm> = async (data) => {
     try {
+      let addressId: number | null = null;
+
+      // town変更後
+      const selectedTown = townOptions.find((item) => item.town === data.town);
+
+      if (selectedTown) {
+        addressId = selectedTown.id;
+      }
+      // 初期表示のまま変更なし
+      else if (user.address && user.address.town === data.town) {
+        addressId = user.address.id;
+      }
+
       const formattedData = {
         name: data.name,
         name_kana: data.name_kana,
         gender: data.gender,
         birthday: data.birthday,
         phone_number: data.phone1 + data.phone2 + data.phone3,
-        postal_code: data.postal_code,
-        city: data.city,
-        town: data.town,
-        street_address: data.street_address,
-        prefecture_id: data.prefecture_id,
+        address_id: addressId,
       };
 
-      console.log(formattedData);
+      await apiClient.patch("/api/student/profile", formattedData);
+      router.push("/");
     } catch (error) {
-      console.error("ユーザー情報の更新に失敗しました。");
+      console.error(error);
     }
   };
 

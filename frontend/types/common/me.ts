@@ -26,6 +26,7 @@ export type MeUser = {
   };
 
   address?: {
+    id: number;
     postal_code: string;
     city: string;
     town: string;

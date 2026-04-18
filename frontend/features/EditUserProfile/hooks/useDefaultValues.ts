@@ -14,6 +14,7 @@ type ProfileForm = {
   town: string;
   street_address: string;
   prefecture_id: number;
+  address_id: number | null;
 };
 
 export const useDefaultValues = (user: MeUser) => {
@@ -33,6 +34,7 @@ export const useDefaultValues = (user: MeUser) => {
       town: user.address?.town ?? "",
       street_address: user.address?.street_address ?? "",
       prefecture_id: user.address?.prefecture?.id ?? undefined,
+      address_id: user.address?.id ?? null,
     },
   });
 };
