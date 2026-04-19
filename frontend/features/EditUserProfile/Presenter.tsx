@@ -366,14 +366,14 @@ export const Presenter = ({ user, prefectures }: Props) => {
             <Divider sx={{ my: 2 }} />
 
             <Box>
-              <Typography>在籍高校</Typography>
+              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>在籍高校</Typography>
               <Typography>{user.high_school?.name ?? "未設定"}</Typography>
             </Box>
 
             <Divider sx={{ my: 2 }} />
 
             <Box>
-              <Typography>学年</Typography>
+              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>学年</Typography>
               <Typography>{user.grade?.display_name ?? "未設定"}</Typography>
             </Box>
 
