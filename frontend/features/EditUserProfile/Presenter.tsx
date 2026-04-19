@@ -154,6 +154,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <input type="hidden" {...register("address_id")} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              氏名
+            </Typography>
             <TextField
               fullWidth
               {...register("name")}
@@ -163,6 +166,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              氏名カナ
+            </Typography>
             <TextField
               fullWidth
               {...register("name_kana")}
@@ -172,6 +178,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              生年月日
+            </Typography>
             <LocalizationProvider
               dateAdapter={AdapterDateFns}
               adapterLocale={ja}
@@ -198,6 +207,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              性別
+            </Typography>
             <Controller
               name="gender"
               control={control}
@@ -224,6 +236,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              電話番号
+            </Typography>
             <Box
               sx={{
                 display: "flex",
@@ -237,10 +252,17 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              郵便番号
+            </Typography>
+
             <TextField fullWidth {...register("postal_code")} />
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              都道府県
+            </Typography>
             <Controller
               name="prefecture_id"
               control={control}
@@ -275,6 +297,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              市区町村
+            </Typography>
             <Controller
               name="city"
               control={control}
@@ -302,6 +327,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              町名・丁目
+            </Typography>
             <Controller
               name="town"
               control={control}
@@ -330,6 +358,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              番地・号等
+            </Typography>
             <TextField fullWidth {...register("street_address")} />
 
             <Divider sx={{ my: 2 }} />
