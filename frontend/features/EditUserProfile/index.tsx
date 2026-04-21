@@ -9,7 +9,7 @@ export const EditUserProfile = async () => {
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
-    .join(";");
+    .join("; ");
 
   const user = await getMeFromRails(cookieHeader);
   const prefectures = await getPrefectures();
