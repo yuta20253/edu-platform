@@ -5,9 +5,24 @@ import { MeUser } from "@/types/common/me";
 import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
 import { Address, ProfileForm } from "../types";
+import { useState } from "react";
+
+type ToastType = "success" | "error";
 
 export const useSubmit = (townOptions: Address[], user: MeUser) => {
   const router = useRouter();
+
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success" as ToastType,
+  });
+
+  const closeToast = () =>
+    setToast((prev) => ({
+      ...prev,
+      open: false,
+    }));
 
   const onSubmit: SubmitHandler<ProfileForm> = async (data) => {
     try {
@@ -34,11 +49,26 @@ export const useSubmit = (townOptions: Address[], user: MeUser) => {
       };
 
       await apiClient.patch("/api/student/profile", formattedData);
-      router.push("/profile");
+
+      setToast({
+        open: true,
+        message: "プロフィールを更新しました",
+        severity: "success",
+      });
+
+      setTimeout(() => {
+        router.push("/profile");
+      }, 1000);
     } catch (error) {
       console.error(error);
+
+      setToast({
+        open: true,
+        message: "更新に失敗しました",
+        severity: "error",
+      });
     }
   };
 
-  return { onSubmit };
+  return { onSubmit, toast, closeToast };
 };
