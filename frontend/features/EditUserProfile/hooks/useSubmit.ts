@@ -4,12 +4,8 @@ import { apiClient } from "@/libs/http/apiClient";
 import { MeUser } from "@/types/common/me";
 import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
+import { Address } from "../types";
 
-type Address = {
-  id: number;
-  city: string;
-  town: string;
-};
 
 type ProfileForm = {
   name: string;

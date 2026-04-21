@@ -1,12 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import debounce from "lodash/debounce";
 import { apiClient } from "@/libs/http/apiClient";
-
-type Address = {
-  id: number;
-  city: string;
-  town: string;
-};
+import { Address } from "../types";
 
 export const useFetchAddresses = () => {
   const [cityOptions, setCityOptions] = useState<string[]>([]);
