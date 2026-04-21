@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { Snackbar, Alert } from "@mui/material";
 import { Prefecture } from "@/types/common/prefecture";
 import { ProfileForm } from "./types";
+import { colors } from "@/app/theme/colors";
 
 type Props = {
   user: MeUser;
@@ -86,7 +87,7 @@ export const Presenter = ({
         sx={{
           px: 2,
           py: 4,
-          bgcolor: "#f8fafc",
+          bgcolor: colors.surface.default,
           minHeight: "100vh",
         }}
       >
