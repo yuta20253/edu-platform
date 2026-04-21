@@ -3,3 +3,19 @@ export type Address = {
   city: string;
   town: string;
 };
+
+export type ProfileForm = {
+  name: string;
+  name_kana: string;
+  phone1: string;
+  phone2: string;
+  phone3: string;
+  birthday: string;
+  gender: string;
+  postal_code: string;
+  city: string;
+  town: string;
+  street_address: string;
+  prefecture_id: number | null;
+  address_id: number | null;
+};

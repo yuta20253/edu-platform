@@ -4,24 +4,7 @@ import { apiClient } from "@/libs/http/apiClient";
 import { MeUser } from "@/types/common/me";
 import { useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
-import { Address } from "../types";
-
-
-type ProfileForm = {
-  name: string;
-  name_kana: string;
-  phone1: string;
-  phone2: string;
-  phone3: string;
-  birthday: string;
-  gender: string;
-  postal_code: string;
-  city: string;
-  town: string;
-  street_address: string;
-  prefecture_id: number | null;
-  address_id: number | null;
-};
+import { Address, ProfileForm } from "../types";
 
 export const useSubmit = (townOptions: Address[], user: MeUser) => {
   const router = useRouter();
