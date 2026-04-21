@@ -40,7 +40,6 @@ type Props = {
   setValue: UseFormSetValue<ProfileForm>;
   prefectureId: number | null;
   city: string;
-  town: string;
   cityOptions: string[];
   townOptions: {
     id: number;

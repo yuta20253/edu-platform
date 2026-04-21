@@ -109,7 +109,6 @@ export const Container = ({ user, prefectures }: Props) => {
       setValue={setValue}
       prefectureId={prefectureId}
       city={city}
-      town={town}
       cityOptions={mergedCityOptions}
       townOptions={mergedTownOptions}
       setCityOptions={setCityOptions}
