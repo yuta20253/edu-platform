@@ -45,21 +45,20 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
     context '認証済みアクセス' do
       let!(:cookie) { login_and_get_cookie(user) }
 
-      it '作成した全データが返る' do
-        get '/api/v1/addresses', headers: headers.merge('Cookie' => cookie)
+      it 'prefecture_id未指定なら400が返る' do
+        get '/api/v1/addresses',
+            headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:ok)
-
-        json = response.parsed_body
-        returned_ids = json.pluck('id')
-
-        expect(returned_ids).to include(*all_addresses.map(&:id))
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body['error']).to eq('都道府県は必須です。')
       end
 
       it '都道府県で絞り込める' do
         get '/api/v1/addresses',
             params: { prefecture_id: tokyo.id },
             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
 
         json = response.parsed_body
         returned_ids = json.pluck('id')
@@ -72,8 +71,13 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
 
       it '市区町村で部分一致検索できる' do
         get '/api/v1/addresses',
-            params: { city: '新' },
+            params: {
+              prefecture_id: tokyo.id,
+              city: '新'
+            },
             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
 
         json = response.parsed_body
 
@@ -82,8 +86,13 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
 
       it '町名で部分一致検索できる' do
         get '/api/v1/addresses',
-            params: { town: '梅' },
+            params: {
+              prefecture_id: osaka.id,
+              town: '梅'
+            },
             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
 
         json = response.parsed_body
 
@@ -99,6 +108,8 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
             },
             headers: headers.merge('Cookie' => cookie)
 
+        expect(response).to have_http_status(:ok)
+
         json = response.parsed_body
 
         expect(json.pluck('id')).to eq([shibuya_address.id])
@@ -106,8 +117,13 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
 
       it '該当データがない場合は空配列' do
         get '/api/v1/addresses',
-            params: { city: '存在しない' },
+            params: {
+              prefecture_id: tokyo.id,
+              city: '存在しない'
+            },
             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
 
         json = response.parsed_body
 
@@ -116,13 +132,22 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
 
       it '空文字パラメータは無視される' do
         get '/api/v1/addresses',
-            params: { city: '', town: '' },
+            params: {
+              prefecture_id: tokyo.id,
+              city: '',
+              town: ''
+            },
             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
 
         json = response.parsed_body
         returned_ids = json.pluck('id')
 
-        expect(returned_ids).to include(*all_addresses.map(&:id))
+        expect(returned_ids).to contain_exactly(
+          shinjuku_address.id,
+          shibuya_address.id
+        )
       end
     end
 
