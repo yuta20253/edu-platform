@@ -243,9 +243,7 @@ export const Presenter = ({ user, prefectures }: Props) => {
                   gap: 1,
                 }}
               >
-                <TextField {...register("phone1")} />
-                <TextField {...register("phone2")} />
-                <TextField {...register("phone3")} />
+                <TextField {...register("phone_number")} />
               </Box>
 
               <Divider sx={{ my: 2 }} />

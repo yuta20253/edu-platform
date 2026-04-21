@@ -7,9 +7,7 @@ export type Address = {
 export type ProfileForm = {
   name: string;
   name_kana: string;
-  phone1: string;
-  phone2: string;
-  phone3: string;
+  phone_number: string;
   birthday: string;
   gender: string;
   postal_code: string;

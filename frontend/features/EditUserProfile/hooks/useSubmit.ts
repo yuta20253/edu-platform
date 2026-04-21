@@ -44,7 +44,7 @@ export const useSubmit = (townOptions: Address[], user: MeUser) => {
         name_kana: data.name_kana,
         gender: data.gender,
         birthday: data.birthday,
-        phone_number: data.phone1 + data.phone2 + data.phone3,
+        phone_number: data.phone_number,
         address_id: addressId,
       };
 
