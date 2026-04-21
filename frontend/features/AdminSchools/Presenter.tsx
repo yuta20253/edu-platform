@@ -22,11 +22,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import type { AdminSchoolsData } from "./types";
-
-type Prefecture = {
-  id: number;
-  name: string;
-};
+import { Prefecture } from "@/types/common/prefecture";
 
 type Props = {
   data: AdminSchoolsData;

@@ -6,11 +6,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { apiClient } from "@/libs/http/apiClient";
 import { Presenter } from "./Presenter";
 import type { AdminSchoolsData } from "./types";
-
-type Prefecture = {
-  id: number;
-  name: string;
-};
+import { Prefecture } from "@/types/common/prefecture";
 
 export const AdminSchools = () => {
   const [data, setData] = useState<AdminSchoolsData | null>(null);

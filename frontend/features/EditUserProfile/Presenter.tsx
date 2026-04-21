@@ -23,15 +23,11 @@ import { useMemo, useEffect } from "react";
 import { useSubmit } from "./hooks/useSubmit";
 import { useDefaultValues } from "./hooks/useDefaultValues";
 import { useFetchAddresses } from "./hooks/useFetchAddresses";
+import { Prefecture } from "@/types/common/prefecture";
 
 type Props = {
   user: MeUser;
   prefectures: Prefecture[];
-};
-
-type Prefecture = {
-  id: number;
-  name: string;
 };
 
 export const Presenter = ({ user, prefectures }: Props) => {

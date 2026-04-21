@@ -1,9 +1,5 @@
 import { railsFetch } from "@/libs/server/rails/railsFetch";
-
-type Prefecture = {
-  id: number;
-  name: string;
-};
+import { Prefecture } from "@/types/common/prefecture";
 
 export const getPrefectures = async (cookieHeader?: string) => {
   const { data } = await railsFetch("/api/v1/prefectures", {
