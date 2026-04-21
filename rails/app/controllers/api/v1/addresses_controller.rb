@@ -13,7 +13,7 @@ module Api
           prefecture_id: params[:prefecture_id],
           city: params[:city],
           town: params[:town]
-        ).call.limit(50)
+        ).call
 
         render json: addresses, each_serializer: AddressSerializer, status: :ok
       end
