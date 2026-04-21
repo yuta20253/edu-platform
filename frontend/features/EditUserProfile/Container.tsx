@@ -7,6 +7,8 @@ import { useFetchAddresses } from "./hooks/useFetchAddresses";
 import { MeUser } from "@/types/common/me";
 import { Prefecture } from "@/types/common/prefecture";
 import { useMemo, useEffect } from "react";
+import { ProfileForm } from "./types";
+import { useForm } from "react-hook-form";
 
 type Props = {
   user: MeUser;
@@ -14,6 +16,8 @@ type Props = {
 };
 
 export const Container = ({ user, prefectures }: Props) => {
+  const defaultValues = useDefaultValues(user);
+
   const {
     control,
     register,
@@ -21,7 +25,9 @@ export const Container = ({ user, prefectures }: Props) => {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useDefaultValues(user);
+  } = useForm<ProfileForm>({
+    defaultValues,
+  });
 
   const prefectureId = watch("prefecture_id");
   const city = watch("city");
