@@ -1,14 +1,4 @@
-import { GenderType } from "./types";
-
-type Address = {
-  postal_code: string;
-  city: string;
-  town: string;
-  prefecture: {
-    id: number;
-    name: string;
-  };
-};
+import { Address, GenderType } from "./types";
 
 export const GenderLabel: Record<GenderType, string> = {
   male: "男",
