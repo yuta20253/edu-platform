@@ -245,6 +245,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
               >
                 <TextField {...register("phone_number")} />
               </Box>
+              <Typography sx={{ color: "red" }}>
+                ※ ハイフンなしで入力してください
+              </Typography>
 
               <Divider sx={{ my: 2 }} />
 
