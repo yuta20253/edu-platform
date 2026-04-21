@@ -51,7 +51,7 @@ export const useSubmit = (townOptions: Address[], user: MeUser) => {
       };
 
       await apiClient.patch("/api/student/profile", formattedData);
-      router.push("/");
+      router.push("/profile");
     } catch (error) {
       console.error(error);
     }
