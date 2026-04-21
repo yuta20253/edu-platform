@@ -13,109 +13,74 @@ import {
   Radio,
   MenuItem,
 } from "@mui/material";
-import { Controller } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  UseFormHandleSubmit,
+  UseFormRegister,
+  UseFormSetValue,
+} from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { format } from "date-fns";
-import { useMemo, useEffect } from "react";
 import { Snackbar, Alert } from "@mui/material";
-
-import { useSubmit } from "./hooks/useSubmit";
-import { useDefaultValues } from "./hooks/useDefaultValues";
-import { useFetchAddresses } from "./hooks/useFetchAddresses";
 import { Prefecture } from "@/types/common/prefecture";
+import { ProfileForm } from "./types";
 
 type Props = {
   user: MeUser;
   prefectures: Prefecture[];
+  control: Control<ProfileForm>;
+  register: UseFormRegister<ProfileForm>;
+  errors: FieldErrors<ProfileForm>;
+  handleSubmit: UseFormHandleSubmit<ProfileForm>;
+  onSubmit: (data: ProfileForm) => void;
+  setValue: UseFormSetValue<ProfileForm>;
+  prefectureId: number | null;
+  city: string;
+  town: string;
+  cityOptions: string[];
+  townOptions: {
+    id: number;
+    city: string;
+    town: string;
+  }[];
+  setCityOptions: (v: string[]) => void;
+  setTownOptions: (
+    v: {
+      id: number;
+      city: string;
+      town: string;
+    }[],
+  ) => void;
+  toast: {
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  };
+  closeToast: () => void;
 };
 
-export const Presenter = ({ user, prefectures }: Props) => {
-  const {
-    control,
-    register,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { errors },
-  } = useDefaultValues(user);
-
-  const prefectureId = watch("prefecture_id");
-  const city = watch("city");
-  const town = watch("town");
-
-  const {
-    cityOptions,
-    townOptions,
-    fetchCities,
-    fetchTowns,
-    setCityOptions,
-    setTownOptions,
-  } = useFetchAddresses();
-
-  const initialCityOptions = useMemo(() => {
-    return user.address ? [user.address.city] : [];
-  }, [user.address]);
-
-  const initialTownOptions = useMemo(() => {
-    return user.address
-      ? [
-          {
-            id: user.address.id,
-            city: user.address.city,
-            town: user.address.town,
-          },
-        ]
-      : [];
-  }, [user.address]);
-
-  const { onSubmit, toast, closeToast } = useSubmit(townOptions, user);
-
-  useEffect(() => {
-    if (!prefectureId) {
-      setCityOptions([]);
-      setTownOptions([]);
-      return;
-    }
-
-    fetchCities(prefectureId);
-  }, [prefectureId, fetchCities, setCityOptions, setTownOptions]);
-
-  useEffect(() => {
-    if (!prefectureId || !city) {
-      setTownOptions([]);
-      return;
-    }
-
-    fetchTowns(prefectureId, city);
-  }, [prefectureId, city, fetchTowns, setTownOptions]);
-
-  const mergedCityOptions =
-    cityOptions.length > 0 ? cityOptions : initialCityOptions;
-
-  const mergedTownOptions =
-    townOptions.length > 0 ? townOptions : initialTownOptions;
-
-  /**
-   * 初期表示でも変更後でも
-   * town に対応する address_id を同期
-   */
-  useEffect(() => {
-    if (!town) {
-      setValue("address_id", null);
-      return;
-    }
-
-    const selected = mergedTownOptions.find((item) => item.town === town);
-
-    if (selected) {
-      setValue("address_id", selected.id);
-    } else {
-      setValue("address_id", null);
-    }
-  }, [town, mergedTownOptions, setValue]);
-
+export const Presenter = ({
+  user,
+  prefectures,
+  control,
+  register,
+  errors,
+  handleSubmit,
+  onSubmit,
+  setValue,
+  prefectureId,
+  city,
+  cityOptions,
+  townOptions,
+  setCityOptions,
+  setTownOptions,
+  toast,
+  closeToast,
+}: Props) => {
   return (
     <>
       <Box
@@ -305,7 +270,7 @@ export const Presenter = ({ user, prefectures }: Props) => {
                 render={({ field }) => (
                   <Autocomplete
                     disabled={!prefectureId}
-                    options={mergedCityOptions}
+                    options={cityOptions}
                     value={field.value || null}
                     isOptionEqualToValue={(option, value) => option === value}
                     getOptionLabel={(option) => option}
@@ -335,9 +300,9 @@ export const Presenter = ({ user, prefectures }: Props) => {
                 render={({ field }) => (
                   <Autocomplete
                     disabled={!city}
-                    options={mergedTownOptions}
+                    options={townOptions}
                     value={
-                      mergedTownOptions.find(
+                      townOptions.find(
                         (option) => option.town === field.value,
                       ) || null
                     }

@@ -1,7 +1,7 @@
 import { getMeFromRails } from "@/libs/server/me";
 import { Box, CircularProgress } from "@mui/material";
 import { cookies } from "next/headers";
-import { Presenter } from "./Presenter";
+import { Container } from "./Container";
 import { getPrefectures } from "@/libs/server/prefectures";
 
 export const EditUserProfile = async () => {
@@ -29,5 +29,5 @@ export const EditUserProfile = async () => {
     );
   }
 
-  return <Presenter user={user} prefectures={prefectures} />;
+  return <Container user={user} prefectures={prefectures} />;
 };
