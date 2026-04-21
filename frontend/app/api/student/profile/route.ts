@@ -13,7 +13,7 @@ export async function PATCH(req: Request) {
 
     const nextResponse = NextResponse.json(data, { status });
 
-    if (setCookie) nextResponse.headers.set("set-cookies", setCookie);
+    if (setCookie) nextResponse.headers.set("set-cookie", setCookie);
 
     return nextResponse;
   } catch (error) {
