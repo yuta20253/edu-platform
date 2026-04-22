@@ -4,12 +4,13 @@ require 'rails_helper'
 
 RSpec.describe ProfileUpdateForm, type: :model do
   let!(:user) { create(:user) }
+  let!(:address) { create(:address) }
 
   let(:params) do
     {
       name: '田中 太郎',
       name_kana: 'タナカ タロウ',
-      address_id: 1,
+      address_id: address.id,
       birthday: Date.new(2000, 1, 1),
       gender: 'male',
       phone_number: '08012345678'
@@ -28,12 +29,26 @@ RSpec.describe ProfileUpdateForm, type: :model do
 
         expect(user.name).to eq '田中 太郎'
         expect(user.name_kana).to eq 'タナカ タロウ'
-        expect(user.address_id).to eq 1
+        expect(user.address_id).to eq(address.id)
 
         info = user.user_personal_info
         expect(info.birthday).to eq Date.new(2000, 1, 1)
         expect(info.gender).to eq 'male'
         expect(info.phone_number).to eq '08012345678'
+      end
+    end
+
+    context 'phone_numberが未入力のとき' do
+      it '保存できる' do
+        form = described_class.new(params.merge(phone_number: ''))
+        form.user = user
+
+        expect(form.save).to be true
+
+        user.reload
+        info = user.user_personal_info
+
+        expect(info.phone_number).to eq('')
       end
     end
 
