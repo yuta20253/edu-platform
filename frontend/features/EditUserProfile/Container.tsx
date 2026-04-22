@@ -6,9 +6,10 @@ import { useDefaultValues } from "./hooks/useDefaultValues";
 import { useFetchAddresses } from "./hooks/useFetchAddresses";
 import { MeUser } from "@/types/common/me";
 import { Prefecture } from "@/types/common/prefecture";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { ProfileForm } from "./types";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 type Props = {
   user: MeUser;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export const Container = ({ user, prefectures }: Props) => {
+  const router = useRouter();
   const defaultValues = useDefaultValues(user);
 
   const {
@@ -59,6 +61,8 @@ export const Container = ({ user, prefectures }: Props) => {
   }, [user.address]);
 
   const { onSubmit, toast, closeToast } = useSubmit(townOptions, user);
+
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
 
   useEffect(() => {
     if (!prefectureId) {
@@ -121,6 +125,9 @@ export const Container = ({ user, prefectures }: Props) => {
       setTownOptions={setTownOptions}
       toast={toast}
       closeToast={closeToast}
+      openConfirm={openConfirm}
+      setOpenConfirm={setOpenConfirm}
+      router={router}
     />
   );
 };

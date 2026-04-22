@@ -12,6 +12,10 @@ import {
   FormControlLabel,
   Radio,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Control,
@@ -29,6 +33,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { Prefecture } from "@/types/common/prefecture";
 import { ProfileForm } from "./types";
 import { colors } from "@/app/theme/colors";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 type Props = {
   user: MeUser;
@@ -61,6 +66,9 @@ type Props = {
     severity: "success" | "error";
   };
   closeToast: () => void;
+  openConfirm: boolean;
+  setOpenConfirm: (v: boolean) => void;
+  router: AppRouterInstance;
 };
 
 export const Presenter = ({
@@ -80,6 +88,9 @@ export const Presenter = ({
   setTownOptions,
   toast,
   closeToast,
+  openConfirm,
+  setOpenConfirm,
+  router,
 }: Props) => {
   return (
     <>
@@ -357,7 +368,7 @@ export const Presenter = ({
                   mt: 3,
                 }}
               >
-                <Button variant="outlined" href="/profile">
+                <Button variant="outlined" onClick={() => setOpenConfirm(true)}>
                   戻る
                 </Button>
 
@@ -369,6 +380,18 @@ export const Presenter = ({
           </Box>
         </Box>
       </Box>
+
+      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
+        <DialogTitle>確認</DialogTitle>
+        <DialogContent>
+          変更内容が保存されませんが、よろしいですか？
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirm(false)}>キャンセル</Button>
+
+          <Button onClick={() => router.push("/profile")}>OK</Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={toast.open}
