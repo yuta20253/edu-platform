@@ -22,8 +22,9 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { MeUser } from "@/libs/server/me";
+
 import { apiClient } from "@/libs/http/apiClient";
+import { MeUser } from "@/types/common/me";
 
 const navItems = [
   {

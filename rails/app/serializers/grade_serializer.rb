@@ -11,5 +11,5 @@
 #  updated_at     :datetime         not null
 #
 class GradeSerializer < ActiveModel::Serializer
-  attributes :id, :year, :display_name
+  attributes :year, :display_name
 end

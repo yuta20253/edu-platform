@@ -15,7 +15,7 @@ class ProfileUpdateForm
 
   validates :name, presence: true
   validates :name_kana, presence: true
-  validates :phone_number, format: { with: /\A\d{10,11}\z/ }
+  validates :phone_number, format: { with: /\A\d{10,11}\z/ }, allow_blank: true
   validates :gender, inclusion: { in: UserPersonalInfo.genders.keys }
   validate :address_must_exist
   validate :birthday_cannot_be_future

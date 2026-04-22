@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AdminSidebar } from "./AdminSidebar";
-import type { MeUser } from "@/libs/server/me";
+import { MeUser } from "@/types/common/me";
 
 const mockPush = vi.hoisted(() => vi.fn());
 const mockPathname = vi.hoisted(() => vi.fn(() => "/admin/dashboard"));
@@ -22,6 +22,29 @@ const mockUser: MeUser = {
   name: "管理者太郎",
   user_role: { name: "admin" },
   high_school: { name: "テスト高校" },
+  name_kana: "",
+  profile_completed: false,
+  user_personal_info: {
+    id: 0,
+    phone_number: "",
+    birthday: "",
+    gender: "",
+  },
+  grade: {
+    year: 0,
+    display_name: "",
+  },
+  address: {
+    id: 0,
+    postal_code: "",
+    city: "",
+    town: "",
+    street_address: "",
+    prefecture: {
+      id: 0,
+      name: "",
+    },
+  },
 };
 
 describe("AdminSidebar", () => {

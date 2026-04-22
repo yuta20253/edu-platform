@@ -4,15 +4,28 @@ import { colors } from "@/app/theme/colors";
 import { AppBar } from "@mui/material";
 import { Box, Button } from "@mui/material";
 import ToolBar from "@mui/material/Toolbar";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { JSX } from "react";
-import { MeUser } from "@/libs/server/me";
+import { MeUser } from "@/types/common/me";
+import { IconButton, Menu, MenuItem } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useState } from "react";
 
 export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(e.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <>
@@ -44,18 +57,34 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
             </Link>
           </Box>
           {user ? (
-            <Link
-              href="/"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                color: colors.text.inverse,
-              }}
-            >
-              <AccountCircleIcon />
-              {user.name}
-            </Link>
+            <Box>
+              <IconButton onClick={handleOpen} color="inherit">
+                <MenuIcon />
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <MenuItem
+                  component={Link}
+                  href="/profile"
+                  onClick={handleClose}
+                >
+                  ユーザー情報
+                </MenuItem>
+                <MenuItem>ログアウト</MenuItem>
+              </Menu>
+            </Box>
           ) : (
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
