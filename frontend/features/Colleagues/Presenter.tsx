@@ -16,33 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-
-type TeacherMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
-type Teacher = {
-  id: number;
-  name: string;
-  name_kana: string;
-  grade: {
-    year: number;
-    display_name: string;
-  };
-  teacher_permission: {
-    id: number;
-    grade_scope: number;
-    manage_other_teachers: boolean;
-  };
-};
-
-type TeachersData = {
-  teachers: Teacher[];
-  meta: TeacherMeta;
-};
+import { TeachersData } from "./types";
 
 type Props = {
   data: TeachersData;
