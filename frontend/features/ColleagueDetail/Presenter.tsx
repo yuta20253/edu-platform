@@ -189,22 +189,6 @@ export const Presenter = ({ teacher }: Props) => {
                   mb: 0.5,
                 }}
               >
-                電話番号
-              </Typography>
-              <Typography>
-                {teacher.user_personal_info?.phone_number || "未設定"}
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: colors.text.muted,
-                  display: "block",
-                  mb: 0.5,
-                }}
-              >
                 生年月日
               </Typography>
               <Typography>
@@ -227,6 +211,22 @@ export const Presenter = ({ teacher }: Props) => {
                 {teacher.user_personal_info?.gender
                   ? GenderLabel[teacher.user_personal_info.gender]
                   : "未設定"}
+              </Typography>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: colors.text.muted,
+                  display: "block",
+                  mb: 0.5,
+                }}
+              >
+                電話番号
+              </Typography>
+              <Typography>
+                {teacher.user_personal_info?.phone_number || "未設定"}
               </Typography>
             </Grid>
 
