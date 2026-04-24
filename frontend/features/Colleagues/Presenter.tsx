@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   Pagination,
   Table,
   TableBody,
@@ -26,9 +27,17 @@ type Props = {
 
 export const Presenter = ({ data, page, onPageChange }: Props) => {
   const { teachers, meta } = data;
+
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 1.5,
+          mb: 3,
+        }}
+      >
         <Typography
           variant="h5"
           fontWeight={700}
@@ -36,58 +45,138 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
         >
           教員一覧
         </Typography>
-        <Typography variant="body2" sx={{ color: colors.text.muted }}>
+
+        <Typography
+          variant="body2"
+          sx={{ color: colors.text.muted }}
+        >
           {meta.total_count}件
         </Typography>
       </Box>
+
       <Card
         elevation={0}
         sx={{
           border: `1px solid ${colors.border.light}`,
           borderRadius: 2,
+          overflow: "hidden",
           mb: 3,
         }}
       >
         <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
           <TableContainer>
-            <Table size="small">
+            <Table
+              size="small"
+              sx={{
+                "& th, & td": {
+                  py: 1.5,
+                  px: 2,
+                  verticalAlign: "middle",
+                  whiteSpace: "nowrap",
+                },
+              }}
+            >
               <TableHead>
-                <TableRow sx={{ bgcolor: colors.surface.light }}>
-                  <TableCell sx={{ fontWeight: 600 }}>氏名</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>氏名カナ</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>担当学年</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>学年操作範囲</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>他職員操作権限</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>詳細</TableCell>
+                <TableRow
+                  sx={{
+                    bgcolor: colors.surface.light,
+                    "& th": {
+                      fontWeight: 700,
+                      color: colors.text.primary,
+                      borderBottom: `1px solid ${colors.border.light}`,
+                    },
+                  }}
+                >
+                  <TableCell>氏名</TableCell>
+                  <TableCell>氏名カナ</TableCell>
+                  <TableCell>担当学年</TableCell>
+                  <TableCell align="center">操作範囲</TableCell>
+                  <TableCell align="center">他職員権限</TableCell>
+                  <TableCell align="center">詳細</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {teachers.map((teacher) => (
                   <TableRow
                     key={teacher.id}
                     hover
-                    sx={{ "&:last-child td": { border: 0 } }}
+                    sx={{
+                      transition: "background-color 0.15s ease",
+                      "&:last-child td": {
+                        borderBottom: 0,
+                      },
+                    }}
                   >
-                    <TableCell>{teacher.name}</TableCell>
-                    <TableCell>{teacher.name_kana}</TableCell>
-                    <TableCell>{teacher.grade.display_name}</TableCell>
-                    <TableCell>
-                      {teacher.teacher_permission.grade_scope
-                        ? "自学年"
-                        : "全学年"}
+                    <TableCell sx={{ fontWeight: 600 }}>
+                      {teacher.name}
                     </TableCell>
+
                     <TableCell>
-                      {teacher.teacher_permission.manage_other_teachers
-                        ? "有"
-                        : "無"}
+                      {teacher.name_kana}
                     </TableCell>
+
                     <TableCell>
+                      {teacher.grade.display_name}
+                    </TableCell>
+
+                    <TableCell align="center">
+                      <Chip
+                        label={
+                          teacher.teacher_permission.grade_scope
+                            ? "自学年"
+                            : "全学年"
+                        }
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        sx={{
+                          minWidth: 72,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell align="center">
+                      <Chip
+                        label={
+                          teacher.teacher_permission
+                            .manage_other_teachers
+                            ? "有"
+                            : "無"
+                        }
+                        size="small"
+                        color={
+                          teacher.teacher_permission
+                            .manage_other_teachers
+                            ? "success"
+                            : "default"
+                        }
+                        sx={{
+                          minWidth: 48,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell align="center">
                       <Button
                         component={Link}
-                        href={`/teachers/colleagues/${teacher.id}`}
+                        href={`/teacher/colleagues/${teacher.id}`}
                         size="small"
                         variant="outlined"
-                        sx={{ fontSize: "0.75rem" }}
+                        sx={{
+                          minWidth: 64,
+                          height: 28,
+                          px: 1.5,
+                          fontSize: "0.75rem",
+                          borderRadius: 1.5,
+                          textTransform: "none",
+                        }}
                       >
                         詳細
                       </Button>
@@ -99,13 +188,20 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
           </TableContainer>
         </CardContent>
       </Card>
-      {meta.total_count > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
+
+      {meta.total_pages > 1 && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <Pagination
             count={meta.total_pages}
             page={page}
             onChange={(_, value) => onPageChange(value)}
             color="primary"
+            shape="rounded"
           />
         </Box>
       )}
