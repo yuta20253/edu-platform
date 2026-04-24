@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { TeachersData } from "./types";
 
