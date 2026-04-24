@@ -5,8 +5,19 @@ module Api
     module Teacher
       class TeachersController < Api::V1::Teacher::BaseController
         def index
-          teachers = teachers_query
-          render json: teachers, each_serializer: TeacherSerializer, status: :ok
+          teachers = teachers_query.order(:name_kana).page(params[:page]).per(20)
+
+          render json: {
+            teachers: ActiveModelSerializers::SerializableResource.new(
+              teachers, each_serializer: TeacherSerializer
+            ),
+            meta: {
+              current_page: teachers.current_page,
+              total_pages: teachers.total_pages,
+              total_count: teachers.total_count,
+              per_page: 20
+            }
+          }, status: :ok
         end
 
         def show
