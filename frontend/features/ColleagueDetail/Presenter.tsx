@@ -13,39 +13,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { AddressLabel, GenderLabel } from "./constants";
-import { GenderType } from "./types";
-
-type Teacher = {
-  id: number;
-  name: string;
-  name_kana: string;
-  grade: {
-    year: number;
-    display_name: string;
-  };
-  teacher_permission: {
-    id: number;
-    grade_scope: number;
-    manage_other_teachers: boolean;
-  };
-  user_personal_info?: {
-    id: number;
-    phone_number: string;
-    birthday: string;
-    gender: GenderType;
-  };
-  address?: {
-    id: number;
-    postal_code: string;
-    city: string;
-    town: string;
-    street_address: string;
-    prefecture: {
-      id: number;
-      name: string;
-    };
-  };
-};
+import { Teacher } from "./types";
 
 type Props = {
   teacher: Teacher;
@@ -123,9 +91,7 @@ export const Presenter = ({ teacher }: Props) => {
               >
                 氏名カナ
               </Typography>
-              <Typography variant="body1">
-                {teacher.name_kana}
-              </Typography>
+              <Typography variant="body1">{teacher.name_kana}</Typography>
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
@@ -157,9 +123,7 @@ export const Presenter = ({ teacher }: Props) => {
               </Typography>
               <Chip
                 label={
-                  teacher.teacher_permission.grade_scope
-                    ? "自学年"
-                    : "全学年"
+                  teacher.teacher_permission.grade_scope ? "自学年" : "全学年"
                 }
                 size="small"
                 color="primary"
@@ -185,9 +149,7 @@ export const Presenter = ({ teacher }: Props) => {
               </Typography>
               <Chip
                 label={
-                  teacher.teacher_permission.manage_other_teachers
-                    ? "有"
-                    : "無"
+                  teacher.teacher_permission.manage_other_teachers ? "有" : "無"
                 }
                 size="small"
                 color={
@@ -280,9 +242,7 @@ export const Presenter = ({ teacher }: Props) => {
                 住所
               </Typography>
               <Typography>
-                {teacher.address
-                  ? AddressLabel(teacher.address)
-                  : "未設定"}
+                {teacher.address ? AddressLabel(teacher.address) : "未設定"}
               </Typography>
             </Grid>
           </Grid>

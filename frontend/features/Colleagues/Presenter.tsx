@@ -46,10 +46,7 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
           教員一覧
         </Typography>
 
-        <Typography
-          variant="body2"
-          sx={{ color: colors.text.muted }}
-        >
+        <Typography variant="body2" sx={{ color: colors.text.muted }}>
           {meta.total_count}件
         </Typography>
       </Box>
@@ -112,13 +109,9 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
                       {teacher.name}
                     </TableCell>
 
-                    <TableCell>
-                      {teacher.name_kana}
-                    </TableCell>
+                    <TableCell>{teacher.name_kana}</TableCell>
 
-                    <TableCell>
-                      {teacher.grade.display_name}
-                    </TableCell>
+                    <TableCell>{teacher.grade.display_name}</TableCell>
 
                     <TableCell align="center">
                       <Chip
@@ -142,15 +135,13 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
                     <TableCell align="center">
                       <Chip
                         label={
-                          teacher.teacher_permission
-                            .manage_other_teachers
+                          teacher.teacher_permission.manage_other_teachers
                             ? "有"
                             : "無"
                         }
                         size="small"
                         color={
-                          teacher.teacher_permission
-                            .manage_other_teachers
+                          teacher.teacher_permission.manage_other_teachers
                             ? "success"
                             : "default"
                         }
