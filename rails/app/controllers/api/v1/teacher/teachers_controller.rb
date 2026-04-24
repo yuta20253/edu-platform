@@ -8,6 +8,9 @@ module Api
           teachers = teachers_query.order(:name_kana).page(params[:page]).per(20)
 
           render json: {
+            current_user: ActiveModelSerializers::SerializableResource.new(
+              current_user, serializer: TeacherSerializer
+            ),
             teachers: ActiveModelSerializers::SerializableResource.new(
               teachers, each_serializer: TeacherSerializer
             ),
