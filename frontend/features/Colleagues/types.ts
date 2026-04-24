@@ -21,6 +21,7 @@ export type Teacher = {
 };
 
 export type TeachersData = {
+  current_user: Teacher;
   teachers: Teacher[];
   meta: TeacherMeta;
 };

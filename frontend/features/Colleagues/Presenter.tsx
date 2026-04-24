@@ -26,31 +26,74 @@ type Props = {
 };
 
 export const Presenter = ({ data, page, onPageChange }: Props) => {
-  const { teachers, meta } = data;
+  const { current_user, teachers, meta } = data;
 
   return (
     <Box sx={{ p: 3 }}>
       <Box
         sx={{
           display: "flex",
-          alignItems: "baseline",
-          gap: 1.5,
+          justifyContent: "space-between",
+          alignItems: "center",
           mb: 3,
+          width: "100%",
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight={700}
-          sx={{ color: colors.text.primary }}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 1.5,
+          }}
         >
-          教員一覧
-        </Typography>
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            sx={{ color: colors.text.primary }}
+          >
+            教員一覧
+          </Typography>
 
-        <Typography variant="body2" sx={{ color: colors.text.muted }}>
-          {meta.total_count}件
-        </Typography>
+          <Typography variant="body2" sx={{ color: colors.text.muted }}>
+            {meta.total_count}件
+          </Typography>
+        </Box>
+
+        {current_user.teacher_permission.manage_other_teachers && (
+          <Box sx={{ display: "flex", gap: 1.5, ml: "auto" }}>
+            <Button
+              component={Link}
+              href=""
+              variant="outlined"
+              size="small"
+              sx={{
+                minWidth: 110,
+                height: 36,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              権限管理
+            </Button>
+            <Button
+              component={Link}
+              href=""
+              variant="outlined"
+              size="small"
+              sx={{
+                minWidth: 110,
+                height: 36,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              新規登録
+            </Button>
+          </Box>
+        )}
       </Box>
-
       <Card
         elevation={0}
         sx={{

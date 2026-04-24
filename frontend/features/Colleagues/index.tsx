@@ -1,12 +1,11 @@
 "use client";
 
-import { Presenter } from "./Presenter";
 import { Box, CircularProgress } from "@mui/material";
 import { useColleagues } from "./hooks";
+import { Presenter } from "./Presenter";
 
 export const Colleagues = () => {
   const { data, page, setPage } = useColleagues();
-
   if (!data) {
     return (
       <Box
