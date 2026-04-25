@@ -29,7 +29,9 @@ Rails.application.routes.draw do
         resources :goals
         resources :draft_tasks
         resources :tasks do
-          resources :units, only: :show
+          resources :units, only: :show do
+            resources :questions, only: :index
+          end
         end
         resources :courses, only: :index
       end
