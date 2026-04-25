@@ -7,7 +7,7 @@ module Api
         def index
           task = current_user.tasks.find(params[:task_id])
           unit = task.units.find(params[:unit_id])
-          questions = unit.questions.includes(:question_hints)
+          questions = unit.questions.includes(:question_hints, :question_choices)
 
           render json: questions, each_serializer: QuestionSerializer
         end
