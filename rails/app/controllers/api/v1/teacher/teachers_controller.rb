@@ -32,7 +32,7 @@ module Api
         private
 
         def create_teacher_params
-          params.permit(:name, :name_kana, :email, :grade_scope, :manage_other_teachers)
+          params.permit(:name, :name_kana, :email, :grade_id, :grade_scope, :manage_other_teachers)
         end
 
         def teachers_query

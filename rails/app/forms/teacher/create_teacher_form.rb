@@ -13,6 +13,7 @@ module Teacher
     attribute :email, :string
     attribute :grade_scope, :integer
     attribute :manage_other_teachers, :boolean
+    attribute :grade_id, :integer
 
     validates :name, presence: true
     validates :name_kana, presence: true, format: {
@@ -22,6 +23,8 @@ module Teacher
     validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :grade_scope, inclusion: { in: TeacherPermission.grade_scopes.values }
     validates :manage_other_teachers, inclusion: { in: [true, false] }
+    validates :grade_id, presence: true
+    validate :grade_id_must_be_in_high_school
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -42,6 +45,7 @@ module Teacher
           password: password,
           password_confirmation: password,
           user_role: teacher_role,
+          grade_id: grade_id,
           high_school: @current_user.high_school
         )
 
@@ -54,6 +58,16 @@ module Teacher
     rescue ActiveRecord::RecordInvalid => e
       errors.add(:base, e.record.errors.full_messages.join(', '))
       false
+    end
+
+    private
+
+    def grade_id_must_be_in_high_school
+      return if grade_id.blank?
+
+      return if Grade.exists?(id: grade_id, high_school_id: @current_user.high_school_id)
+
+      errors.add(:grade_id, 'は所属高校の学年を指定してください')
     end
   end
 end

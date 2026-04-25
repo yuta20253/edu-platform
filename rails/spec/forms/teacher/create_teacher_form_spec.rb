@@ -5,6 +5,23 @@ require 'rails_helper'
 RSpec.describe Teacher::CreateTeacherForm, type: :model do
   let!(:teacher_role) { create(:user_role, name: :teacher) }
   let!(:high_school) { create(:high_school) }
+  let!(:other_high_school) { create(:high_school) }
+
+  let!(:grade) do
+    create(
+      :grade,
+      high_school: high_school,
+      year: 1
+    )
+  end
+
+  let!(:other_grade) do
+    create(
+      :grade,
+      high_school: other_high_school,
+      year: 1
+    )
+  end
 
   let!(:current_user) do
     create(
@@ -31,6 +48,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
         name: '山田 太郎',
         name_kana: 'ヤマダ タロウ',
         email: 'yamada@example.com',
+        grade_id: grade.id,
         grade_scope: 1,
         manage_other_teachers: false
       )
@@ -50,10 +68,68 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
         expect(created_user.name_kana).to eq('ヤマダ タロウ')
         expect(created_user.high_school).to eq(high_school)
         expect(created_user.user_role.name).to eq('teacher')
+        expect(created_user.grade_id).to eq(grade.id)
 
         expect(created_user.teacher_permission).to be_present
         expect(created_user.teacher_permission).to be_all_grades
         expect(created_user.teacher_permission.manage_other_teachers).to be(false)
+      end
+    end
+
+    context 'grade_idが未指定の場合' do
+      let(:form) do
+        described_class.new(
+          current_user: current_user,
+          name: '山田 太郎',
+          name_kana: 'ヤマダ タロウ',
+          email: 'yamada@example.com',
+          grade_id: nil,
+          grade_scope: 1,
+          manage_other_teachers: false
+        )
+      end
+
+      it '保存できないこと' do
+        expect(subject).to be false
+        expect(form.errors[:grade_id]).to be_present
+      end
+    end
+
+    context '他校のgrade_idを指定した場合' do
+      let(:form) do
+        described_class.new(
+          current_user: current_user,
+          name: '山田 太郎',
+          name_kana: 'ヤマダ タロウ',
+          email: 'yamada@example.com',
+          grade_id: other_grade.id,
+          grade_scope: 1,
+          manage_other_teachers: false
+        )
+      end
+
+      it '保存できないこと' do
+        expect(subject).to be false
+        expect(form.errors[:grade_id]).to be_present
+      end
+    end
+
+    context '存在しないgrade_idを指定した場合' do
+      let(:form) do
+        described_class.new(
+          current_user: current_user,
+          name: '山田 太郎',
+          name_kana: 'ヤマダ タロウ',
+          email: 'yamada@example.com',
+          grade_id: 999_999,
+          grade_scope: 1,
+          manage_other_teachers: false
+        )
+      end
+
+      it '保存できないこと' do
+        expect(subject).to be false
+        expect(form.errors[:grade_id]).to be_present
       end
     end
 
@@ -64,6 +140,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '',
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         )
@@ -82,6 +159,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: '',
           email: 'yamada@example.com',
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         )
@@ -100,6 +178,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: 'やまだ たろう',
           email: 'yamada@example.com',
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         )
@@ -118,6 +197,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: '',
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         )
@@ -136,6 +216,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: 'abc',
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         )
@@ -154,6 +235,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: current_user.email,
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         )
@@ -172,6 +254,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
+          grade_id: grade.id,
           grade_scope: 999,
           manage_other_teachers: false
         )
@@ -190,6 +273,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: nil
         )

@@ -9,12 +9,29 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
       'Accept' => 'application/json'
     }
   end
+
   let(:cookie) { login_and_get_cookie(login_teacher) }
 
   let!(:teacher_role) { create(:user_role, name: :teacher) }
 
   let!(:high_school) { create(:high_school) }
   let!(:other_high_school) { create(:high_school) }
+
+  let!(:grade) do
+    create(
+      :grade,
+      high_school: high_school,
+      year: 1
+    )
+  end
+
+  let!(:other_school_grade) do
+    create(
+      :grade,
+      high_school: other_high_school,
+      year: 1
+    )
+  end
 
   let!(:login_teacher) do
     create(
@@ -89,7 +106,6 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
       expect(response).to have_http_status(:ok)
 
       json = response.parsed_body
-
       names = json.pluck('name')
 
       expect(names).to include(login_teacher.name)
@@ -142,6 +158,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
         name: '山田 太郎',
         name_kana: 'ヤマダ タロウ',
         email: 'yamada@example.com',
+        grade_id: grade.id,
         grade_scope: 1,
         manage_other_teachers: true
       }
@@ -162,8 +179,11 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
 
         created_user = User.find_by(email: 'yamada@example.com')
 
+        expect(created_user).to be_present
         expect(created_user.name).to eq('山田 太郎')
+        expect(created_user.name_kana).to eq('ヤマダ タロウ')
         expect(created_user.high_school_id).to eq(high_school.id)
+        expect(created_user.grade_id).to eq(grade.id)
         expect(created_user.teacher_permission).to be_all_grades
         expect(created_user.teacher_permission.manage_other_teachers).to be(true)
       end
@@ -189,6 +209,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name: '',
           name_kana: '',
           email: '',
+          grade_id: nil,
           grade_scope: nil,
           manage_other_teachers: false
         }
@@ -207,6 +228,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: login_teacher.email,
+          grade_id: grade.id,
           grade_scope: 1,
           manage_other_teachers: false
         }
@@ -225,7 +247,65 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name: '山田 太郎',
           name_kana: 'ヤマダ タロウ',
           email: 'test@example.com',
+          grade_id: grade.id,
           grade_scope: 999,
+          manage_other_teachers: false
+        }
+      end
+
+      it '422を返すこと' do
+        subject
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context 'grade_idが未指定の場合' do
+      let(:params) do
+        {
+          name: '山田 太郎',
+          name_kana: 'ヤマダ タロウ',
+          email: 'test@example.com',
+          grade_id: nil,
+          grade_scope: 1,
+          manage_other_teachers: false
+        }
+      end
+
+      it '422を返すこと' do
+        subject
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '他校のgrade_idを指定した場合' do
+      let(:params) do
+        {
+          name: '山田 太郎',
+          name_kana: 'ヤマダ タロウ',
+          email: 'test@example.com',
+          grade_id: other_school_grade.id,
+          grade_scope: 1,
+          manage_other_teachers: false
+        }
+      end
+
+      it '422を返すこと' do
+        subject
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context 'name_kanaがひらがなの場合' do
+      let(:params) do
+        {
+          name: '山田 太郎',
+          name_kana: 'やまだ たろう',
+          email: 'test@example.com',
+          grade_id: grade.id,
+          grade_scope: 1,
           manage_other_teachers: false
         }
       end
