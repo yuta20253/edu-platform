@@ -36,6 +36,8 @@ Rails.application.routes.draw do
                 patch :update
               end
             end
+            resource :confirmation, only: :show
+            resource :submission, only: :update
           end
         end
         resources :courses, only: :index
