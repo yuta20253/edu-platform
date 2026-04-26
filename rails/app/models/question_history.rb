@@ -24,4 +24,5 @@ class QuestionHistory < ApplicationRecord
   belongs_to :course
   belongs_to :unit
   belongs_to :question
+  belongs_to :task
 end
