@@ -26,4 +26,5 @@ class QuestionHistory < ApplicationRecord
   belongs_to :unit
   belongs_to :question
   belongs_to :task
+  belongs_to :question_choice
 end
