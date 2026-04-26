@@ -9,7 +9,11 @@ class QuestionConfirmationSerializer < ActiveModel::Serializer
 
   delegate :question_text, to: :object
 
-  delegate :correct_answer, to: :object
+  def correct_answer
+    return nil unless history.present?
+
+    object.correct_answer
+  end
 
   def selected_choice_number
     history&.question_choice&.choice_number
