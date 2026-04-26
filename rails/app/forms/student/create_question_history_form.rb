@@ -34,6 +34,7 @@ module Student
 
       QuestionHistory.create!(
         user: @current_user,
+        task: @task,
         course: @course,
         unit: @unit,
         question: @question,
@@ -41,7 +42,8 @@ module Student
         answer_text: answer_text,
         time_spent_sec: time_spent_sec,
         is_correct: is_correct,
-        explanation_viewed: explanation_viewed
+        explanation_viewed: explanation_viewed,
+        answered_at: Time.current
       )
 
       true
@@ -50,10 +52,10 @@ module Student
     private
 
     def prepare_context
-      task = @current_user.tasks.find_by(id: task_id)
-      return false unless task
+      @task = @current_user.tasks.find_by(id: task_id)
+      return false unless @task
 
-      @unit = task.units.find_by(id: unit_id)
+      @unit = @task.units.find_by(id: unit_id)
       return false unless @unit
 
       @course = @unit.course
