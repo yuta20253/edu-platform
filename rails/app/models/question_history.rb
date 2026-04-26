@@ -18,6 +18,7 @@
 #  deleted_at         :datetime
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  task_id            :bigint           not null
 #
 class QuestionHistory < ApplicationRecord
   belongs_to :user
