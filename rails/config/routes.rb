@@ -31,7 +31,11 @@ Rails.application.routes.draw do
         resources :tasks do
           resources :units, only: :show do
             resources :questions, only: :index
-            resources :answers, only: [:create, :update]
+            resources :answers, only: [:create] do
+              collection do
+                patch :update
+              end
+            end
           end
         end
         resources :courses, only: :index
