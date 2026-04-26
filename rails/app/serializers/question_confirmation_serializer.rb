@@ -10,7 +10,7 @@ class QuestionConfirmationSerializer < ActiveModel::Serializer
   delegate :question_text, to: :object
 
   def correct_answer
-    return nil unless history.present?
+    return nil if history.blank?
 
     object.correct_answer
   end
