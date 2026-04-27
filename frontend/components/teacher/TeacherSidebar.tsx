@@ -30,7 +30,7 @@ const navItems = [
   },
   {
     label: "教員管理",
-    href: "/teacher/teachers",
+    href: "/teacher/colleagues",
     icon: <PeopleIcon fontSize="small" />,
   },
   {
