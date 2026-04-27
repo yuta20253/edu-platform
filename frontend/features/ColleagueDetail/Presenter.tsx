@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { AddressLabel, GenderLabel } from "./constants";
+import { formatAddress, GenderLabel } from "./constants";
 import { Teacher } from "./types";
 
 type Props = {
@@ -242,7 +242,7 @@ export const Presenter = ({ teacher }: Props) => {
                 住所
               </Typography>
               <Typography>
-                {teacher.address ? AddressLabel(teacher.address) : "未設定"}
+                {teacher.address ? formatAddress(teacher.address) : "未設定"}
               </Typography>
             </Grid>
           </Grid>
