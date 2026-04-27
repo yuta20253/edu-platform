@@ -154,7 +154,7 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
 
                     <TableCell>{teacher.name_kana}</TableCell>
 
-                    <TableCell>{teacher.grade?.display_name}</TableCell>
+                    <TableCell>{teacher.grade.display_name}</TableCell>
 
                     <TableCell align="center">
                       <Chip
