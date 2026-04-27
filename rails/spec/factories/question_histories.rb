@@ -20,11 +20,17 @@
 #  updated_at         :datetime         not null
 #  task_id            :bigint           not null
 #
-class QuestionHistory < ApplicationRecord
-  belongs_to :user
-  belongs_to :course
-  belongs_to :unit
-  belongs_to :question
-  belongs_to :task
-  belongs_to :question_choice
+FactoryBot.define do
+  factory :question_history do
+    association :user
+    association :task
+    association :unit
+    association :question
+    association :question_choice
+
+    is_correct { false }
+    explanation_viewed { false }
+    time_spent_sec { 30 }
+    answer_text { 'A' }
+  end
 end
