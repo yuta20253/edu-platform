@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { Presenter } from "./Presenter";
 import { useColleagueDetail } from "./hooks";
 
@@ -9,9 +9,9 @@ type Props = {
 };
 
 export const ColleagueDetail = ({ colleagueId }: Props) => {
-  const { teacher } = useColleagueDetail(colleagueId);
+  const { teacher, loading, error } = useColleagueDetail(colleagueId);
 
-  if (!teacher) {
+  if (loading) {
     return (
       <Box
         sx={{
@@ -22,6 +22,25 @@ export const ColleagueDetail = ({ colleagueId }: Props) => {
         }}
       >
         <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !teacher) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          flexDirection: "column",
+          gap: 1,
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          データの取得に失敗しました
+        </Typography>
       </Box>
     );
   }
