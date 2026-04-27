@@ -67,4 +67,54 @@ RSpec.describe Task, type: :model do
       end
     end
   end
+
+  describe 'callbacks' do
+    let!(:prefecture) do
+      create(:prefecture, name: '東京都')
+    end
+
+    let!(:high_school) do
+      create(
+        :high_school,
+        name: 'A高校',
+        prefecture: prefecture
+      )
+    end
+
+    let!(:user) do
+      create(
+        :user,
+        high_school: high_school
+      )
+    end
+
+    let!(:goal) do
+      create(
+        :goal,
+        user: user
+      )
+    end
+
+    it 'completedならcompleted_atが入る' do
+      task = create(
+        :task,
+        user: user,
+        goal: goal,
+        status: :completed
+      )
+
+      expect(task.completed_at).to be_present
+    end
+
+    it 'not_startedならcompleted_atはnil' do
+      task = create(
+        :task,
+        user: user,
+        goal: goal,
+        status: :not_started
+      )
+
+      expect(task.completed_at).to be_nil
+    end
+  end
 end
