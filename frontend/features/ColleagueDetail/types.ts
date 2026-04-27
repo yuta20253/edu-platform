@@ -1,14 +1,4 @@
-export type GenderType = "male" | "female" | "other";
-
-export type Address = {
-  postal_code: string;
-  city: string;
-  town: string;
-  prefecture: {
-    id: number;
-    name: string;
-  };
-};
+import { GenderType } from "@/types/common/gender";
 
 export type Teacher = {
   id: number;

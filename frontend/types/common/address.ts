@@ -1,5 +1,3 @@
-export type GenderType = "male" | "female" | "other";
-
 export type Address = {
   postal_code: string;
   city: string;

@@ -1,4 +1,5 @@
-import { Address, GenderType } from "./types";
+import { Address } from "@/types/common/address";
+import { GenderType } from "@/types/common/gender";
 
 export const GenderLabel: Record<GenderType, string> = {
   male: "男",
