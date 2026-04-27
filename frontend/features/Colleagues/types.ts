@@ -9,7 +9,7 @@ export type Teacher = {
   id: number;
   name: string;
   name_kana: string;
-  grade: {
+  grade?: {
     year: number;
     display_name: string;
   };
