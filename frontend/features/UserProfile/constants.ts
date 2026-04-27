@@ -7,7 +7,7 @@ export const GenderLabel: Record<GenderType, string> = {
   other: "その他",
 };
 
-export const AddressLabel = (address: Address) => {
+export const formatAddress = (address: Address) => {
   const label = address.prefecture.name + address.city + address.town;
   return label;
 };
