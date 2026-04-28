@@ -46,7 +46,8 @@ module Teacher
           password_confirmation: password,
           user_role: teacher_role,
           grade_id: grade_id,
-          high_school: @current_user.high_school
+          high_school: @current_user.high_school,
+          password_reset_required: true
         )
 
         user.create_teacher_permission!(
