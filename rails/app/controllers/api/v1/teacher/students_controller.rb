@@ -5,7 +5,7 @@ module Api
     module Teacher
       class StudentsController < Api::V1::Teacher::BaseController
         def index
-          students = students_query.page(params[:page]).per(10)
+          students = students_query.order(:name_kana).page(params[:page]).per(10)
           render json: {
             students: ActiveModelSerializers::SerializableResource.new(
               students, each_serializer: StudentSerializer
