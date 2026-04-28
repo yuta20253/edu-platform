@@ -8,12 +8,12 @@ import { Teacher } from "./types";
 export const useColleagueDetail = (colleagueId: number) => {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<number | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
-    setError(null);
+    setError(false);
 
     apiClient
       .get<Teacher>(`/api/teacher/colleagues/${colleagueId}`)
@@ -26,7 +26,7 @@ export const useColleagueDetail = (colleagueId: number) => {
           return;
         }
 
-        setError(status ?? 500);
+        setError(true);
         setTeacher(null);
       })
       .finally(() => {
