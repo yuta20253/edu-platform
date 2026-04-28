@@ -56,8 +56,11 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
 
     context '入力値が正常な場合' do
       it '教員を新規作成できること' do
-        expect { subject }.to change(User, :count).by(1)
-                                                  .and change(TeacherPermission, :count).by(1)
+        expect {
+          subject
+        }.to change(User, :count).by(1)
+         .and change(TeacherPermission, :count).by(1)
+         .and change(TeacherGrade, :count).by(1)
 
         expect(subject).to be true
 
@@ -71,8 +74,12 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
         expect(created_user.grade_id).to eq(grade.id)
 
         expect(created_user.teacher_permission).to be_present
-        expect(created_user.teacher_permission).to be_all_grades
+        expect(created_user.teacher_permission.all_grades?).to be true
         expect(created_user.teacher_permission.manage_other_teachers).to be(false)
+
+        expect(created_user.teacher_grades.count).to eq(1)
+        expect(created_user.teacher_grades.first.grade_id).to eq(grade.id)
+        expect(created_user.teacher_grades.first.user_id).to eq(created_user.id)
       end
     end
 
