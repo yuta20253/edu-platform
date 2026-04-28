@@ -20,7 +20,11 @@ module Student
     def task
       return @task if defined?(@task)
 
-      @task = @user.tasks.find_by(id: @task_id)
+      if defined?(@task)
+        @task
+      else
+        @task = @user.tasks.find_by(id: @task_id)
+      end
     end
 
     def question_histories

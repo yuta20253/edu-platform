@@ -5,17 +5,10 @@ module Api
     module Student
       class SubmissionsController < Api::V1::Student::BaseController
         def update
-          status = ::Student::TaskCompletionService.new(
+          status = ::Student::SubmissionService.new(
             user: current_user,
             task_id: params[:task_id]
           ).call
-
-          ::Student::TaskStatusUpdaterService.new(
-            user: current_user,
-            task_id: params[:task_id],
-            status: status
-          ).call
-
           render json: { status: status }, status: :ok
         end
       end
