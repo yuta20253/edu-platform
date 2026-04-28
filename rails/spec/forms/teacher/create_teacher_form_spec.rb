@@ -56,11 +56,11 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
 
     context '入力値が正常な場合' do
       it '教員を新規作成できること' do
-        expect {
+        expect do
           subject
-        }.to change(User, :count).by(1)
-         .and change(TeacherPermission, :count).by(1)
-         .and change(TeacherGrade, :count).by(1)
+        end.to change(User, :count).by(1)
+                                   .and change(TeacherPermission, :count).by(1)
+                                                                         .and change(TeacherGrade, :count).by(1)
 
         expect(subject).to be true
 
