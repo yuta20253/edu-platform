@@ -5,8 +5,8 @@ import { useColleagues } from "./hooks";
 import { Presenter } from "./Presenter";
 
 export const Colleagues = () => {
-  const { data, page, setPage } = useColleagues();
-  if (!data) {
+  const { data, page, loading, setPage } = useColleagues();
+  if (loading || !data) {
     return (
       <Box
         sx={{
