@@ -19,6 +19,9 @@ module Student
     validates :unit_id, presence: true
     validates :question_id, presence: true
     validates :question_choice_id, presence: true
+
+    validate :validate_question_choice_relation
+
     validates :is_correct, inclusion: { in: [true, false] }
     validates :explanation_viewed, inclusion: { in: [true, false] }
 
@@ -48,6 +51,21 @@ module Student
       )
 
       true
+    end
+
+    private
+
+    def validate_question_choice_relation
+      return false if question_choice_id.blank? || question_id.blank?
+
+      exists = QuestionChoice.exists?(
+        id: question_choice_id,
+        question_id: question_id
+      )
+
+      return if exists
+
+      errors.add(:question_choice_id, 'はこの問題の選択肢ではありません')
     end
   end
 end
