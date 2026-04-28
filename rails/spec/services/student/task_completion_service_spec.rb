@@ -135,8 +135,8 @@ RSpec.describe Student::TaskCompletionService, type: :model do
         )
       end
 
-      it 'not_startedを返す' do
-        expect(service.call).to eq(:not_started)
+      it 'RecordNotFoundになる' do
+        expect { service.call }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 

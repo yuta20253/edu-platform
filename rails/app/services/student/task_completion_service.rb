@@ -8,7 +8,6 @@ module Student
     end
 
     def call
-      return :not_started unless task
       return :completed if all_answered?
       return :in_progress if answered_count.positive?
 
@@ -18,13 +17,7 @@ module Student
     private
 
     def task
-      return @task if defined?(@task)
-
-      if defined?(@task)
-        @task
-      else
-        @task = @user.tasks.find_by(id: @task_id)
-      end
+      @task ||= @user.tasks.find(@task_id)
     end
 
     def question_histories
