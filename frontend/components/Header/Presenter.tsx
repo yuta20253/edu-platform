@@ -30,8 +30,11 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
   };
 
   const handleLogout = async () => {
+    handleClose();
+
     await apiClient.post("/api/auth/logout");
     router.push("/login");
+    router.refresh();
   };
 
   return (
