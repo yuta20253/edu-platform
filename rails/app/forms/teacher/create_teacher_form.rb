@@ -53,6 +53,8 @@ module Teacher
           grade_scope: grade_scope,
           manage_other_teachers: manage_other_teachers
         )
+
+        user.teacher_grades.create!(user_id: user.id, grade_id: grade_id)
         true
       end
     rescue ActiveRecord::RecordInvalid => e
