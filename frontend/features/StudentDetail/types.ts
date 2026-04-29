@@ -4,7 +4,7 @@ export type Student = {
   name_kana: string;
   email: string;
   profile_completed: boolean;
-  user_personal_info: {
+  user_personal_info?: {
     id: number;
     phone_number: string;
     birthday: string;
@@ -13,7 +13,7 @@ export type Student = {
   high_school: {
     name: string;
   };
-  address: {
+  address?: {
     id: number;
     postal_code: string;
     city: string;

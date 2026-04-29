@@ -20,13 +20,15 @@ type Props = {
 
 export const Presenter = ({ student }: Props) => {
   const genderLabel =
-    student.user_personal_info.gender === "male"
+    student.user_personal_info?.gender === "male"
       ? "男性"
-      : student.user_personal_info.gender === "female"
+      : student.user_personal_info?.gender === "female"
         ? "女性"
         : "未設定";
 
-  const addressText = `${student.address.prefecture.name}${student.address.city}${student.address.town}`;
+  const addressText = student.address
+    ? `〒${student.address.postal_code} ${student.address.prefecture.name}${student.address.city}${student.address.town}`
+    : "未設定";
 
   return (
     <Box sx={{ p: 3 }}>
@@ -205,7 +207,7 @@ export const Presenter = ({ student }: Props) => {
               </Typography>
 
               <Typography variant="body1">
-                {student.user_personal_info.birthday}
+                {student.user_personal_info?.birthday || "未設定"}
               </Typography>
             </Grid>
 
@@ -237,7 +239,7 @@ export const Presenter = ({ student }: Props) => {
               </Typography>
 
               <Typography variant="body1">
-                {student.user_personal_info.phone_number || "未設定"}
+                {student.user_personal_info?.phone_number || "未設定"}
               </Typography>
             </Grid>
 
@@ -253,9 +255,7 @@ export const Presenter = ({ student }: Props) => {
                 住所
               </Typography>
 
-              <Typography variant="body1">
-                〒{student.address.postal_code} {addressText}
-              </Typography>
+              <Typography variant="body1">{addressText}</Typography>
             </Grid>
           </Grid>
         </CardContent>
