@@ -105,14 +105,8 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
 
       expect(response).to have_http_status(:ok)
 
-      puts "=== STATUS === #{response.status}"
-      puts "=== BODY ==="
-      puts response.body
-      puts "=== PARSED ==="
-      pp response.parsed_body
-
       json = response.parsed_body
-      names = json.pluck('name')
+      names = json['teachers'].pluck('name')
 
       expect(names).to include(login_teacher.name)
       expect(names).to include('同校 教員')
