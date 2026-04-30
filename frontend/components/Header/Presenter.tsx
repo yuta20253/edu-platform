@@ -5,12 +5,13 @@ import { AppBar } from "@mui/material";
 import { Box, Button } from "@mui/material";
 import ToolBar from "@mui/material/Toolbar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { JSX } from "react";
 import { MeUser } from "@/types/common/me";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
+import { apiClient } from "@/libs/http/apiClient";
 
 export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const router = useRouter();
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(e.currentTarget);
@@ -25,6 +27,14 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleClose();
+
+    await apiClient.post("/api/auth/logout");
+    router.push("/login");
+    router.refresh();
   };
 
   return (
@@ -82,7 +92,7 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
                 >
                   ユーザー情報
                 </MenuItem>
-                <MenuItem>ログアウト</MenuItem>
+                <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
               </Menu>
             </Box>
           ) : (

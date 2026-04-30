@@ -1,14 +1,14 @@
 import { Box, Button, Divider, Typography } from "@mui/material";
-import { GenderType } from "./types";
 import { MeUser } from "@/types/common/me";
-import { AddressLabel, GenderLabel } from "./constants";
+import { formatAddress, GenderLabel } from "./constants";
+import { GenderType } from "@/types/common/gender";
 
 type Props = {
   user: MeUser;
 };
 
 export const Presenter = ({ user }: Props) => {
-  const addressLabel = user.address ? AddressLabel(user.address) : undefined;
+  const addressLabel = user.address ? formatAddress(user.address) : undefined;
 
   return (
     <Box sx={{ px: 2, py: 4, bgcolor: "#f8fafc", minHeight: "100vh" }}>
