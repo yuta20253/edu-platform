@@ -24,4 +24,10 @@ class TeacherNotification < ApplicationRecord
   }
 
   validates :email, presence: true
+
+  scope :sent_on, lambda { |date|
+    return all if date.blank?
+
+    where(sent_at: date.to_date.all_day)
+  }
 end
