@@ -195,7 +195,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
       it '権限エラーになること' do
         subject
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:forbidden)
 
         json = response.parsed_body
 

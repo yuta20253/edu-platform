@@ -15,7 +15,10 @@ module Api
         end
 
         def create
-          return render json: { errors: '他職員操作権限がありません' } unless current_user.teacher_permission.manage_other_teachers
+          unless current_user.teacher_permission.manage_other_teachers
+            return render json: { errors: '他職員操作権限がありません' },
+                          status: :forbidden
+          end
 
           form = ::Teacher::CreateTeacherForm.new(current_user: current_user,
                                                   **create_teacher_params.to_h.symbolize_keys)
