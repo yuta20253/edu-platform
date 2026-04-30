@@ -7,7 +7,9 @@ module Api
         def index
           unsent_teachers = base_teachers_scope
 
-          render json: unsent_teachers
+          render json: unsent_teachers,
+                 each_serializer: ::Teacher::UnsentTeacherSerializer,
+                 status: :ok
         end
 
         def create
