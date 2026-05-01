@@ -41,12 +41,7 @@ export const Presenter = ({ goal }: Props) => {
       </Typography>
 
       <Box sx={{ textAlign: "start", mb: 3 }}>
-        <Button
-          component={Link}
-          href="/student/goals"
-          variant="outlined"
-          size="small"
-        >
+        <Button component={Link} href="/goals" variant="outlined" size="small">
           一覧へ戻る
         </Button>
       </Box>
@@ -110,11 +105,29 @@ export const Presenter = ({ goal }: Props) => {
               </Typography>
             </Box>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 1 }} />
 
-            <Typography sx={{ lineHeight: 1.7 }}>
+            <Typography
+              sx={{
+                lineHeight: 1.7,
+                p: 2,
+                mt: 1,
+                borderRadius: 2,
+                border: `1px solid ${colors.border.default}`,
+              }}
+            >
               {goal.description || "説明はありません"}
             </Typography>
+            <Box sx={{ textAlign: "end", mt: 3 }}>
+              <Button
+                component={Link}
+                href={`/goals/${goal.id}/edit`}
+                variant="outlined"
+                size="small"
+              >
+                編集
+              </Button>
+            </Box>
           </CardContent>
         </Card>
       </Box>
@@ -132,6 +145,8 @@ export const Presenter = ({ goal }: Props) => {
             return (
               <Card
                 key={task.id}
+                component={Link}
+                href={`/goals/${goal.id}/tasks/${task.id}`}
                 sx={{
                   width: "min(720px, 90vw)",
                   borderRadius: 3,
