@@ -10,7 +10,7 @@ import type { Goal } from "./types";
 import { calcProgress } from "./utils/calcProgress";
 import { colors } from "@/app/theme/colors";
 import { GoalStatus } from "@/types/goals/status";
-import { statusLabel } from "@/constants/goals";
+import { statusLabel } from "@/constants/status";
 
 type Props = {
   data: Goal[];

@@ -1,7 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { statusLabel } from "@/constants/goals";
+import { statusLabel } from "@/constants/status";
 import { GoalType } from "@/libs/server/studentDashboard";
 import { GoalStatus } from "@/types/goals/status";
 import { Box, Typography } from "@mui/material";
