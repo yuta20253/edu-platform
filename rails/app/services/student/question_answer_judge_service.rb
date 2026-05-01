@@ -11,8 +11,8 @@ module Student
       prepare_context
       {
         selected_answer: @choice,
-        correct_answer: @correct_answer,
-        is_correct: @choice.to_s == @correct_answer
+        correct_answer: @correct_answer.to_i,
+        is_correct: @choice == @correct_answer.to_i
       }
     end
 
