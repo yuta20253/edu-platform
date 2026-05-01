@@ -8,20 +8,18 @@ module Student
     end
 
     def call
-      ActiveRecord::Base.transaction do
-        status = ::Student::TaskCompletionService.new(
-          user: @user,
-          task_id: @task_id
-        ).call
+      status = ::Student::TaskCompletionService.new(
+        user: @user,
+        task_id: @task_id
+      ).call
 
-        ::Student::TaskStatusUpdaterService.new(
-          user: @user,
-          task_id: @task_id,
-          status: status
-        ).call
+      ::Student::TaskStatusUpdaterService.new(
+        user: @user,
+        task_id: @task_id,
+        status: status
+      ).call
 
-        status
-      end
+      status
     end
   end
 end
