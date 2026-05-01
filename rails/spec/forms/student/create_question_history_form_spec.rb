@@ -21,7 +21,7 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
   let!(:unit) { create(:unit, course: course) }
   let!(:task_unit) { create(:task_unit, task: task, unit: unit) }
 
-  let!(:question) { create(:question, unit: unit) }
+  let!(:question) { create(:question, unit: unit, correct_answer: 1) }
   let!(:question_choice) do
     create(:question_choice, question: question, choice_number: 1)
   end
@@ -34,7 +34,6 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
       question_choice_id: question_choice.id,
       answer_text: 'テスト回答',
       time_spent_sec: 25,
-      is_correct: true,
       explanation_viewed: false
     }
   end
@@ -46,8 +45,13 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
           .to change(QuestionHistory, :count).by(1)
       end
 
-      it 'trueを返す' do
-        expect(form.save).to be true
+      it '判定結果(Hash)を返す' do
+        result = form.save
+
+        expect(result).to be_a(Hash)
+        expect(result[:is_correct]).to be true
+        expect(result[:selected_answer]).to eq(1)
+        expect(result[:correct_answer]).to eq(1)
       end
 
       it '回答履歴が正しく保存される' do
@@ -74,6 +78,11 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
 
       it 'falseを返す' do
         expect(form.save).to be false
+      end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:task_id]).to be_present
       end
 
       it '作成されない' do
@@ -106,19 +115,32 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
       end
     end
 
-    context '異常系 - is_correctがnil' do
-      let(:params) { super().merge(is_correct: nil) }
-
-      it 'falseを返す' do
-        expect(form.save).to be false
-      end
-    end
-
     context '異常系 - explanation_viewedがnil' do
       let(:params) { super().merge(explanation_viewed: nil) }
 
       it 'falseを返す' do
         expect(form.save).to be false
+      end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:explanation_viewed]).to be_present
+      end
+    end
+
+    context '異常系 - 選択肢が問題に紐づかない' do
+      let!(:other_question) { create(:question, unit: unit) }
+      let!(:other_choice) { create(:question_choice, question: other_question) }
+
+      let(:params) { super().merge(question_choice_id: other_choice.id) }
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:question_choice_id]).to be_present
       end
     end
 
@@ -132,6 +154,11 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
       it 'falseを返す' do
         expect(form.save).to be false
       end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:task_id]).to be_present
+      end
     end
 
     context '異常系 - taskに紐づかないunit' do
@@ -142,15 +169,48 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
       it 'falseを返す' do
         expect(form.save).to be false
       end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:unit_id]).to be_present
+      end
     end
 
     context '異常系 - unitに紐づかないquestion' do
-      let!(:other_question) { create(:question, unit: create(:unit, course: course)) }
+      let!(:other_unit) { create(:unit, course: course) }
 
-      let(:params) { super().merge(question_id: other_question.id) }
+      let!(:other_question) do
+        create(:question, unit: other_unit, correct_answer: 1)
+      end
+
+      let!(:other_choice) do
+        create(:question_choice, question: other_question, choice_number: 1)
+      end
+
+      let(:params) do
+        {
+          task_id: task.id,
+          unit_id: unit.id,
+          question_id: other_question.id,
+          question_choice_id: other_choice.id,
+          answer_text: 'テスト回答',
+          time_spent_sec: 25,
+          explanation_viewed: false
+        }
+      end
 
       it 'falseを返す' do
         expect(form.save).to be false
+      end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:question_id]).to be_present
+      end
+
+      it '作成されない' do
+        expect { form.save }
+          .not_to change(QuestionHistory, :count)
       end
     end
   end

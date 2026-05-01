@@ -9,6 +9,7 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
       'Accept' => 'application/json'
     }
   end
+
   let!(:prefecture) { create(:prefecture, name: '東京都') }
   let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
   let!(:user) { create(:user, high_school: high_school) }
@@ -36,16 +37,23 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
         question_choice_id: 1,
         answer_text: 'A',
         time_spent_sec: 30,
-        is_correct: true,
         explanation_viewed: false
       }
     end
 
     context '正常系' do
+      let(:result_hash) do
+        {
+          'selected_answer' => 1,
+          'correct_answer' => 1,
+          'is_correct' => true
+        }
+      end
+
       let(:form) do
         instance_double(
           Student::CreateQuestionHistoryForm,
-          save: true
+          save: result_hash
         )
       end
 
@@ -63,13 +71,16 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
         expect(response).to have_http_status(:created)
       end
 
-      it '成功メッセージが返る' do
+      it '判定結果が返る' do
         post "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/answers",
              params: params.to_json,
              headers: headers.merge('Cookie' => cookie)
 
-        expect(response.parsed_body['message'])
-          .to eq('解答結果の保存に成功しました')
+        body = response.parsed_body
+
+        expect(body['is_correct']).to be(true)
+        expect(body['selected_answer']).to eq(1)
+        expect(body['correct_answer']).to eq(1)
       end
 
       it 'Form object が正しい引数で呼ばれる' do
@@ -87,7 +98,6 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
             question_choice_id: 1,
             answer_text: 'A',
             time_spent_sec: 30,
-            is_correct: true,
             explanation_viewed: false
           )
       end
@@ -141,7 +151,7 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
     end
   end
 
-  describe 'PATCH /api/v1/student/tasks/:task_id/units/:unit_id/answers/update' do
+  describe 'PATCH /api/v1/student/tasks/:task_id/units/:unit_id/answers' do
     let(:cookie) { login_and_get_cookie(user) }
 
     let(:params) do
@@ -152,16 +162,23 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
         question_choice_id: 2,
         answer_text: 'B',
         time_spent_sec: 45,
-        is_correct: false,
         explanation_viewed: true
       }
     end
 
     context '正常系' do
+      let(:result_hash) do
+        {
+          'selected_answer' => 2,
+          'correct_answer' => 2,
+          'is_correct' => true
+        }
+      end
+
       let(:form) do
         instance_double(
           Student::UpdateQuestionHistoryForm,
-          save: true
+          save: result_hash
         )
       end
 
@@ -179,13 +196,16 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it '成功メッセージが返る' do
+      it '判定結果が返る' do
         patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/answers",
               params: params.to_json,
               headers: headers.merge('Cookie' => cookie)
 
-        expect(response.parsed_body['message'])
-          .to eq('解答結果の更新に成功しました')
+        body = response.parsed_body
+
+        expect(body['is_correct']).to be(true)
+        expect(body['selected_answer']).to eq(2)
+        expect(body['correct_answer']).to eq(2)
       end
 
       it 'Form object が正しい引数で呼ばれる' do
@@ -203,7 +223,6 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
             question_choice_id: 2,
             answer_text: 'B',
             time_spent_sec: 45,
-            is_correct: false,
             explanation_viewed: true
           )
       end

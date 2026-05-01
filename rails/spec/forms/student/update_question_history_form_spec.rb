@@ -21,7 +21,7 @@ RSpec.describe Student::UpdateQuestionHistoryForm, type: :model do
   let!(:unit) { create(:unit, course: course) }
   let!(:task_unit) { create(:task_unit, task: task, unit: unit) }
 
-  let!(:question) { create(:question, unit: unit) }
+  let!(:question) { create(:question, unit: unit, correct_answer: 2) }
 
   let!(:choice_one) do
     create(:question_choice, question: question, choice_number: 1)
@@ -56,20 +56,22 @@ RSpec.describe Student::UpdateQuestionHistoryForm, type: :model do
       question_choice_id: choice_two.id,
       answer_text: '更新後',
       time_spent_sec: 35,
-      is_correct: true,
       explanation_viewed: true
     }
   end
 
   describe '#save' do
     context '正常系' do
-      it 'trueを返す' do
-        expect(form.save).to be true
+      it '判定結果(Hash)を返す' do
+        result = form.save
+
+        expect(result).to be_a(Hash)
+        expect(result[:is_correct]).to be true
+        expect(result[:selected_answer]).to eq(2)
+        expect(result[:correct_answer]).to eq(2)
       end
 
       it 'QuestionHistoryの件数は増えない' do
-        question_history
-
         expect { form.save }
           .not_to change(QuestionHistory, :count)
       end
@@ -122,14 +124,6 @@ RSpec.describe Student::UpdateQuestionHistoryForm, type: :model do
       end
     end
 
-    context '異常系 - is_correctがnil' do
-      let(:params) { super().merge(is_correct: nil) }
-
-      it 'falseを返す' do
-        expect(form.save).to be false
-      end
-    end
-
     context '異常系 - explanation_viewedがnil' do
       let(:params) { super().merge(explanation_viewed: nil) }
 
@@ -149,7 +143,6 @@ RSpec.describe Student::UpdateQuestionHistoryForm, type: :model do
 
       it 'errorsにメッセージが入る' do
         form.save
-
         expect(form.errors[:base]).to include('解答履歴が見つかりません')
       end
     end
