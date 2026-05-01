@@ -6,10 +6,12 @@ module Api
       class AnswersController < Api::V1::Student::BaseController
         def create
           form = ::Student::CreateQuestionHistoryForm.new(current_user: current_user,
-                                                          **create_question_history_params.to_h.symbolize_keys)
+                                                          **answer_params.to_h.symbolize_keys)
 
-          if form.save
-            render json: { message: '解答結果の保存に成功しました' }, status: :created
+          result = form.save
+
+          if result
+            render json: result, status: :created
           else
             render json: { errors: form.errors }, status: :unprocessable_content
           end
@@ -17,10 +19,12 @@ module Api
 
         def update
           form = ::Student::UpdateQuestionHistoryForm.new(current_user: current_user,
-                                                          **update_question_history_params.to_h.symbolize_keys)
+                                                          **answer_params.to_h.symbolize_keys)
 
-          if form.save
-            render json: { message: '解答結果の更新に成功しました' }, status: :ok
+          result = form.save
+
+          if result
+            render json: result, status: :ok
           else
             render json: { errors: form.errors }, status: :unprocessable_content
           end
@@ -28,14 +32,9 @@ module Api
 
         private
 
-        def create_question_history_params
+        def answer_params
           params.permit(:task_id, :unit_id, :question_id, :question_choice_id, :answer_text, :time_spent_sec,
-                        :is_correct, :explanation_viewed)
-        end
-
-        def update_question_history_params
-          params.permit(:task_id, :unit_id, :question_id, :question_choice_id, :answer_text, :time_spent_sec,
-                        :is_correct, :explanation_viewed)
+                        :explanation_viewed)
         end
       end
     end

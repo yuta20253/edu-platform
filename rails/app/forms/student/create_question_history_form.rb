@@ -12,7 +12,6 @@ module Student
     attribute :question_choice_id, :integer
     attribute :answer_text, :string
     attribute :time_spent_sec, :integer
-    attribute :is_correct, :boolean
     attribute :explanation_viewed, :boolean
 
     validates :task_id, presence: true
@@ -22,7 +21,6 @@ module Student
 
     validate :validate_question_choice_relation
 
-    validates :is_correct, inclusion: { in: [true, false] }
     validates :explanation_viewed, inclusion: { in: [true, false] }
 
     def initialize(current_user:, **attributes)
@@ -35,6 +33,11 @@ module Student
 
       return false unless prepare_context
 
+      result = ::Student::QuestionAnswerJudgeService.new(
+        question: @question,
+        question_choice_id: question_choice_id
+      ).call
+
       QuestionHistory.create!(
         user: @current_user,
         task: @task,
@@ -44,33 +47,36 @@ module Student
         question_choice_id: question_choice_id,
         answer_text: answer_text,
         time_spent_sec: time_spent_sec,
-        is_correct: is_correct,
+        is_correct: result[:is_correct],
         explanation_viewed: explanation_viewed,
         answered_at: Time.current
       )
 
-      true
+      result
+    rescue ActiveRecord::RecordInvalid => e
+      errors.add(:base, e.message)
+      false
     end
 
     private
 
     def prepare_context
       @task = @current_user.tasks.find_by(id: task_id)
-      return false unless @task
+      return errors.add(:task_id, 'が不正です') && false unless @task
 
       @unit = @task.units.find_by(id: unit_id)
-      return false unless @unit
+      return errors.add(:unit_id, 'が不正です') && false unless @unit
 
       @course = @unit.course
 
       @question = @unit.questions.find_by(id: question_id)
-      return false unless @question
+      return errors.add(:question_id, 'が不正です') && false unless @question
 
       true
     end
 
     def validate_question_choice_relation
-      return false if question_choice_id.blank? || question_id.blank?
+      return if question_choice_id.blank? || question_id.blank?
 
       exists = QuestionChoice.exists?(
         id: question_choice_id,
