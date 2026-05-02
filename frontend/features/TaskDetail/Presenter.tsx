@@ -48,13 +48,8 @@ export const Presenter = ({ task, goalId }: Props) => {
     >
       <Typography
         variant="h4"
-        sx={{
-          fontWeight: "bold",
-          mt: 2,
-          mb: 4,
-          textAlign: "center",
-          letterSpacing: 1,
-        }}
+        component="p"
+        sx={{ fontWeight: "bold", my: 4, textAlign: "center" }}
       >
         タスク詳細
       </Typography>
