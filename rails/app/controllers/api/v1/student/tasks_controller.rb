@@ -10,7 +10,7 @@ module Api
                   .by_status(params[:status])
                   .order(due_date: :asc)
                   .page(params[:page])
-                  .per(10)
+                  .per(5)
 
           render json: {
             tasks:
@@ -22,7 +22,7 @@ module Api
               current_page: tasks.current_page,
               total_pages: tasks.total_pages,
               total_count: tasks.total_count,
-              per_page: 10
+              per_page: 5
             }
           }, status: :ok
         end
