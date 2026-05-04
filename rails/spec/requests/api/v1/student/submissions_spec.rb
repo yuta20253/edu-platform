@@ -21,7 +21,7 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
     response.headers['Set-Cookie']&.split(';')&.first
   end
 
-  describe 'PATCH /api/v1/student/tasks/:task_id/units/:unit_id/submission' do
+  describe 'PATCH /api/v1/student/tasks/:task_id/submission' do
     let!(:prefecture) { create(:prefecture, name: '東京都') }
     let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
 
@@ -29,9 +29,7 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
     let!(:goal) { create(:goal, user: user) }
     let!(:task) { create(:task, user: user, goal: goal) }
 
-    let!(:course) { create(:course) }
-    let!(:unit) { create(:unit, course: course) }
-    let!(:task_unit) { create(:task_unit, task: task, unit: unit) }
+    let(:path) { "/api/v1/student/tasks/#{task.id}/submission" }
 
     context '正常系' do
       let(:cookie) { login_and_get_cookie(user) }
@@ -55,24 +53,19 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
       end
 
       it 'ステータス200が返る' do
-        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/submission",
-              headers: headers.merge('Cookie' => cookie)
-
+        patch path, headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:ok)
       end
 
       it 'statusが返る' do
-        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/submission",
-              headers: headers.merge('Cookie' => cookie)
-
+        patch path, headers: headers.merge('Cookie' => cookie)
         json = response.parsed_body
 
         expect(json['status']).to eq('completed')
       end
 
       it 'TaskCompletionServiceが呼ばれる' do
-        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/submission",
-              headers: headers.merge('Cookie' => cookie)
+        patch path, headers: headers.merge('Cookie' => cookie)
 
         expect(Student::TaskCompletionService)
           .to have_received(:new)
@@ -85,8 +78,7 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
       end
 
       it 'TaskStatusUpdaterServiceが呼ばれる' do
-        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/submission",
-              headers: headers.merge('Cookie' => cookie)
+        patch path, headers: headers.merge('Cookie' => cookie)
 
         expect(Student::TaskStatusUpdaterService)
           .to have_received(:new)
@@ -102,9 +94,7 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
 
     context '異常系 - 未認証アクセス' do
       it '401が返る' do
-        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/submission",
-              headers: headers
-
+        patch path, headers: headers
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -114,9 +104,7 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
       let(:cookie) { login_and_get_cookie(teacher) }
 
       it '403が返る' do
-        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/submission",
-              headers: headers.merge('Cookie' => cookie)
-
+        patch path, headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -126,16 +114,11 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
       let!(:other_goal) { create(:goal, user: other_user) }
       let!(:other_task) { create(:task, user: other_user, goal: other_goal) }
 
-      let!(:other_task_unit) do
-        create(:task_unit, task: other_task, unit: unit)
-      end
-
       let(:cookie) { login_and_get_cookie(user) }
+      let(:other_path) { "/api/v1/student/tasks/#{other_task.id}/submission" }
 
       it '404が返る' do
-        patch "/api/v1/student/tasks/#{other_task.id}/units/#{unit.id}/submission",
-              headers: headers.merge('Cookie' => cookie)
-
+        patch other_path, headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:not_found)
       end
     end

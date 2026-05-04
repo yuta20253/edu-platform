@@ -8,6 +8,8 @@ module Student
     end
 
     def call
+      return :completed if task.completed?
+
       return :completed if all_answered?
       return :in_progress if answered_count.positive?
 
@@ -33,11 +35,16 @@ module Student
     end
 
     def total_questions_count
-      @total_questions_count ||= Question.where(unit_id: unit_ids).count
+      @total_questions_count ||= Question.where(unit_id: unit_ids, deleted_at: nil).count
     end
 
     def answered_count
-      @answered_count ||= question_histories.select(:question_id).distinct.count
+      @answered_count ||= question_histories
+                          .joins(:question)
+                          .where(questions: { deleted_at: nil })
+                          .select(:question_id)
+                          .distinct
+                          .count
     end
   end
 end
