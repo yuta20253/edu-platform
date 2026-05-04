@@ -7,6 +7,10 @@ module Api
         def index
           teacher_notifications = TeacherNotification
                                   .includes(:sender_user, :receiver_user)
+                                  .joins(:sender_user)
+                                  .where(
+                                    users: { high_school_id: current_user.high_school_id }
+                                  )
                                   .sent_on(params[:sent_at])
                                   .order(sent_at: :desc)
 
