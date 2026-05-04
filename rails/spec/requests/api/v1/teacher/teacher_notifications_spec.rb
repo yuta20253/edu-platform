@@ -9,6 +9,22 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       'Accept' => 'application/json'
     }
   end
+  let!(:teacher_role) { create(:user_role, name: :teacher) }
+  let!(:high_school) { create(:high_school) }
+  let!(:login_teacher) do
+    create(
+      :user,
+      user_role: teacher_role,
+      high_school: high_school
+    )
+  end
+  let!(:teacher_permission) do
+    create(
+      :teacher_permission,
+      user: login_teacher,
+      manage_other_teachers: true
+    )
+  end
   let!(:pending_teacher1) do
     create(
       :user,
@@ -36,28 +52,7 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       name: '送信済み教員'
     )
   end
-
   let(:cookie) { login_and_get_cookie(login_teacher) }
-
-  let!(:teacher_role) { create(:user_role, name: :teacher) }
-
-  let!(:high_school) { create(:high_school) }
-
-  let!(:login_teacher) do
-    create(
-      :user,
-      user_role: teacher_role,
-      high_school: high_school
-    )
-  end
-
-  let!(:teacher_permission) do
-    create(
-      :teacher_permission,
-      user: login_teacher,
-      manage_other_teachers: true
-    )
-  end
 
   def login_and_get_cookie(user)
     post '/api/v1/user/login',
@@ -103,18 +98,35 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       }
     end
 
+    let(:service) do
+      instance_double(Teacher::TeacherNotificationSenderService, call: true)
+    end
+
+    before do
+      allow(Teacher::TeacherNotificationSenderService)
+        .to receive(:new)
+        .and_return(service)
+    end
+
     context '正常系：存在する未送信教員を指定した場合' do
       let(:teacher_ids) { [pending_teacher1.id, pending_teacher2.id] }
 
       it '送信処理が開始されること' do
-        expect do
-          subject
-        end.not_to raise_error
+        subject
 
         expect(response).to have_http_status(:accepted)
 
         json = response.parsed_body
         expect(json['message']).to eq('送信処理を開始しました')
+
+        expect(Teacher::TeacherNotificationSenderService)
+          .to have_received(:new)
+          .with(
+            user: login_teacher,
+            teacher_ids: [pending_teacher1.id, pending_teacher2.id]
+          )
+
+        expect(service).to have_received(:call)
       end
     end
 
@@ -126,41 +138,102 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
 
         expect(response).to have_http_status(:accepted)
 
-        json = response.parsed_body
-        expect(json['message']).to eq('送信処理を開始しました')
+        expect(Teacher::TeacherNotificationSenderService)
+          .to have_received(:new)
+          .with(
+            user: login_teacher,
+            teacher_ids: [pending_teacher1.id]
+          )
+
+        expect(service).to have_received(:call)
       end
     end
 
     context '全て無効なIDの場合' do
       let(:teacher_ids) { [999_999, 888_888] }
 
-      it 'エラーにならず空で処理されること' do
+      it '空配列で処理されること' do
         subject
 
         expect(response).to have_http_status(:accepted)
 
-        json = response.parsed_body
-        expect(json['message']).to eq('送信処理を開始しました')
+        expect(Teacher::TeacherNotificationSenderService)
+          .to have_received(:new)
+          .with(
+            user: login_teacher,
+            teacher_ids: []
+          )
+
+        expect(service).to have_received(:call)
       end
     end
 
     context 'teacher_idsが空の場合' do
       let(:teacher_ids) { [] }
 
-      it '処理は実行されること' do
+      it '空配列で処理されること' do
         subject
 
         expect(response).to have_http_status(:accepted)
+
+        expect(Teacher::TeacherNotificationSenderService)
+          .to have_received(:new)
+          .with(
+            user: login_teacher,
+            teacher_ids: []
+          )
+
+        expect(service).to have_received(:call)
       end
     end
 
     context 'teacher_idsが未指定の場合' do
       let(:params) { {} }
 
-      it 'エラーにならず処理されること' do
+      it '空配列として処理されること' do
         subject
 
         expect(response).to have_http_status(:accepted)
+
+        expect(Teacher::TeacherNotificationSenderService)
+          .to have_received(:new)
+          .with(
+            user: login_teacher,
+            teacher_ids: []
+          )
+
+        expect(service).to have_received(:call)
+      end
+    end
+
+    context '他校の教員IDを含む場合' do
+      let!(:other_high_school) { create(:high_school) }
+
+      let!(:other_teacher) do
+        create(
+          :user,
+          :invitation_pending,
+          user_role: teacher_role,
+          high_school: other_high_school,
+          name: '他校教員'
+        )
+      end
+
+      let(:teacher_ids) { [pending_teacher1.id, other_teacher.id] }
+
+      it '他校の教員は送信対象に含まれないこと' do
+        subject
+
+        expect(response).to have_http_status(:accepted)
+
+        expect(Teacher::TeacherNotificationSenderService)
+          .to have_received(:new)
+          .with(
+            user: login_teacher,
+            teacher_ids: [pending_teacher1.id]
+          )
+
+        expect(service).to have_received(:call)
       end
     end
   end

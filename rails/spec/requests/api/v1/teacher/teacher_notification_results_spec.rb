@@ -9,6 +9,52 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotificationResults', type: :request do
       'Accept' => 'application/json'
     }
   end
+  let!(:teacher_role) { create(:user_role, name: :teacher) }
+  let!(:high_school) { create(:high_school) }
+  let!(:sender) do
+    create(
+      :user,
+      user_role: teacher_role,
+      high_school: high_school,
+      name: '送信者'
+    )
+  end
+  let!(:receiver) do
+    create(
+      :user,
+      user_role: teacher_role,
+      high_school: high_school,
+      name: '受信者'
+    )
+  end
+  let!(:login_teacher) do
+    create(
+      :user,
+      user_role: teacher_role,
+      high_school: high_school
+    )
+  end
+  let!(:notification1) do
+    create(
+      :teacher_notification,
+      sender_user: sender,
+      receiver_user: receiver,
+      email: receiver.email,
+      sent_at: 2.days.ago,
+      status: 'sent'
+    )
+  end
+  let!(:notification2) do
+    create(
+      :teacher_notification,
+      sender_user: sender,
+      receiver_user: receiver,
+      email: receiver.email,
+      sent_at: 1.day.ago,
+      status: 'sent'
+    )
+  end
+  let(:cookie) { login_and_get_cookie(login_teacher) }
 
   def login_and_get_cookie(user)
     post '/api/v1/user/login',
@@ -20,59 +66,6 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotificationResults', type: :request do
 
     response.headers['Set-Cookie']&.split(';')&.first
   end
-
-  let!(:teacher_role) { create(:user_role, name: :teacher) }
-  let!(:high_school) { create(:high_school) }
-
-  let!(:sender) do
-    create(
-      :user,
-      user_role: teacher_role,
-      high_school: high_school,
-      name: '送信者'
-    )
-  end
-
-  let!(:receiver) do
-    create(
-      :user,
-      user_role: teacher_role,
-      high_school: high_school,
-      name: '受信者'
-    )
-  end
-
-  let!(:login_teacher) do
-    create(
-      :user,
-      user_role: teacher_role,
-      high_school: high_school
-    )
-  end
-
-  let!(:notification1) do
-    create(
-      :teacher_notification,
-      sender_user: sender,
-      receiver_user: receiver,
-      email: receiver.email,
-      sent_at: 2.days.ago,
-      status: 'sent'
-    )
-  end
-
-  let!(:notification2) do
-    create(
-      :teacher_notification,
-      sender_user: sender,
-      receiver_user: receiver,
-      email: receiver.email,
-      sent_at: 1.day.ago,
-      status: 'sent'
-    )
-  end
-
-  let(:cookie) { login_and_get_cookie(login_teacher) }
 
   describe 'GET /api/v1/teacher/teacher_notification_results' do
     subject do
@@ -142,12 +135,12 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotificationResults', type: :request do
   end
 
   describe 'GET /api/v1/teacher/teacher_notification_results?sent_at=YYYY-MM-DD' do
-    let(:sent_at) { notification2.sent_at.to_date.to_s }
-
     subject do
       get "/api/v1/teacher/teacher_notification_results?sent_at=#{sent_at}",
           headers: headers.merge('Cookie' => cookie)
     end
+
+    let(:sent_at) { notification2.sent_at.to_date.to_s }
 
     it 'sent_atで絞り込みできること' do
       subject
