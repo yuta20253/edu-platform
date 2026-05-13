@@ -19,12 +19,9 @@ type Props = {
 };
 
 export const Presenter = ({ student }: Props) => {
+  const GENDER_LABEL: Record<string, string> = { male: "男性", female: "女性" };
   const genderLabel =
-    student.user_personal_info?.gender === "male"
-      ? "男性"
-      : student.user_personal_info?.gender === "female"
-        ? "女性"
-        : "未設定";
+    GENDER_LABEL[student.user_personal_info?.gender ?? ""] ?? "未設定";
 
   const addressText = student.address
     ? `〒${student.address.postal_code} ${student.address.prefecture.name}${student.address.city}${student.address.town}`
