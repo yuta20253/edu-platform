@@ -12,18 +12,22 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { Goal } from "./types";
-import { calcProgress } from "./utils/calcProgress";
 
 import { statusLabel } from "@/constants/status";
 import { TaskStatus } from "@/types/tasks/status";
 import { getProgressColor } from "@/libs/ui/progressColor";
+import { calcProgress } from "@/libs/domain/progress/calcProgress";
 
 type Props = {
   goal: Goal;
 };
 
 export const Presenter = ({ goal }: Props) => {
-  const progress = calcProgress(goal.tasks);
+  const progress = calcProgress(
+    (goal.tasks ?? []).map((t) => ({
+      status: t.completed_at ? "completed" : "not_started",
+    })),
+  );
   const statusColor = colors.statusUi[goal.status];
   const progressColor = getProgressColor(progress);
 

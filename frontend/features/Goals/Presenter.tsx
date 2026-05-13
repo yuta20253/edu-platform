@@ -7,11 +7,11 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import type { Goal } from "./types";
-import { calcProgress } from "./utils/calcProgress";
 import { colors } from "@/app/theme/colors";
 import { GoalStatus } from "@/types/goals/status";
 import { statusLabel } from "@/constants/status";
 import { getProgressColor } from "@/libs/ui/progressColor";
+import { calcProgress } from "@/libs/domain/progress/calcProgress";
 
 type Props = {
   data: Goal[];
