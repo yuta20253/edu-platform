@@ -24,7 +24,7 @@ type Props = {
 
 export const Presenter = ({ goal }: Props) => {
   const progress = calcProgress(goal.tasks);
-  const statusColor = colors.statusUi[goal.status as GoalStatus];
+  const statusColor = colors.statusUi[goal.status];
   const progressColor = getProgressColor(progress);
 
   return (
