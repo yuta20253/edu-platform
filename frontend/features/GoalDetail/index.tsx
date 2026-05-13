@@ -12,16 +12,18 @@ export const GoalDetail = ({ goalId }: Props) => {
   const { goal, loading, error } = useGoal(goalId);
 
   if (loading) {
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100%",
-      }}
-    >
-      <CircularProgress />
-    </Box>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error || !goal) {
