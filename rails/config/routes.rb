@@ -46,6 +46,8 @@ Rails.application.routes.draw do
       namespace :teacher do
         resources :colleagues, controller: "teachers"
         resources :students
+        resources :teacher_notifications
+        resources :teacher_notification_results
         resource :dashboard, only: :show
       end
 

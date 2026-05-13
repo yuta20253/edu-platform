@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_26_072818) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_28_083450) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -372,6 +372,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_26_072818) do
     t.index ["user_id"], name: "index_teacher_grades_on_user_id"
   end
 
+  create_table "teacher_notifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "sender_user_id", null: false
+    t.bigint "receiver_user_id", null: false
+    t.string "email", null: false
+    t.datetime "sent_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["receiver_user_id"], name: "index_teacher_notifications_on_receiver_user_id"
+    t.index ["sender_user_id"], name: "index_teacher_notifications_on_sender_user_id"
+  end
+
   create_table "teacher_permissions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.integer "grade_scope"
@@ -468,6 +480,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_26_072818) do
     t.bigint "high_school_id"
     t.bigint "address_id"
     t.bigint "grade_id"
+    t.boolean "password_reset_required", default: false, null: false
+    t.datetime "activated_at"
     t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["grade_id"], name: "index_users_on_grade_id"
@@ -523,6 +537,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_26_072818) do
   add_foreign_key "tasks", "users"
   add_foreign_key "teacher_grades", "grades"
   add_foreign_key "teacher_grades", "users"
+  add_foreign_key "teacher_notifications", "users", column: "receiver_user_id"
+  add_foreign_key "teacher_notifications", "users", column: "sender_user_id"
   add_foreign_key "teacher_permissions", "users"
   add_foreign_key "units", "courses"
   add_foreign_key "user_overall_question_stats", "users"
