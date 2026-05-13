@@ -3,27 +3,7 @@
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-type StudentType = {
-  id: number;
-  name: string;
-  name_kana: string;
-  grade: {
-    display_name: string;
-  };
-};
-
-type StudentMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
-type StudentsData = {
-  students: StudentType[];
-  meta: StudentMeta;
-};
+import { StudentsData } from "./types";
 
 export const useStudents = () => {
   const [data, setData] = useState<StudentsData | null>(null);

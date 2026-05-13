@@ -16,27 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-
-type StudentType = {
-  id: number;
-  name: string;
-  name_kana: string;
-  grade: {
-    display_name: string;
-  };
-};
-
-type StudentMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
-type StudentsData = {
-  students: StudentType[];
-  meta: StudentMeta;
-};
+import { StudentsData } from "./types";
 
 type Props = {
   data: StudentsData;
