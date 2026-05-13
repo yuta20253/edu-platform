@@ -148,6 +148,7 @@ export const Presenter = ({ goal }: Props) => {
                 href={`/goals/${goal.id}/tasks/${task.id}`}
                 sx={{
                   width: "min(720px, 90vw)",
+                  textDecoration: "none",
                   borderRadius: 3,
                   boxShadow: 1,
                   mb: 2,
