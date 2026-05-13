@@ -176,8 +176,8 @@ export const Presenter = ({ goal }: Props) => {
                         px: 1,
                         py: 0.3,
                         borderRadius: 1,
-                        bgcolor: statusColor,
-                        color: statusColor,
+                        bgcolor: statusColor.bg,
+                        color: statusColor.text,
                       }}
                     >
                       {statusLabel[task.status as TaskStatus]}
