@@ -40,7 +40,7 @@ export const Presenter = ({ data }: Props) => {
           ) : (
             goals.map((goal) => {
               const progress = calcProgress(goal.tasks);
-              const statusColor = colors.statusUi[goal.status as GoalStatus];
+              const statusColor = colors.statusUi[goal.status];
               const progressColor = getProgressColor(progress);
 
               return (
