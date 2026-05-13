@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_28_083450) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -239,14 +239,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "task_id", null: false
     t.index ["course_id"], name: "index_question_histories_on_course_id"
     t.index ["question_choice_id"], name: "index_question_histories_on_question_choice_id"
     t.index ["question_id"], name: "index_question_histories_on_question_id"
+    t.index ["task_id"], name: "index_question_histories_on_task_id"
     t.index ["unit_id"], name: "index_question_histories_on_unit_id"
     t.index ["user_id", "answered_at"], name: "index_question_histories_on_user_id_and_answered_at"
     t.index ["user_id", "course_id"], name: "index_question_histories_on_user_id_and_course_id"
     t.index ["user_id", "is_correct"], name: "index_question_histories_on_user_id_and_is_correct"
     t.index ["user_id", "question_id"], name: "index_question_histories_on_user_id_and_question_id"
+    t.index ["user_id", "task_id", "unit_id", "question_id"], name: "idx_question_histories_unique_answer", unique: true
     t.index ["user_id"], name: "index_question_histories_on_user_id"
   end
 
@@ -369,6 +372,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
     t.index ["user_id"], name: "index_teacher_grades_on_user_id"
   end
 
+  create_table "teacher_notifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "sender_user_id", null: false
+    t.bigint "receiver_user_id", null: false
+    t.string "email", null: false
+    t.datetime "sent_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["receiver_user_id"], name: "index_teacher_notifications_on_receiver_user_id"
+    t.index ["sender_user_id"], name: "index_teacher_notifications_on_sender_user_id"
+  end
+
   create_table "teacher_permissions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.integer "grade_scope"
@@ -465,6 +480,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
     t.bigint "high_school_id"
     t.bigint "address_id"
     t.bigint "grade_id"
+    t.boolean "password_reset_required", default: false, null: false
+    t.datetime "activated_at"
     t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["grade_id"], name: "index_users_on_grade_id"
@@ -501,6 +518,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
   add_foreign_key "question_histories", "courses"
   add_foreign_key "question_histories", "question_choices"
   add_foreign_key "question_histories", "questions"
+  add_foreign_key "question_histories", "tasks"
   add_foreign_key "question_histories", "units"
   add_foreign_key "question_histories", "users"
   add_foreign_key "questions", "units"
@@ -519,6 +537,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_132138) do
   add_foreign_key "tasks", "users"
   add_foreign_key "teacher_grades", "grades"
   add_foreign_key "teacher_grades", "users"
+  add_foreign_key "teacher_notifications", "users", column: "receiver_user_id"
+  add_foreign_key "teacher_notifications", "users", column: "sender_user_id"
   add_foreign_key "teacher_permissions", "users"
   add_foreign_key "units", "courses"
   add_foreign_key "user_overall_question_stats", "users"
