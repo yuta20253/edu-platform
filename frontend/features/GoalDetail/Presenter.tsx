@@ -81,7 +81,7 @@ export const Presenter = ({ goal }: Props) => {
                   color: statusColor?.text,
                 }}
               >
-                {statusLabel[goal.status as GoalStatus]}
+                {statusLabel[goal.status]}
               </Typography>
             </Box>
 
