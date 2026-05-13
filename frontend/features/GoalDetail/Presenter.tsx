@@ -14,7 +14,6 @@ import Link from "next/link";
 import { Goal } from "./types";
 import { calcProgress } from "./utils/calcProgress";
 import { getProgressColor } from "./utils/progressColor";
-import { GoalStatus } from "@/types/goals/status";
 import { statusLabel } from "@/constants/status";
 import { TaskStatus } from "@/types/tasks/status";
 
