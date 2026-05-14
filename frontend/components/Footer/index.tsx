@@ -66,10 +66,7 @@ export const Footer = (): React.JSX.Element => {
         zIndex: 9999,
       }}
     >
-      {icons.map((item, i) => {
-        const isActive = pathName === item.href;
-
-        return (
+      {icons.map((item, i) => (
           <Box
             key={i}
             component={Link}
@@ -83,18 +80,12 @@ export const Footer = (): React.JSX.Element => {
               minWidth: 48,
               fontSize: 10,
               textDecoration: "none",
-              opacity: isActive ? 1 : 0.6,
-              transform: isActive ? "translateY(-2px)" : "none",
-              "&:hover": {
-                opacity: 1,
-              },
             }}
           >
             {item.icon}
             <Box sx={{ fontSize: 10 }}>{item.label}</Box>
           </Box>
-        );
-      })}
+      ))}
     </Box>
   );
 };
