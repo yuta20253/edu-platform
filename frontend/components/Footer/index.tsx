@@ -25,7 +25,7 @@ export const Footer = (): React.JSX.Element => {
     {
       label: "タスク",
       icon: <TaskIcon />,
-      href: "#",
+      href: "/tasks",
     },
     {
       label: "カレンダー",
