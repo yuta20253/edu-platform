@@ -67,24 +67,24 @@ export const Footer = (): React.JSX.Element => {
       }}
     >
       {icons.map((item, i) => (
-          <Box
-            key={i}
-            component={Link}
-            href={item.href}
-            sx={{
-              color: "white",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              minWidth: 48,
-              fontSize: 10,
-              textDecoration: "none",
-            }}
-          >
-            {item.icon}
-            <Box sx={{ fontSize: 10 }}>{item.label}</Box>
-          </Box>
+        <Box
+          key={i}
+          component={Link}
+          href={item.href}
+          sx={{
+            color: "white",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: 48,
+            fontSize: 10,
+            textDecoration: "none",
+          }}
+        >
+          {item.icon}
+          <Box sx={{ fontSize: 10 }}>{item.label}</Box>
+        </Box>
       ))}
     </Box>
   );
