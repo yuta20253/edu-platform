@@ -4,22 +4,24 @@
 #
 # Table name: users
 #
-#  id                     :bigint           not null, primary key
-#  email                  :string(255)      not null
-#  encrypted_password     :string(255)      not null
-#  reset_password_token   :string(255)
-#  reset_password_sent_at :datetime
-#  remember_created_at    :datetime
-#  name                   :string(100)
-#  name_kana              :string(100)
-#  user_role_id           :bigint
-#  jti                    :string(255)      not null
-#  deleted_at             :datetime
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  high_school_id         :bigint
-#  address_id             :bigint
-#  grade_id               :bigint
+#  id                      :bigint           not null, primary key
+#  email                   :string(255)      not null
+#  encrypted_password      :string(255)      not null
+#  reset_password_token    :string(255)
+#  reset_password_sent_at  :datetime
+#  remember_created_at     :datetime
+#  name                    :string(100)
+#  name_kana               :string(100)
+#  user_role_id            :bigint
+#  jti                     :string(255)      not null
+#  deleted_at              :datetime
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  high_school_id          :bigint
+#  address_id              :bigint
+#  grade_id                :bigint
+#  password_reset_required :boolean          default(FALSE), not null
+#  activated_at            :datetime
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -47,6 +49,10 @@ class User < ApplicationRecord
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
   has_many :import_histories, dependent: :destroy
+  has_many :sent_teacher_notifications, class_name: 'TeacherNotification', foreign_key: :sender_user_id,
+                                        inverse_of: :sender_user, dependent: :destroy
+  has_many :received_teacher_notifications, class_name: 'TeacherNotification', foreign_key: :receiver_user_id,
+                                            inverse_of: :receiver_user, dependent: :destroy
 
   validates :name, presence: true, on: :update
   validates :name_kana, presence: true, on: :update
@@ -94,6 +100,7 @@ class User < ApplicationRecord
   scope :teachers, -> { joins(:user_role).where(user_roles: { name: 'teacher' }) }
   scope :by_high_school, ->(high_school_ids) { where(high_school_id: high_school_ids) }
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
+  scope :invitation_pending, -> { where(password_reset_required: true) }
 
   private
 

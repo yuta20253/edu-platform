@@ -7,10 +7,11 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import type { Goal } from "./types";
-import { calcProgress } from "./utils/calcProgress";
 import { colors } from "@/app/theme/colors";
 import { GoalStatus } from "@/types/goals/status";
-import { statusLabel } from "@/constants/goals";
+import { statusLabel } from "@/constants/status";
+import { getProgressColor } from "@/libs/ui/progressColor";
+import { calcProgress } from "@/libs/domain/progress/calcProgress";
 
 type Props = {
   data: Goal[];
@@ -39,13 +40,8 @@ export const Presenter = ({ data }: Props) => {
           ) : (
             goals.map((goal) => {
               const progress = calcProgress(goal.tasks);
-              const statusColor = colors.statusUi[goal.status as GoalStatus];
-              const progressColor =
-                progress === 100
-                  ? colors.progress.completed
-                  : progress > 50
-                    ? colors.progress.in_progress
-                    : colors.progress.not_started;
+              const statusColor = colors.statusUi[goal.status];
+              const progressColor = getProgressColor(progress);
 
               return (
                 <Card

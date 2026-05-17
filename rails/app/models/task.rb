@@ -24,6 +24,7 @@ class Task < ApplicationRecord
   belongs_to :goal
   has_many :task_courses, dependent: :destroy
   has_many :courses, through: :task_courses
+  has_many :question_histories, dependent: :destroy
   has_many :task_units, dependent: :destroy
   has_many :units, through: :task_units
 
@@ -37,6 +38,19 @@ class Task < ApplicationRecord
 
   enum status: { not_started: 0, in_progress: 1, completed: 2 }
 
+  validates :status, presence: true
+  before_validation :sync_completed_at
+
   scope :active_status, -> { where(status: %i[not_started in_progress]) }
   scope :by_status, ->(status) { status.present? && statuses.key?(status) ? where(status: status) : active_status }
+
+  private
+
+  def sync_completed_at
+    if completed?
+      self.completed_at ||= Time.current
+    else
+      self.completed_at = nil
+    end
+  end
 end

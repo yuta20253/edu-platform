@@ -29,7 +29,16 @@ Rails.application.routes.draw do
         resources :goals
         resources :draft_tasks
         resources :tasks do
-          resources :units, only: :show
+          resource :submission, only: :update
+          resources :units, only: :show do
+            resources :questions, only: :index
+            resources :answers, only: [:create] do
+              collection do
+                patch :update
+              end
+            end
+            resource :confirmation, only: :show
+          end
         end
         resources :courses, only: :index
       end
@@ -37,6 +46,8 @@ Rails.application.routes.draw do
       namespace :teacher do
         resources :colleagues, controller: "teachers"
         resources :students
+        resources :teacher_notifications
+        resources :teacher_notification_results
         resource :dashboard, only: :show
       end
 
