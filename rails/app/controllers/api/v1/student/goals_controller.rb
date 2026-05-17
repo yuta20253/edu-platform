@@ -26,9 +26,9 @@ module Api
         end
 
         def update
-          goal = GoalsQuery.new(current_user.goals).find(params[:goal][:id])
+          goal = GoalsQuery.new(current_user.goals).find(params[:id])
 
-          form = ::UpdateGoalForm.new(goal: goal, **update_goal_params.to_h.symbolize_keys)
+          form = ::Student::UpdateGoalForm.new(goal: goal, **update_goal_params.to_h.symbolize_keys)
 
           if form.save
             render json: form.goal.id, status: :ok
@@ -44,7 +44,7 @@ module Api
         end
 
         def update_goal_params
-          params.require(:goal).permit(:title, :description, :due_date)
+          params.permit(:title, :description, :due_date)
         end
       end
     end
