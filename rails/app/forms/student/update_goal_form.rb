@@ -5,6 +5,7 @@ module Student
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include DueDateValidatable
 
     attr_reader :goal
 
@@ -14,7 +15,6 @@ module Student
 
     validates :title, presence: true
     validates :due_date, presence: true
-    validate :due_date_must_be_valid
 
     def initialize(goal:, **attributes)
       super(attributes)
@@ -29,20 +29,6 @@ module Student
         description: description,
         due_date: parsed_due_date
       )
-    end
-
-    private
-
-    def due_date_must_be_valid
-      return if due_date.blank?
-
-      parsed_due_date
-    rescue ArgumentError, TypeError
-      errors.add(:due_date, 'は正しい日付を入力してください')
-    end
-
-    def parsed_due_date
-      @parsed_due_date ||= Date.parse(due_date)
     end
   end
 end
