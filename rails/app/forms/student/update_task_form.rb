@@ -1,51 +1,43 @@
 # frozen_string_literal: true
 
 module Student
-  class CreateTaskForm
+  class UpdateTaskForm
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
     include UnitIdsValidatable
     include PriorityCastable
 
-    attr_reader :current_user
+    attr_reader :task, :unit_ids_provided
 
-    attribute :goal_id, :integer
     attribute :title, :string
     attribute :content, :string
-    attribute :priority, :string
     attribute :due_date, :string
+    attribute :priority, :string
     attribute :memo, :string
     attribute :unit_ids, default: []
 
-    validates :goal_id, presence: true
     validates :title, presence: true
     validates :content, presence: true
     validates :due_date, presence: true
-    validate :goal_must_exist
-    validate :due_date_must_be_valid
-    validate :unit_ids_must_exist
+    validates :memo, presence: true
 
-    def initialize(current_user:, **attributes)
+    validate :due_date_must_be_valid
+
+    def initialize(task:, **attributes)
+      @unit_ids_provided = attributes.key?(:unit_ids) && !attributes[:unit_ids].nil?
       super(attributes)
-      @current_user = current_user
+      @task = task
     end
 
     def save
       return false unless valid?
 
-      ::Student::CreateTaskService.new(self).call
-      true
+      ::Student::UpdateTaskService.new(self).call
     end
 
     def parsed_due_date
       @parsed_due_date ||= Date.parse(due_date)
-    end
-
-    def goal
-      return @goal if defined?(@goal)
-
-      @goal = current_user.goals.find_by(id: goal_id)
     end
 
     private
@@ -56,10 +48,6 @@ module Student
       parsed_due_date
     rescue ArgumentError, TypeError
       errors.add(:due_date, 'は正しい日付を入力してください')
-    end
-
-    def goal_must_exist
-      errors.add(:goal_id, :invalid) if goal.nil?
     end
   end
 end
