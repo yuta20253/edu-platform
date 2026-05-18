@@ -5,6 +5,7 @@ module Student
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include UnitIdsValidatable
 
     attr_reader :task, :unit_ids_provided
 
@@ -13,6 +14,7 @@ module Student
     attribute :due_date, :string
     attribute :priority, :string
     attribute :memo, :string
+    attribute :unit_ids, default: []
 
     validates :title, presence: true
     validates :content, presence: true
@@ -21,10 +23,9 @@ module Student
     validates :memo, presence: true
 
     validate :due_date_must_be_valid
-    validate :unit_ids_must_exist
 
     def initialize(task:, **attributes)
-      @unit_ids_provided = attributes.key?(:unit_ids)
+      @unit_ids_provided = attributes.key?(:unit_ids) && !attributes[:unit_ids].nil?
       super(attributes)
       @task = task
     end
@@ -37,11 +38,6 @@ module Student
 
     def parsed_due_date
       @parsed_due_date ||= Date.parse(due_date)
-    end
-
-    # フォーム入力を正規化（空文字除去 + integer化）
-    def unit_ids
-      Array(super).compact_blank.map(&:to_i)
     end
 
     def priority
@@ -63,14 +59,6 @@ module Student
       parsed_due_date
     rescue ArgumentError, TypeError
       errors.add(:due_date, 'は正しい日付を入力してください')
-    end
-
-    def unit_ids_must_exist
-      return if unit_ids.blank?
-
-      return unless Unit.where(id: unit_ids).count != unit_ids.size
-
-      errors.add(:unit_ids, 'に不正な値が含まれています')
     end
   end
 end
