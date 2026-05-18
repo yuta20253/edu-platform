@@ -6,6 +6,7 @@ module Student
     include ActiveModel::Attributes
     include ActiveModel::Validations
     include UnitIdsValidatable
+    include PriorityCastable
 
     attr_reader :current_user
 
@@ -20,7 +21,6 @@ module Student
     validates :goal_id, presence: true
     validates :title, presence: true
     validates :content, presence: true
-    validates :priority, presence: true
     validates :due_date, presence: true
     validate :goal_must_exist
     validate :due_date_must_be_valid
@@ -46,17 +46,6 @@ module Student
       return @goal if defined?(@goal)
 
       @goal = current_user.goals.find_by(id: goal_id)
-    end
-
-    def priority
-      value = super
-      return if value.blank?
-
-      if value.to_s.match?(/\A\d+\z/)
-        Task.priorities.key(value.to_i)
-      else
-        value
-      end
     end
 
     private

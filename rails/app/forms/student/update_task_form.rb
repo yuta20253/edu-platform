@@ -6,6 +6,7 @@ module Student
     include ActiveModel::Attributes
     include ActiveModel::Validations
     include UnitIdsValidatable
+    include PriorityCastable
 
     attr_reader :task, :unit_ids_provided
 
@@ -18,7 +19,6 @@ module Student
 
     validates :title, presence: true
     validates :content, presence: true
-    validates :priority, presence: true
     validates :due_date, presence: true
     validates :memo, presence: true
 
@@ -38,17 +38,6 @@ module Student
 
     def parsed_due_date
       @parsed_due_date ||= Date.parse(due_date)
-    end
-
-    def priority
-      value = super
-      return if value.blank?
-
-      if value.to_s.match?(/\A\d+\z/)
-        Task.priorities.key(value.to_i)
-      else
-        value
-      end
     end
 
     private
