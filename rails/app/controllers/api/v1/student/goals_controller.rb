@@ -44,7 +44,7 @@ module Api
         end
 
         def update_goal_params
-          params.permit(:title, :description, :due_date)
+          params.require(:goal).permit(:title, :description, :due_date)
         end
       end
     end
