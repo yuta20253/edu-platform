@@ -47,9 +47,9 @@ export const Presenter = ({ task, goalId }: Props) => {
                   color: "primary.main",
                 },
               }}
-              >
-                <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-                  <Typography sx={{ fontSize: 14 }}>目標詳細に戻る</Typography>
+            >
+              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+              <Typography sx={{ fontSize: 14 }}>目標詳細に戻る</Typography>
             </Box>
           </Link>
         ) : (
@@ -65,11 +65,9 @@ export const Presenter = ({ task, goalId }: Props) => {
                   color: "primary.main",
                 },
               }}
-              >
-                <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-                  <Typography sx={{ fontSize: 14 }}>
-                    タスク一覧に戻る
-                  </Typography>
+            >
+              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+              <Typography sx={{ fontSize: 14 }}>タスク一覧に戻る</Typography>
             </Box>
           </Link>
         )}

@@ -46,22 +46,22 @@ export const Presenter = ({ goal }: Props) => {
       </Typography>
       <Box sx={{ textAlign: "start", mb: 3 }}>
         <Link href="/goals" style={{ textDecoration: "none" }}>
-        <Box
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 0.5,
-            color: "text.secondary",
-            cursor: "pointer",
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-          <Typography sx={{ fontSize: 14 }}>目標一覧へ戻る</Typography>
-        </Box>
-      </Link>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              color: "text.secondary",
+              cursor: "pointer",
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+          >
+            <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+            <Typography sx={{ fontSize: 14 }}>目標一覧へ戻る</Typography>
+          </Box>
+        </Link>
       </Box>
       <Box display="flex" justifyContent="center">
         <Card
