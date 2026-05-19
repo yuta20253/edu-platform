@@ -1,11 +1,11 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useTasks } from "./hooks";
+import { useGetTasks } from "./hooks";
 import { Presenter } from "./Presenter";
 
 export const Tasks = () => {
-  const { data, page, setPage, loading, error } = useTasks();
+  const { data, page, setPage, loading, error } = useGetTasks();
 
   if (loading) {
     return (

@@ -28,7 +28,7 @@ type TasksData = {
   meta: TaskMeta;
 };
 
-export const useTasks = () => {
+export const useGetTasks = () => {
   const [data, setData] = useState<TasksData | null>(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState<boolean>(false);
