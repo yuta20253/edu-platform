@@ -49,7 +49,7 @@ export const Presenter = ({ task, goalId }: Props) => {
               }}
               >
                 <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-                  <Typography sx={{ fontSize: 14 }}>目標に戻る</Typography>
+                  <Typography sx={{ fontSize: 14 }}>目標詳細に戻る</Typography>
             </Box>
           </Link>
         ) : (
