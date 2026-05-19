@@ -3,33 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import { Status } from "@/constants/tasks";
-
-
-type Task = {
-  id: number;
-  goal_id: number;
-  title: string;
-  content: string;
-  due_date: string;
-  priority: string;
-  status: Status;
-  completed_at: string;
-  units?: Unit[];
-};
-
-export type Unit = {
-  id: number;
-  course_id: number;
-  unit_name: string;
-  course: Course;
-};
-
-export type Course = {
-  id: number;
-  level_number: number;
-  level_name: string;
-};
+import { Task } from "./types";
 
 export const useGetTask = (taskId: number) => {
   const [task, setTask] = useState<Task | null>(null);
