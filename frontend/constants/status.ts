@@ -1,4 +1,4 @@
-import { Status } from "./tasks";
+import { Status } from "@/types/common/status";
 
 export const statusLabel: Record<Status, string> = {
   not_started: "未着手",

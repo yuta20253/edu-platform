@@ -1,11 +1,11 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { statusLabel } from "@/constants/tasks";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 import { Task } from "./types";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { statusLabel } from "@/constants/status";
 
 type Props = {
   task: Task;

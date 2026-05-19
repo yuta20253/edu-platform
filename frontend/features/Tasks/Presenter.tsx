@@ -1,7 +1,8 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { Status, statusLabel } from "@/constants/tasks";
+import { statusLabel } from "@/constants/status";
+import { Status } from "@/types/common/status";
 import { Box, Card, CardContent, Pagination, Typography } from "@mui/material";
 import Link from "next/link";
 

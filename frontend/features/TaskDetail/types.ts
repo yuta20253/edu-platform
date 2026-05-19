@@ -1,4 +1,4 @@
-import { Status } from "@/constants/tasks";
+import { Status } from "@/types/common/status";
 
 export type Task = {
   id: number;
