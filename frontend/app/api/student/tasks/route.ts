@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     return res;
   } catch (error) {
     if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHRIZED" }, { status: 401 });
+      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
     return NextResponse.json(
