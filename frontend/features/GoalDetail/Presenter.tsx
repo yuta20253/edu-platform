@@ -17,6 +17,7 @@ import { statusLabel } from "@/constants/status";
 import { TaskStatus } from "@/types/tasks/status";
 import { getProgressColor } from "@/libs/ui/progressColor";
 import { calcProgress } from "@/libs/domain/progress/calcProgress";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 type Props = {
   goal: Goal;
@@ -43,13 +44,25 @@ export const Presenter = ({ goal }: Props) => {
       >
         目標詳細
       </Typography>
-
       <Box sx={{ textAlign: "start", mb: 3 }}>
-        <Button component={Link} href="/goals" variant="outlined" size="small">
-          一覧へ戻る
-        </Button>
+        <Link href="/goals" style={{ textDecoration: "none" }}>
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            color: "text.secondary",
+            cursor: "pointer",
+            "&:hover": {
+              color: "primary.main",
+            },
+          }}
+        >
+          <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+          <Typography sx={{ fontSize: 14 }}>目標一覧へ戻る</Typography>
+        </Box>
+      </Link>
       </Box>
-
       <Box display="flex" justifyContent="center">
         <Card
           sx={{
