@@ -1,7 +1,7 @@
 "use client";
 
-import { Status } from "@/constants/tasks";
 import { apiClient } from "@/libs/http/apiClient";
+import { Status } from "@/types/common/status";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
