@@ -1,4 +1,4 @@
-type Status = "not_started" | "in_progress" | "completed";
+export type Status = "not_started" | "in_progress" | "completed";
 
 export const statusLabel: Record<Status, string> = {
   not_started: "未着手",

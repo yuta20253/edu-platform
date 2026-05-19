@@ -1,7 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { statusLabel } from "@/constants/tasks";
+import { Status, statusLabel } from "@/constants/tasks";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 
@@ -34,8 +34,6 @@ export type Course = {
   level_number: number;
   level_name: string;
 };
-
-type Status = "not_started" | "in_progress" | "completed";
 
 export const Presenter = ({ task, goalId }: Props) => {
   const statusColor = colors.statusUi[task.status];

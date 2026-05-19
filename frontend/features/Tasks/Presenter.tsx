@@ -1,11 +1,9 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { statusLabel } from "@/constants/tasks";
+import { Status, statusLabel } from "@/constants/tasks";
 import { Box, Card, CardContent, Pagination, Typography } from "@mui/material";
 import Link from "next/link";
-
-type Status = "not_started" | "in_progress" | "completed";
 
 type Task = {
   id: number;

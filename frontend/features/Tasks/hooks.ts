@@ -1,5 +1,6 @@
 "use client";
 
+import { Status } from "@/constants/tasks";
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,8 +15,6 @@ type Task = {
   status: Status;
   completed_at: string;
 };
-
-type Status = "not_started" | "in_progress" | "completed";
 
 type TaskMeta = {
   current_page: number;

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
+import { Status } from "@/constants/tasks";
+
 
 type Task = {
   id: number;
@@ -28,8 +30,6 @@ export type Course = {
   level_number: number;
   level_name: string;
 };
-
-type Status = "not_started" | "in_progress" | "completed";
 
 export const useTask = (taskId: number) => {
   const [task, setTask] = useState<Task | null>(null);
