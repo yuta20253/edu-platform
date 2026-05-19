@@ -24,7 +24,7 @@ export const useGetTask = (taskId: number) => {
           router.push("/login");
           return;
         }
-        setLoading(false);
+        setError(true);
         setTask(null);
       })
       .finally(() => setLoading(false));

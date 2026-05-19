@@ -49,7 +49,7 @@ export const useGetTasks = () => {
           return;
         }
 
-        setLoading(false);
+        setError(true);
         setData(null);
       })
       .finally(() => setLoading(false));
