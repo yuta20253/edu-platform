@@ -31,7 +31,7 @@ export type Course = {
   level_name: string;
 };
 
-export const useTask = (taskId: number) => {
+export const useGetTask = (taskId: number) => {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);

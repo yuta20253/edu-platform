@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useTask } from "./hooks";
+import { useGetTask } from "./hooks";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const TaskDetail = ({ goalId, taskId }: Props) => {
-  const { task, loading, error } = useTask(taskId);
+  const { task, loading, error } = useGetTask(taskId);
 
   if (loading) {
     return (
