@@ -5,6 +5,7 @@ import { statusLabel } from "@/constants/tasks";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 import { Task } from "./types";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 type Props = {
   task: Task;
@@ -34,25 +35,43 @@ export const Presenter = ({ task, goalId }: Props) => {
         }}
       >
         {goalId ? (
-          <Button
-            component={Link}
-            href={`/goals/${goalId}`}
-            variant="outlined"
-            size="small"
-            sx={{ borderRadius: 2 }}
-          >
-            目標に戻る
-          </Button>
+          <Link href={`/goals/${goalId}`} style={{ textDecoration: "none" }}>
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                color: "text.secondary",
+                cursor: "pointer",
+                "&:hover": {
+                  color: "primary.main",
+                },
+              }}
+              >
+                <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+                  <Typography sx={{ fontSize: 14 }}>目標に戻る</Typography>
+            </Box>
+          </Link>
         ) : (
-          <Button
-            component={Link}
-            href="/tasks"
-            variant="outlined"
-            size="small"
-            sx={{ borderRadius: 2 }}
-          >
-            タスク一覧に戻る
-          </Button>
+          <Link href="/tasks" style={{ textDecoration: "none" }}>
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                color: "text.secondary",
+                cursor: "pointer",
+                "&:hover": {
+                  color: "primary.main",
+                },
+              }}
+              >
+                <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+                  <Typography sx={{ fontSize: 14 }}>
+                    タスク一覧に戻る
+                  </Typography>
+            </Box>
+          </Link>
         )}
       </Box>
       <Box display="flex" justifyContent="center">
