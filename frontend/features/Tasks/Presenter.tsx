@@ -2,32 +2,9 @@
 
 import { colors } from "@/app/theme/colors";
 import { statusLabel } from "@/constants/status";
-import { Status } from "@/types/common/status";
 import { Box, Card, CardContent, Pagination, Typography } from "@mui/material";
 import Link from "next/link";
-
-type Task = {
-  id: number;
-  goal_id: number;
-  title: string;
-  content: string;
-  due_date: string;
-  priority: string;
-  status: Status;
-  completed_at: string;
-};
-
-type TaskMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
-type TasksData = {
-  tasks: Task[];
-  meta: TaskMeta;
-};
+import { TasksData } from "./types";
 
 type Props = {
   data: TasksData;
