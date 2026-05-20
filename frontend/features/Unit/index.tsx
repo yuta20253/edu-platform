@@ -5,7 +5,7 @@ import { useGetUnit } from "./hooks";
 import { Presenter } from "./Presenter";
 
 type Props = {
-  // goalId?: number;
+  goalId?: number;
   taskId: number;
   unitId: number;
 };
