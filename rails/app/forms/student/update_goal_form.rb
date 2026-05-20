@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Student
-  class CreateGoalForm
+  class UpdateGoalForm
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
@@ -16,21 +16,19 @@ module Student
     validates :title, presence: true
     validates :due_date, presence: true
 
-    def initialize(current_user:, **attributes)
+    def initialize(goal:, **attributes)
       super(attributes)
-      @current_user = current_user
+      @goal = goal
     end
 
     def save
-      return unless valid?
+      return false unless valid?
 
-      @goal = Goal.create!(
-        user: @current_user,
+      goal.update(
         title: title,
         description: description,
         due_date: parsed_due_date
       )
-      true
     end
   end
 end
