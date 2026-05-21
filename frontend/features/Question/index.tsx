@@ -21,11 +21,17 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
+  const isLastQuestion = questions && currentIndex === questions.length - 1;
+
   const handleNextQuestion = () => {
+    if (isLastQuestion) {
+      return;
+    }
+
     setCurrentIndex((prev) => prev + 1);
 
     setSelectedChoiceId(null);
-    setIsCorrect(false);
+    setIsCorrect(null);
     setIsAnswered(false);
   };
 
@@ -102,12 +108,12 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
       ? await apiClient.patch("/api/student/answers", payload)
       : await apiClient.post("/api/student/answers", payload);
 
-    setAnsweredQuestionIds((prev) => [...prev, currentQuestion.id]);
-    console.log(res.data);
+    setAnsweredQuestionIds((prev) =>
+      prev.includes(currentQuestion.id) ? prev : [...prev, currentQuestion.id],
+    );
 
     setIsCorrect(res.data.is_correct);
     setIsAnswered(true);
-    console.log(choiceId);
   };
 
   return (
@@ -121,6 +127,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
       selectedChoiceId={selectedChoiceId}
       isCorrect={isCorrect}
       isAnswered={isAnswered}
+      isLastQuestion={isLastQuestion}
       onAnswer={handleAnswer}
       onSkip={handleSkip}
       onNextQuestion={handleNextQuestion}

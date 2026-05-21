@@ -14,6 +14,7 @@ type Props = {
   selectedChoiceId: number | null;
   isCorrect: boolean | null;
   isAnswered: boolean;
+  isLastQuestion: boolean;
   onAnswer: (choiceId: number) => void;
   onSkip: () => void;
   onNextQuestion: () => void;
@@ -29,6 +30,7 @@ export const Presenter = ({
   selectedChoiceId,
   isCorrect,
   isAnswered,
+  isLastQuestion,
   onAnswer,
   onSkip,
   onNextQuestion,
@@ -230,7 +232,7 @@ export const Presenter = ({
                     },
                   }}
                 >
-                  次へ
+                  {isLastQuestion ? "結果を見る" : "次へ"}
                 </Box>
               ) : (
                 <Box
