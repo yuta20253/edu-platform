@@ -6,8 +6,11 @@ module Api
       class CoursesController < BaseController
         def show
           course = Course.includes(:subject, :units).find(params[:id])
+          questions_counts = Question.where(unit_id: course.unit_ids).group(:unit_id).count
 
-          render json: course, serializer: ::Admin::CourseDetailSerializer
+          render json: course,
+                 serializer: ::Admin::CourseDetailSerializer,
+                 questions_counts: questions_counts
         end
       end
     end
