@@ -136,5 +136,67 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
         end
       end
     end
+
+    context '異常系 - 未認証アクセス' do
+      let!(:course) { create(:course) }
+      let!(:unit)   { create(:unit, course: course) }
+
+      it '401が返される' do
+        get "/api/v1/admin/courses/#{course.id}/units/#{unit.id}", headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - 管理者以外のアクセス（生徒）' do
+      let!(:student_user) { create(:user) }
+      let!(:course)       { create(:course) }
+      let!(:unit)         { create(:unit, course: course) }
+
+      it '403が返される' do
+        cookie = login_and_get_cookie(student_user)
+        get "/api/v1/admin/courses/#{course.id}/units/#{unit.id}",
+            headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - 管理者以外のアクセス（教員）' do
+      let!(:teacher_user) { create(:user, :teacher) }
+      let!(:course)       { create(:course) }
+      let!(:unit)         { create(:unit, course: course) }
+
+      it '403が返される' do
+        cookie = login_and_get_cookie(teacher_user)
+        get "/api/v1/admin/courses/#{course.id}/units/#{unit.id}",
+            headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - 存在しない unit_id' do
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:course)     { create(:course) }
+      let(:cookie)      { login_and_get_cookie(admin_user) }
+
+      it '404が返される' do
+        get "/api/v1/admin/courses/#{course.id}/units/0",
+            headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - course_id と unit.course_id が不整合' do
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:course)     { create(:course) }
+      let!(:other_course) { create(:course) }
+      let!(:unit) { create(:unit, course: other_course) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it '404が返される' do
+        get "/api/v1/admin/courses/#{course.id}/units/#{unit.id}",
+            headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 end
