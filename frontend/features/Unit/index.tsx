@@ -10,7 +10,7 @@ type Props = {
   unitId: number;
 };
 
-export const Unit = ({ taskId, unitId }: Props) => {
+export const Unit = ({ goalId, taskId, unitId }: Props) => {
   const { unit, loading, error } = useGetUnit({ taskId, unitId });
 
   if (loading) {
@@ -45,5 +45,7 @@ export const Unit = ({ taskId, unitId }: Props) => {
     );
   }
 
-  return <Presenter unit={unit} />;
+  return (
+    <Presenter goalId={goalId} taskId={taskId} unitId={unitId} unit={unit} />
+  );
 };

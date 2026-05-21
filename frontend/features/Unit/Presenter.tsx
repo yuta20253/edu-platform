@@ -16,10 +16,13 @@ type UnitType = {
 };
 
 type Props = {
+  goalId?: number;
+  taskId: number;
+  unitId: number;
   unit: UnitType;
 };
 
-export const Presenter = ({ unit }: Props) => {
+export const Presenter = ({ goalId, taskId, unitId, unit }: Props) => {
   const router = useRouter();
 
   return (
@@ -106,7 +109,10 @@ export const Presenter = ({ unit }: Props) => {
                 },
               }}
               onClick={() => {
-                console.log("スタートボタンが押されました");
+                const nextHref = goalId
+                  ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions`
+                  : `/tasks/${taskId}/units/${unitId}/questions`;
+                router.push(nextHref);
               }}
             >
               スタート
