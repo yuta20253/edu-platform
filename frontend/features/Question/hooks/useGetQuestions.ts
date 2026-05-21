@@ -1,9 +1,10 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { QuestionType } from "@/types/question/question";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { QuestionType } from "../types";
+
 
 type Props = {
   taskId: number;

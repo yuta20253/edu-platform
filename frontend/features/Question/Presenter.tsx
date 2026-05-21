@@ -1,8 +1,9 @@
 import { Box, Card, CardContent, Typography } from "@mui/material";
-import { QuestionType } from "./types";
+
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { colors } from "@/app/theme/colors";
+import { QuestionType } from "@/types/question/question";
 
 type Props = {
   goalId?: number;
