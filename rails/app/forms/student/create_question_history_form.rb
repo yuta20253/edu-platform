@@ -12,7 +12,7 @@ module Student
     attribute :question_choice_id, :integer
     attribute :answer_text, :string
     attribute :time_spent_sec, :integer
-    attribute :explanation_viewed, :boolean
+    attribute :explanation_viewed, :boolean, default: false
 
     validates :task_id, presence: true
     validates :unit_id, presence: true
@@ -21,7 +21,7 @@ module Student
 
     validate :validate_question_choice_relation
 
-    validates :explanation_viewed, inclusion: { in: [true, false] }
+    validates :explanation_viewed, inclusion: { in: [true, false] }, allow_nil: true
 
     def initialize(current_user:, **attributes)
       super(attributes)
