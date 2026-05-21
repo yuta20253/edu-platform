@@ -73,6 +73,27 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         unit_data = body['units'].first
         expect(unit_data.keys).to include('id', 'unit_name')
       end
+
+      context 'unit に紐づく問題が存在する場合' do
+        let!(:questions_for_first_unit) { create_list(:question, 3, unit: units.first) }
+        let!(:questions_for_second_unit) { create_list(:question, 1, unit: units.last) }
+
+        it '各 unit に questions_count が含まれ、正しい数が返る' do
+          subject
+          body = response.parsed_body
+          counts = body['units'].to_h { |u| [u['id'], u['questions_count']] }
+          expect(counts[units.first.id]).to eq(3)
+          expect(counts[units.last.id]).to eq(1)
+        end
+      end
+
+      context 'unit に紐づく問題が存在しない場合' do
+        it 'questions_count は 0 として返る' do
+          subject
+          body = response.parsed_body
+          expect(body['units'].pluck('questions_count')).to all(eq(0))
+        end
+      end
     end
   end
 end
