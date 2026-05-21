@@ -4,6 +4,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { useGetQuestions } from "./hooks/useGetQuestions";
 import { Presenter } from "./Presenter";
 import { useState } from "react";
+import { apiClient } from "@/libs/http/apiClient";
 
 type Props = {
   taskId: number;
@@ -29,15 +30,6 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
 
   const handleSkip = () => {
     handleNextQuestion();
-  };
-
-  const handleAnswer = async (choiceId: number) => {
-    setSelectedChoiceId(choiceId);
-    const result = true;
-
-    setIsCorrect(result);
-    setIsAnswered(true);
-    console.log(choiceId);
   };
 
   if (loading) {
@@ -90,6 +82,23 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
       </Box>
     );
   }
+
+  const handleAnswer = async (choiceId: number) => {
+    setSelectedChoiceId(choiceId);
+
+    const res = await apiClient.post(`/api/student/answers`, {
+      task_id: taskId,
+      unit_id: unitId,
+      question_id: currentQuestion.id,
+      question_choice_id: choiceId,
+    });
+
+    console.log(res.data);
+
+    setIsCorrect(res.data.is_correct);
+    setIsAnswered(true);
+    console.log(choiceId);
+  };
 
   return (
     <Presenter
