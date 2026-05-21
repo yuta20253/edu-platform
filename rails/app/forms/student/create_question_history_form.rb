@@ -21,7 +21,7 @@ module Student
 
     validate :validate_question_choice_relation
 
-    validates :explanation_viewed, inclusion: { in: [true, false] }, allow_nil: true
+    validates :explanation_viewed, inclusion: { in: [true, false] }
 
     def initialize(current_user:, **attributes)
       super(attributes)
