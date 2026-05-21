@@ -19,4 +19,5 @@ export type QuestionType = {
   question_text: string;
   question_hints: QuestionHint[];
   question_choices: QuestionChoice[];
+  answered: boolean;
 };

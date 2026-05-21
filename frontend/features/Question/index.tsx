@@ -17,6 +17,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -86,13 +87,22 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
   const handleAnswer = async (choiceId: number) => {
     setSelectedChoiceId(choiceId);
 
-    const res = await apiClient.post(`/api/student/answers`, {
+    const alreadyAnswered =
+      currentQuestion.answered ||
+      answeredQuestionIds.includes(currentQuestion.id);
+
+    const payload = {
       task_id: taskId,
       unit_id: unitId,
       question_id: currentQuestion.id,
       question_choice_id: choiceId,
-    });
+    };
 
+    const res = alreadyAnswered
+      ? await apiClient.patch("/api/student/answers", payload)
+      : await apiClient.post("/api/student/answers", payload);
+
+    setAnsweredQuestionIds((prev) => [...prev, currentQuestion.id]);
     console.log(res.data);
 
     setIsCorrect(res.data.is_correct);
