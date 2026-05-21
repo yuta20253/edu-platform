@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useGetQuestions } from "./hooks";
+import { useGetQuestions } from "./hooks/useGetQuestions";
 import { Presenter } from "./Presenter";
 import { useState } from "react";
 
