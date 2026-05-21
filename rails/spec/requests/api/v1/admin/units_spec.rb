@@ -104,6 +104,37 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
           expect(explanations.first['explanation_text']).to eq('基本解説テキスト')
         end
       end
+
+      context 'recent_import_histories' do
+        let(:base_time) { Time.zone.local(2026, 4, 1, 9, 0, 0) }
+        let!(:histories) do
+          6.times.map do |i|
+            create(:import_history,
+                   user: admin_user,
+                   unit: unit,
+                   file_name: "questions_#{i}.csv",
+                   started_at: base_time + i.hours)
+          end
+        end
+
+        it '最大 5 件、started_at の降順で返る' do
+          subject
+          body = response.parsed_body
+          expect(body['recent_import_histories'].size).to eq(5)
+          file_names = body['recent_import_histories'].pluck('file_name')
+          expect(file_names).to eq(
+            %w[questions_5.csv questions_4.csv questions_3.csv questions_2.csv questions_1.csv]
+          )
+        end
+
+        it '必要なフィールドが含まれる' do
+          subject
+          h = response.parsed_body['recent_import_histories'].first
+          expect(h.keys).to include(
+            'id', 'file_name', 'status', 'total_count', 'success_count', 'error_count', 'created_at'
+          )
+        end
+      end
     end
   end
 end
