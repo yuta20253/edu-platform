@@ -108,7 +108,7 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
       context 'recent_import_histories' do
         let(:base_time) { Time.zone.local(2026, 4, 1, 9, 0, 0) }
         let!(:histories) do
-          6.times.map do |i|
+          Array.new(6) do |i|
             create(:import_history,
                    user: admin_user,
                    unit: unit,
