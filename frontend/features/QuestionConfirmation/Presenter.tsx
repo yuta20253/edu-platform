@@ -1,8 +1,11 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Chip, Divider, Typography } from "@mui/material";
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 type Props = {
   goalId?: number;
@@ -27,12 +30,22 @@ export const Presenter = ({
   unitId,
   questionHistories,
 }: Props) => {
+  const answeredCount = questionHistories.filter(
+    (history) => history.status === "answered",
+  ).length;
+
   return (
-    <Box sx={{ p: 3 }}>
+    <Box
+      sx={{
+        p: { xs: 2, md: 4 },
+        maxWidth: 900,
+        mx: "auto",
+      }}
+    >
       <Box
         sx={{
           textAlign: "start",
-          my: 6,
+          my: 4,
         }}
       >
         {goalId ? (
@@ -47,6 +60,8 @@ export const Presenter = ({
                 gap: 0.5,
                 color: "text.secondary",
                 cursor: "pointer",
+                transition: "0.2s",
+
                 "&:hover": {
                   color: "primary.main",
                 },
@@ -68,6 +83,8 @@ export const Presenter = ({
                 gap: 0.5,
                 color: "text.secondary",
                 cursor: "pointer",
+                transition: "0.2s",
+
                 "&:hover": {
                   color: "primary.main",
                 },
@@ -79,63 +96,160 @@ export const Presenter = ({
           </Link>
         )}
       </Box>
+
       <Box
         sx={{
-          mb: 2,
           textAlign: "center",
+          mb: 5,
         }}
       >
-        <Typography>結果</Typography>
-        <Box
+        <Typography
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            mt: 4,
+            fontSize: { xs: 28, md: 36 },
+            fontWeight: 700,
+            mb: 1,
           }}
         >
-          {questionHistories.map((history, index) => (
+          学習結果
+        </Typography>
+
+        <Typography
+          sx={{
+            color: "text.secondary",
+            fontSize: 15,
+          }}
+        >
+          {answeredCount} / {questionHistories.length} 問回答
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+        }}
+      >
+        {questionHistories.map((history, index) => {
+          const isUnanswered = history.status === "unanswered";
+
+          return (
             <Box
               key={history.question_id}
               sx={{
-                p: 3,
-                borderRadius: 3,
+                p: { xs: 2.5, md: 3.5 },
+                borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
                 bgcolor: "background.paper",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
               }}
             >
-              <Typography
+              <Box
                 sx={{
-                  fontSize: 14,
-                  color: "text.secondary",
-                  mb: 1,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 2,
+                  mb: 2,
+                  flexWrap: "wrap",
                 }}
               >
-                問題 {index + 1}
-              </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: "text.secondary",
+                    fontWeight: 600,
+                  }}
+                >
+                  問題 {index + 1}
+                </Typography>
+
+                {isUnanswered ? (
+                  <Chip
+                    icon={<HelpOutlineIcon />}
+                    label="未回答"
+                    color="default"
+                    variant="outlined"
+                  />
+                ) : history.correct_answer ===
+                  String(history.selected_choice_number) ? (
+                  <Chip
+                    icon={<CheckCircleIcon />}
+                    label="正解"
+                    color="success"
+                  />
+                ) : (
+                  <Chip icon={<CancelIcon />} label="不正解" color="error" />
+                )}
+              </Box>
 
               <Typography
                 sx={{
+                  fontSize: 18,
                   fontWeight: 700,
-                  mb: 2,
-                  lineHeight: 1.7,
+                  lineHeight: 1.8,
+                  mb: 3,
                 }}
               >
                 {history.question_text}
               </Typography>
 
-              <Typography>
-                あなたの回答:
-                {history.status === "unanswered"
-                  ? " 未回答"
-                  : ` ${history.selected_choice_number}`}
-              </Typography>
+              <Divider sx={{ mb: 3 }} />
 
-              <Typography>正答: {history.correct_answer}</Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                }}
+              >
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      color: "text.secondary",
+                      mb: 0.5,
+                    }}
+                  >
+                    あなたの回答
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: 16,
+                    }}
+                  >
+                    {isUnanswered ? "未回答" : history.selected_choice_number}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      color: "text.secondary",
+                      mb: 0.5,
+                    }}
+                  >
+                    正答
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: 16,
+                      color: "success.main",
+                    }}
+                  >
+                    {history.correct_answer}
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
-          ))}
-        </Box>
+          );
+        })}
       </Box>
     </Box>
   );
