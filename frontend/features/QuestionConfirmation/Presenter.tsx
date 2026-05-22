@@ -6,6 +6,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { QuestionHistory } from "./types";
 
 type Props = {
   goalId?: number;
@@ -13,16 +14,6 @@ type Props = {
   unitId: number;
   questionHistories: QuestionHistory[];
 };
-
-type QuestionHistory = {
-  question_id: number;
-  question_text: string;
-  correct_answer: string;
-  selected_choice_number: number;
-  status: AnswerStatus;
-};
-
-type AnswerStatus = "answered" | "unanswered";
 
 export const Presenter = ({
   goalId,

@@ -3,21 +3,12 @@
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { QuestionHistory } from "./types";
 
 type Props = {
   taskId: number;
   unitId: number;
 };
-
-type QuestionHistory = {
-  question_id: number;
-  question_text: string;
-  correct_answer: string;
-  selected_choice_number: number;
-  status: AnswerStatus;
-};
-
-type AnswerStatus = "answered" | "unanswered";
 
 export const useGetData = ({ taskId, unitId }: Props) => {
   const [questionHistories, setQuestionHistories] = useState<QuestionHistory[]>(
