@@ -3,17 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
-
-type UnitType = {
-  id: number;
-  course_id: number;
-  unit_name: string;
-  course: {
-    id: number;
-    level_number: number;
-    level_name: string;
-  };
-};
+import { UnitType } from "./types";
 
 type Props = {
   goalId?: number;

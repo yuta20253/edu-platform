@@ -3,21 +3,11 @@
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { UnitType } from "./types";
 
 type Props = {
   taskId: number;
   unitId: number;
-};
-
-type UnitType = {
-  id: number;
-  course_id: number;
-  unit_name: string;
-  course: {
-    id: number;
-    level_number: number;
-    level_name: string;
-  };
 };
 
 export const useGetUnit = ({ taskId, unitId }: Props) => {
