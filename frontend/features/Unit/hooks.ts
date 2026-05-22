@@ -27,6 +27,9 @@ export const useGetUnit = ({ taskId, unitId }: Props) => {
   const router = useRouter();
 
   useEffect(() => {
+    setLoading(true);
+    setError(false);
+
     apiClient
       .get<UnitType>(`/api/student/tasks/${taskId}/units/${unitId}`)
       .then((res) => setUnit(res.data))
