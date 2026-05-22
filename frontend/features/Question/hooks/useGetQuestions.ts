@@ -5,7 +5,6 @@ import { QuestionType } from "@/types/question/question";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-
 type Props = {
   taskId: number;
   unitId: number;

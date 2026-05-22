@@ -5,6 +5,7 @@ import { useGetQuestions } from "./hooks/useGetQuestions";
 import { Presenter } from "./Presenter";
 import { useState } from "react";
 import { apiClient } from "@/libs/http/apiClient";
+import { useRouter } from "next/navigation";
 
 type Props = {
   taskId: number;
@@ -23,8 +24,14 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
 
   const isLastQuestion = questions && currentIndex === questions.length - 1;
 
+  const router = useRouter();
+
   const handleNextQuestion = () => {
+    const confirmUrl = goalId
+      ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions/confirmation`
+      : `/tasks/${taskId}/units/${unitId}/questions/confirmation`;
     if (isLastQuestion) {
+      router.push(confirmUrl);
       return;
     }
 
