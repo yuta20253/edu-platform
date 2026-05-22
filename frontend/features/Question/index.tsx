@@ -19,6 +19,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
+  const [openedHintStep, setOpenedHintStep] = useState<number>(0);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -40,6 +41,8 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
     setSelectedChoiceId(null);
     setIsCorrect(null);
     setIsAnswered(false);
+
+    setOpenedHintStep(0);
   };
 
   const handleSkip = () => {
@@ -121,6 +124,8 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
 
     setIsCorrect(res.data.is_correct);
     setIsAnswered(true);
+
+    setOpenedHintStep(0);
   };
 
   return (
@@ -135,9 +140,12 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
       isCorrect={isCorrect}
       isAnswered={isAnswered}
       isLastQuestion={isLastQuestion}
+      openedHintStep={openedHintStep}
       onAnswer={handleAnswer}
       onSkip={handleSkip}
       onNextQuestion={handleNextQuestion}
+      onOpenHint={setOpenedHintStep}
+      onCloseHint={() => setOpenedHintStep(0)}
     />
   );
 };

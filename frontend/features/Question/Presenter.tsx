@@ -16,9 +16,12 @@ type Props = {
   isCorrect: boolean | null;
   isAnswered: boolean;
   isLastQuestion: boolean;
+  openedHintStep: number;
   onAnswer: (choiceId: number) => void;
   onSkip: () => void;
   onNextQuestion: () => void;
+  onOpenHint: (hintNum: number) => void;
+  onCloseHint: () => void;
 };
 
 export const Presenter = ({
@@ -32,9 +35,12 @@ export const Presenter = ({
   isCorrect,
   isAnswered,
   isLastQuestion,
+  openedHintStep,
   onAnswer,
   onSkip,
   onNextQuestion,
+  onOpenHint,
+  onCloseHint,
 }: Props) => {
   return (
     <Box
@@ -173,6 +179,78 @@ export const Presenter = ({
                   {choice.choice_number}. {choice.choice_text}
                 </Box>
               ))}
+              <Box sx={{ mt: 3 }}>
+                {question.question_hints.map((hint) => (
+                  <Box key={hint.id} sx={{ mb: 2 }}>
+                    {openedHintStep !== hint.step_number ? (
+                      <Box
+                        onClick={() => onOpenHint(hint.step_number)}
+                        sx={{
+                          display: "inline-block",
+                          px: 2,
+                          py: 1,
+                          borderRadius: 2,
+                          bgcolor: colors.surface.light,
+                          cursor: "pointer",
+                          fontSize: 14,
+                          fontWeight: 600,
+                        }}
+                      >
+                        ヒント {hint.step_number} を見る
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          bgcolor: colors.surface.light,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 1,
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: 14,
+                            }}
+                          >
+                            ヒント {hint.step_number}
+                          </Typography>
+
+                          <Box
+                            onClick={onCloseHint}
+                            sx={{
+                              fontSize: 13,
+                              color: "text.secondary",
+                              cursor: "pointer",
+                              "&:hover": {
+                                opacity: 0.7,
+                              },
+                            }}
+                          >
+                            閉じる
+                          </Box>
+                        </Box>
+
+                        <Typography
+                          sx={{
+                            whiteSpace: "pre-wrap",
+                            lineHeight: 1.8,
+                          }}
+                        >
+                          {hint.hint_text}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Box>
               {isAnswered && (
                 <Box sx={{ mt: 3, textAlign: "center" }}>
                   <Typography
