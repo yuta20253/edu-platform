@@ -3,9 +3,6 @@
 import { Box, CircularProgress } from "@mui/material";
 import { useGetQuestions } from "./hooks/useGetQuestions";
 import { Presenter } from "./Presenter";
-import { useState } from "react";
-import { apiClient } from "@/libs/http/apiClient";
-import { useRouter } from "next/navigation";
 import { useQuestion } from "./hooks/useQuestion";
 
 type Props = {
