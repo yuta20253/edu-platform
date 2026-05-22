@@ -6,4 +6,4 @@ export type QuestionHistory = {
   status: AnswerStatus;
 };
 
-export type AnswerStatus = "answered" | "unanswered";
+type AnswerStatus = "answered" | "unanswered";
