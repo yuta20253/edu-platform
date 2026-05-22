@@ -6,6 +6,7 @@ import { Presenter } from "./Presenter";
 import { useState } from "react";
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
+import { useQuestion } from "./hooks/useQuestion";
 
 type Props = {
   taskId: number;
@@ -15,39 +16,19 @@ type Props = {
 
 export const Question = ({ goalId, taskId, unitId }: Props) => {
   const { questions, loading, error } = useGetQuestions({ taskId, unitId });
-  const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
-  const [openedHintStep, setOpenedHintStep] = useState<number>(0);
-
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-
-  const isLastQuestion = questions && currentIndex === questions.length - 1;
-
-  const router = useRouter();
-
-  const handleNextQuestion = () => {
-    const confirmUrl = goalId
-      ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions/confirmation`
-      : `/tasks/${taskId}/units/${unitId}/questions/confirmation`;
-    if (isLastQuestion) {
-      router.push(confirmUrl);
-      return;
-    }
-
-    setCurrentIndex((prev) => prev + 1);
-
-    setSelectedChoiceId(null);
-    setIsCorrect(null);
-    setIsAnswered(false);
-
-    setOpenedHintStep(0);
-  };
-
-  const handleSkip = () => {
-    handleNextQuestion();
-  };
+  const {
+    currentQuestion,
+    currentIndex,
+    selectedChoiceId,
+    isCorrect,
+    isAnswered,
+    isLastQuestion,
+    openedHintStep,
+    setOpenedHintStep,
+    handleNextQuestion,
+    handleSkip,
+    handleAnswer,
+  } = useQuestion({ questions, taskId, unitId, goalId });
 
   if (loading) {
     return (
@@ -81,8 +62,6 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
     );
   }
 
-  const currentQuestion = questions[currentIndex];
-
   if (!currentQuestion) {
     return (
       <Box
@@ -99,34 +78,6 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
       </Box>
     );
   }
-
-  const handleAnswer = async (choiceId: number) => {
-    setSelectedChoiceId(choiceId);
-
-    const alreadyAnswered =
-      currentQuestion.answered ||
-      answeredQuestionIds.includes(currentQuestion.id);
-
-    const payload = {
-      task_id: taskId,
-      unit_id: unitId,
-      question_id: currentQuestion.id,
-      question_choice_id: choiceId,
-    };
-
-    const res = alreadyAnswered
-      ? await apiClient.patch("/api/student/answers", payload)
-      : await apiClient.post("/api/student/answers", payload);
-
-    setAnsweredQuestionIds((prev) =>
-      prev.includes(currentQuestion.id) ? prev : [...prev, currentQuestion.id],
-    );
-
-    setIsCorrect(res.data.is_correct);
-    setIsAnswered(true);
-
-    setOpenedHintStep(0);
-  };
 
   return (
     <Presenter
