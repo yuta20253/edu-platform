@@ -34,6 +34,7 @@ module Student
       return false unless valid?
 
       ::Student::UpdateTaskService.new(self).call
+      true
     end
 
     def parsed_due_date
