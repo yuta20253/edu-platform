@@ -25,11 +25,6 @@ export async function POST(req: Request) {
 
     return nextResponse;
   } catch (error) {
-    console.log(error);
-    if (error instanceof Error) {
-      console.error(error.message);
-      console.error(error.stack);
-    }
     if (error instanceof RailsUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
@@ -64,11 +59,6 @@ export async function PATCH(req: Request) {
 
     return nextResponse;
   } catch (error) {
-    console.log(error);
-    if (error instanceof Error) {
-      console.error(error.message);
-      console.error(error.stack);
-    }
     if (error instanceof RailsUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
