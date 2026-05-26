@@ -23,10 +23,13 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
 
   const isLastQuestion = questions && currentIndex === questions.length - 1;
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = (ids?: number[]) => {
+    const targetIds = Array.isArray(ids) ? ids : answeredQuestionIds;
+
+    const answeredQuestionIdsParam = targetIds.join(",");
     const confirmUrl = goalId
-      ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions/confirmation`
-      : `/tasks/${taskId}/units/${unitId}/questions/confirmation`;
+      ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}`
+      : `/tasks/${taskId}/units/${unitId}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}`;
     if (isLastQuestion) {
       router.push(confirmUrl);
       return;
@@ -61,14 +64,20 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
       ? await apiClient.patch("/api/student/answers", payload)
       : await apiClient.post("/api/student/answers", payload);
 
-    setAnsweredQuestionIds((prev) =>
-      prev.includes(currentQuestion.id) ? prev : [...prev, currentQuestion.id],
-    );
+    const updatedIds = answeredQuestionIds.includes(currentQuestion.id)
+      ? answeredQuestionIds
+      : [...answeredQuestionIds, currentQuestion.id];
+
+    setAnsweredQuestionIds(updatedIds);
 
     setIsCorrect(res.data.is_correct);
     setIsAnswered(true);
 
     setOpenedHintStep(0);
+
+    if (isLastQuestion) {
+      handleNextQuestion(updatedIds);
+    }
   };
 
   const handleSkip = () => {

@@ -8,22 +8,34 @@ type Props = {
   goalId?: number;
   taskId: number;
   unitId: number;
+  answeredQuestionIds?: number[];
 };
 
-export const QuestionConfirmation = ({ goalId, taskId, unitId }: Props) => {
-  const { questionHistories, loading, error } = useGetData({ taskId, unitId });
+export const QuestionConfirmation = ({
+  goalId,
+  taskId,
+  unitId,
+  answeredQuestionIds,
+}: Props) => {
+  const { questionHistories, loading, error } = useGetData({
+    taskId,
+    unitId,
+    answeredQuestionIds,
+  });
 
   if (loading) {
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-      }}
-    >
-      <CircularProgress />
-    </Box>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (!questionHistories || error) {

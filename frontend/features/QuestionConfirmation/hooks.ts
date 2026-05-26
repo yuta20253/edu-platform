@@ -8,9 +8,10 @@ import { QuestionHistory } from "./types";
 type Props = {
   taskId: number;
   unitId: number;
+  answeredQuestionIds?: number[];
 };
 
-export const useGetData = ({ taskId, unitId }: Props) => {
+export const useGetData = ({ taskId, unitId, answeredQuestionIds }: Props) => {
   const [questionHistories, setQuestionHistories] = useState<QuestionHistory[]>(
     [],
   );
@@ -25,6 +26,11 @@ export const useGetData = ({ taskId, unitId }: Props) => {
     apiClient
       .get<QuestionHistory[]>(
         `/api/student/tasks/${taskId}/units/${unitId}/confirmation`,
+        {
+          params: {
+            answered_question_ids: answeredQuestionIds?.join(","),
+          },
+        },
       )
       .then((res) => setQuestionHistories(res.data))
       .catch((err) => {
@@ -36,7 +42,7 @@ export const useGetData = ({ taskId, unitId }: Props) => {
         setQuestionHistories([]);
       })
       .finally(() => setLoading(false));
-  }, [router, taskId, unitId]);
+  }, [router, taskId, unitId, answeredQuestionIds]);
 
   return { questionHistories, loading, error };
 };
