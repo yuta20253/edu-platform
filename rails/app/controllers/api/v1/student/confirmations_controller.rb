@@ -8,7 +8,11 @@ module Api
         def show
           question_histories = current_user
                                .question_histories
-                               .where(task_id: confirmation_params[:task_id], unit_id: confirmation_params[:unit_id])
+                               .where(
+                                 task_id: confirmation_params[:task_id],
+                                 unit_id: confirmation_params[:unit_id],
+                                 question_id: answered_question_ids
+                               )
                                .includes(:question_choice)
                                .index_by(&:question_id)
 
@@ -23,7 +27,15 @@ module Api
         private
 
         def confirmation_params
-          params.permit(:task_id, :unit_id)
+          params.permit(:task_id, :unit_id, :answered_question_ids)
+        end
+
+        def answered_question_ids
+          return [] if confirmation_params[:answered_question_ids].blank?
+
+          confirmation_params[:answered_question_ids]
+            .split(',')
+            .map(&:to_i)
         end
 
         def set_questions
