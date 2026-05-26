@@ -43,10 +43,26 @@ module Api
           end
         end
 
+        def update
+          task = current_user.tasks.find(params[:id])
+
+          form = ::Student::UpdateTaskForm.new(task: task, **update_task_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: { message: 'タスクが更新されました。' }, status: :ok
+          else
+            render json: { errors: form.errors }, status: :unprocessable_content
+          end
+        end
+
         private
 
         def create_task_params
           params.require(:task).permit(:goal_id, :title, :content, :priority, :due_date, :memo, unit_ids: [])
+        end
+
+        def update_task_params
+          params.require(:task).permit(:title, :content, :priority, :due_date, :memo, unit_ids: [])
         end
       end
     end
