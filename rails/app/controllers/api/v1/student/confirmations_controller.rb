@@ -6,18 +6,6 @@ module Api
       class ConfirmationsController < Api::V1::Student::BaseController
         before_action :set_questions, only: :show
         def show
-          question_histories = current_user
-                               .question_histories
-                               .where(
-                                 task_id: confirmation_params[:task_id],
-                                 unit_id: confirmation_params[:unit_id],
-                                 question_id: answered_question_ids
-                               )
-                               .includes(:question_choice)
-                               .index_by(&:question_id)
-
-          return render json: { errors: '解答履歴がありません' }, status: :not_found if question_histories.empty?
-
           render json: @questions,
                  each_serializer: QuestionConfirmationSerializer,
                  question_histories_by_question_id: question_histories,
@@ -28,6 +16,20 @@ module Api
 
         def confirmation_params
           params.permit(:task_id, :unit_id, :answered_question_ids)
+        end
+
+        def question_histories
+          return {} if answered_question_ids.blank?
+
+          current_user
+            .question_histories
+            .where(
+              task_id: confirmation_params[:task_id],
+              unit_id: confirmation_params[:unit_id],
+              question_id: answered_question_ids
+            )
+            .includes(:question_choice)
+            .index_by(&:question_id)
         end
 
         def answered_question_ids
