@@ -26,17 +26,14 @@ class Announcement < ApplicationRecord
   scope :for_user, lambda { |user|
     joins(:announcement_targets)
       .where(
-        '(announcement_targets.high_school_id IS NULL OR announcement_targets.high_school_id = :high_school_id)
-         AND
-         (announcement_targets.user_role_id IS NULL OR announcement_targets.user_role_id = :user_role_id)
-         AND
-         (announcement_targets.grade_id IS NULL OR announcement_targets.grade_id = :grade_id)
-         AND
-         (announcement_targets.user_id IS NULL OR announcement_targets.user_id = :user_id)',
-        high_school_id: user.high_school_id,
-        user_role_id: user.user_role_id,
-        grade_id: user.grade_id,
-        user_id: user.id
+        "(announcement_targets.high_school_id IS NULL OR announcement_targets.high_school_id = ?) AND
+        (announcement_targets.user_role_id IS NULL OR announcement_targets.user_role_id = ?) AND
+        (announcement_targets.grade_id IS NULL OR announcement_targets.grade_id = ?) AND
+        (announcement_targets.user_id IS NULL OR announcement_targets.user_id = ?)",
+        user.high_school_id,
+        user.user_role_id,
+        user.grade_id,
+        user.id
       )
       .distinct
   }
