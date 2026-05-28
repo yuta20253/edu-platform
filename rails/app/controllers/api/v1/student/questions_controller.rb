@@ -9,9 +9,16 @@ module Api
           unit = task.units.find(params[:unit_id])
           questions = unit
                       .questions
-                      .includes(:question_hints, :question_choices, :question_histories)
+                      .includes(:question_hints, :question_choices)
 
-          render json: questions, each_serializer: QuestionSerializer
+          answered_ids = current_user
+                          .question_histories
+                          .where(question_id: unit.question_ids)
+                          .pluck(:question_id).to_set
+
+          render json: questions,
+                 each_serializer: QuestionSerializer,
+                 scope: { answered_ids: answered_ids }
         end
       end
     end

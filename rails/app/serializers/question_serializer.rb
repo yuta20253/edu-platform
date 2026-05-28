@@ -23,6 +23,6 @@ class QuestionSerializer < ActiveModel::Serializer
   end
 
   def answered
-    object.question_histories.any? { |qh| qh.user_id == scope.id }
+    scope[:answered_ids].include?(object.id)
   end
 end
