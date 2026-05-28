@@ -12,9 +12,9 @@ module Api
                       .includes(:question_hints, :question_choices)
 
           answered_ids = current_user
-                          .question_histories
-                          .where(question_id: unit.question_ids)
-                          .pluck(:question_id).to_set
+                         .question_histories
+                         .where(question_id: unit.question_ids)
+                         .pluck(:question_id).to_set
 
           render json: questions,
                  each_serializer: QuestionSerializer,
