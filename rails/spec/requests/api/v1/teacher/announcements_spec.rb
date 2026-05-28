@@ -29,17 +29,61 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       let(:cookie) { login_and_get_cookie(teacher) }
 
       let!(:other_teacher) { create(:user, :teacher) }
+      let!(:student) { create(:user, :student, high_school: high_school) }
 
+      # teacher が閲覧できるお知らせ
       let!(:announcements) do
         create_list(:announcement, 3, :published, publisher: teacher).map do |a|
-          create(:announcement_target, announcement: a, target_type: :all_users)
+          create(:announcement_target, :all_users, announcement: a)
           a
         end
       end
 
+      # 下書き
       let!(:draft_announcements) do
         create_list(:announcement, 3, :draft, publisher: teacher).map do |a|
           create(:announcement_target, :all_users, announcement: a)
+          a
+        end
+      end
+
+      # 生徒向け
+      let!(:student_announcements) do
+        create_list(:announcement, 2, :published, publisher: teacher).map do |a|
+          create(
+            :announcement_target,
+            :by_role,
+            announcement: a,
+            user_role_id: student.user_role_id
+          )
+          a
+        end
+      end
+
+      # 別高校向け
+      let!(:other_school_announcements) do
+        other_school = create(:high_school)
+
+        create_list(:announcement, 2, :published, publisher: other_teacher).map do |a|
+          create(
+            :announcement_target,
+            :by_school,
+            announcement: a,
+            high_school_id: other_school.id
+          )
+          a
+        end
+      end
+
+      # 特定ユーザー向け
+      let!(:other_user_announcements) do
+        create_list(:announcement, 2, :published, publisher: other_teacher).map do |a|
+          create(
+            :announcement_target,
+            :by_user,
+            announcement: a,
+            user_id: other_teacher.id
+          )
           a
         end
       end
@@ -67,18 +111,50 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         returned_ids = json.pluck('id')
 
         expect(returned_ids).to match_array(announcements.map(&:id))
-        expect(returned_ids).not_to include(*draft_announcements.map(&:id))
       end
 
-      it '別ユーザーのデータは混ざらない' do
+      it 'draftは返らない' do
         get '/api/v1/teacher/announcements',
             headers: headers.merge('Cookie' => cookie)
 
         json = response.parsed_body
 
-        returned_ids = json.map { |a| a['publisher']['id'] }
+        returned_ids = json.pluck('id')
 
-        expect(returned_ids).to all(eq(teacher.id))
+        expect(returned_ids).not_to include(*draft_announcements.map(&:id))
+      end
+
+      it '生徒向けのお知らせは返らない' do
+        get '/api/v1/teacher/announcements',
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        returned_ids = json.pluck('id')
+
+        expect(returned_ids).not_to include(*student_announcements.map(&:id))
+      end
+
+      it '別高校向けのお知らせは返らない' do
+        get '/api/v1/teacher/announcements',
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        returned_ids = json.pluck('id')
+
+        expect(returned_ids).not_to include(*other_school_announcements.map(&:id))
+      end
+
+      it '別ユーザー向けのお知らせは返らない' do
+        get '/api/v1/teacher/announcements',
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        returned_ids = json.pluck('id')
+
+        expect(returned_ids).not_to include(*other_user_announcements.map(&:id))
       end
     end
 
