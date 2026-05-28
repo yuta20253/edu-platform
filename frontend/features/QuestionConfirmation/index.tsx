@@ -38,7 +38,7 @@ export const QuestionConfirmation = ({
     );
   }
 
-  if (!questionHistories || error) {
+  if (error) {
     return (
       <Box
         sx={{
@@ -51,6 +51,21 @@ export const QuestionConfirmation = ({
         }}
       >
         データの取得に失敗しました
+      </Box>
+    );
+  }
+
+  if (!loading && questionHistories.length === 0) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        問題履歴がありません
       </Box>
     );
   }
