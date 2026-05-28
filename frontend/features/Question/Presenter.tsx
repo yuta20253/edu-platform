@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -17,6 +17,7 @@ type Props = {
   isAnswered: boolean;
   isLastQuestion: boolean;
   openedHintStep: number;
+  isSubmitting: boolean,
   onAnswer: (choiceId: number) => void;
   onSkip: () => void;
   onNextQuestion: () => void;
@@ -36,6 +37,7 @@ export const Presenter = ({
   isAnswered,
   isLastQuestion,
   openedHintStep,
+  isSubmitting,
   onAnswer,
   onSkip,
   onNextQuestion,
@@ -145,39 +147,37 @@ export const Presenter = ({
               }}
             >
               {question.question_choices.map((choice) => (
-                <Box
+                <Button
                   key={choice.id}
-                  onClick={() => {
-                    if (!isAnswered) {
-                      onAnswer(choice.id);
-                    }
-                  }}
+                  fullWidth
+                  disabled={isSubmitting || isAnswered}
+                  onClick={() => onAnswer(choice.id)}
                   sx={{
+                    justifyContent: "flex-start",
+                    textTransform: "none",
                     p: 2,
-                    borderRadius: 2,
-                    cursor: "pointer",
-                    transition: "0.2s",
-                    border:
+                    color: colors.text.primary,
+                    border: `1px solid ${
                       isAnswered && choice.id === selectedChoiceId
                         ? isCorrect
-                          ? "1px solid #4caf50"
-                          : "1px solid #f44336"
-                        : `1px solid ${colors.border.default}`,
-
+                          ? "#4caf50"
+                          : "#f44336"
+                        : colors.border.default
+                    }`,
                     bgcolor:
                       isAnswered && choice.id === selectedChoiceId
                         ? isCorrect
                           ? "#e8f5e9"
                           : "#ffebee"
-                        : colors.surface.white,
+                        : "transparent",
 
                     "&:hover": {
-                      bgcolor: colors.surface.light,
+                      bgcolor: isAnswered ? undefined : colors.surface.light,
                     },
                   }}
                 >
                   {choice.choice_number}. {choice.choice_text}
-                </Box>
+                </Button>
               ))}
               <Box sx={{ mt: 3 }}>
                 {question.question_hints.map((hint) => (

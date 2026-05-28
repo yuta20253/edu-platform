@@ -21,6 +21,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
   const [openedHintStep, setOpenedHintStep] = useState<number>(0);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isLastQuestion = questions && currentIndex === questions.length - 1;
 
@@ -48,7 +49,10 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const currentQuestion = questions[currentIndex];
 
   const handleAnswer = async (choiceId: number) => {
+    if (isSubmitting) return;
+
     try {
+      setIsSubmitting(true);
       setHasError(false);
       setSelectedChoiceId(choiceId);
 
@@ -84,6 +88,8 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
     } catch (error) {
       console.error(error);
       setHasError(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -100,6 +106,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
     isLastQuestion,
     openedHintStep,
     hasError,
+    isSubmitting,
     setOpenedHintStep,
     handleNextQuestion,
     handleSkip,

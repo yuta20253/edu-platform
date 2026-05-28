@@ -22,6 +22,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
     isLastQuestion,
     openedHintStep,
     hasError,
+    isSubmitting,
     setOpenedHintStep,
     handleNextQuestion,
     handleSkip,
@@ -105,6 +106,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
       isAnswered={isAnswered}
       isLastQuestion={isLastQuestion}
       openedHintStep={openedHintStep}
+      isSubmitting={isSubmitting}
       onAnswer={handleAnswer}
       onSkip={handleSkip}
       onNextQuestion={handleNextQuestion}
