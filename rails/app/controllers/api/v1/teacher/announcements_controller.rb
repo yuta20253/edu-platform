@@ -17,6 +17,12 @@ module Api
                  each_serializer: AnnouncementSerializer,
                  status: :ok
         end
+
+        def show
+          announcement = Announcement.for_user(current_user).published.find(params[:id])
+
+          render json: announcement, serializer: AnnouncementSerializer, status: :ok
+        end
       end
     end
   end

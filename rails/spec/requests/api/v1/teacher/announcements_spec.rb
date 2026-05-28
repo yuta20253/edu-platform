@@ -179,4 +179,173 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       end
     end
   end
+
+  describe 'GET /api/v1/teacher/announcements/:id' do
+    context '正常系' do
+      let!(:high_school) { create(:high_school) }
+
+      let!(:teacher) { create(:user, :teacher, high_school: high_school) }
+      let(:cookie) { login_and_get_cookie(teacher) }
+
+      let!(:student) { create(:user, :student, high_school: high_school) }
+      let!(:other_teacher) { create(:user, :teacher) }
+
+      let!(:announcement) do
+        announcement = create(
+          :announcement,
+          :published,
+          publisher: other_teacher
+        )
+
+        create(
+          :announcement_target,
+          :by_role,
+          announcement: announcement,
+          user_role_id: teacher.user_role_id
+        )
+
+        announcement
+      end
+
+      let!(:draft_announcement) do
+        announcement = create(
+          :announcement,
+          :draft,
+          publisher: teacher
+        )
+
+        create(
+          :announcement_target,
+          :all_users,
+          announcement: announcement
+        )
+
+        announcement
+      end
+
+      let!(:student_announcement) do
+        announcement = create(
+          :announcement,
+          :published,
+          publisher: other_teacher
+        )
+
+        create(
+          :announcement_target,
+          :by_role,
+          announcement: announcement,
+          user_role_id: student.user_role_id
+        )
+
+        announcement
+      end
+
+      let!(:other_school_announcement) do
+        other_school = create(:high_school)
+
+        announcement = create(
+          :announcement,
+          :published,
+          publisher: other_teacher
+        )
+
+        create(
+          :announcement_target,
+          :by_school,
+          announcement: announcement,
+          high_school_id: other_school.id
+        )
+
+        announcement
+      end
+
+      let!(:other_user_announcement) do
+        announcement = create(
+          :announcement,
+          :published,
+          publisher: other_teacher
+        )
+
+        create(
+          :announcement_target,
+          :by_user,
+          announcement: announcement,
+          user_id: other_teacher.id
+        )
+
+        announcement
+      end
+
+      it '200が返る' do
+        get "/api/v1/teacher/announcements/#{announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '対象のお知らせ詳細が返る' do
+        get "/api/v1/teacher/announcements/#{announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['id']).to eq(announcement.id)
+        expect(json['title']).to eq(announcement.title)
+        expect(json['content']).to eq(announcement.content)
+      end
+
+      it 'draftのお知らせは取得できない' do
+        get "/api/v1/teacher/announcements/#{draft_announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '生徒向けのお知らせは取得できない' do
+        get "/api/v1/teacher/announcements/#{student_announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '別高校向けのお知らせは取得できない' do
+        get "/api/v1/teacher/announcements/#{other_school_announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '別ユーザー向けのお知らせは取得できない' do
+        get "/api/v1/teacher/announcements/#{other_user_announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 未認証' do
+      let!(:announcement) { create(:announcement, :published) }
+
+      it '401が返る' do
+        get "/api/v1/teacher/announcements/#{announcement.id}",
+            headers: headers
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - teacher以外' do
+      let!(:student) { create(:user) }
+      let(:cookie) { login_and_get_cookie(student) }
+
+      let!(:announcement) { create(:announcement, :published) }
+
+      it '403が返る' do
+        get "/api/v1/teacher/announcements/#{announcement.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
