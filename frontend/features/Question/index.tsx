@@ -21,6 +21,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
     isAnswered,
     isLastQuestion,
     openedHintStep,
+    hasError,
     setOpenedHintStep,
     handleNextQuestion,
     handleSkip,
@@ -72,6 +73,21 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
         }}
       >
         問題が存在しません
+      </Box>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        回答の送信に失敗しました
       </Box>
     );
   }

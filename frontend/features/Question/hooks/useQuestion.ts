@@ -20,6 +20,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const [isAnswered, setIsAnswered] = useState(false);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
   const [openedHintStep, setOpenedHintStep] = useState<number>(0);
+  const [hasError, setHasError] = useState(false);
 
   const isLastQuestion = questions && currentIndex === questions.length - 1;
 
@@ -47,36 +48,42 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const currentQuestion = questions[currentIndex];
 
   const handleAnswer = async (choiceId: number) => {
-    setSelectedChoiceId(choiceId);
+    try {
+      setHasError(false);
+      setSelectedChoiceId(choiceId);
 
-    const alreadyAnswered =
-      currentQuestion.answered ||
-      answeredQuestionIds.includes(currentQuestion.id);
+      const alreadyAnswered =
+        currentQuestion.answered ||
+        answeredQuestionIds.includes(currentQuestion.id);
 
-    const payload = {
-      task_id: taskId,
-      unit_id: unitId,
-      question_id: currentQuestion.id,
-      question_choice_id: choiceId,
-    };
+      const payload = {
+        task_id: taskId,
+        unit_id: unitId,
+        question_id: currentQuestion.id,
+        question_choice_id: choiceId,
+      };
 
-    const res = alreadyAnswered
-      ? await apiClient.patch("/api/student/answers", payload)
-      : await apiClient.post("/api/student/answers", payload);
+      const res = alreadyAnswered
+        ? await apiClient.patch("/api/student/answers", payload)
+        : await apiClient.post("/api/student/answers", payload);
 
-    const updatedIds = answeredQuestionIds.includes(currentQuestion.id)
-      ? answeredQuestionIds
-      : [...answeredQuestionIds, currentQuestion.id];
+      const updatedIds = answeredQuestionIds.includes(currentQuestion.id)
+        ? answeredQuestionIds
+        : [...answeredQuestionIds, currentQuestion.id];
 
-    setAnsweredQuestionIds(updatedIds);
+      setAnsweredQuestionIds(updatedIds);
 
-    setIsCorrect(res.data.is_correct);
-    setIsAnswered(true);
+      setIsCorrect(res.data.is_correct);
+      setIsAnswered(true);
 
-    setOpenedHintStep(0);
+      setOpenedHintStep(0);
 
-    if (isLastQuestion) {
-      handleNextQuestion(updatedIds);
+      if (isLastQuestion) {
+        handleNextQuestion(updatedIds);
+      }
+    } catch (error) {
+      console.error(error);
+      setHasError(true);
     }
   };
 
@@ -92,6 +99,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
     isAnswered,
     isLastQuestion,
     openedHintStep,
+    hasError,
     setOpenedHintStep,
     handleNextQuestion,
     handleSkip,
