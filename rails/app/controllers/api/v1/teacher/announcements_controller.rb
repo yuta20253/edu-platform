@@ -35,10 +35,24 @@ module Api
           end
         end
 
+        def update
+          form = ::Teacher::UpdateAnnouncementForm.new(current_user: current_user, **update_announcement_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: { message: "お知らせを更新しました。" }, status: :ok
+          else
+            render json: { errors: form.errors }, status: :unprocessable_content
+          end
+        end
+
         private
 
         def create_announcement_params
           params.require(:announcement).permit(:title, :content, announcement_targets: [:target_type])
+        end
+
+        def update_announcement_params
+          params.require(:announcement).permit(:id, :status)
         end
       end
     end
