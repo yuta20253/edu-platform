@@ -163,8 +163,7 @@ export const Presenter = ({
                     color="default"
                     variant="outlined"
                   />
-                ) : history.correct_answer ===
-                  String(history.selected_choice_number) ? (
+                ) : history.is_correct ? (
                   <Chip
                     icon={<CheckCircleIcon />}
                     label="正解"

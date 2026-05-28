@@ -17,7 +17,7 @@ type Props = {
   isAnswered: boolean;
   isLastQuestion: boolean;
   openedHintStep: number;
-  isSubmitting: boolean,
+  isSubmitting: boolean;
   onAnswer: (choiceId: number) => void;
   onSkip: () => void;
   onNextQuestion: () => void;
