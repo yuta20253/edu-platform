@@ -348,4 +348,209 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/teacher/announcements' do
+    let!(:high_school) { create(:high_school) }
+
+    let!(:teacher) { create(:user, :teacher, high_school: high_school) }
+    let(:cookie) { login_and_get_cookie(teacher) }
+
+    let(:params) do
+      {
+        announcement: {
+          title: 'テストタイトル',
+          content: 'テスト内容',
+          announcement_targets: [
+            {
+              target_type: 'by_school'
+            }
+          ]
+        }
+      }
+    end
+
+    context '正常系' do
+      it '201が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'お知らせが作成される' do
+        expect do
+          post '/api/v1/teacher/announcements',
+               params: params.to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.to change(Announcement, :count).by(1)
+      end
+
+      it 'announcement_targetが作成される' do
+        expect do
+          post '/api/v1/teacher/announcements',
+               params: params.to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.to change(AnnouncementTarget, :count).by(1)
+      end
+
+      it 'draftで作成される' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        announcement = Announcement.last
+
+        expect(announcement.status).to eq('draft')
+      end
+
+      it 'publisher_idにcurrent_userが入る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        announcement = Announcement.last
+
+        expect(announcement.publisher_id).to eq(teacher.id)
+      end
+
+      it 'by_schoolの場合high_school_idが保存される' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        target = AnnouncementTarget.last
+
+        expect(target.target_type).to eq('by_school')
+        expect(target.high_school_id).to eq(teacher.high_school_id)
+      end
+
+      it 'メッセージが返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['message']).to eq('お知らせを下書きで作成しました。')
+      end
+
+      it 'titleが保存される' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        announcement = Announcement.last
+
+        expect(announcement.title).to eq('テストタイトル')
+      end
+
+      it 'contentが保存される' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        announcement = Announcement.last
+
+        expect(announcement.content).to eq('テスト内容')
+      end
+    end
+
+    context '異常系 - titleが空' do
+      before do
+        params[:announcement][:title] = ''
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - 不正なtarget_type' do
+      before do
+        params[:announcement][:announcement_targets] = [
+          {
+            target_type: 'invalid'
+          }
+        ]
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - 未認証' do
+      it '401が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - teacher以外' do
+      let!(:student) { create(:user) }
+      let(:cookie) { login_and_get_cookie(student) }
+
+      it '403が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - contentが空' do
+      before do
+        params[:announcement][:content] = ''
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - announcement_targetsが配列ではない' do
+      before do
+        params[:announcement][:announcement_targets] = 'invalid'
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - announcement_targetsが空' do
+      before do
+        params[:announcement][:announcement_targets] = []
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+  end
 end

@@ -1,0 +1,170 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
+  subject(:form) do
+    described_class.new(
+      current_user: teacher,
+      title: title,
+      content: content,
+      announcement_targets: announcement_targets
+    )
+  end
+
+  let!(:teacher) { create(:user, :teacher) }
+
+  let(:announcement_targets) do
+    [
+      {
+        'target_type' => 'by_school'
+      }
+    ]
+  end
+
+  describe '#valid?' do
+    context '正常系' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+
+      it 'validになる' do
+        expect(form).to be_valid
+      end
+    end
+
+    context 'titleが空' do
+      let(:title) { '' }
+      let(:content) { 'テスト内容' }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:title]).to include('を入力してください')
+      end
+    end
+
+    context 'contentが空' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { '' }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:content]).to include('を入力してください')
+      end
+    end
+
+    context 'announcement_targetsが空' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) { nil }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:announcement_targets]).to include('を入力してください')
+      end
+    end
+
+    context 'announcement_targetsが配列ではない' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) { 'by_school' }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:announcement_targets]).to include('配列で指定してください')
+      end
+    end
+
+    context '不正なtarget_type' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'invalid'
+          }
+        ]
+      end
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:base]).to include('不正なtarget_typeが含まれています')
+      end
+    end
+  end
+
+  describe '#save' do
+    let(:title) { 'テストタイトル' }
+    let(:content) { 'テスト内容' }
+
+    context 'validな場合' do
+      it 'serviceが呼ばれる' do
+        service = instance_double(Teacher::CreateAnnouncementService)
+
+        allow(Teacher::CreateAnnouncementService)
+          .to receive(:new)
+          .with(form)
+          .and_return(service)
+
+        allow(service).to receive(:call)
+
+        form.save
+
+        expect(service).to have_received(:call)
+      end
+
+      it 'trueを返す' do
+        service = instance_double(Teacher::CreateAnnouncementService, call: true)
+
+        allow(Teacher::CreateAnnouncementService)
+          .to receive(:new)
+          .and_return(service)
+
+        expect(form.save).to be true
+      end
+    end
+
+    context 'invalidな場合' do
+      let(:title) { '' }
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+
+      it 'serviceが呼ばれない' do
+        allow(Teacher::CreateAnnouncementService)
+          .to receive(:new)
+
+        form.save
+
+        expect(Teacher::CreateAnnouncementService)
+          .not_to have_received(:new)
+      end
+    end
+  end
+end

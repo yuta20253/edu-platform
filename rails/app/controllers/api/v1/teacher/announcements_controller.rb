@@ -23,6 +23,23 @@ module Api
 
           render json: announcement, serializer: AnnouncementSerializer, status: :ok
         end
+
+        def create
+          form = ::Teacher::CreateAnnouncementForm.new(current_user: current_user,
+                                                       **create_announcement_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: { message: 'お知らせを下書きで作成しました。' }, status: :created
+          else
+            render json: { errors: form.errors }, status: :unprocessable_content
+          end
+        end
+
+        private
+
+        def create_announcement_params
+          params.require(:announcement).permit(:title, :content, announcement_targets: [:target_type])
+        end
       end
     end
   end
