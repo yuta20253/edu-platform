@@ -20,7 +20,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const [isAnswered, setIsAnswered] = useState(false);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
   const [openedHintStep, setOpenedHintStep] = useState<number>(0);
-  const [hasError, setHasError] = useState(false);
+  const [hasError, setHasError] = useState<boolean>(false);
 
   const isLastQuestion = questions && currentIndex === questions.length - 1;
 
