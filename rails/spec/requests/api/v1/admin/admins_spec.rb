@@ -235,4 +235,59 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
       end
     end
   end
+
+  describe 'PATCH /api/v1/admin/admins/:id' do
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let!(:target) do
+      create(:user, :admin, high_school: nil, name: '更新前太郎', email: 'before-admin@example.com')
+    end
+    let(:cookie) { login_and_get_cookie(admin_user) }
+    let(:valid_params) do
+      { name: '更新後太郎', email: 'after-admin@example.com' }.to_json
+    end
+
+    context '正常系' do
+      it 'ステータス200が返される' do
+        patch "/api/v1/admin/admins/#{target.id}",
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'name / email が更新される' do
+        patch "/api/v1/admin/admins/#{target.id}",
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        admin_data = response.parsed_body['admin']
+        expect(admin_data['name']).to eq('更新後太郎')
+        expect(admin_data['email']).to eq('after-admin@example.com')
+      end
+
+      it 'DBに永続化される' do
+        patch "/api/v1/admin/admins/#{target.id}",
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        target.reload
+        expect(target.name).to eq('更新後太郎')
+        expect(target.email).to eq('after-admin@example.com')
+      end
+    end
+
+    context '異常系' do
+      it '存在しないidの場合 404 が返される' do
+        patch '/api/v1/admin/admins/0',
+              params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'email 重複の場合 422 が返される' do
+        create(:user, :admin, high_school: nil, email: 'taken@example.com')
+        patch "/api/v1/admin/admins/#{target.id}",
+              params: { email: 'taken@example.com' }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+  end
 end
