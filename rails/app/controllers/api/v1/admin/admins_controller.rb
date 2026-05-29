@@ -49,6 +49,19 @@ module Api
         end
 
         def destroy
+          target = User.admins.where(deleted_at: nil).find(params[:id])
+
+          if last_active_admin?(target)
+            return render json: { errors: ['最後の管理者は削除できません'] },
+                          status: :unprocessable_content
+          end
+
+          if target == current_user
+            return render json: { errors: ['自分自身は削除できません'] },
+                          status: :unprocessable_content
+          end
+
+          target.update!(deleted_at: Time.current)
           head :no_content
         end
 
@@ -60,6 +73,10 @@ module Api
 
         def update_params
           params.permit(:name, :email)
+        end
+
+        def last_active_admin?(target)
+          !User.admins.where(deleted_at: nil).where.not(id: target.id).exists?
         end
       end
     end

@@ -304,10 +304,7 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
       end
 
       it '対象adminに deleted_at がセットされる' do
-        freeze_time = Time.zone.now
-        travel_to(freeze_time) do
-          delete "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
-        end
+        delete "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
         target.reload
         expect(target.deleted_at).to be_present
       end
