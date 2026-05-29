@@ -553,4 +553,114 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       end
     end
   end
+
+  describe 'PATCH /api/v1/teacher/announcements/:id' do
+    let!(:teacher) { create(:user, :teacher) }
+    let(:cookie) { login_and_get_cookie(teacher) }
+
+    let!(:announcement) do
+      create(
+        :announcement,
+        :draft,
+        publisher: teacher
+      )
+    end
+
+    let(:params) do
+      {
+        announcement: {
+          status: 'published'
+        }
+      }
+    end
+
+    context '正常系' do
+      it '200が返る' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'statusが更新される' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(announcement.reload.status).to eq('published')
+      end
+
+      it 'メッセージが返る' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['message']).to eq('お知らせのステータスを更新しました。')
+      end
+    end
+
+    context '異常系 - 不正なstatus' do
+      let(:params) do
+        {
+          announcement: {
+            status: 'invalid'
+          }
+        }
+      end
+
+      it '422が返る' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - 未認証' do
+      it '401が返る' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - teacher以外' do
+      let!(:student) { create(:user) }
+      let(:cookie) { login_and_get_cookie(student) }
+
+      it '403が返る' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - 自分のお知らせではない' do
+      let!(:other_teacher) { create(:user, :teacher) }
+
+      let!(:announcement) do
+        create(
+          :announcement,
+          :draft,
+          publisher: other_teacher
+        )
+      end
+
+      it '404が返る' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end

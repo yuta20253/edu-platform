@@ -4,6 +4,7 @@ module Api
   module V1
     module Teacher
       class AnnouncementsController < Api::V1::Teacher::BaseController
+        before_action :set_announcement, only: :update
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
           announcements = Announcement
@@ -36,23 +37,25 @@ module Api
         end
 
         def update
-          form = ::Teacher::UpdateAnnouncementForm.new(current_user: current_user, **update_announcement_params.to_h.symbolize_keys)
-
-          if form.save
-            render json: { message: "お知らせを更新しました。" }, status: :ok
+          if @announcement.update(update_announcement_params)
+            render json: { message: 'お知らせのステータスを更新しました。' }, status: :ok
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: @announcement.errors.full_messages }, status: :unprocessable_content
           end
         end
 
         private
+
+        def set_announcement
+          @announcement = current_user.announcements.find(params[:id])
+        end
 
         def create_announcement_params
           params.require(:announcement).permit(:title, :content, announcement_targets: [:target_type])
         end
 
         def update_announcement_params
-          params.require(:announcement).permit(:id, :status)
+          params.require(:announcement).permit(:status)
         end
       end
     end

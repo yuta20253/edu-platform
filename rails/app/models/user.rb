@@ -47,6 +47,7 @@ class User < ApplicationRecord
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
   has_many :import_histories, dependent: :destroy
+  has_many :announcements, foreign_key: :publisher_id, dependent: :destroy, inverse_of: :publisher
 
   validates :name, presence: true, on: :update
   validates :name_kana, presence: true, on: :update

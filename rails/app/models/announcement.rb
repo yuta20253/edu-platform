@@ -14,14 +14,16 @@
 #  updated_at   :datetime         not null
 #
 class Announcement < ApplicationRecord
+  before_validation :set_published_at
+
   has_many :announcement_targets, dependent: :destroy
   belongs_to :publisher, class_name: 'User'
 
-  enum status: {
+  enum :status, {
     draft: 0,
     scheduled: 1,
     published: 2
-  }
+  }, validate: true
 
   scope :for_user, lambda { |user|
     joins(:announcement_targets)
@@ -37,4 +39,14 @@ class Announcement < ApplicationRecord
       )
       .distinct
   }
+
+  private
+
+  def set_published_at
+    return unless will_save_change_to_status?
+    return unless published?
+    return if published_at.present?
+
+    self.published_at = Time.current
+  end
 end
