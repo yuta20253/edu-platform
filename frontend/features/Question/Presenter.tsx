@@ -160,17 +160,17 @@ export const Presenter = ({
                     border: `1px solid ${
                       isAnswered && choice.id === selectedChoiceId
                         ? isCorrect
-                          ? "#4caf50"
-                          : "#f44336"
+                          ? colors.statusAnswer.correctBorder
+                          : colors.statusAnswer.incorrectBorder
                         : colors.border.default
                     }`,
+
                     bgcolor:
                       isAnswered && choice.id === selectedChoiceId
                         ? isCorrect
-                          ? "#e8f5e9"
-                          : "#ffebee"
+                          ? colors.statusAnswer.correctBg
+                          : colors.statusAnswer.incorrectBg
                         : "transparent",
-
                     "&:hover": {
                       bgcolor: isAnswered ? undefined : colors.surface.light,
                     },

@@ -72,4 +72,10 @@ export const colors = {
     in_progress: "#2563eb",
     not_started: "#64748b",
   },
+  statusAnswer: {
+    correctBorder: "#4caf50",
+    incorrectBorder: "#f44336",
+    correctBg: "#e8f5e9",
+    incorrectBg: "#ffebee",
+  },
 } as const;
