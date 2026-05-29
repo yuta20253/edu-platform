@@ -1,8 +1,7 @@
 "use client";
 
-import { Box, Chip, Divider, Typography } from "@mui/material";
+import { Box, Chip, Divider, Typography, Button } from "@mui/material";
 import Link from "next/link";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -33,61 +32,7 @@ export const Presenter = ({
         mx: "auto",
       }}
     >
-      <Box
-        sx={{
-          textAlign: "start",
-          my: 4,
-        }}
-      >
-        {goalId ? (
-          <Link
-            href={`/goals/${goalId}/tasks/${taskId}/units/${unitId}`}
-            style={{ textDecoration: "none" }}
-          >
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "text.secondary",
-                cursor: "pointer",
-                transition: "0.2s",
-
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-              <Typography sx={{ fontSize: 14 }}>スタート画面へ</Typography>
-            </Box>
-          </Link>
-        ) : (
-          <Link
-            href={`/tasks/${taskId}/units/${unitId}`}
-            style={{ textDecoration: "none" }}
-          >
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "text.secondary",
-                cursor: "pointer",
-                transition: "0.2s",
-
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-              <Typography sx={{ fontSize: 14 }}>スタート画面へ</Typography>
-            </Box>
-          </Link>
-        )}
-      </Box>
-
+      <Box sx={{ textAlign: "start", my: 6 }} />
       <Box
         sx={{
           textAlign: "center",
@@ -112,6 +57,34 @@ export const Presenter = ({
         >
           {answeredCount} / {questionHistories.length} 問回答
         </Typography>
+        <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href={goalId ? `/goals/${goalId}` : "/tasks"} style={{ textDecoration: "none" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ minWidth: 140, borderRadius: 2, px: 3 }}
+            >
+              タスク一覧へ
+            </Button>
+          </Link>
+
+          <Link
+            href={
+              goalId
+                ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}`
+                : `/tasks/${taskId}/units/${unitId}`
+            }
+            style={{ textDecoration: "none" }}
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{ minWidth: 140, borderRadius: 2, px: 3 }}
+            >
+              もう一度解く
+            </Button>
+          </Link>
+        </Box>
       </Box>
 
       <Box
