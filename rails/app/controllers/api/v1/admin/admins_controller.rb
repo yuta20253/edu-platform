@@ -39,7 +39,13 @@ module Api
         end
 
         def update
-          head :ok
+          admin = User.admins.where(deleted_at: nil).find(params[:id])
+          form = ::Admin::AdminForm.new(update_params.merge(user: admin))
+          updated = form.save!
+
+          render json: { admin: ::Admin::AdminDetailSerializer.new(updated) }, status: :ok
+        rescue ActiveRecord::RecordInvalid => e
+          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
         end
 
         def destroy
@@ -49,6 +55,10 @@ module Api
         private
 
         def create_params
+          params.permit(:name, :email)
+        end
+
+        def update_params
           params.permit(:name, :email)
         end
       end
