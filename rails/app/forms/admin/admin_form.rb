@@ -15,7 +15,7 @@ module Admin
 
     def save!
       validation_context = updating? ? :update : nil
-      raise ActiveRecord::RecordInvalid.new(error_record) unless valid?(validation_context)
+      raise ActiveRecord::RecordInvalid, error_record unless valid?(validation_context)
 
       updating? ? update_admin : create_admin
     end

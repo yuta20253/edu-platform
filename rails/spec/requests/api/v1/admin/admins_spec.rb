@@ -17,52 +17,66 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
     response.headers['Set-Cookie']&.split(';')&.first
   end
 
-  describe 'ルーティング・認可' do
+  describe '認可' do
     let!(:admin_user)   { create(:user, :admin, high_school: nil) }
     let!(:student_user) { create(:user) }
-    let(:admin_cookie)   { login_and_get_cookie(admin_user) }
     let(:student_cookie) { login_and_get_cookie(student_user) }
+    let(:create_body) { { name: 'x', email: 'x@example.com' }.to_json }
+    let(:update_body) { { name: 'x' }.to_json }
 
-    shared_examples '未認証は401' do |verb, path_proc, body: nil|
-      it '401が返される' do
-        send(verb, instance_exec(&path_proc), params: body, headers: headers)
+    context '未認証アクセス' do
+      it 'GET /admins は401' do
+        get '/api/v1/admin/admins', headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'GET /admins/:id は401' do
+        get "/api/v1/admin/admins/#{admin_user.id}", headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'POST /admins は401' do
+        post '/api/v1/admin/admins', params: create_body, headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'PATCH /admins/:id は401' do
+        patch "/api/v1/admin/admins/#{admin_user.id}", params: update_body, headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'DELETE /admins/:id は401' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
-    shared_examples '非adminロールは403' do |verb, path_proc, body: nil|
-      it '403が返される' do
-        send(verb, instance_exec(&path_proc),
-             params: body,
-             headers: headers.merge('Cookie' => student_cookie))
+    context '非adminロール (student) アクセス' do
+      it 'GET /admins は403' do
+        get '/api/v1/admin/admins', headers: headers.merge('Cookie' => student_cookie)
         expect(response).to have_http_status(:forbidden)
       end
-    end
 
-    describe 'GET /api/v1/admin/admins' do
-      include_examples '未認証は401', :get, -> { '/api/v1/admin/admins' }
-      include_examples '非adminロールは403', :get, -> { '/api/v1/admin/admins' }
-    end
+      it 'GET /admins/:id は403' do
+        get "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => student_cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
 
-    describe 'GET /api/v1/admin/admins/:id' do
-      include_examples '未認証は401', :get, -> { "/api/v1/admin/admins/#{admin_user.id}" }
-      include_examples '非adminロールは403', :get, -> { "/api/v1/admin/admins/#{admin_user.id}" }
-    end
+      it 'POST /admins は403' do
+        post '/api/v1/admin/admins', params: create_body, headers: headers.merge('Cookie' => student_cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
 
-    describe 'POST /api/v1/admin/admins' do
-      let(:body) { { name: 'x', email: 'x@example.com' }.to_json }
-      include_examples '未認証は401', :post, -> { '/api/v1/admin/admins' }, body: lambda { { name: 'x', email: 'x@example.com' }.to_json }.call
-      include_examples '非adminロールは403', :post, -> { '/api/v1/admin/admins' }, body: lambda { { name: 'x', email: 'x@example.com' }.to_json }.call
-    end
+      it 'PATCH /admins/:id は403' do
+        patch "/api/v1/admin/admins/#{admin_user.id}",
+              params: update_body, headers: headers.merge('Cookie' => student_cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
 
-    describe 'PATCH /api/v1/admin/admins/:id' do
-      include_examples '未認証は401', :patch, -> { "/api/v1/admin/admins/#{admin_user.id}" }, body: lambda { { name: 'x' }.to_json }.call
-      include_examples '非adminロールは403', :patch, -> { "/api/v1/admin/admins/#{admin_user.id}" }, body: lambda { { name: 'x' }.to_json }.call
-    end
-
-    describe 'DELETE /api/v1/admin/admins/:id' do
-      include_examples '未認証は401', :delete, -> { "/api/v1/admin/admins/#{admin_user.id}" }
-      include_examples '非adminロールは403', :delete, -> { "/api/v1/admin/admins/#{admin_user.id}" }
+      it 'DELETE /admins/:id は403' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => student_cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
     end
   end
 
