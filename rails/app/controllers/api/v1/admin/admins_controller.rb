@@ -15,10 +15,10 @@ module Api
               admins, each_serializer: ::Admin::AdminListSerializer
             ),
             meta: {
-              page: admins.current_page,
-              per_page: admins.limit_value,
+              current_page: admins.current_page,
               total_pages: admins.total_pages,
-              total_count: admins.total_count
+              total_count: admins.total_count,
+              per_page: admins.limit_value
             }
           }
         end

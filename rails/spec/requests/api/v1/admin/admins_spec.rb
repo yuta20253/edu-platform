@@ -116,10 +116,10 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         expect(admin_data.keys).to include('id', 'name', 'email', 'created_at')
       end
 
-      it 'meta に page/per_page/total_pages/total_count が含まれる' do
+      it 'meta に current_page/per_page/total_pages/total_count が含まれる' do
         get '/api/v1/admin/admins', headers: headers.merge('Cookie' => cookie)
         meta = response.parsed_body['meta']
-        expect(meta.keys).to include('page', 'per_page', 'total_pages', 'total_count')
+        expect(meta.keys).to include('current_page', 'per_page', 'total_pages', 'total_count')
         expect(meta['total_count']).to eq(2)
       end
 
