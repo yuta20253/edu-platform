@@ -30,7 +30,12 @@ module Api
         end
 
         def create
-          head :created
+          form = ::Admin::AdminForm.new(create_params)
+          admin = form.save!
+
+          render json: { admin: ::Admin::AdminDetailSerializer.new(admin) }, status: :created
+        rescue ActiveRecord::RecordInvalid => e
+          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
         end
 
         def update
@@ -39,6 +44,12 @@ module Api
 
         def destroy
           head :no_content
+        end
+
+        private
+
+        def create_params
+          params.permit(:name, :email)
         end
       end
     end
