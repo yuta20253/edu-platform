@@ -24,7 +24,9 @@ module Api
         end
 
         def show
-          head :ok
+          admin = User.admins.where(deleted_at: nil).find(params[:id])
+
+          render json: { admin: ::Admin::AdminDetailSerializer.new(admin) }
         end
 
         def create
