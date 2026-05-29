@@ -146,6 +146,20 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         expect(response.parsed_body['admins'].size).to eq(1)
         expect(response.parsed_body['meta']['total_pages']).to eq(2)
       end
+
+      it 'per_page が上限 (100) を超える値で送られても 100 にクランプされる' do
+        get '/api/v1/admin/admins',
+            params: { per_page: 10_000_000 },
+            headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body['meta']['per_page']).to eq(100)
+      end
+
+      it 'per_page が 0 や負値の場合はデフォルト値が使われる' do
+        get '/api/v1/admin/admins',
+            params: { per_page: 0 },
+            headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body['meta']['per_page']).to eq(25)
+      end
     end
   end
 

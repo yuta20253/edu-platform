@@ -5,10 +5,11 @@ module Api
     module Admin
       class AdminsController < BaseController
         DEFAULT_PER_PAGE = 25
+        MAX_PER_PAGE = 100
 
         def index
           scope = AdminsQuery.new.search(params[:q]).order_default.result
-          admins = scope.page(params[:page]).per(params[:per_page].presence || DEFAULT_PER_PAGE)
+          admins = scope.page(params[:page]).per(sanitized_per_page)
 
           render json: {
             admins: ActiveModelSerializers::SerializableResource.new(
@@ -77,6 +78,13 @@ module Api
 
         def last_active_admin?(target)
           !User.admins.where(deleted_at: nil).where.not(id: target.id).exists?
+        end
+
+        def sanitized_per_page
+          requested = params[:per_page].to_i
+          return DEFAULT_PER_PAGE if requested <= 0
+
+          [requested, MAX_PER_PAGE].min
         end
       end
     end
