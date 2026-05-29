@@ -57,8 +57,19 @@ export const Presenter = ({
         >
           {answeredCount} / {questionHistories.length} 問回答
         </Typography>
-        <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href={goalId ? `/goals/${goalId}` : "/tasks"} style={{ textDecoration: "none" }}>
+        <Box
+          sx={{
+            mt: 3,
+            display: "flex",
+            gap: 2,
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Link
+            href={goalId ? `/goals/${goalId}` : "/tasks"}
+            style={{ textDecoration: "none" }}
+          >
             <Button
               variant="contained"
               color="primary"
