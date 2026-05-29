@@ -180,4 +180,59 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/admin/admins' do
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let(:cookie)      { login_and_get_cookie(admin_user) }
+    let(:valid_params) do
+      { name: '新規管理者', email: 'new-admin@example.com' }.to_json
+    end
+
+    context '正常系' do
+      it 'ステータス201が返される' do
+        post '/api/v1/admin/admins',
+             params: valid_params,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:created)
+      end
+
+      it '作成された admin が返される' do
+        post '/api/v1/admin/admins',
+             params: valid_params,
+             headers: headers.merge('Cookie' => cookie)
+        admin_data = response.parsed_body['admin']
+        expect(admin_data['name']).to eq('新規管理者')
+        expect(admin_data['email']).to eq('new-admin@example.com')
+      end
+
+      it 'admin ロールの User が新規作成され password_reset_required: true となる' do
+        expect do
+          post '/api/v1/admin/admins',
+               params: valid_params,
+               headers: headers.merge('Cookie' => cookie)
+        end.to change { User.admins.count }.by(1)
+
+        created = User.admins.find_by(email: 'new-admin@example.com')
+        expect(created.password_reset_required).to be(true)
+      end
+    end
+
+    context '異常系' do
+      it 'email が空の場合 422 が返される' do
+        post '/api/v1/admin/admins',
+             params: { name: '名前のみ', email: '' }.to_json,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body).to have_key('errors')
+      end
+
+      it 'email が重複している場合 422 が返される' do
+        create(:user, :admin, high_school: nil, email: 'dup-admin@example.com')
+        post '/api/v1/admin/admins',
+             params: { name: '重複', email: 'dup-admin@example.com' }.to_json,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+  end
 end
