@@ -134,4 +134,50 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
       end
     end
   end
+
+  describe 'GET /api/v1/admin/admins/:id' do
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let(:cookie)      { login_and_get_cookie(admin_user) }
+
+    context '正常系' do
+      let!(:target) do
+        create(:user, :admin, high_school: nil, name: '対象管理者', email: 'target-admin@example.com')
+      end
+
+      it 'ステータス200が返される' do
+        get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '詳細レスポンスに id/name/email/created_at/updated_at/activity_log を含む' do
+        get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        admin_data = response.parsed_body['admin']
+        expect(admin_data.keys).to include('id', 'name', 'email', 'created_at', 'updated_at', 'activity_log')
+      end
+
+      it 'activity_log は空配列で返される' do
+        get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body['admin']['activity_log']).to eq([])
+      end
+    end
+
+    context '異常系' do
+      it '存在しないidの場合404が返される' do
+        get '/api/v1/admin/admins/0', headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'admin以外のロールのユーザーidの場合404が返される' do
+        teacher = create(:user, :teacher, high_school: create(:high_school), grade: nil)
+        get "/api/v1/admin/admins/#{teacher.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '論理削除済みadminのidの場合404が返される' do
+        deleted = create(:user, :admin, high_school: nil, deleted_at: Time.current)
+        get "/api/v1/admin/admins/#{deleted.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
