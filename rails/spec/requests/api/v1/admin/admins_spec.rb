@@ -290,4 +290,84 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
       end
     end
   end
+
+  describe 'DELETE /api/v1/admin/admins/:id' do
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let(:cookie)      { login_and_get_cookie(admin_user) }
+
+    context '正常系' do
+      let!(:target) { create(:user, :admin, high_school: nil) }
+
+      it 'ステータス204が返される' do
+        delete "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it '対象adminに deleted_at がセットされる' do
+        freeze_time = Time.zone.now
+        travel_to(freeze_time) do
+          delete "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        end
+        target.reload
+        expect(target.deleted_at).to be_present
+      end
+
+      it '一覧から消える' do
+        delete "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        get '/api/v1/admin/admins', headers: headers.merge('Cookie' => cookie)
+        ids = response.parsed_body['admins'].pluck('id')
+        expect(ids).not_to include(target.id)
+      end
+    end
+
+    context '異常系' do
+      it '存在しないidの場合 404 が返される' do
+        delete '/api/v1/admin/admins/0', headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'ガード - 自分自身は削除不可' do
+      # 他にも admin がいる状態で自分を消そうとするケース → 自己削除ガード
+      let!(:another_admin) { create(:user, :admin, high_school: nil) }
+
+      it '422が返される' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'errors に「自分自身」を含むメッセージが返される' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body['errors']).to include(a_string_matching(/自分自身/))
+      end
+
+      it 'deleted_at は更新されない' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => cookie)
+        admin_user.reload
+        expect(admin_user.deleted_at).to be_nil
+      end
+    end
+
+    context 'ガード - 最後の admin は削除不可' do
+      # 「最後の admin = 削除によってアクティブ admin が0人になる」状況は、
+      # 自己削除ガードと重なるため、ガード順序を『最後のadmin → 自己削除 → 論理削除』とし
+      # 「自分が唯一の admin で自分を消す」ケースで422になることを以て担保する。
+      it '自分が最後の admin の状態で自分を消そうとすると 422 が返される' do
+        # admin_user 以外の admin は存在しない (=admin_user が唯一のアクティブadmin)
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'errors に「最後の管理者」を含むメッセージが返される' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body['errors']).to include(a_string_matching(/最後の管理者/))
+      end
+
+      it 'deleted_at は更新されない' do
+        delete "/api/v1/admin/admins/#{admin_user.id}", headers: headers.merge('Cookie' => cookie)
+        admin_user.reload
+        expect(admin_user.deleted_at).to be_nil
+      end
+    end
+  end
 end
