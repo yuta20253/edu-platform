@@ -7,7 +7,7 @@ module Teacher
     def perform
       Announcement
         .scheduled
-        .where("scheduled_at <= ?", Time.current)
+        .where(scheduled_at: ..Time.current)
         .find_each do |announcement|
           publish(announcement)
       end
@@ -17,9 +17,6 @@ module Teacher
 
     def publish(announcement)
       announcement.with_lock do
-        return unless announcement.scheduled?
-        return unless announcement.scheduled_at <= Time.current
-
         announcement.update!(status: :published)
         Rails.logger.info("published announcement id=#{announcement.id}")
       end
