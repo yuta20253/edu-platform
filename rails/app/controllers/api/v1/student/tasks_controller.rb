@@ -10,7 +10,7 @@ module Api
                   .by_status(params[:status])
                   .order(due_date: :asc)
                   .page(params[:page])
-                  .per(10)
+                  .per(5)
 
           render json: {
             tasks:
@@ -22,7 +22,7 @@ module Api
               current_page: tasks.current_page,
               total_pages: tasks.total_pages,
               total_count: tasks.total_count,
-              per_page: 10
+              per_page: 5
             }
           }, status: :ok
         end
@@ -43,10 +43,26 @@ module Api
           end
         end
 
+        def update
+          task = current_user.tasks.find(params[:id])
+
+          form = ::Student::UpdateTaskForm.new(task: task, **update_task_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: { message: 'タスクが更新されました。' }, status: :ok
+          else
+            render json: { errors: form.errors }, status: :unprocessable_content
+          end
+        end
+
         private
 
         def create_task_params
           params.require(:task).permit(:goal_id, :title, :content, :priority, :due_date, :memo, unit_ids: [])
+        end
+
+        def update_task_params
+          params.require(:task).permit(:title, :content, :priority, :due_date, :memo, unit_ids: [])
         end
       end
     end

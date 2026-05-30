@@ -1,1 +1,3 @@
-export type GoalStatus = "not_started" | "in_progress" | "completed";
+import { Status } from "../common/status";
+
+export type GoalStatus = Status;

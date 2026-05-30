@@ -18,10 +18,13 @@
 #  deleted_at         :datetime
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  task_id            :bigint           not null
 #
 class QuestionHistory < ApplicationRecord
   belongs_to :user
   belongs_to :course
   belongs_to :unit
   belongs_to :question
+  belongs_to :task
+  belongs_to :question_choice
 end

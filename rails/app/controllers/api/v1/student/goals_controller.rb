@@ -7,12 +7,12 @@ module Api
         def index
           goals = GoalsQuery.new(current_user.goals).due_soon.paginate(page: params[:page],
                                                                        per_page: params[:per_page] || 10).result
-          render json: goals, each_serializer: GoalSerializer, status: :ok
+          render json: goals, each_serializer: ::Student::GoalSerializer, status: :ok
         end
 
         def show
           goal = GoalsQuery.new(current_user.goals).includes_tasks.find(params[:id])
-          render json: goal, serializer: GoalSerializer, status: :ok
+          render json: goal, serializer: ::Student::GoalDetailSerializer, status: :ok
         end
 
         def create
@@ -25,9 +25,25 @@ module Api
           end
         end
 
+        def update
+          goal = GoalsQuery.new(current_user.goals).find(params[:id])
+
+          form = ::Student::UpdateGoalForm.new(goal: goal, **update_goal_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: form.goal.id, status: :ok
+          else
+            render json: { errors: form.errors }, status: :unprocessable_content
+          end
+        end
+
         private
 
         def create_goal_params
+          params.require(:goal).permit(:title, :description, :due_date)
+        end
+
+        def update_goal_params
           params.require(:goal).permit(:title, :description, :due_date)
         end
       end

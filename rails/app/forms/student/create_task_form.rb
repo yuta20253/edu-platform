@@ -5,6 +5,8 @@ module Student
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include UnitIdsValidatable
+    include PriorityCastable
 
     attr_reader :current_user
 
@@ -19,7 +21,6 @@ module Student
     validates :goal_id, presence: true
     validates :title, presence: true
     validates :content, presence: true
-    validates :priority, presence: true
     validates :due_date, presence: true
     validate :goal_must_exist
     validate :due_date_must_be_valid
@@ -47,22 +48,6 @@ module Student
       @goal = current_user.goals.find_by(id: goal_id)
     end
 
-    # フォーム入力を正規化（空文字除去 + integer化）
-    def unit_ids
-      Array(super).compact_blank.map(&:to_i)
-    end
-
-    def priority
-      value = super
-      return if value.blank?
-
-      if value.to_s.match?(/\A\d+\z/)
-        Task.priorities.key(value.to_i)
-      else
-        value
-      end
-    end
-
     private
 
     def due_date_must_be_valid
@@ -71,14 +56,6 @@ module Student
       parsed_due_date
     rescue ArgumentError, TypeError
       errors.add(:due_date, 'は正しい日付を入力してください')
-    end
-
-    def unit_ids_must_exist
-      return if unit_ids.blank?
-
-      return unless Unit.where(id: unit_ids).count != unit_ids.size
-
-      errors.add(:unit_ids, 'に不正な値が含まれています')
     end
 
     def goal_must_exist

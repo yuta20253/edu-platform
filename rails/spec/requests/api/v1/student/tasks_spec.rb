@@ -216,4 +216,289 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/student/tasks' do
+    let!(:prefecture) { create(:prefecture, name: '東京都') }
+    let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+    let!(:user) { create(:user, high_school: high_school) }
+    let!(:goal) { create(:goal, user: user) }
+    let!(:course) { create(:course) }
+    let!(:units) { create_list(:unit, 2, course: course) }
+
+    let!(:cookie) { login_and_get_cookie(user) }
+
+    let(:params) do
+      {
+        task: {
+          goal_id: goal.id,
+          title: '英単語学習',
+          content: '毎日30分勉強する',
+          priority: 'high',
+          due_date: Date.current + 7.days,
+          memo: '重要',
+          unit_ids: units.pluck(:id)
+        }
+      }
+    end
+
+    context '正常系' do
+      subject do
+        post '/api/v1/student/tasks',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+      end
+
+      it 'ステータス201が返される' do
+        subject
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'タスクが作成される' do
+        expect do
+          subject
+        end.to change(Task, :count).by(1)
+      end
+
+      it 'レスポンスメッセージが返る' do
+        subject
+        json = response.parsed_body
+
+        expect(json['message']).to eq('タスクが作成されました。')
+      end
+
+      it 'unitが紐づいて作成される' do
+        subject
+
+        task = Task.last
+
+        expect(task.units.pluck(:id)).to match_array(units.pluck(:id))
+      end
+    end
+
+    context '異常系 - バリデーションエラー' do
+      let(:params) do
+        {
+          task: {
+            goal_id: goal.id,
+            title: '',
+            content: '',
+            priority: '',
+            due_date: nil,
+            memo: '',
+            unit_ids: []
+          }
+        }
+      end
+
+      it '422が返される' do
+        post '/api/v1/student/tasks',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'errorsが返される' do
+        post '/api/v1/student/tasks',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json).to have_key('errors')
+      end
+
+      it 'タスクは作成されない' do
+        expect do
+          post '/api/v1/student/tasks',
+               params: params.to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.not_to change(Task, :count)
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      before do
+        delete '/api/v1/user/logout', headers: headers.merge('Cookie' => cookie)
+      end
+
+      it '401が返される' do
+        post '/api/v1/student/tasks',
+             params: params.to_json,
+             headers: headers
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - ログイン生徒以外のアクセス' do
+      let!(:teacher) { create(:user, :teacher) }
+
+      it '403が返される' do
+        teacher_cookie = login_and_get_cookie(teacher)
+
+        post '/api/v1/student/tasks',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => teacher_cookie)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
+  describe 'PATCH /api/v1/student/tasks/:id' do
+    let!(:prefecture) { create(:prefecture, name: '東京都') }
+    let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+    let!(:user) { create(:user, high_school: high_school) }
+    let!(:goal) { create(:goal, user: user) }
+
+    let!(:course) { create(:course) }
+    let!(:units) { create_list(:unit, 2, course: course) }
+
+    let!(:cookie) { login_and_get_cookie(user) }
+
+    let!(:task) do
+      create(
+        :task,
+        user: user,
+        goal: goal,
+        title: '更新前タイトル'
+      )
+    end
+
+    let(:params) do
+      {
+        task: {
+          title: '更新後タイトル',
+          content: '更新後コンテンツ',
+          priority: 'normal',
+          due_date: Date.current + 10.days,
+          memo: '更新後メモ',
+          unit_ids: units.pluck(:id)
+        }
+      }
+    end
+
+    context '正常系' do
+      subject do
+        patch "/api/v1/student/tasks/#{task.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+      end
+
+      it 'ステータス200が返される' do
+        subject
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'タスクが更新される' do
+        subject
+
+        task.reload
+
+        expect(task.title).to eq('更新後タイトル')
+        expect(task.content).to eq('更新後コンテンツ')
+        expect(task.priority).to eq('normal')
+        expect(task.memo).to eq('更新後メモ')
+      end
+
+      it 'unitが更新される' do
+        subject
+
+        task.reload
+
+        expect(task.units.pluck(:id)).to match_array(units.pluck(:id))
+      end
+
+      it 'レスポンスメッセージが返る' do
+        subject
+
+        json = response.parsed_body
+
+        expect(json['message']).to eq('タスクが更新されました。')
+      end
+    end
+
+    context '異常系 - バリデーションエラー' do
+      let(:params) do
+        {
+          task: {
+            title: '',
+            content: '',
+            priority: '',
+            due_date: nil,
+            memo: '',
+            unit_ids: []
+          }
+        }
+      end
+
+      it '422が返される' do
+        patch "/api/v1/student/tasks/#{task.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'errorsが返される' do
+        patch "/api/v1/student/tasks/#{task.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json).to have_key('errors')
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      before do
+        delete '/api/v1/user/logout', headers: headers.merge('Cookie' => cookie)
+      end
+
+      it '401が返される' do
+        patch "/api/v1/student/tasks/#{task.id}",
+              params: params.to_json,
+              headers: headers
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - ログイン生徒以外のアクセス(ロール)' do
+      let!(:teacher) { create(:user, :teacher) }
+
+      it '403が返される' do
+        teacher_cookie = login_and_get_cookie(teacher)
+
+        patch "/api/v1/student/tasks/#{task.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => teacher_cookie)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - 他の生徒のタスク更新' do
+      let!(:other_user) { create(:user) }
+      let!(:other_goal) { create(:goal, user: other_user) }
+
+      let!(:other_task) do
+        create(
+          :task,
+          user: other_user,
+          goal: other_goal
+        )
+      end
+
+      it '404が返される' do
+        patch "/api/v1/student/tasks/#{other_task.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
