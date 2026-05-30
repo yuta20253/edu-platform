@@ -7,10 +7,24 @@ module Teacher
     def perform
       Announcement
         .scheduled
+        .where("scheduled_at <= ?", Time.current)
         .find_each do |announcement|
-          announcement.update!(status: :published)
-          Rails.logger.info("announcement id=#{announcement.id}")
+          publish(announcement)
       end
+    end
+
+    private
+
+    def publish(announcement)
+      announcement.with_lock do
+        return unless announcement.scheduled?
+        return unless announcement.scheduled_at <= Time.current
+
+        announcement.update!(status: :published)
+        Rails.logger.info("published announcement id=#{announcement.id}")
+      end
+    rescue StandardError => e
+      Rails.logger.error("failed to publish announcement id=#{announcement.id}: #{e.class} #{e.message}")
     end
   end
 end
