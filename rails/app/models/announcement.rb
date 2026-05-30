@@ -59,6 +59,6 @@ class Announcement < ApplicationRecord
     return unless will_save_change_to_status?
     return unless published?
 
-    self.published_at = Time.current
+    self.published_at ||= Time.current
   end
 end

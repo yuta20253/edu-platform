@@ -591,6 +591,69 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(announcement.reload.status).to eq('published')
       end
 
+      it 'publishedにしたときpublished_atが設定される' do
+        freeze_time do
+          patch "/api/v1/teacher/announcements/#{announcement.id}",
+                params: {
+                  announcement: { status: 'published' }
+                }.to_json,
+                headers: headers.merge('Cookie' => cookie)
+
+          announcement.reload
+          expect(announcement.published_at).to eq(Time.current)
+        end
+      end
+
+      it '既にpublished_atがある場合は更新されない' do
+        time = 1.day.ago
+        announcement.update!(published_at: time)
+
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: {
+                announcement: { status: 'published' }
+              }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(announcement.reload.published_at.to_i).to eq(time.to_i)
+      end
+
+      it 'scheduled_atが更新される' do
+        time = 2.days.from_now
+
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: {
+                announcement: {
+                  status: 'scheduled',
+                  scheduled_at: time
+                }
+              }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(announcement.reload.scheduled_at.to_i).to eq(time.to_i)
+      end
+
+      it 'draftからscheduledに変更できる' do
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: {
+                announcement: { status: 'scheduled', scheduled_at: 1.day.from_now }
+              }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(announcement.reload.status).to eq('scheduled')
+      end
+
+      it 'scheduledからpublishedに変更できる' do
+        announcement.update!(status: :scheduled, scheduled_at: 1.minute.from_now)
+
+        patch "/api/v1/teacher/announcements/#{announcement.id}",
+              params: {
+                announcement: { status: 'published' }
+              }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(announcement.reload.status).to eq('published')
+      end
+
       it 'メッセージが返る' do
         patch "/api/v1/teacher/announcements/#{announcement.id}",
               params: params.to_json,
