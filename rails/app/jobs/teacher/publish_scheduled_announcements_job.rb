@@ -7,12 +7,10 @@ module Teacher
     def perform
       Announcement
         .scheduled
-        .where(scheduled_at: 1.minute.ago..Time.current)
         .find_each do |announcement|
-          announcement.update!(
-            status: :published
-          )
-        end
+          announcement.update!(status: :published)
+          Rails.logger.info("announcement id=#{announcement.id}")
+      end
     end
   end
 end
