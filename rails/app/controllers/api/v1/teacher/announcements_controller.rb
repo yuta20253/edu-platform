@@ -55,7 +55,7 @@ module Api
         end
 
         def update_announcement_params
-          params.require(:announcement).permit(:status)
+          params.require(:announcement).permit(:status, :scheduled_at)
         end
       end
     end

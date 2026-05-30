@@ -12,6 +12,7 @@
 #  publisher_id :bigint           not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  scheduled_at :datetime
 #
 class Announcement < ApplicationRecord
   before_validation :set_published_at
@@ -40,12 +41,23 @@ class Announcement < ApplicationRecord
       .distinct
   }
 
+  validate :scheduled_at_must_be_future
+
   private
+
+  def scheduled_at_must_be_future
+    return unless scheduled?
+
+    if scheduled_at.blank?
+      errors.add(:scheduled_at, 'を指定してください')
+    elsif scheduled_at < Time.current
+      errors.add(:scheduled_at, 'は未来日時を指定してください')
+    end
+  end
 
   def set_published_at
     return unless will_save_change_to_status?
     return unless published?
-    return if published_at.present?
 
     self.published_at = Time.current
   end
