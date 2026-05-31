@@ -21,4 +21,9 @@ FactoryBot.define do
     status { :draft }
     association :publisher, factory: :user
   end
+
+  trait :scheduled do
+    status { :scheduled }
+    scheduled_at { 1.minute.from_now }
+  end
 end
