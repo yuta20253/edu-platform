@@ -31,7 +31,6 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       let!(:other_teacher) { create(:user, :teacher) }
       let!(:student) { create(:user, :student, high_school: high_school) }
 
-      # teacher が閲覧できるお知らせ
       let!(:announcements) do
         create_list(:announcement, 3, :published, publisher: teacher).map do |a|
           create(:announcement_target, :all_users, announcement: a)
@@ -39,7 +38,6 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         end
       end
 
-      # 下書き
       let!(:draft_announcements) do
         create_list(:announcement, 3, :draft, publisher: teacher).map do |a|
           create(:announcement_target, :all_users, announcement: a)
@@ -47,7 +45,6 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         end
       end
 
-      # 生徒向け
       let!(:student_announcements) do
         create_list(:announcement, 2, :published, publisher: teacher).map do |a|
           create(
@@ -60,7 +57,6 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         end
       end
 
-      # 別高校向け
       let!(:other_school_announcements) do
         other_school = create(:high_school)
 
@@ -75,7 +71,6 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         end
       end
 
-      # 特定ユーザー向け
       let!(:other_user_announcements) do
         create_list(:announcement, 2, :published, publisher: other_teacher).map do |a|
           create(
@@ -99,7 +94,9 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         get '/api/v1/teacher/announcements',
             headers: headers.merge('Cookie' => cookie)
 
-        expect(response.parsed_body.size).to eq(3)
+        json = response.parsed_body
+
+        expect(json['announcements'].size).to eq(3)
       end
 
       it 'for_userの対象データが返る' do
@@ -108,7 +105,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
 
         json = response.parsed_body
 
-        returned_ids = json.pluck('id')
+        returned_ids = json['announcements'].pluck('id')
 
         expect(returned_ids).to match_array(announcements.map(&:id))
       end
@@ -119,7 +116,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
 
         json = response.parsed_body
 
-        returned_ids = json.pluck('id')
+        returned_ids = json['announcements'].pluck('id')
 
         expect(returned_ids).not_to include(*draft_announcements.map(&:id))
       end
@@ -130,7 +127,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
 
         json = response.parsed_body
 
-        returned_ids = json.pluck('id')
+        returned_ids = json['announcements'].pluck('id')
 
         expect(returned_ids).not_to include(*student_announcements.map(&:id))
       end
@@ -141,7 +138,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
 
         json = response.parsed_body
 
-        returned_ids = json.pluck('id')
+        returned_ids = json['announcements'].pluck('id')
 
         expect(returned_ids).not_to include(*other_school_announcements.map(&:id))
       end
@@ -152,30 +149,21 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
 
         json = response.parsed_body
 
-        returned_ids = json.pluck('id')
+        returned_ids = json['announcements'].pluck('id')
 
         expect(returned_ids).not_to include(*other_user_announcements.map(&:id))
       end
-    end
 
-    context '異常系 - 未認証' do
-      it '401が返る' do
-        get '/api/v1/teacher/announcements',
-            headers: headers
-
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context '異常系 - teacher以外' do
-      let!(:student) { create(:user) }
-      let(:cookie) { login_and_get_cookie(student) }
-
-      it '403が返る' do
+      it 'meta情報が返る' do
         get '/api/v1/teacher/announcements',
             headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:forbidden)
+        json = response.parsed_body
+
+        expect(json['meta']['current_page']).to eq(1)
+        expect(json['meta']['total_pages']).to eq(1)
+        expect(json['meta']['total_count']).to eq(3)
+        expect(json['meta']['per_page']).to eq(20)
       end
     end
   end

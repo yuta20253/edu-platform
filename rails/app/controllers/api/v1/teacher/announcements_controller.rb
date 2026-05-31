@@ -14,9 +14,17 @@ module Api
                           .page(params[:page])
                           .per(20)
 
-          render json: announcements,
-                 each_serializer: AnnouncementSerializer,
-                 status: :ok
+          render json: {
+            announcements: ActiveModelSerializers::SerializableResource.new(
+              announcements, each_serializer: AnnouncementSerializer
+            ),
+            meta: {
+              current_page: announcements.current_page,
+              total_pages: announcements.total_pages,
+              total_count: announcements.total_count,
+              per_page: 20
+            }
+          }
         end
 
         def show
