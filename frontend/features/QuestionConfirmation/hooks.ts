@@ -11,7 +11,7 @@ type Props = {
   answeredQuestionIds?: number[];
 };
 
-export const useGetData = ({ taskId, unitId, answeredQuestionIds }: Props) => {
+export const useGetQuestionConfirmation = ({ taskId, unitId, answeredQuestionIds }: Props) => {
   const [questionHistories, setQuestionHistories] = useState<QuestionHistory[]>(
     [],
   );

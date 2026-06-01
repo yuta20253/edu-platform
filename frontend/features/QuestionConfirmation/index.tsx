@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useGetData } from "./hooks";
+import { useGetQuestionConfirmation } from "./hooks";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -17,7 +17,7 @@ export const QuestionConfirmation = ({
   unitId,
   answeredQuestionIds,
 }: Props) => {
-  const { questionHistories, loading, error } = useGetData({
+  const { questionHistories, loading, error } = useGetQuestionConfirmation({
     taskId,
     unitId,
     answeredQuestionIds,
