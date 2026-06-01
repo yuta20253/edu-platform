@@ -14,18 +14,14 @@ module Api
 
         private
 
-        def confirmation_params
-          params.permit(:task_id, :unit_id, :answered_question_ids)
-        end
-
         def question_histories
           return {} if answered_question_ids.blank?
 
           current_user
             .question_histories
             .where(
-              task_id: confirmation_params[:task_id],
-              unit_id: confirmation_params[:unit_id],
+              task_id: params[:task_id],
+              unit_id: params[:unit_id],
               question_id: answered_question_ids
             )
             .includes(:question_choice)
@@ -33,16 +29,16 @@ module Api
         end
 
         def answered_question_ids
-          return [] if confirmation_params[:answered_question_ids].blank?
+          return [] if params[:answered_question_ids].blank?
 
-          confirmation_params[:answered_question_ids]
+          params[:answered_question_ids]
             .split(',')
             .map(&:to_i)
         end
 
         def set_questions
-          task = current_user.tasks.find(confirmation_params[:task_id])
-          unit = task.units.find(confirmation_params[:unit_id])
+          task = current_user.tasks.find(params[:task_id])
+          unit = task.units.find(params[:unit_id])
           @questions = unit.questions
         rescue ActiveRecord::RecordNotFound
           render json: { errors: '対象データが見つかりません' }, status: :not_found
