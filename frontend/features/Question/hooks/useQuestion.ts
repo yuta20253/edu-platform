@@ -18,17 +18,20 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
+  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<number>>(
+    new Set(),
+  );
   const [openedHintStep, setOpenedHintStep] = useState<number>(0);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const isLastQuestion = questions.length > 0 && currentIndex === questions.length - 1;
+  const isLastQuestion =
+    questions.length > 0 && currentIndex === questions.length - 1;
 
-  const handleNextQuestion = (ids?: number[]) => {
-    const targetIds = Array.isArray(ids) ? ids : answeredQuestionIds;
+  const handleNextQuestion = (ids?: Set<number>) => {
+    const targetIds = ids ?? answeredQuestionIds;
 
-    const answeredQuestionIdsParam = targetIds.join(",");
+    const answeredQuestionIdsParam = Array.from(targetIds).join(",");
     const confirmUrl = goalId
       ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}`
       : `/tasks/${taskId}/units/${unitId}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}`;
@@ -57,8 +60,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
       setSelectedChoiceId(choiceId);
 
       const alreadyAnswered =
-        currentQuestion.answered ||
-        answeredQuestionIds.includes(currentQuestion.id);
+        currentQuestion.answered || answeredQuestionIds.has(currentQuestion.id);
 
       const payload = {
         task_id: taskId,
@@ -71,10 +73,8 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
         ? await apiClient.patch("/api/student/answers", payload)
         : await apiClient.post("/api/student/answers", payload);
 
-      const updatedIds = answeredQuestionIds.includes(currentQuestion.id)
-        ? answeredQuestionIds
-        : [...answeredQuestionIds, currentQuestion.id];
-
+      const updatedIds = new Set(answeredQuestionIds);
+      updatedIds.add(currentQuestion.id);
       setAnsweredQuestionIds(updatedIds);
 
       setIsCorrect(res.data.is_correct);
