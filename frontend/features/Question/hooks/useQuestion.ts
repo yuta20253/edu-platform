@@ -23,7 +23,7 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const [hasError, setHasError] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const isLastQuestion = questions && currentIndex === questions.length - 1;
+  const isLastQuestion = questions.length > 0 && currentIndex === questions.length - 1;
 
   const handleNextQuestion = (ids?: number[]) => {
     const targetIds = Array.isArray(ids) ? ids : answeredQuestionIds;
