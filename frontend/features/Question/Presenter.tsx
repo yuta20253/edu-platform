@@ -44,6 +44,10 @@ export const Presenter = ({
   onOpenHint,
   onCloseHint,
 }: Props) => {
+  const startRef = goalId
+    ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}`
+    : `/tasks/${taskId}/units/${unitId}`;
+
   return (
     <Box
       sx={{
@@ -56,49 +60,23 @@ export const Presenter = ({
           my: 6,
         }}
       >
-        {goalId ? (
-          <Link
-            href={`/goals/${goalId}/tasks/${taskId}/units/${unitId}`}
-            style={{ textDecoration: "none" }}
+        <Link href={startRef} style={{ textDecoration: "none" }}>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              color: "text.secondary",
+              cursor: "pointer",
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
           >
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "text.secondary",
-                cursor: "pointer",
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-              <Typography sx={{ fontSize: 14 }}>スタート画面へ</Typography>
-            </Box>
-          </Link>
-        ) : (
-          <Link
-            href={`/tasks/${taskId}/units/${unitId}`}
-            style={{ textDecoration: "none" }}
-          >
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "text.secondary",
-                cursor: "pointer",
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-              <Typography sx={{ fontSize: 14 }}>スタート画面へ</Typography>
-            </Box>
-          </Link>
-        )}
+            <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+            <Typography sx={{ fontSize: 14 }}>スタート画面へ</Typography>
+          </Box>
+        </Link>
       </Box>
       <Box
         sx={{
