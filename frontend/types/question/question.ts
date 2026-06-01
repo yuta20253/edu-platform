@@ -1,11 +1,11 @@
-export type QuestionHint = {
+type QuestionHint = {
   id: number;
   question_id: number;
   step_number: number;
   hint_text: string;
 };
 
-export type QuestionChoice = {
+type QuestionChoice = {
   id: number;
   question_id: number;
   choice_number: number;
