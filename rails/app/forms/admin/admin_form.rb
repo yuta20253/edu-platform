@@ -13,12 +13,18 @@ module Admin
     validates :email, presence: true, unless: :updating?
     validates :name, presence: true, on: :update
 
-    def save!
+    def save
       validation_context = updating? ? :update : nil
-      raise ActiveRecord::RecordInvalid, error_record unless valid?(validation_context)
+      return false unless valid?(validation_context)
 
-      updating? ? update_admin : create_admin
+      @result = updating? ? update_admin : create_admin
+      true
+    rescue ActiveRecord::RecordInvalid => e
+      e.record.errors.each { |error| errors.add(error.attribute, error.message) }
+      false
     end
+
+    attr_reader :result
 
     private
 
@@ -33,12 +39,6 @@ module Admin
     def update_admin
       @user.update!({ name: name, email: email }.compact)
       @user
-    end
-
-    def error_record
-      record = User.new
-      errors.each { |error| record.errors.add(error.attribute, error.message) }
-      record
     end
   end
 end

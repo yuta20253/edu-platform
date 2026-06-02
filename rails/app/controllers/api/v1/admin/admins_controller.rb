@@ -32,21 +32,23 @@ module Api
 
         def create
           form = ::Admin::AdminForm.new(create_params)
-          admin = form.save!
 
-          render json: { admin: ::Admin::AdminDetailSerializer.new(admin) }, status: :created
-        rescue ActiveRecord::RecordInvalid => e
-          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+          if form.save
+            render json: { admin: ::Admin::AdminDetailSerializer.new(form.result) }, status: :created
+          else
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+          end
         end
 
         def update
           admin = User.admins.where(deleted_at: nil).find(params[:id])
           form = ::Admin::AdminForm.new(update_params.merge(user: admin))
-          updated = form.save!
 
-          render json: { admin: ::Admin::AdminDetailSerializer.new(updated) }, status: :ok
-        rescue ActiveRecord::RecordInvalid => e
-          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+          if form.save
+            render json: { admin: ::Admin::AdminDetailSerializer.new(form.result) }, status: :ok
+          else
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+          end
         end
 
         def destroy
