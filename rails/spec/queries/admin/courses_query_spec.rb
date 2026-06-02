@@ -3,6 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe Admin::CoursesQuery, type: :model do
+  describe '#active' do
+    let!(:subject_record) { create(:subject) }
+    let!(:alive) { create(:course, subject: subject_record) }
+    let!(:dead)  { create(:course, subject: subject_record, deleted_at: Time.current) }
+
+    it 'deleted_at が NULL の course だけ返す' do
+      expect(described_class.new.active.result).to contain_exactly(alive)
+    end
+  end
+
   describe '#by_subject_id' do
     let!(:subject_a) { create(:subject, name: '英語') }
     let!(:subject_b) { create(:subject, name: '数学') }

@@ -264,6 +264,24 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       end
     end
 
+    context 'ソフト削除済みの講座' do
+      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject) }
+      let!(:alive) { create(:course, subject: subject_record) }
+      let!(:dead)  { create(:course, subject: subject_record, deleted_at: Time.current) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it 'レスポンスに含まれず total_count にも数えない' do
+        subject
+        ids = response.parsed_body['courses'].pluck('id')
+        expect(ids).to include(alive.id)
+        expect(ids).not_to include(dead.id)
+        expect(response.parsed_body['meta']['total_count']).to eq(1)
+      end
+    end
+
     context 'subject_id パラメータ指定時' do
       subject do
         get '/api/v1/admin/courses',
