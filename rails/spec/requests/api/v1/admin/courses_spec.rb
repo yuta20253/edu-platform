@@ -85,6 +85,70 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         expect(response.parsed_body['meta']['total_count']).to eq(1)
       end
     end
+
+    context 'ページネーション' do
+      subject { get '/api/v1/admin/courses', params: query_params, headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject) }
+
+      before do
+        25.times { |i| create(:course, subject: subject_record, level_name: "Lv#{i}") }
+      end
+
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      context 'デフォルト per_page=20' do
+        let(:query_params) { {} }
+
+        it '20件返し、meta に current_page/per_page/total_count が入る' do
+          subject
+          body = response.parsed_body
+          expect(body['courses'].size).to eq(20)
+          expect(body['meta']).to include('current_page' => 1, 'per_page' => 20, 'total_count' => 25)
+        end
+      end
+
+      context 'page=2 を指定' do
+        let(:query_params) { { page: 2 } }
+
+        it '残り5件を返し、current_page=2 になる' do
+          subject
+          body = response.parsed_body
+          expect(body['courses'].size).to eq(5)
+          expect(body['meta']['current_page']).to eq(2)
+        end
+      end
+
+      context 'per_page=5 を指定' do
+        let(:query_params) { { per_page: 5 } }
+
+        it '5件返し、meta.per_page=5 になる' do
+          subject
+          body = response.parsed_body
+          expect(body['courses'].size).to eq(5)
+          expect(body['meta']['per_page']).to eq(5)
+        end
+      end
+
+      context 'per_page=150 を指定（上限超過）' do
+        let(:query_params) { { per_page: 150 } }
+
+        it 'meta.per_page は 100 に丸められる' do
+          subject
+          expect(response.parsed_body['meta']['per_page']).to eq(100)
+        end
+      end
+
+      context 'per_page=0 や負数を指定' do
+        let(:query_params) { { per_page: 0 } }
+
+        it 'デフォルト 20 にフォールバックする' do
+          subject
+          expect(response.parsed_body['meta']['per_page']).to eq(20)
+        end
+      end
+    end
   end
 
   describe 'GET /api/v1/admin/courses/:id' do

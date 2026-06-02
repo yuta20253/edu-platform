@@ -5,13 +5,15 @@ module Api
     module Admin
       class CoursesController < BaseController
         DEFAULT_PER_PAGE = 20
+        MAX_PER_PAGE = 100
 
         def index
+          per_page = sanitized_per_page
           courses = ::Admin::CoursesQuery.new
                                          .active
                                          .order_by(params[:sort], params[:order])
                                          .result
-                                         .page(params[:page]).per(DEFAULT_PER_PAGE)
+                                         .page(params[:page]).per(per_page)
 
           render json: {
             courses: ActiveModelSerializers::SerializableResource.new(
@@ -24,7 +26,7 @@ module Api
               current_page: courses.current_page,
               total_pages: courses.total_pages,
               total_count: courses.total_count,
-              per_page: DEFAULT_PER_PAGE
+              per_page: per_page
             }
           }
         end
@@ -36,6 +38,15 @@ module Api
           render json: course,
                  serializer: ::Admin::CourseDetailSerializer,
                  questions_counts: questions_counts
+        end
+
+        private
+
+        def sanitized_per_page
+          raw = params[:per_page].to_i
+          return DEFAULT_PER_PAGE if raw <= 0
+
+          [raw, MAX_PER_PAGE].min
         end
       end
     end
