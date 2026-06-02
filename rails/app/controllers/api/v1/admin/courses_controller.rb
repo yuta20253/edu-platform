@@ -15,14 +15,22 @@ module Api
                                          .search(params[:q])
                                          .order_by(params[:sort], params[:order])
                                          .result
+                                         .includes(:subject)
                                          .page(params[:page]).per(per_page)
+
+          course_ids = courses.pluck(:id)
+          units_counts = Unit.where(course_id: course_ids, deleted_at: nil).group(:course_id).count
+          questions_counts = Question.joins(:unit)
+                                     .where(units: { course_id: course_ids, deleted_at: nil })
+                                     .where(deleted_at: nil)
+                                     .group('units.course_id').count
 
           render json: {
             courses: ActiveModelSerializers::SerializableResource.new(
               courses,
               each_serializer: ::Admin::CourseListSerializer,
-              units_counts: {},
-              questions_counts: {}
+              units_counts: units_counts,
+              questions_counts: questions_counts
             ),
             meta: {
               current_page: courses.current_page,

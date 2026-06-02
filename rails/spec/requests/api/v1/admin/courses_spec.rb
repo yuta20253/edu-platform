@@ -207,6 +207,63 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       end
     end
 
+    context 'units_count / questions_count' do
+      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject) }
+      let!(:course) { create(:course, subject: subject_record) }
+      let!(:units) { create_list(:unit, 3, course: course) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      before do
+        create_list(:question, 2, unit: units[0])
+        create_list(:question, 4, unit: units[1])
+      end
+
+      it 'units_count は course 配下の unit 数を返す' do
+        subject
+        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+        expect(item['units_count']).to eq(3)
+      end
+
+      it 'units_count は soft-deleted な unit を除外する' do
+        units[2].update!(deleted_at: Time.current)
+        subject
+        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+        expect(item['units_count']).to eq(2)
+      end
+
+      it 'questions_count はコース配下の全 unit の question 数の合計' do
+        subject
+        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+        expect(item['questions_count']).to eq(6)
+      end
+
+      it 'questions_count は soft-deleted な unit / question を除外する' do
+        units[1].questions.first.update!(deleted_at: Time.current)
+        subject
+        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+        expect(item['questions_count']).to eq(5)
+      end
+
+      it 'コース件数を増やしても counts 集計クエリは 2 本に保たれる (N+1 が発生しない)' do
+        extra_subject = create(:subject)
+        2.times do
+          extra_course = create(:course, subject: extra_subject)
+          create(:unit, course: extra_course)
+        end
+
+        queries = []
+        callback = lambda { |_n, _s, _f, _id, payload|
+          queries << payload[:sql] if payload[:name] != 'SCHEMA'
+        }
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+        group_by_queries = queries.count { |sql| sql.include?('GROUP BY') }
+        expect(group_by_queries).to be <= 2
+      end
+    end
+
     context 'subject_id パラメータ指定時' do
       subject do
         get '/api/v1/admin/courses',
