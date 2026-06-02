@@ -170,6 +170,43 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       end
     end
 
+    context 'sort/order パラメータ指定時' do
+      subject { get '/api/v1/admin/courses', params: query_params, headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject) }
+      let!(:c1) { create(:course, subject: subject_record, level_name: 'A', created_at: 2.days.ago) }
+      let!(:c2) { create(:course, subject: subject_record, level_name: 'B', created_at: 1.day.ago) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      context 'sort=level_name & order=asc' do
+        let(:query_params) { { sort: 'level_name', order: 'asc' } }
+
+        it '昇順で返る' do
+          subject
+          expect(response.parsed_body['courses'].pluck('id')).to eq([c1.id, c2.id])
+        end
+      end
+
+      context '不正な sort 値（order 未指定）' do
+        let(:query_params) { { sort: 'malicious' } }
+
+        it '既定 created_at desc にフォールバック' do
+          subject
+          expect(response.parsed_body['courses'].pluck('id')).to eq([c2.id, c1.id])
+        end
+      end
+
+      context '不正な order 値' do
+        let(:query_params) { { sort: 'level_name', order: 'malicious' } }
+
+        it '既定 desc にフォールバック (level_name desc)' do
+          subject
+          expect(response.parsed_body['courses'].pluck('id')).to eq([c2.id, c1.id])
+        end
+      end
+    end
+
     context 'subject_id パラメータ指定時' do
       subject do
         get '/api/v1/admin/courses',

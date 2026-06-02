@@ -53,4 +53,32 @@ RSpec.describe Admin::CoursesQuery, type: :model do
       expect(described_class.new.search('%達成').result).to contain_exactly(special)
     end
   end
+
+  describe '#order_by' do
+    let!(:subject_record) { create(:subject) }
+    let!(:c_old) { create(:course, subject: subject_record, level_name: 'A', created_at: 3.days.ago) }
+    let!(:c_mid) { create(:course, subject: subject_record, level_name: 'C', created_at: 2.days.ago) }
+    let!(:c_new) { create(:course, subject: subject_record, level_name: 'B', created_at: 1.day.ago) }
+
+    it 'デフォルトは created_at desc' do
+      expect(described_class.new.order_by(nil, nil).result.to_a).to eq([c_new, c_mid, c_old])
+    end
+
+    it 'level_name asc を許可' do
+      expect(described_class.new.order_by('level_name', 'asc').result.to_a).to eq([c_old, c_new, c_mid])
+    end
+
+    it 'id asc を許可' do
+      expect(described_class.new.order_by('id', 'asc').result.to_a).to eq([c_old, c_mid, c_new])
+    end
+
+    it 'sort のホワイトリスト外は既定値 created_at にフォールバック（order は渡された値を尊重）' do
+      # sort=subject_id（ホワイトリスト外）→ created_at に。order=asc は有効なので created_at asc
+      expect(described_class.new.order_by('subject_id', 'asc').result.to_a).to eq([c_old, c_mid, c_new])
+    end
+
+    it 'order のホワイトリスト外は既定値にフォールバック' do
+      expect(described_class.new.order_by('level_name', 'foo').result.to_a).to eq([c_mid, c_new, c_old])
+    end
+  end
 end
