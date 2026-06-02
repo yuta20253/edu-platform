@@ -6,6 +6,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { QuestionHistory } from "./types";
+import { taskUnitPath } from "@/libs/path/taskUnitPath";
 
 type Props = {
   goalId?: number;
@@ -23,6 +24,8 @@ export const Presenter = ({
   const answeredCount = questionHistories.filter(
     (history) => history.status === "answered",
   ).length;
+
+  const startRef = taskUnitPath(taskId, unitId, goalId);
 
   return (
     <Box
@@ -80,11 +83,7 @@ export const Presenter = ({
           </Link>
 
           <Link
-            href={
-              goalId
-                ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}`
-                : `/tasks/${taskId}/units/${unitId}`
-            }
+            href={startRef}
             style={{ textDecoration: "none" }}
           >
             <Button

@@ -4,6 +4,7 @@ import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { colors } from "@/app/theme/colors";
 import { QuestionType } from "@/types/question/question";
+import { taskUnitPath } from "@/libs/path/taskUnitPath";
 
 type Props = {
   goalId?: number;
@@ -44,9 +45,7 @@ export const Presenter = ({
   onOpenHint,
   onCloseHint,
 }: Props) => {
-  const startRef = goalId
-    ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}`
-    : `/tasks/${taskId}/units/${unitId}`;
+  const startRef = taskUnitPath(taskId, unitId, goalId);
 
   return (
     <Box
@@ -251,11 +250,7 @@ export const Presenter = ({
               }}
             >
               <Link
-                href={
-                  goalId
-                    ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}`
-                    : `/tasks/${taskId}/units/${unitId}`
-                }
+                href={startRef}
                 style={{ textDecoration: "none" }}
               >
                 <Box
