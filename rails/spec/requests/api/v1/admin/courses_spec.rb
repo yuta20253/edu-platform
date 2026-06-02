@@ -17,6 +17,32 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
     response.headers['Set-Cookie']&.split(';')&.first
   end
 
+  describe 'GET /api/v1/admin/courses' do
+    context '正常系 - 講座が存在しない場合' do
+      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it 'ステータス200が返される' do
+        subject
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'courses は空配列、meta は 0件の値を返す' do
+        subject
+        body = response.parsed_body
+        expect(body['courses']).to eq([])
+        expect(body['meta']).to include(
+          'current_page' => 1,
+          'total_pages' => 0,
+          'total_count' => 0,
+          'per_page' => 20
+        )
+      end
+    end
+  end
+
   describe 'GET /api/v1/admin/courses/:id' do
     context '正常系' do
       subject { get "/api/v1/admin/courses/#{course.id}", headers: headers.merge('Cookie' => cookie) }

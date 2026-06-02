@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+module Admin
+  class CourseListSerializer < ActiveModel::Serializer
+    attributes :id, :name, :subject, :level_number, :units_count, :questions_count, :created_at
+
+    def name
+      object.level_name
+    end
+
+    def subject
+      { id: object.subject.id, name: object.subject.name }
+    end
+
+    def units_count
+      (instance_options[:units_counts] || {})[object.id] || 0
+    end
+
+    def questions_count
+      (instance_options[:questions_counts] || {})[object.id] || 0
+    end
+  end
+end
