@@ -12,6 +12,7 @@ module Api
           courses = ::Admin::CoursesQuery.new
                                          .active
                                          .by_subject_id(params[:subject_id])
+                                         .search(params[:q])
                                          .order_by(params[:sort], params[:order])
                                          .result
                                          .page(params[:page]).per(per_page)

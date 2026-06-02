@@ -149,6 +149,27 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       end
     end
 
+    context 'q パラメータ指定時' do
+      subject do
+        get '/api/v1/admin/courses',
+            params: { q: '基礎' },
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject) }
+      let!(:hit) { create(:course, subject: subject_record, level_name: '基礎英語') }
+      let!(:miss) { create(:course, subject: subject_record, level_name: '上級', description: '上級向け') }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it 'level_name に部分一致する講座のみ返す' do
+        subject
+        ids = response.parsed_body['courses'].pluck('id')
+        expect(ids).to include(hit.id)
+        expect(ids).not_to include(miss.id)
+      end
+    end
+
     context 'subject_id パラメータ指定時' do
       subject do
         get '/api/v1/admin/courses',

@@ -23,6 +23,14 @@ module Admin
       self
     end
 
+    def search(keyword)
+      return self if keyword.blank?
+
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword.to_s)}%"
+      @scope = @scope.where('courses.level_name LIKE :q OR courses.description LIKE :q', q: pattern)
+      self
+    end
+
     def order_by(sort, order)
       sort_key = SORT_WHITELIST.include?(sort.to_s) ? sort.to_s : DEFAULT_SORT
       order_dir = ORDER_WHITELIST.include?(order.to_s) ? order.to_s : DEFAULT_ORDER
