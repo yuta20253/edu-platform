@@ -91,12 +91,11 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
 
       let!(:admin_user) { create(:user, :admin, high_school: nil) }
       let!(:subject_record) { create(:subject) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
 
       before do
         25.times { |i| create(:course, subject: subject_record, level_name: "Lv#{i}") }
       end
-
-      let(:cookie) { login_and_get_cookie(admin_user) }
 
       context 'デフォルト per_page=20' do
         let(:query_params) { {} }
@@ -147,6 +146,28 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
           subject
           expect(response.parsed_body['meta']['per_page']).to eq(20)
         end
+      end
+    end
+
+    context 'subject_id パラメータ指定時' do
+      subject do
+        get '/api/v1/admin/courses',
+            params: { subject_id: subject_a.id },
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_a) { create(:subject, name: '英語') }
+      let!(:subject_b) { create(:subject, name: '数学') }
+      let!(:course_a) { create(:course, subject: subject_a) }
+      let!(:course_b) { create(:course, subject: subject_b) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it '指定教科の講座のみ返す' do
+        subject
+        ids = response.parsed_body['courses'].pluck('id')
+        expect(ids).to include(course_a.id)
+        expect(ids).not_to include(course_b.id)
       end
     end
   end

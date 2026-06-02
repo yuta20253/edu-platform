@@ -11,6 +11,7 @@ module Api
           per_page = sanitized_per_page
           courses = ::Admin::CoursesQuery.new
                                          .active
+                                         .by_subject_id(params[:subject_id])
                                          .order_by(params[:sort], params[:order])
                                          .result
                                          .page(params[:page]).per(per_page)

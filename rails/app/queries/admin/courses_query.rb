@@ -16,6 +16,13 @@ module Admin
       self
     end
 
+    def by_subject_id(id)
+      return self if id.blank?
+
+      @scope = @scope.where(subject_id: id)
+      self
+    end
+
     def order_by(sort, order)
       sort_key = SORT_WHITELIST.include?(sort.to_s) ? sort.to_s : DEFAULT_SORT
       order_dir = ORDER_WHITELIST.include?(order.to_s) ? order.to_s : DEFAULT_ORDER
