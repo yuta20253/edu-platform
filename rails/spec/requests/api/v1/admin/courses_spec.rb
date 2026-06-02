@@ -264,6 +264,33 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       end
     end
 
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        get '/api/v1/admin/courses', headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - 管理者以外のアクセス（生徒）' do
+      let!(:student_user) { create(:user) }
+
+      it '403が返される' do
+        cookie = login_and_get_cookie(student_user)
+        get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - 管理者以外のアクセス（教員）' do
+      let!(:teacher_user) { create(:user, :teacher) }
+
+      it '403が返される' do
+        cookie = login_and_get_cookie(teacher_user)
+        get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'ソフト削除済みの講座' do
       subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
 
