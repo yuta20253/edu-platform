@@ -99,6 +99,7 @@ class User < ApplicationRecord
 
   scope :students, -> { joins(:user_role).where(user_roles: { name: 'student' }) }
   scope :teachers, -> { joins(:user_role).where(user_roles: { name: 'teacher' }) }
+  scope :admins, -> { joins(:user_role).where(user_roles: { name: 'admin' }) }
   scope :by_high_school, ->(high_school_ids) { where(high_school_id: high_school_ids) }
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
   scope :invitation_pending, -> { where(password_reset_required: true) }
