@@ -41,6 +41,50 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         )
       end
     end
+
+    context '正常系 - 1件の講座が存在する場合' do
+      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject, name: '英語') }
+      let!(:course) do
+        create(:course, subject: subject_record, level_name: '基礎', level_number: 1)
+      end
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it '必要なフィールドが含まれる' do
+        subject
+        item = response.parsed_body['courses'].first
+        expect(item.keys).to include('id', 'name', 'subject', 'level_number',
+                                     'units_count', 'questions_count', 'created_at')
+      end
+
+      it 'name は level_name を返す' do
+        subject
+        expect(response.parsed_body['courses'].first['name']).to eq('基礎')
+      end
+
+      it 'subject は id と name を含む' do
+        subject
+        expect(response.parsed_body['courses'].first['subject']).to eq(
+          'id' => subject_record.id, 'name' => '英語'
+        )
+      end
+
+      it 'id / level_number / units_count / questions_count が正しい' do
+        subject
+        item = response.parsed_body['courses'].first
+        expect(item['id']).to eq(course.id)
+        expect(item['level_number']).to eq(1)
+        expect(item['units_count']).to eq(0)
+        expect(item['questions_count']).to eq(0)
+      end
+
+      it 'meta.total_count が 1 になる' do
+        subject
+        expect(response.parsed_body['meta']['total_count']).to eq(1)
+      end
+    end
   end
 
   describe 'GET /api/v1/admin/courses/:id' do
