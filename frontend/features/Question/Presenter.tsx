@@ -249,10 +249,7 @@ export const Presenter = ({
                 gap: 2,
               }}
             >
-              <Link
-                href={startRef}
-                style={{ textDecoration: "none" }}
-              >
+              <Link href={startRef} style={{ textDecoration: "none" }}>
                 <Box
                   sx={{
                     px: 3,

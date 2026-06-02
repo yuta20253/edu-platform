@@ -82,10 +82,7 @@ export const Presenter = ({
             </Button>
           </Link>
 
-          <Link
-            href={startRef}
-            style={{ textDecoration: "none" }}
-          >
+          <Link href={startRef} style={{ textDecoration: "none" }}>
             <Button
               variant="outlined"
               color="primary"
