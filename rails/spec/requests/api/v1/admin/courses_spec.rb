@@ -147,6 +147,16 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
           expect(response.parsed_body['meta']['per_page']).to eq(20)
         end
       end
+
+      context 'per_page を配列で送ってきた場合' do
+        let(:query_params) { { per_page: ['10'] } }
+
+        it '500 にならずデフォルト 20 にフォールバックする' do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body['meta']['per_page']).to eq(20)
+        end
+      end
     end
 
     context 'q パラメータ指定時' do

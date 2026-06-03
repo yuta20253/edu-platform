@@ -53,7 +53,10 @@ module Api
         private
 
         def sanitized_per_page
-          raw = params[:per_page].to_i
+          value = params[:per_page]
+          return DEFAULT_PER_PAGE unless value.is_a?(String) || value.is_a?(Integer)
+
+          raw = value.to_i
           return DEFAULT_PER_PAGE if raw <= 0
 
           [raw, MAX_PER_PAGE].min
