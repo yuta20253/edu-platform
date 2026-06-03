@@ -86,6 +86,11 @@ RSpec.describe Admin::CoursesQuery, type: :model do
     it 'ハッシュを渡してもフィルタしない（パラメータ汚染防止）' do
       expect(described_class.new.search({ q: '基礎' }).result).to contain_exactly(c1, c2, c3)
     end
+
+    it 'LIKE 文に ESCAPE 句を明示する (NO_BACKSLASH_ESCAPES sql_mode 下での安全性)' do
+      sql = described_class.new.search('基礎').result.to_sql
+      expect(sql).to match(/LIKE .* ESCAPE/i)
+    end
   end
 
   describe '#order_by' do
