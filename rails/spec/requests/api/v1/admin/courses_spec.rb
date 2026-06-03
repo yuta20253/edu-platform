@@ -284,6 +284,26 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       end
     end
 
+    context '紐づく subject が DB レベルで欠損している場合' do
+      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:subject_record) { create(:subject, name: '英語') }
+      let!(:course) { create(:course, subject: subject_record) }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      before do
+        course.update_column(:subject_id, nil)
+      end
+
+      it '500 にならず subject フィールドを nil で返す' do
+        subject
+        expect(response).to have_http_status(:ok)
+        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+        expect(item['subject']).to be_nil
+      end
+    end
+
     context '異常系 - 未認証アクセス' do
       it '401が返される' do
         get '/api/v1/admin/courses', headers: headers

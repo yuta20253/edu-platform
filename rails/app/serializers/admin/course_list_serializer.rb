@@ -9,6 +9,8 @@ module Admin
     end
 
     def subject
+      return nil if object.subject.nil?
+
       { id: object.subject.id, name: object.subject.name }
     end
 
