@@ -282,6 +282,22 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         group_by_queries = queries.count { |sql| sql.include?('GROUP BY') }
         expect(group_by_queries).to be <= 2
       end
+
+      it 'subject が preload され、コース数を増やしても subjects への SELECT が 1 本に保たれる' do
+        # 各 course に異なる subject を割り当てて preload の効果を確実に検証
+        4.times do
+          extra_subject = create(:subject)
+          create(:course, subject: extra_subject)
+        end
+
+        queries = []
+        callback = lambda { |_n, _s, _f, _id, payload|
+          queries << payload[:sql] if payload[:name] != 'SCHEMA'
+        }
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+        subjects_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `subjects`/i) }
+        expect(subjects_selects).to eq(1)
+      end
     end
 
     context '紐づく subject が DB レベルで欠損している場合' do
