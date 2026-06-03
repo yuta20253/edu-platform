@@ -40,6 +40,16 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
           'per_page' => 20
         )
       end
+
+      it 'course_ids が空なら units / questions への集計クエリは発行しない' do
+        queries = []
+        callback = lambda { |_n, _s, _f, _id, payload|
+          queries << payload[:sql] if payload[:name] != 'SCHEMA'
+        }
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+        expect(queries.any? { |sql| sql.match?(/FROM `units`/i) && sql.include?('GROUP BY') }).to be(false)
+        expect(queries.any? { |sql| sql.match?(/FROM `questions`/i) && sql.include?('GROUP BY') }).to be(false)
+      end
     end
 
     context '正常系 - 1件の講座が存在する場合' do

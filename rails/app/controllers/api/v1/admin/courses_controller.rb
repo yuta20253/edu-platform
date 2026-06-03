@@ -20,11 +20,16 @@ module Api
 
           course_records = courses.to_a
           course_ids = course_records.map(&:id)
-          units_counts = Unit.where(course_id: course_ids, deleted_at: nil).group(:course_id).count
-          questions_counts = Question.joins(:unit)
-                                     .where(units: { course_id: course_ids, deleted_at: nil })
-                                     .where(deleted_at: nil)
-                                     .group('units.course_id').count
+          if course_ids.empty?
+            units_counts = {}
+            questions_counts = {}
+          else
+            units_counts = Unit.where(course_id: course_ids, deleted_at: nil).group(:course_id).count
+            questions_counts = Question.joins(:unit)
+                                       .where(units: { course_id: course_ids, deleted_at: nil })
+                                       .where(deleted_at: nil)
+                                       .group('units.course_id').count
+          end
 
           render json: {
             courses: ActiveModelSerializers::SerializableResource.new(
