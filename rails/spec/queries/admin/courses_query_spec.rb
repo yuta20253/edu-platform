@@ -107,5 +107,12 @@ RSpec.describe Admin::CoursesQuery, type: :model do
     it 'order のホワイトリスト外は既定値にフォールバック' do
       expect(described_class.new.order_by('level_name', 'foo').result.to_a).to eq([c_mid, c_new, c_old])
     end
+
+    context '主ソートキーで同値が並ぶ場合' do
+      it 'id がタイブレーカーとして SQL に含まれる' do
+        sql = described_class.new.order_by('level_name', 'asc').result.to_sql
+        expect(sql).to match(/ORDER BY .*level_name.*ASC.*id/i)
+      end
+    end
   end
 end

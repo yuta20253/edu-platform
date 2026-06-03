@@ -36,7 +36,7 @@ module Admin
     def order_by(sort, order)
       sort_key = SORT_WHITELIST.include?(sort.to_s) ? sort.to_s : DEFAULT_SORT
       order_dir = ORDER_WHITELIST.include?(order.to_s) ? order.to_s : DEFAULT_ORDER
-      @scope = @scope.order(sort_key => order_dir)
+      @scope = @scope.order(sort_key => order_dir).order(id: :asc)
       self
     end
 
