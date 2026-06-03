@@ -16,7 +16,7 @@ module Api
                                          .order_by(params[:sort], params[:order])
                                          .result
                                          .includes(:subject)
-                                         .page(params[:page]).per(per_page)
+                                         .page(sanitized_page).per(per_page)
 
           course_ids = courses.pluck(:id)
           units_counts = Unit.where(course_id: course_ids, deleted_at: nil).group(:course_id).count
@@ -60,6 +60,13 @@ module Api
           return DEFAULT_PER_PAGE if raw <= 0
 
           [raw, MAX_PER_PAGE].min
+        end
+
+        def sanitized_page
+          value = params[:page]
+          return nil unless value.is_a?(String) || value.is_a?(Integer)
+
+          value
         end
       end
     end
