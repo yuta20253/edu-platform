@@ -33,7 +33,10 @@ module Api
           value = params[:page]
           return nil unless value.is_a?(String) || value.is_a?(Integer)
 
-          value
+          raw = value.to_i
+          return nil if raw <= 0
+
+          raw
         end
       end
     end

@@ -183,6 +183,26 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
             expect(response.parsed_body['meta']['current_page']).to eq(1)
           end
         end
+
+        context 'page=0 を指定' do
+          let(:query_params) { { page: 0 } }
+
+          it '1 ページ目にフォールバックする' do
+            subject
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['meta']['current_page']).to eq(1)
+          end
+        end
+
+        context 'page=-1 を指定' do
+          let(:query_params) { { page: -1 } }
+
+          it '1 ページ目にフォールバックする' do
+            subject
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['meta']['current_page']).to eq(1)
+          end
+        end
       end
 
       context 'q パラメータ指定時' do
