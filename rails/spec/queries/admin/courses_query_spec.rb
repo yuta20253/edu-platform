@@ -71,6 +71,14 @@ RSpec.describe Admin::CoursesQuery, type: :model do
       special = create(:course, subject: subject_record, level_name: '100%達成')
       expect(described_class.new.search('%達成').result).to contain_exactly(special)
     end
+
+    it '配列を渡してもフィルタしない（パラメータ汚染防止）' do
+      expect(described_class.new.search(['基礎']).result).to contain_exactly(c1, c2, c3)
+    end
+
+    it 'ハッシュを渡してもフィルタしない（パラメータ汚染防止）' do
+      expect(described_class.new.search({ q: '基礎' }).result).to contain_exactly(c1, c2, c3)
+    end
   end
 
   describe '#order_by' do

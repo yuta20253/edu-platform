@@ -25,9 +25,10 @@ module Admin
     end
 
     def search(keyword)
+      return self unless keyword.is_a?(String)
       return self if keyword.blank?
 
-      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword.to_s)}%"
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword)}%"
       @scope = @scope.where('courses.level_name LIKE :q OR courses.description LIKE :q', q: pattern)
       self
     end
