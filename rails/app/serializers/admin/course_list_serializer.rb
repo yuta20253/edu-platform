@@ -2,11 +2,7 @@
 
 module Admin
   class CourseListSerializer < ActiveModel::Serializer
-    attributes :id, :name, :subject, :level_number, :units_count, :questions_count, :created_at
-
-    def name
-      object.level_name
-    end
+    attributes :id, :level_name, :subject, :level_number, :units_count, :questions_count, :created_at
 
     def subject
       return nil if object.subject.nil?

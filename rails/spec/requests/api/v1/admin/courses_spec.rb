@@ -65,13 +65,18 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
       it '必要なフィールドが含まれる' do
         subject
         item = response.parsed_body['courses'].first
-        expect(item.keys).to include('id', 'name', 'subject', 'level_number',
+        expect(item.keys).to include('id', 'level_name', 'subject', 'level_number',
                                      'units_count', 'questions_count', 'created_at')
       end
 
-      it 'name は level_name を返す' do
+      it 'level_name を直接返す (detail シリアライザと同名)' do
         subject
-        expect(response.parsed_body['courses'].first['name']).to eq('基礎')
+        expect(response.parsed_body['courses'].first['level_name']).to eq('基礎')
+      end
+
+      it '旧フィールド名 name は返さない' do
+        subject
+        expect(response.parsed_body['courses'].first).not_to have_key('name')
       end
 
       it 'subject は id と name を含む' do
