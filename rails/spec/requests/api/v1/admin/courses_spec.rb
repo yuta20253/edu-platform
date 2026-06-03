@@ -280,7 +280,7 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         }
         ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
         group_by_queries = queries.count { |sql| sql.include?('GROUP BY') }
-        expect(group_by_queries).to be <= 2
+        expect(group_by_queries).to eq(2)
       end
 
       it 'subject が preload され、コース数を増やしても subjects への SELECT が 1 本に保たれる' do
