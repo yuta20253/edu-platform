@@ -4,9 +4,6 @@ module Api
   module V1
     module Admin
       class CoursesController < BaseController
-        DEFAULT_PER_PAGE = 20
-        MAX_PER_PAGE = 100
-
         def index
           per_page = sanitized_per_page
           courses = ::Admin::CoursesQuery.new
@@ -53,25 +50,6 @@ module Api
           render json: course,
                  serializer: ::Admin::CourseDetailSerializer,
                  questions_counts: questions_counts
-        end
-
-        private
-
-        def sanitized_per_page
-          value = params[:per_page]
-          return DEFAULT_PER_PAGE unless value.is_a?(String) || value.is_a?(Integer)
-
-          raw = value.to_i
-          return DEFAULT_PER_PAGE if raw <= 0
-
-          [raw, MAX_PER_PAGE].min
-        end
-
-        def sanitized_page
-          value = params[:page]
-          return nil unless value.is_a?(String) || value.is_a?(Integer)
-
-          value
         end
       end
     end
