@@ -114,5 +114,12 @@ RSpec.describe Admin::CoursesQuery, type: :model do
         expect(sql).to match(/ORDER BY .*level_name.*ASC.*id/i)
       end
     end
+
+    it 'ソートカラムが courses テーブルに修飾されている (将来の JOIN で曖昧にならない)' do
+      sql = described_class.new.order_by('created_at', 'desc').result.to_sql
+      order_clause = sql[/ORDER BY .*/i]
+      expect(order_clause).to match(/`courses`\.`created_at`/)
+      expect(order_clause).to match(/`courses`\.`id`/)
+    end
   end
 end
