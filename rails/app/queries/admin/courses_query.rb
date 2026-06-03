@@ -8,7 +8,7 @@ module Admin
     DEFAULT_ORDER = 'desc'
 
     def initialize(scope = Course.all)
-      @scope = scope
+      @scope = scope.includes(:subject)
     end
 
     def active

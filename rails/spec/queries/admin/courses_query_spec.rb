@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Admin::CoursesQuery, type: :model do
+  describe '#result' do
+    it 'subject を preload するように relation に includes を指定する' do
+      relation = described_class.new.result
+      expect(relation.includes_values).to include(:subject)
+    end
+  end
+
   describe '#active' do
     let!(:subject_record) { create(:subject) }
     let!(:alive) { create(:course, subject: subject_record) }

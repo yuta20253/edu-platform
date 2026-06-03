@@ -15,7 +15,6 @@ module Api
                                          .search(params[:q])
                                          .order_by(params[:sort], params[:order])
                                          .result
-                                         .includes(:subject)
                                          .page(sanitized_page).per(per_page)
 
           course_records = courses.to_a
