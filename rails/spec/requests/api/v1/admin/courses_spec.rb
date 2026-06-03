@@ -18,399 +18,403 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
   end
 
   describe 'GET /api/v1/admin/courses' do
-    context '正常系 - 講座が存在しない場合' do
-      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+    context '正常系' do
+      context '講座が存在しない場合' do
+        subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
 
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
 
-      it 'ステータス200が返される' do
-        subject
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'courses は空配列、meta は 0件の値を返す' do
-        subject
-        body = response.parsed_body
-        expect(body['courses']).to eq([])
-        expect(body['meta']).to include(
-          'current_page' => 1,
-          'total_pages' => 0,
-          'total_count' => 0,
-          'per_page' => 20
-        )
-      end
-
-      it 'course_ids が空なら units / questions への集計クエリは発行しない' do
-        queries = []
-        callback = lambda { |_n, _s, _f, _id, payload|
-          queries << payload[:sql] if payload[:name] != 'SCHEMA'
-        }
-        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
-        expect(queries.any? { |sql| sql.match?(/FROM `units`/i) && sql.include?('GROUP BY') }).to be(false)
-        expect(queries.any? { |sql| sql.match?(/FROM `questions`/i) && sql.include?('GROUP BY') }).to be(false)
-      end
-    end
-
-    context '正常系 - 1件の講座が存在する場合' do
-      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject, name: '英語') }
-      let!(:course) do
-        create(:course, subject: subject_record, level_name: '基礎', level_number: 1)
-      end
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
-      it '必要なフィールドが含まれる' do
-        subject
-        item = response.parsed_body['courses'].first
-        expect(item.keys).to include('id', 'level_name', 'subject', 'level_number',
-                                     'units_count', 'questions_count', 'created_at')
-      end
-
-      it 'level_name を直接返す (detail シリアライザと同名)' do
-        subject
-        expect(response.parsed_body['courses'].first['level_name']).to eq('基礎')
-      end
-
-      it '旧フィールド名 name は返さない' do
-        subject
-        expect(response.parsed_body['courses'].first).not_to have_key('name')
-      end
-
-      it 'subject は id と name を含む' do
-        subject
-        expect(response.parsed_body['courses'].first['subject']).to eq(
-          'id' => subject_record.id, 'name' => '英語'
-        )
-      end
-
-      it 'id / level_number / units_count / questions_count が正しい' do
-        subject
-        item = response.parsed_body['courses'].first
-        expect(item['id']).to eq(course.id)
-        expect(item['level_number']).to eq(1)
-        expect(item['units_count']).to eq(0)
-        expect(item['questions_count']).to eq(0)
-      end
-
-      it 'meta.total_count が 1 になる' do
-        subject
-        expect(response.parsed_body['meta']['total_count']).to eq(1)
-      end
-    end
-
-    context 'ページネーション' do
-      subject { get '/api/v1/admin/courses', params: query_params, headers: headers.merge('Cookie' => cookie) }
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
-      before do
-        25.times { |i| create(:course, subject: subject_record, level_name: "Lv#{i}") }
-      end
-
-      context 'デフォルト per_page=20' do
-        let(:query_params) { {} }
-
-        it '20件返し、meta に current_page/per_page/total_count が入る' do
-          subject
-          body = response.parsed_body
-          expect(body['courses'].size).to eq(20)
-          expect(body['meta']).to include('current_page' => 1, 'per_page' => 20, 'total_count' => 25)
-        end
-      end
-
-      context 'page=2 を指定' do
-        let(:query_params) { { page: 2 } }
-
-        it '残り5件を返し、current_page=2 になる' do
-          subject
-          body = response.parsed_body
-          expect(body['courses'].size).to eq(5)
-          expect(body['meta']['current_page']).to eq(2)
-        end
-      end
-
-      context 'per_page=5 を指定' do
-        let(:query_params) { { per_page: 5 } }
-
-        it '5件返し、meta.per_page=5 になる' do
-          subject
-          body = response.parsed_body
-          expect(body['courses'].size).to eq(5)
-          expect(body['meta']['per_page']).to eq(5)
-        end
-      end
-
-      context 'per_page=150 を指定（上限超過）' do
-        let(:query_params) { { per_page: 150 } }
-
-        it 'meta.per_page は 100 に丸められる' do
-          subject
-          expect(response.parsed_body['meta']['per_page']).to eq(100)
-        end
-      end
-
-      context 'per_page=0 や負数を指定' do
-        let(:query_params) { { per_page: 0 } }
-
-        it 'デフォルト 20 にフォールバックする' do
-          subject
-          expect(response.parsed_body['meta']['per_page']).to eq(20)
-        end
-      end
-
-      context 'per_page を配列で送ってきた場合' do
-        let(:query_params) { { per_page: ['10'] } }
-
-        it '500 にならずデフォルト 20 にフォールバックする' do
+        it 'ステータス200が返される' do
           subject
           expect(response).to have_http_status(:ok)
-          expect(response.parsed_body['meta']['per_page']).to eq(20)
         end
-      end
 
-      context 'page を配列で送ってきた場合' do
-        let(:query_params) { { page: ['2'] } }
-
-        it '500 にならず 1 ページ目を返す' do
+        it 'courses は空配列、meta は 0件の値を返す' do
           subject
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body['meta']['current_page']).to eq(1)
+          body = response.parsed_body
+          expect(body['courses']).to eq([])
+          expect(body['meta']).to include(
+            'current_page' => 1,
+            'total_pages' => 0,
+            'total_count' => 0,
+            'per_page' => 20
+          )
+        end
+
+        it 'course_ids が空なら units / questions への集計クエリは発行しない' do
+          queries = []
+          callback = lambda { |_n, _s, _f, _id, payload|
+            queries << payload[:sql] if payload[:name] != 'SCHEMA'
+          }
+          ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+          expect(queries.any? { |sql| sql.match?(/FROM `units`/i) && sql.include?('GROUP BY') }).to be(false)
+          expect(queries.any? { |sql| sql.match?(/FROM `questions`/i) && sql.include?('GROUP BY') }).to be(false)
         end
       end
-    end
 
-    context 'q パラメータ指定時' do
-      subject do
-        get '/api/v1/admin/courses',
-            params: { q: '基礎' },
-            headers: headers.merge('Cookie' => cookie)
-      end
+      context '1件の講座が存在する場合' do
+        subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
 
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject) }
-      let!(:hit) { create(:course, subject: subject_record, level_name: '基礎英語') }
-      let!(:miss) { create(:course, subject: subject_record, level_name: '上級', description: '上級向け') }
-      let(:cookie) { login_and_get_cookie(admin_user) }
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject, name: '英語') }
+        let!(:course) do
+          create(:course, subject: subject_record, level_name: '基礎', level_number: 1)
+        end
+        let(:cookie) { login_and_get_cookie(admin_user) }
 
-      it 'level_name に部分一致する講座のみ返す' do
-        subject
-        ids = response.parsed_body['courses'].pluck('id')
-        expect(ids).to include(hit.id)
-        expect(ids).not_to include(miss.id)
-      end
-    end
-
-    context 'sort/order パラメータ指定時' do
-      subject { get '/api/v1/admin/courses', params: query_params, headers: headers.merge('Cookie' => cookie) }
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject) }
-      let!(:c1) { create(:course, subject: subject_record, level_name: 'A', created_at: 2.days.ago) }
-      let!(:c2) { create(:course, subject: subject_record, level_name: 'B', created_at: 1.day.ago) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
-      context 'sort=level_name & order=asc' do
-        let(:query_params) { { sort: 'level_name', order: 'asc' } }
-
-        it '昇順で返る' do
+        it '必要なフィールドが含まれる' do
           subject
-          expect(response.parsed_body['courses'].pluck('id')).to eq([c1.id, c2.id])
+          item = response.parsed_body['courses'].first
+          expect(item.keys).to include('id', 'level_name', 'subject', 'level_number',
+                                       'units_count', 'questions_count', 'created_at')
         end
-      end
 
-      context '不正な sort 値（order 未指定）' do
-        let(:query_params) { { sort: 'malicious' } }
-
-        it '既定 created_at desc にフォールバック' do
+        it 'level_name を直接返す (detail シリアライザと同名)' do
           subject
-          expect(response.parsed_body['courses'].pluck('id')).to eq([c2.id, c1.id])
+          expect(response.parsed_body['courses'].first['level_name']).to eq('基礎')
         end
-      end
 
-      context '不正な order 値' do
-        let(:query_params) { { sort: 'level_name', order: 'malicious' } }
-
-        it '既定 desc にフォールバック (level_name desc)' do
+        it '旧フィールド名 name は返さない' do
           subject
-          expect(response.parsed_body['courses'].pluck('id')).to eq([c2.id, c1.id])
-        end
-      end
-    end
-
-    context 'units_count / questions_count' do
-      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject) }
-      let!(:course) { create(:course, subject: subject_record) }
-      let!(:units) { create_list(:unit, 3, course: course) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
-      before do
-        create_list(:question, 2, unit: units[0])
-        create_list(:question, 4, unit: units[1])
-      end
-
-      it 'units_count は course 配下の unit 数を返す' do
-        subject
-        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
-        expect(item['units_count']).to eq(3)
-      end
-
-      it 'units_count は soft-deleted な unit を除外する' do
-        units[2].update!(deleted_at: Time.current)
-        subject
-        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
-        expect(item['units_count']).to eq(2)
-      end
-
-      it 'questions_count はコース配下の全 unit の question 数の合計' do
-        subject
-        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
-        expect(item['questions_count']).to eq(6)
-      end
-
-      it 'questions_count は soft-deleted な unit / question を除外する' do
-        units[1].questions.first.update!(deleted_at: Time.current)
-        subject
-        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
-        expect(item['questions_count']).to eq(5)
-      end
-
-      it 'コース件数を増やしても counts 集計クエリは 2 本に保たれる (N+1 が発生しない)' do
-        extra_subject = create(:subject)
-        2.times do
-          extra_course = create(:course, subject: extra_subject)
-          create(:unit, course: extra_course)
+          expect(response.parsed_body['courses'].first).not_to have_key('name')
         end
 
-        queries = []
-        callback = lambda { |_n, _s, _f, _id, payload|
-          queries << payload[:sql] if payload[:name] != 'SCHEMA'
-        }
-        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
-        group_by_queries = queries.count { |sql| sql.include?('GROUP BY') }
-        expect(group_by_queries).to eq(2)
+        it 'subject は id と name を含む' do
+          subject
+          expect(response.parsed_body['courses'].first['subject']).to eq(
+            'id' => subject_record.id, 'name' => '英語'
+          )
+        end
+
+        it 'id / level_number / units_count / questions_count が正しい' do
+          subject
+          item = response.parsed_body['courses'].first
+          expect(item['id']).to eq(course.id)
+          expect(item['level_number']).to eq(1)
+          expect(item['units_count']).to eq(0)
+          expect(item['questions_count']).to eq(0)
+        end
+
+        it 'meta.total_count が 1 になる' do
+          subject
+          expect(response.parsed_body['meta']['total_count']).to eq(1)
+        end
       end
 
-      it 'courses への SELECT が 1 本に保たれる (pluck + AMS の二重ロードを起こさない)' do
-        2.times { create(:course, subject: subject_record) }
+      context 'ページネーション' do
+        subject { get '/api/v1/admin/courses', params: query_params, headers: headers.merge('Cookie' => cookie) }
 
-        queries = []
-        callback = lambda { |_n, _s, _f, _id, payload|
-          queries << payload[:sql] if payload[:name] != 'SCHEMA'
-        }
-        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
-        courses_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `courses`/i) && sql.exclude?('COUNT') }
-        expect(courses_selects).to eq(1)
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        before do
+          25.times { |i| create(:course, subject: subject_record, level_name: "Lv#{i}") }
+        end
+
+        context 'デフォルト per_page=20' do
+          let(:query_params) { {} }
+
+          it '20件返し、meta に current_page/per_page/total_count が入る' do
+            subject
+            body = response.parsed_body
+            expect(body['courses'].size).to eq(20)
+            expect(body['meta']).to include('current_page' => 1, 'per_page' => 20, 'total_count' => 25)
+          end
+        end
+
+        context 'page=2 を指定' do
+          let(:query_params) { { page: 2 } }
+
+          it '残り5件を返し、current_page=2 になる' do
+            subject
+            body = response.parsed_body
+            expect(body['courses'].size).to eq(5)
+            expect(body['meta']['current_page']).to eq(2)
+          end
+        end
+
+        context 'per_page=5 を指定' do
+          let(:query_params) { { per_page: 5 } }
+
+          it '5件返し、meta.per_page=5 になる' do
+            subject
+            body = response.parsed_body
+            expect(body['courses'].size).to eq(5)
+            expect(body['meta']['per_page']).to eq(5)
+          end
+        end
+
+        context 'per_page=150 を指定（上限超過）' do
+          let(:query_params) { { per_page: 150 } }
+
+          it 'meta.per_page は 100 に丸められる' do
+            subject
+            expect(response.parsed_body['meta']['per_page']).to eq(100)
+          end
+        end
+
+        context 'per_page=0 や負数を指定' do
+          let(:query_params) { { per_page: 0 } }
+
+          it 'デフォルト 20 にフォールバックする' do
+            subject
+            expect(response.parsed_body['meta']['per_page']).to eq(20)
+          end
+        end
+
+        context 'per_page を配列で送ってきた場合' do
+          let(:query_params) { { per_page: ['10'] } }
+
+          it '500 にならずデフォルト 20 にフォールバックする' do
+            subject
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['meta']['per_page']).to eq(20)
+          end
+        end
+
+        context 'page を配列で送ってきた場合' do
+          let(:query_params) { { page: ['2'] } }
+
+          it '500 にならず 1 ページ目を返す' do
+            subject
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['meta']['current_page']).to eq(1)
+          end
+        end
       end
 
-      it 'subject が preload され、コース数を増やしても subjects への SELECT が 1 本に保たれる' do
-        # 各 course に異なる subject を割り当てて preload の効果を確実に検証
-        4.times do
+      context 'q パラメータ指定時' do
+        subject do
+          get '/api/v1/admin/courses',
+              params: { q: '基礎' },
+              headers: headers.merge('Cookie' => cookie)
+        end
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject) }
+        let!(:hit) { create(:course, subject: subject_record, level_name: '基礎英語') }
+        let!(:miss) { create(:course, subject: subject_record, level_name: '上級', description: '上級向け') }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it 'level_name に部分一致する講座のみ返す' do
+          subject
+          ids = response.parsed_body['courses'].pluck('id')
+          expect(ids).to include(hit.id)
+          expect(ids).not_to include(miss.id)
+        end
+      end
+
+      context 'sort/order パラメータ指定時' do
+        subject { get '/api/v1/admin/courses', params: query_params, headers: headers.merge('Cookie' => cookie) }
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject) }
+        let!(:c1) { create(:course, subject: subject_record, level_name: 'A', created_at: 2.days.ago) }
+        let!(:c2) { create(:course, subject: subject_record, level_name: 'B', created_at: 1.day.ago) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        context 'sort=level_name & order=asc' do
+          let(:query_params) { { sort: 'level_name', order: 'asc' } }
+
+          it '昇順で返る' do
+            subject
+            expect(response.parsed_body['courses'].pluck('id')).to eq([c1.id, c2.id])
+          end
+        end
+
+        context '不正な sort 値（order 未指定）' do
+          let(:query_params) { { sort: 'malicious' } }
+
+          it '既定 created_at desc にフォールバック' do
+            subject
+            expect(response.parsed_body['courses'].pluck('id')).to eq([c2.id, c1.id])
+          end
+        end
+
+        context '不正な order 値' do
+          let(:query_params) { { sort: 'level_name', order: 'malicious' } }
+
+          it '既定 desc にフォールバック (level_name desc)' do
+            subject
+            expect(response.parsed_body['courses'].pluck('id')).to eq([c2.id, c1.id])
+          end
+        end
+      end
+
+      context 'units_count / questions_count' do
+        subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject) }
+        let!(:course) { create(:course, subject: subject_record) }
+        let!(:units) { create_list(:unit, 3, course: course) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        before do
+          create_list(:question, 2, unit: units[0])
+          create_list(:question, 4, unit: units[1])
+        end
+
+        it 'units_count は course 配下の unit 数を返す' do
+          subject
+          item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+          expect(item['units_count']).to eq(3)
+        end
+
+        it 'units_count は soft-deleted な unit を除外する' do
+          units[2].update!(deleted_at: Time.current)
+          subject
+          item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+          expect(item['units_count']).to eq(2)
+        end
+
+        it 'questions_count はコース配下の全 unit の question 数の合計' do
+          subject
+          item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+          expect(item['questions_count']).to eq(6)
+        end
+
+        it 'questions_count は soft-deleted な unit / question を除外する' do
+          units[1].questions.first.update!(deleted_at: Time.current)
+          subject
+          item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+          expect(item['questions_count']).to eq(5)
+        end
+
+        it 'コース件数を増やしても counts 集計クエリは 2 本に保たれる (N+1 が発生しない)' do
           extra_subject = create(:subject)
-          create(:course, subject: extra_subject)
+          2.times do
+            extra_course = create(:course, subject: extra_subject)
+            create(:unit, course: extra_course)
+          end
+
+          queries = []
+          callback = lambda { |_n, _s, _f, _id, payload|
+            queries << payload[:sql] if payload[:name] != 'SCHEMA'
+          }
+          ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+          group_by_queries = queries.count { |sql| sql.include?('GROUP BY') }
+          expect(group_by_queries).to eq(2)
         end
 
-        queries = []
-        callback = lambda { |_n, _s, _f, _id, payload|
-          queries << payload[:sql] if payload[:name] != 'SCHEMA'
-        }
-        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
-        subjects_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `subjects`/i) }
-        expect(subjects_selects).to eq(1)
+        it 'courses への SELECT が 1 本に保たれる (pluck + AMS の二重ロードを起こさない)' do
+          2.times { create(:course, subject: subject_record) }
+
+          queries = []
+          callback = lambda { |_n, _s, _f, _id, payload|
+            queries << payload[:sql] if payload[:name] != 'SCHEMA'
+          }
+          ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+          courses_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `courses`/i) && sql.exclude?('COUNT') }
+          expect(courses_selects).to eq(1)
+        end
+
+        it 'subject が preload され、コース数を増やしても subjects への SELECT が 1 本に保たれる' do
+          # 各 course に異なる subject を割り当てて preload の効果を確実に検証
+          4.times do
+            extra_subject = create(:subject)
+            create(:course, subject: extra_subject)
+          end
+
+          queries = []
+          callback = lambda { |_n, _s, _f, _id, payload|
+            queries << payload[:sql] if payload[:name] != 'SCHEMA'
+          }
+          ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+          subjects_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `subjects`/i) }
+          expect(subjects_selects).to eq(1)
+        end
+      end
+
+      context '紐づく subject が DB レベルで欠損している場合' do
+        subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject, name: '英語') }
+        let!(:course) { create(:course, subject: subject_record) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        before do
+          course.update_column(:subject_id, nil)
+        end
+
+        it '500 にならず subject フィールドを nil で返す' do
+          subject
+          expect(response).to have_http_status(:ok)
+          item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
+          expect(item['subject']).to be_nil
+        end
+      end
+
+      context 'ソフト削除済みの講座' do
+        subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_record) { create(:subject) }
+        let!(:alive) { create(:course, subject: subject_record) }
+        let!(:dead)  { create(:course, subject: subject_record, deleted_at: Time.current) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it 'レスポンスに含まれず total_count にも数えない' do
+          subject
+          ids = response.parsed_body['courses'].pluck('id')
+          expect(ids).to include(alive.id)
+          expect(ids).not_to include(dead.id)
+          expect(response.parsed_body['meta']['total_count']).to eq(1)
+        end
+      end
+
+      context 'subject_id パラメータ指定時' do
+        subject do
+          get '/api/v1/admin/courses',
+              params: { subject_id: subject_a.id },
+              headers: headers.merge('Cookie' => cookie)
+        end
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:subject_a) { create(:subject, name: '英語') }
+        let!(:subject_b) { create(:subject, name: '数学') }
+        let!(:course_a) { create(:course, subject: subject_a) }
+        let!(:course_b) { create(:course, subject: subject_b) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it '指定教科の講座のみ返す' do
+          subject
+          ids = response.parsed_body['courses'].pluck('id')
+          expect(ids).to include(course_a.id)
+          expect(ids).not_to include(course_b.id)
+        end
       end
     end
 
-    context '紐づく subject が DB レベルで欠損している場合' do
-      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject, name: '英語') }
-      let!(:course) { create(:course, subject: subject_record) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
-      before do
-        course.update_column(:subject_id, nil)
+    context '異常系' do
+      context '未認証アクセス' do
+        it '401が返される' do
+          get '/api/v1/admin/courses', headers: headers
+          expect(response).to have_http_status(:unauthorized)
+        end
       end
 
-      it '500 にならず subject フィールドを nil で返す' do
-        subject
-        expect(response).to have_http_status(:ok)
-        item = response.parsed_body['courses'].find { |c| c['id'] == course.id }
-        expect(item['subject']).to be_nil
-      end
-    end
+      context '管理者以外のアクセス（生徒）' do
+        let!(:student_user) { create(:user) }
 
-    context '異常系 - 未認証アクセス' do
-      it '401が返される' do
-        get '/api/v1/admin/courses', headers: headers
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context '異常系 - 管理者以外のアクセス（生徒）' do
-      let!(:student_user) { create(:user) }
-
-      it '403が返される' do
-        cookie = login_and_get_cookie(student_user)
-        get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
-    context '異常系 - 管理者以外のアクセス（教員）' do
-      let!(:teacher_user) { create(:user, :teacher) }
-
-      it '403が返される' do
-        cookie = login_and_get_cookie(teacher_user)
-        get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
-    context 'ソフト削除済みの講座' do
-      subject { get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie) }
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_record) { create(:subject) }
-      let!(:alive) { create(:course, subject: subject_record) }
-      let!(:dead)  { create(:course, subject: subject_record, deleted_at: Time.current) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
-      it 'レスポンスに含まれず total_count にも数えない' do
-        subject
-        ids = response.parsed_body['courses'].pluck('id')
-        expect(ids).to include(alive.id)
-        expect(ids).not_to include(dead.id)
-        expect(response.parsed_body['meta']['total_count']).to eq(1)
-      end
-    end
-
-    context 'subject_id パラメータ指定時' do
-      subject do
-        get '/api/v1/admin/courses',
-            params: { subject_id: subject_a.id },
-            headers: headers.merge('Cookie' => cookie)
+        it '403が返される' do
+          cookie = login_and_get_cookie(student_user)
+          get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:forbidden)
+        end
       end
 
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:subject_a) { create(:subject, name: '英語') }
-      let!(:subject_b) { create(:subject, name: '数学') }
-      let!(:course_a) { create(:course, subject: subject_a) }
-      let!(:course_b) { create(:course, subject: subject_b) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
+      context '管理者以外のアクセス（教員）' do
+        let!(:teacher_user) { create(:user, :teacher) }
 
-      it '指定教科の講座のみ返す' do
-        subject
-        ids = response.parsed_body['courses'].pluck('id')
-        expect(ids).to include(course_a.id)
-        expect(ids).not_to include(course_b.id)
+        it '403が返される' do
+          cookie = login_and_get_cookie(teacher_user)
+          get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end
