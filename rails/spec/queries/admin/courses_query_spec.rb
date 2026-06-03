@@ -30,6 +30,15 @@ RSpec.describe Admin::CoursesQuery, type: :model do
     it '空文字の場合はフィルタしない' do
       expect(described_class.new.by_subject_id('').result).to contain_exactly(course_a, course_b)
     end
+
+    it '配列を渡してもフィルタしない（パラメータ汚染防止）' do
+      expect(described_class.new.by_subject_id([subject_a.id, subject_b.id]).result)
+        .to contain_exactly(course_a, course_b)
+    end
+
+    it 'ハッシュを渡してもフィルタしない（パラメータ汚染防止）' do
+      expect(described_class.new.by_subject_id({ gt: 0 }).result).to contain_exactly(course_a, course_b)
+    end
   end
 
   describe '#search' do

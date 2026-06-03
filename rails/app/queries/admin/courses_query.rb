@@ -18,6 +18,7 @@ module Admin
 
     def by_subject_id(id)
       return self if id.blank?
+      return self unless id.is_a?(String) || id.is_a?(Integer)
 
       @scope = @scope.where(subject_id: id)
       self
