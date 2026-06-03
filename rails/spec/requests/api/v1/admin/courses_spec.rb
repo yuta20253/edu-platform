@@ -283,6 +283,18 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         expect(group_by_queries).to eq(2)
       end
 
+      it 'courses への SELECT が 1 本に保たれる (pluck + AMS の二重ロードを起こさない)' do
+        2.times { create(:course, subject: subject_record) }
+
+        queries = []
+        callback = lambda { |_n, _s, _f, _id, payload|
+          queries << payload[:sql] if payload[:name] != 'SCHEMA'
+        }
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { subject }
+        courses_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `courses`/i) && sql.exclude?('COUNT') }
+        expect(courses_selects).to eq(1)
+      end
+
       it 'subject が preload され、コース数を増やしても subjects への SELECT が 1 本に保たれる' do
         # 各 course に異なる subject を割り当てて preload の効果を確実に検証
         4.times do

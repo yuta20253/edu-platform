@@ -18,7 +18,8 @@ module Api
                                          .includes(:subject)
                                          .page(sanitized_page).per(per_page)
 
-          course_ids = courses.pluck(:id)
+          course_records = courses.to_a
+          course_ids = course_records.map(&:id)
           units_counts = Unit.where(course_id: course_ids, deleted_at: nil).group(:course_id).count
           questions_counts = Question.joins(:unit)
                                      .where(units: { course_id: course_ids, deleted_at: nil })
@@ -27,7 +28,7 @@ module Api
 
           render json: {
             courses: ActiveModelSerializers::SerializableResource.new(
-              courses,
+              course_records,
               each_serializer: ::Admin::CourseListSerializer,
               units_counts: units_counts,
               questions_counts: questions_counts
