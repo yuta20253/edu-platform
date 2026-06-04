@@ -12,7 +12,7 @@ module Admin
     end
 
     def active
-      @scope = @scope.where(deleted_at: nil)
+      @scope = @scope.active
       self
     end
 

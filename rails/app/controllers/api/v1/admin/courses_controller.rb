@@ -20,10 +20,10 @@ module Api
             units_counts = {}
             questions_counts = {}
           else
-            units_counts = Unit.where(course_id: course_ids, deleted_at: nil).group(:course_id).count
-            questions_counts = Question.joins(:unit)
-                                       .where(units: { course_id: course_ids, deleted_at: nil })
-                                       .where(deleted_at: nil)
+            units_counts = Unit.active.where(course_id: course_ids).group(:course_id).count
+            questions_counts = Question.active
+                                       .joins(:unit).merge(Unit.active)
+                                       .where(units: { course_id: course_ids })
                                        .group('units.course_id').count
           end
 
