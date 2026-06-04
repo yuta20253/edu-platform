@@ -4,9 +4,10 @@ import { apiClient } from "@/libs/http/apiClient";
 import { Box, CircularProgress } from "@mui/material";
 import debounce from "lodash/debounce";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Presenter } from "./Presenter";
-import type { AdminsData, CreateAdminInput } from "./types";
+import { useFetchAdmins } from "./hooks/useFetchAdmins";
+import type { CreateAdminInput } from "./types";
 
 type SnackbarState = {
   open: boolean;
@@ -21,7 +22,6 @@ const initialSnackbar: SnackbarState = {
 };
 
 export const AdminAdmins = () => {
-  const [data, setData] = useState<AdminsData | null>(null);
   const [page, setPage] = useState(1);
   // 入力欄の値（query）と実際の検索値（debouncedQuery）を分ける
   const [query, setQuery] = useState("");
@@ -32,26 +32,8 @@ export const AdminAdmins = () => {
   const [snackbar, setSnackbar] = useState<SnackbarState>(initialSnackbar);
   const router = useRouter();
 
-  // 一覧を取得する。検索やページ変更、作成後の再取得で使う
-  const fetchAdmins = useCallback(() => {
-    const params: Record<string, string> = { page: String(page) };
-    if (debouncedQuery) {
-      params.q = debouncedQuery;
-    }
-
-    apiClient
-      .get<AdminsData>("/api/admin/admins", { params })
-      .then((res) => setData(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-        }
-      });
-  }, [page, debouncedQuery, router]);
-
-  useEffect(() => {
-    fetchAdmins();
-  }, [fetchAdmins]);
+  // 一覧の取得はフックに切り出し。refetch は作成後の再取得に使う
+  const { data, refetch } = useFetchAdmins({ page, query: debouncedQuery });
 
   // 検索入力を 300ms デバウンスして debouncedQuery に反映する
   const applyQuery = useMemo(
@@ -96,7 +78,7 @@ export const AdminAdmins = () => {
         message: "管理者を追加しました",
         severity: "success",
       });
-      fetchAdmins();
+      refetch();
     } catch (err) {
       const status =
         err && typeof err === "object" && "response" in err
