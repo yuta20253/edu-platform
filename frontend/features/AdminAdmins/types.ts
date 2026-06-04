@@ -1,11 +1,11 @@
-export type Admin = {
+type Admin = {
   id: number;
   name: string;
   email: string;
   created_at: string;
 };
 
-export type AdminMeta = {
+type AdminMeta = {
   current_page: number;
   total_pages: number;
   total_count: number;
