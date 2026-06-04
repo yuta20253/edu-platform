@@ -1,0 +1,50 @@
+# frozen_string_literal: true
+
+module Admin
+  class CoursesQuery
+    SORT_WHITELIST = %w[level_name created_at id].freeze
+    ORDER_WHITELIST = %w[asc desc].freeze
+    DEFAULT_SORT = 'created_at'
+    DEFAULT_ORDER = 'desc'
+
+    def initialize(scope = Course.all)
+      @scope = scope.includes(:subject)
+    end
+
+    def active
+      @scope = @scope.active
+      self
+    end
+
+    def by_subject_id(id)
+      return self if id.blank?
+      return self unless id.is_a?(String) || id.is_a?(Integer)
+
+      @scope = @scope.where(subject_id: id)
+      self
+    end
+
+    def search(keyword)
+      return self unless keyword.is_a?(String)
+      return self if keyword.blank?
+
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword)}%"
+      @scope = @scope.where(
+        "courses.level_name LIKE :q ESCAPE '\\\\' OR courses.description LIKE :q ESCAPE '\\\\'",
+        q: pattern
+      )
+      self
+    end
+
+    def order_by(sort, order)
+      sort_key = SORT_WHITELIST.include?(sort.to_s) ? sort.to_s : DEFAULT_SORT
+      order_dir = ORDER_WHITELIST.include?(order.to_s) ? order.to_s : DEFAULT_ORDER
+      @scope = @scope.order(sort_key => order_dir).order(id: :asc)
+      self
+    end
+
+    def result
+      @scope
+    end
+  end
+end
