@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class QuestionConfirmationSerializer < ActiveModel::Serializer
-  attributes :question_id, :question_text, :correct_answer, :selected_choice_number, :status
+  attributes :question_id, :question_text, :correct_answer, :is_correct, :selected_choice_number, :status
 
   def question_id
     object.id
@@ -9,15 +9,21 @@ class QuestionConfirmationSerializer < ActiveModel::Serializer
 
   delegate :question_text, to: :object
 
+  def selected_choice_number
+    history&.question_choice&.choice_number
+  end
+
   def correct_answer
     return nil if history.blank?
 
     object.correct_answer
   end
 
-  def selected_choice_number
-    history&.question_choice&.choice_number
+  # rubocop:disable Naming/PredicatePrefix
+  def is_correct
+    history&.is_correct
   end
+  # rubocop:enable Naming/PredicatePrefix
 
   def status
     history.present? ? 'answered' : 'unanswered'

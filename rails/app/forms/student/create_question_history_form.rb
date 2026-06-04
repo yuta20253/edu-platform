@@ -12,7 +12,7 @@ module Student
     attribute :question_choice_id, :integer
     attribute :answer_text, :string
     attribute :time_spent_sec, :integer
-    attribute :explanation_viewed, :boolean
+    attribute :explanation_viewed, :boolean, default: false
 
     validates :task_id, presence: true
     validates :unit_id, presence: true

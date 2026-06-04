@@ -13,12 +13,16 @@
 #  updated_at     :datetime         not null
 #
 class QuestionSerializer < ActiveModel::Serializer
-  attributes :id, :unit_id, :question_text, :course_id
+  attributes :id, :unit_id, :question_text, :course_id, :answered
 
   has_many :question_hints, each_serializer: QuestionHintSerializer
   has_many :question_choices, each_serializer: QuestionChoiceSerializer
 
   def course_id
     object.unit.course_id
+  end
+
+  def answered
+    scope[:answered_ids].include?(object.id)
   end
 end
