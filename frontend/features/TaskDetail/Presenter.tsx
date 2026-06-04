@@ -143,41 +143,46 @@ export const Presenter = ({ task, goalId }: Props) => {
               <Typography sx={{ fontWeight: "bold", mb: 1 }}>単元</Typography>
 
               {task.units && task.units.length > 0 ? (
-                task.units.map((unit) => (
-                  <Box
-                    key={unit.id}
-                    sx={{
-                      p: 2,
-                      mb: 1,
-                      borderRadius: 2,
-                      bgcolor: "#f5f5f5",
-                    }}
-                  >
-                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
-                      {unit.course.level_name}レベル{unit.course.level_number} -{" "}
-                      {unit.unit_name}
-                    </Typography>
+                task.units.map((unit) => {
+                  const unitHref = goalId
+                    ? `/goals/${goalId}/tasks/${task.id}/units/${unit.id}`
+                    : `/tasks/${task.id}/units/${unit.id}`;
+                  return (
                     <Box
+                      key={unit.id}
                       sx={{
-                        mt: 1,
-                        display: "flex",
-                        justifyContent: "flex-end",
+                        p: 2,
+                        mb: 1,
+                        borderRadius: 2,
+                        bgcolor: "#f5f5f5",
                       }}
                     >
-                      <Button
-                        component={Link}
-                        href=""
-                        variant="contained"
-                        size="small"
+                      <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+                        {unit.course.level_name}レベル{unit.course.level_number}{" "}
+                        - {unit.unit_name}
+                      </Typography>
+                      <Box
                         sx={{
-                          borderRadius: 2,
+                          mt: 1,
+                          display: "flex",
+                          justifyContent: "flex-end",
                         }}
                       >
-                        学習
-                      </Button>
+                        <Button
+                          component={Link}
+                          href={unitHref}
+                          variant="contained"
+                          size="small"
+                          sx={{
+                            borderRadius: 2,
+                          }}
+                        >
+                          学習
+                        </Button>
+                      </Box>
                     </Box>
-                  </Box>
-                ))
+                  );
+                })
               ) : (
                 <Box
                   sx={{
