@@ -1,4 +1,7 @@
-import { RailsFetchError, RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import {
+  RailsFetchError,
+  RailsUnauthorizedError,
+} from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { type NextRequest, NextResponse } from "next/server";
 

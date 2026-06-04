@@ -79,9 +79,7 @@ describe("AdminAdminsPresenter", () => {
 
   it("RBAC バナーが表示される", () => {
     render(<Presenter {...defaultProps} />);
-    expect(
-      screen.getByText(/全管理者は同等権限/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/全管理者は同等権限/)).toBeInTheDocument();
   });
 
   it("「管理者を追加」ボタンクリックで onAddClick が呼ばれる", () => {
@@ -105,9 +103,7 @@ describe("AdminAdminsPresenter", () => {
   });
 
   it("admins が空のとき「管理者が見つかりません」が表示される", () => {
-    render(
-      <Presenter {...defaultProps} data={{ ...mockData, admins: [] }} />,
-    );
+    render(<Presenter {...defaultProps} data={{ ...mockData, admins: [] }} />);
     expect(screen.getByText("管理者が見つかりません")).toBeInTheDocument();
   });
 });

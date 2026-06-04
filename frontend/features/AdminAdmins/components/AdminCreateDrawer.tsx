@@ -69,7 +69,10 @@ export const AdminCreateDrawer = ({
           <Typography variant="h6" fontWeight={700}>
             管理者を追加
           </Typography>
-          <Typography variant="body2" sx={{ color: colors.text.muted, mt: 0.5 }}>
+          <Typography
+            variant="body2"
+            sx={{ color: colors.text.muted, mt: 0.5 }}
+          >
             招待メールが送信され、本人がパスワードを設定します。
           </Typography>
         </Box>

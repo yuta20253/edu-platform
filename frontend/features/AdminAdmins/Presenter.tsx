@@ -98,7 +98,8 @@ export const Presenter = ({
 
       {/* RBAC バナー（issue 要件） */}
       <Alert severity="info" sx={{ mb: 3 }}>
-        現在、全管理者は同等権限です。将来的に RBAC（ロールベースアクセス制御）を追加予定です。
+        現在、全管理者は同等権限です。将来的に
+        RBAC（ロールベースアクセス制御）を追加予定です。
       </Alert>
 
       {/* 検索 */}

@@ -98,9 +98,14 @@ export const AdminAdmins = () => {
       });
       fetchAdmins();
     } catch (err) {
-      const status = err && typeof err === "object" && "response" in err
-        ? (err as { response?: { status?: number; data?: { errors?: string[] } } }).response
-        : undefined;
+      const status =
+        err && typeof err === "object" && "response" in err
+          ? (
+              err as {
+                response?: { status?: number; data?: { errors?: string[] } };
+              }
+            ).response
+          : undefined;
 
       if (status?.status === 401) {
         router.push("/login");
