@@ -21,3 +21,9 @@ export type CreateAdminInput = {
   name: string;
   email: string;
 };
+
+export type SnackbarState = {
+  open: boolean;
+  message: string;
+  severity: "success" | "error";
+};

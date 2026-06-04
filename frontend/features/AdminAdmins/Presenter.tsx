@@ -23,13 +23,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import { AdminCreateDrawer } from "./components/AdminCreateDrawer";
-import type { AdminsData, CreateAdminInput } from "./types";
-
-type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
-};
+import type { AdminsData, CreateAdminInput, SnackbarState } from "./types";
 
 type Props = {
   data: AdminsData;
