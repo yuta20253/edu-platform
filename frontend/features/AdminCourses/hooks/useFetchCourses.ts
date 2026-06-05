@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import type {
-  AdminCoursesData,
-  CourseOrder,
-  CourseSort,
-} from "../types";
+import type { AdminCoursesData, CourseOrder, CourseSort } from "../types";
 
 const SEARCH_DEBOUNCE_MS = 300;
 

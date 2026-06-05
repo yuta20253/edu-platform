@@ -126,9 +126,7 @@ describe("AdminCoursesPresenter", () => {
   });
 
   it("courses が空のとき「講座が見つかりません」が表示される", () => {
-    render(
-      <Presenter {...defaultProps} data={{ ...mockData, courses: [] }} />,
-    );
+    render(<Presenter {...defaultProps} data={{ ...mockData, courses: [] }} />);
     expect(screen.getByText("講座が見つかりません")).toBeInTheDocument();
   });
 });
