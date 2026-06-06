@@ -116,6 +116,86 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
         expect(form.errors[:base]).to include('不正なtarget_typeが含まれています')
       end
     end
+
+    context 'teacher_permissionがown_gradeの場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_grade',
+            'grade_id' => create(:grade).id,
+            'user_role_id' => teacher.user_role_id
+          }
+        ]
+      end
+
+      let(:permission) { instance_double(TeacherPermission, own_grade?: true) }
+
+      before do
+        allow(teacher).to receive(:teacher_permission).and_return(permission)
+      end
+
+      it '指定できない学年のエラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('指定できない学年です')
+      end
+    end
+
+    context 'by_gradeでgrade_idが存在しない場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_grade',
+            'grade_id' => 0,
+            'user_role_id' => teacher.user_role_id
+          }
+        ]
+      end
+
+      it '存在しない学年のエラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('存在しない学年です')
+      end
+    end
+
+    context 'by_roleでuser_role_idが存在しない場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_role',
+            'user_role_id' => 9999
+          }
+        ]
+      end
+
+      it '存在しない権限のエラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('存在しない権限です')
+      end
+    end
+
+    context 'by_userでuser_idが存在しない場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_user',
+            'user_id' => 0
+          }
+        ]
+      end
+
+      it '存在しないユーザーのエラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('存在しないユーザーです')
+      end
+    end
   end
 
   describe '#save' do
