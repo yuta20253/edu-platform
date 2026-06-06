@@ -454,7 +454,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
              params: params.to_json,
              headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -472,7 +472,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
              params: params.to_json,
              headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -509,7 +509,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
              params: params.to_json,
              headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -523,7 +523,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
              params: params.to_json,
              headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -537,7 +537,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
              params: params.to_json,
              headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
@@ -667,7 +667,7 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
               params: params.to_json,
               headers: headers.merge('Cookie' => cookie)
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 

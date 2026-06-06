@@ -59,7 +59,8 @@ module Api
         end
 
         def create_announcement_params
-          params.require(:announcement).permit(:title, :content, announcement_targets: [:target_type])
+          params.require(:announcement).permit(:title, :content,
+                                               announcement_targets: %i[target_type grade_id user_role_id user_id])
         end
 
         def update_announcement_params
