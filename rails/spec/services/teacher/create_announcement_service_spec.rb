@@ -59,7 +59,8 @@ RSpec.describe Teacher::CreateAnnouncementService do
       let(:announcement_targets) do
         [
           {
-            'target_type' => 'by_role'
+            'target_type' => 'by_role',
+            'user_role_id' => teacher.user_role_id
           }
         ]
       end
@@ -78,18 +79,21 @@ RSpec.describe Teacher::CreateAnnouncementService do
       let(:announcement_targets) do
         [
           {
-            'target_type' => 'by_grade'
+            'target_type' => 'by_grade',
+            'grade_id' => teacher.grade_id,
+            'user_role_id' => teacher.user_role_id
           }
         ]
       end
 
-      it 'grade_idが保存される' do
+      it 'grade_idとuser_role_idが保存される' do
         service.call
 
         target = AnnouncementTarget.last
 
         expect(target.target_type).to eq('by_grade')
         expect(target.grade_id).to eq(teacher.grade_id)
+        expect(target.user_role_id).to eq(teacher.user_role_id)
       end
     end
 
@@ -116,7 +120,8 @@ RSpec.describe Teacher::CreateAnnouncementService do
       let(:announcement_targets) do
         [
           {
-            'target_type' => 'by_user'
+            'target_type' => 'by_user',
+            'user_id' => teacher.id
           }
         ]
       end
@@ -138,7 +143,8 @@ RSpec.describe Teacher::CreateAnnouncementService do
             'target_type' => 'by_school'
           },
           {
-            'target_type' => 'by_role'
+            'target_type' => 'by_role',
+            'user_role_id' => teacher.user_role_id
           }
         ]
       end
@@ -147,6 +153,27 @@ RSpec.describe Teacher::CreateAnnouncementService do
         expect do
           service.call
         end.to change(AnnouncementTarget, :count).by(2)
+      end
+    end
+
+    context 'target_typeが不正な場合' do
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'invalid'
+          }
+        ]
+      end
+
+      it 'RecordInvalidが発生する' do
+        expect do
+          service.call
+        end.to raise_error(ActiveRecord::RecordInvalid)
+      end
+
+      it 'transactionがロールバックされる' do
+        expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+        expect(Announcement.count).to eq(0)
       end
     end
   end

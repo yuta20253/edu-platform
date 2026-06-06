@@ -34,12 +34,13 @@ module Teacher
       when 'by_role'
         {
           target_type: :by_role,
-          user_role_id: @form.current_user.user_role_id
+          user_role_id: target['user_role_id']
         }
       when 'by_grade'
         {
           target_type: :by_grade,
-          grade_id: @form.current_user.grade_id
+          grade_id: target['grade_id'],
+          user_role_id: target['user_role_id']
         }
       when 'by_school'
         {
@@ -49,7 +50,7 @@ module Teacher
       when 'by_user'
         {
           target_type: :by_user,
-          user_id: @form.current_user.id
+          user_id: target['user_id']
         }
       else
         raise ActiveRecord::RecordInvalid
