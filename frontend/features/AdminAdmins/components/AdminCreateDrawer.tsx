@@ -82,8 +82,8 @@ export const AdminCreateDrawer = ({
           {createErrors.length > 0 && (
             <Alert severity="error" sx={{ mb: 2 }}>
               <Stack component="ul" sx={{ m: 0, pl: 2 }} spacing={0.5}>
-                {createErrors.map((message) => (
-                  <li key={message}>{message}</li>
+                {createErrors.map((message, index) => (
+                  <li key={index}>{message}</li>
                 ))}
               </Stack>
             </Alert>
