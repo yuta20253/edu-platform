@@ -31,6 +31,7 @@ export const useCreateAdmin = ({ onCreated }: UseCreateAdminParams) => {
 
   const handleDrawerClose = () => {
     setDrawerOpen(false);
+    setCreateErrors([]);
   };
 
   // 管理者を作成。成功でドロワーを閉じて一覧を再取得し、422 はエラーを表示する
