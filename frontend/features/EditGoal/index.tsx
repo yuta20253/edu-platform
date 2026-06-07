@@ -5,15 +5,10 @@ import { useFetchGoal } from "./hooks/useFetchGoal";
 import { Presenter } from "./Presenter";
 import { useForm } from "react-hook-form";
 import { useSubmit } from "./hooks/useSubmit";
+import { EditGoalForm } from "./types";
 
 type Props = {
   goalId: number;
-};
-
-type EditGoalForm = {
-  title: string;
-  description: string;
-  due_date: Date;
 };
 
 export const EditGoal = ({ goalId }: Props) => {
@@ -21,6 +16,7 @@ export const EditGoal = ({ goalId }: Props) => {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<EditGoalForm>();
@@ -65,6 +61,7 @@ export const EditGoal = ({ goalId }: Props) => {
     <Presenter
       goal={goal}
       register={register}
+      control={control}
       errors={errors}
       handleSubmit={handleSubmit}
       onSubmit={onSubmit}
