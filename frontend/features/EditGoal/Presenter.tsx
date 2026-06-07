@@ -193,7 +193,7 @@ export const Presenter = ({
               fontWeight: "bold",
             }}
           >
-            タスク一覧
+            タスク編集
           </Typography>
 
           {!goal.tasks || goal.tasks.length === 0 ? (
@@ -208,7 +208,7 @@ export const Presenter = ({
                 <Card
                   key={task.id}
                   component={Link}
-                  href={`/goals/${goal.id}/tasks/${task.id}`}
+                  href={`/goals/${goal.id}/tasks/${task.id}/edit`}
                   sx={{
                     width: "min(720px, 90vw)",
                     textDecoration: "none",
