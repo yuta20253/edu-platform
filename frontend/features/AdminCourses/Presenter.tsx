@@ -167,7 +167,7 @@ export const Presenter = ({
                             fontWeight: 600,
                           }}
                         >
-                          {course.level_name}
+                          {course.level_name}レベル{course.level_number}
                         </Link>
                       </TableCell>
                       <TableCell>{course.subject?.name ?? "-"}</TableCell>

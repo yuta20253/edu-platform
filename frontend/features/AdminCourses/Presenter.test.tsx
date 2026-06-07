@@ -69,11 +69,11 @@ describe("AdminCoursesPresenter", () => {
 
   it("courses データが行として正しくレンダリングされる", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByText("基礎")).toBeInTheDocument();
+    expect(screen.getByText("基礎レベル1")).toBeInTheDocument();
     expect(screen.getByText("英語")).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument();
     expect(screen.getByText("42")).toBeInTheDocument();
-    expect(screen.getByText("標準")).toBeInTheDocument();
+    expect(screen.getByText("標準レベル2")).toBeInTheDocument();
     expect(screen.getByText("数学")).toBeInTheDocument();
     expect(screen.getByText("100")).toBeInTheDocument();
   });
