@@ -1,17 +1,13 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler } from "react-hook-form";
+import { EditGoalForm } from "../types";
 
 type ToastType = "success" | "error";
-
-type EditGoalForm = {
-  title: string;
-  description: string;
-  due_date: Date;
-};
 
 type Props = {
   goalId: number;
@@ -34,7 +30,11 @@ export const useSubmit = ({ goalId }: Props) => {
 
   const onSubmit: SubmitHandler<EditGoalForm> = async (data) => {
     try {
-      await apiClient.patch(`/api/student/goals/${goalId}`, data);
+      const payload = {
+        ...data,
+        due_date: data.due_date ? format(data.due_date, "yyyy-MM-dd") : null,
+      };
+      await apiClient.patch(`/api/student/goals/${goalId}`, payload);
 
       setToast({
         open: true,
