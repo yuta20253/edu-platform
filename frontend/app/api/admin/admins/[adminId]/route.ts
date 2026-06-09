@@ -1,8 +1,5 @@
-import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ adminId: string }> };
@@ -20,14 +17,8 @@ export async function GET(_: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
-    return NextResponse.json(
-      { message: "INTERNAL_SERVER_ERROR" },
-      { status: 500 },
-    );
+    // 404（存在しない・削除済み）などは Rails のステータス・内容をそのまま返す
+    return handleRailsRouteError(error, "管理者の取得に失敗しました");
   }
 }
 
@@ -46,7 +37,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleMutationError(error, "管理者の更新に失敗しました");
+    return handleRailsRouteError(error, "管理者の更新に失敗しました");
   }
 }
 
@@ -64,31 +55,6 @@ export async function DELETE(_: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleMutationError(error, "管理者の削除に失敗しました");
+    return handleRailsRouteError(error, "管理者の削除に失敗しました");
   }
-}
-
-// 更新・削除の共通エラーハンドリング。
-// 401 は専用、422 などは Rails のエラー内容（{ errors: [...] }）をそのまま返す。
-function handleMutationError(error: unknown, fallbackMessage: string) {
-  if (error instanceof RailsUnauthorizedError) {
-    return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-  }
-
-  if (error instanceof RailsFetchError) {
-    let data: unknown = { errors: [fallbackMessage] };
-    if (error.bodyText) {
-      try {
-        data = JSON.parse(error.bodyText);
-      } catch {
-        // パース失敗時はデフォルトのエラーメッセージを使う
-      }
-    }
-    return NextResponse.json(data, { status: error.status });
-  }
-
-  return NextResponse.json(
-    { message: "INTERNAL_SERVER_ERROR" },
-    { status: 500 },
-  );
 }
