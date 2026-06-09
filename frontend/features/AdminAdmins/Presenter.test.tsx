@@ -3,6 +3,16 @@ import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
 import type { AdminsData } from "./types";
 
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
+}));
+
 const mockData: AdminsData = {
   admins: [
     {
@@ -43,7 +53,7 @@ const defaultProps = {
 };
 
 describe("AdminAdminsPresenter", () => {
-  it("テーブルヘッダーに「名前」「メールアドレス」「登録日」が表示される", () => {
+  it("テーブルヘッダーに「名前」「メールアドレス」「登録日」「詳細」が表示される", () => {
     render(<Presenter {...defaultProps} />);
     const headers = screen
       .getAllByRole("columnheader")
@@ -51,6 +61,14 @@ describe("AdminAdminsPresenter", () => {
     expect(headers).toContain("名前");
     expect(headers).toContain("メールアドレス");
     expect(headers).toContain("登録日");
+    expect(headers).toContain("詳細");
+  });
+
+  it("「詳細」リンクが /admin/admins/[id] を指している", () => {
+    render(<Presenter {...defaultProps} />);
+    const detailLinks = screen.getAllByRole("link", { name: "詳細" });
+    expect(detailLinks[0]).toHaveAttribute("href", "/admin/admins/1");
+    expect(detailLinks[1]).toHaveAttribute("href", "/admin/admins/2");
   });
 
   it("admins データが行として正しくレンダリングされる", () => {

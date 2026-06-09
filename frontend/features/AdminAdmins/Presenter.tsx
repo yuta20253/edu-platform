@@ -22,6 +22,7 @@ import {
   Typography,
 } from "@mui/material";
 import { format } from "date-fns";
+import Link from "next/link";
 import { AdminCreateDrawer } from "./components/AdminCreateDrawer";
 import type { AdminsData, CreateAdminInput, SnackbarState } from "./types";
 
@@ -134,6 +135,7 @@ export const Presenter = ({
                       メールアドレス
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>登録日</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>詳細</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -165,6 +167,17 @@ export const Presenter = ({
                       <TableCell>{admin.email}</TableCell>
                       <TableCell>
                         {format(new Date(admin.created_at), "yyyy/MM/dd")}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          component={Link}
+                          href={`/admin/admins/${admin.id}`}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontSize: "0.75rem" }}
+                        >
+                          詳細
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
