@@ -1,8 +1,5 @@
-import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 // 対象管理者にパスワード再設定メールを送信する。
@@ -20,27 +17,9 @@ export async function POST(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
-    if (error instanceof RailsFetchError) {
-      let data: unknown = {
-        errors: ["パスワード再設定メールの送信に失敗しました"],
-      };
-      if (error.bodyText) {
-        try {
-          data = JSON.parse(error.bodyText);
-        } catch {
-          // パース失敗時はデフォルトのエラーメッセージを使う
-        }
-      }
-      return NextResponse.json(data, { status: error.status });
-    }
-
-    return NextResponse.json(
-      { message: "INTERNAL_SERVER_ERROR" },
-      { status: 500 },
+    return handleRailsRouteError(
+      error,
+      "パスワード再設定メールの送信に失敗しました",
     );
   }
 }
