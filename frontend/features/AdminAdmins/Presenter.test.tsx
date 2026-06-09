@@ -7,10 +7,15 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    ...props
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 const mockData: AdminsData = {
@@ -64,11 +69,14 @@ describe("AdminAdminsPresenter", () => {
     expect(headers).toContain("詳細");
   });
 
-  it("「詳細」リンクが /admin/admins/[id] を指している", () => {
+  it("詳細リンクが /admin/admins/[id] を指している", () => {
     render(<Presenter {...defaultProps} />);
-    const detailLinks = screen.getAllByRole("link", { name: "詳細" });
-    expect(detailLinks[0]).toHaveAttribute("href", "/admin/admins/1");
-    expect(detailLinks[1]).toHaveAttribute("href", "/admin/admins/2");
+    expect(
+      screen.getByRole("link", { name: "田中管理者の詳細" }),
+    ).toHaveAttribute("href", "/admin/admins/1");
+    expect(
+      screen.getByRole("link", { name: "佐藤管理者の詳細" }),
+    ).toHaveAttribute("href", "/admin/admins/2");
   });
 
   it("admins データが行として正しくレンダリングされる", () => {

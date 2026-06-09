@@ -2,6 +2,7 @@
 
 import { colors } from "@/app/theme/colors";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   Alert,
   Avatar,
@@ -9,6 +10,7 @@ import {
   Button,
   Card,
   CardContent,
+  IconButton,
   Pagination,
   Snackbar,
   Stack,
@@ -135,7 +137,9 @@ export const Presenter = ({
                       メールアドレス
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>登録日</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>詳細</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                      詳細
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -168,16 +172,15 @@ export const Presenter = ({
                       <TableCell>
                         {format(new Date(admin.created_at), "yyyy/MM/dd")}
                       </TableCell>
-                      <TableCell>
-                        <Button
+                      <TableCell align="right">
+                        <IconButton
                           component={Link}
                           href={`/admin/admins/${admin.id}`}
                           size="small"
-                          variant="outlined"
-                          sx={{ fontSize: "0.75rem" }}
+                          aria-label={`${admin.name}の詳細`}
                         >
-                          詳細
-                        </Button>
+                          <ChevronRightIcon fontSize="small" />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))}
