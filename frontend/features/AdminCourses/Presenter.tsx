@@ -133,6 +133,7 @@ export const Presenter = ({
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: colors.surface.light }}>
+                    <TableCell sx={{ fontWeight: 600 }}>科目</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>
                       <TableSortLabel
                         active={sort === "level_name"}
@@ -142,7 +143,6 @@ export const Presenter = ({
                         講座名
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>科目</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="right">
                       単元数
                     </TableCell>
@@ -158,6 +158,7 @@ export const Presenter = ({
                       hover
                       sx={{ "&:last-child td": { border: 0 } }}
                     >
+                      <TableCell>{course.subject?.name ?? "-"}</TableCell>
                       <TableCell>
                         <Link
                           href={`/admin/courses/${course.id}`}
@@ -170,7 +171,6 @@ export const Presenter = ({
                           {course.level_name}レベル{course.level_number}
                         </Link>
                       </TableCell>
-                      <TableCell>{course.subject?.name ?? "-"}</TableCell>
                       <TableCell align="right">{course.units_count}</TableCell>
                       <TableCell align="right">
                         {course.questions_count}
