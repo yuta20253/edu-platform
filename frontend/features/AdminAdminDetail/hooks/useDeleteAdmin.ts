@@ -1,6 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -35,26 +36,14 @@ export const useDeleteAdmin = ({ adminId }: UseDeleteAdminParams) => {
       await apiClient.delete(`/api/admin/admins/${adminId}`);
       router.push("/admin/admins");
     } catch (err) {
-      const response =
-        err && typeof err === "object" && "response" in err
-          ? (
-              err as {
-                response?: { status?: number; data?: { errors?: string[] } };
-              }
-            ).response
-          : undefined;
+      const { status, errors } = extractApiError(err);
 
-      if (response?.status === 401) {
+      if (status === 401) {
         router.push("/login");
         return;
       }
 
-      const errors = response?.data?.errors;
-      setDeleteErrors(
-        Array.isArray(errors) && errors.length > 0
-          ? errors
-          : ["管理者の削除に失敗しました"],
-      );
+      setDeleteErrors(errors ?? ["管理者の削除に失敗しました"]);
     } finally {
       setDeleting(false);
     }

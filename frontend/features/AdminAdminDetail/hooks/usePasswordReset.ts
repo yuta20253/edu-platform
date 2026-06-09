@@ -1,6 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -32,10 +33,7 @@ export const usePasswordReset = ({
       });
       onSuccess();
     } catch (err) {
-      const status =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { status?: number } }).response?.status
-          : undefined;
+      const { status } = extractApiError(err);
 
       if (status === 401) {
         router.push("/login");
