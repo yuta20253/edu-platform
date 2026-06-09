@@ -64,7 +64,11 @@ module Api
                           status: :unprocessable_content
           end
 
-          target.update!(deleted_at: Time.current)
+          # 論理削除は内部的な状態変更のため、name_kana など on: :update の
+          # presence バリデーション（プロフィール未設定の招待直後 admin で失敗する）を
+          # 走らせずに deleted_at だけ更新する。
+          now = Time.current
+          target.update_columns(deleted_at: now, updated_at: now)
           head :no_content
         end
 

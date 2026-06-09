@@ -343,6 +343,17 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         ids = response.parsed_body['admins'].pluck('id')
         expect(ids).not_to include(target.id)
       end
+
+      it 'プロフィール未設定（name_kana が空）の招待直後 admin も論理削除できる' do
+        # 招待直後でプロフィール未入力の admin は name_kana が空。
+        # 論理削除が on: :update の presence バリデーションに引っかからないことを担保する。
+        invited = create(:user, :admin, high_school: nil, name_kana: nil)
+
+        delete "/api/v1/admin/admins/#{invited.id}", headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:no_content)
+        expect(invited.reload.deleted_at).to be_present
+      end
     end
 
     context '異常系' do

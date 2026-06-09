@@ -3,6 +3,24 @@ import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
 import type { AdminsData } from "./types";
 
+// next/link のモック。アクセシブルネーム検証のため aria-label のみ透過し、
+// MUI が注入する内部 props を <a> に流して不正な DOM 属性を隠さないようにする。
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    "aria-label": ariaLabel,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    "aria-label"?: string;
+  }) => (
+    <a href={href} aria-label={ariaLabel}>
+      {children}
+    </a>
+  ),
+}));
+
 const mockData: AdminsData = {
   admins: [
     {
@@ -43,7 +61,7 @@ const defaultProps = {
 };
 
 describe("AdminAdminsPresenter", () => {
-  it("テーブルヘッダーに「名前」「メールアドレス」「登録日」が表示される", () => {
+  it("テーブルヘッダーに「名前」「メールアドレス」「登録日」「詳細」が表示される", () => {
     render(<Presenter {...defaultProps} />);
     const headers = screen
       .getAllByRole("columnheader")
@@ -51,6 +69,17 @@ describe("AdminAdminsPresenter", () => {
     expect(headers).toContain("名前");
     expect(headers).toContain("メールアドレス");
     expect(headers).toContain("登録日");
+    expect(headers).toContain("詳細");
+  });
+
+  it("詳細リンクが /admin/admins/[id] を指している", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(
+      screen.getByRole("link", { name: "田中管理者の詳細" }),
+    ).toHaveAttribute("href", "/admin/admins/1");
+    expect(
+      screen.getByRole("link", { name: "佐藤管理者の詳細" }),
+    ).toHaveAttribute("href", "/admin/admins/2");
   });
 
   it("admins データが行として正しくレンダリングされる", () => {
