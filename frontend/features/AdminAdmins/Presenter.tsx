@@ -21,6 +21,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { format } from "date-fns";
@@ -173,14 +174,16 @@ export const Presenter = ({
                         {format(new Date(admin.created_at), "yyyy/MM/dd")}
                       </TableCell>
                       <TableCell align="right">
-                        <IconButton
-                          component={Link}
-                          href={`/admin/admins/${admin.id}`}
-                          size="small"
-                          aria-label={`${admin.name}の詳細`}
-                        >
-                          <ChevronRightIcon fontSize="small" />
-                        </IconButton>
+                        <Tooltip title="詳細">
+                          <IconButton
+                            component={Link}
+                            href={`/admin/admins/${admin.id}`}
+                            size="small"
+                            aria-label={`${admin.name}の詳細`}
+                          >
+                            <ChevronRightIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}

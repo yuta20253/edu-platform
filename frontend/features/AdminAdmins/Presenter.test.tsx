@@ -3,16 +3,19 @@ import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
 import type { AdminsData } from "./types";
 
+// next/link のモック。アクセシブルネーム検証のため aria-label のみ透過し、
+// MUI が注入する内部 props を <a> に流して不正な DOM 属性を隠さないようにする。
 vi.mock("next/link", () => ({
   default: ({
     children,
     href,
-    ...props
+    "aria-label": ariaLabel,
   }: {
     children: React.ReactNode;
     href: string;
+    "aria-label"?: string;
   }) => (
-    <a href={href} {...props}>
+    <a href={href} aria-label={ariaLabel}>
       {children}
     </a>
   ),
