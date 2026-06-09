@@ -29,8 +29,8 @@ type Props = {
   // 表示中の管理者がログイン中の本人かどうか（自己削除ガード用）
   isSelf: boolean;
 
-  // 編集（更新）
-  onUpdate: (input: UpdateAdminInput) => void;
+  // 編集（更新）。成功すると true を返し、編集モードを抜ける。
+  onUpdate: (input: UpdateAdminInput) => Promise<boolean>;
   updating: boolean;
   updateErrors: string[];
 
@@ -88,8 +88,11 @@ export const Presenter = ({
     setEditing(false);
   };
 
-  const handleSave = (input: UpdateAdminInput) => {
-    onUpdate(input);
+  const handleSave = async (input: UpdateAdminInput) => {
+    const success = await onUpdate(input);
+    if (success) {
+      setEditing(false);
+    }
   };
 
   return (

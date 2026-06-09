@@ -1,14 +1,15 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { UpdateAdminInput } from "../types";
+import type { AdminDetail, UpdateAdminInput } from "../types";
 
 type UseUpdateAdminParams = {
   adminId: number;
-  // 更新成功後に呼ばれる（詳細の再取得・スナックバー表示など）
-  onUpdated: () => void;
+  // 更新成功後に呼ばれる。PATCH レスポンスの最新 admin を渡す。
+  onUpdated: (admin: AdminDetail) => void;
 };
 
 // 管理者の更新を行うフック。422 はエラーを表示し、401 はログインへ遷移する。
@@ -20,34 +21,29 @@ export const useUpdateAdmin = ({
   const [updateErrors, setUpdateErrors] = useState<string[]>([]);
   const router = useRouter();
 
-  const handleUpdate = async (input: UpdateAdminInput) => {
+  // 更新に成功したら true を返す（呼び出し側が編集モードを抜けるのに使う）。
+  const handleUpdate = async (input: UpdateAdminInput): Promise<boolean> => {
     setUpdating(true);
     setUpdateErrors([]);
 
     try {
-      await apiClient.patch(`/api/admin/admins/${adminId}`, input);
-      onUpdated();
+      // PATCH は更新後の admin を返すので、再取得せずそれを使う
+      const res = await apiClient.patch<{ admin: AdminDetail }>(
+        `/api/admin/admins/${adminId}`,
+        input,
+      );
+      onUpdated(res.data.admin);
+      return true;
     } catch (err) {
-      const response =
-        err && typeof err === "object" && "response" in err
-          ? (
-              err as {
-                response?: { status?: number; data?: { errors?: string[] } };
-              }
-            ).response
-          : undefined;
+      const { status, errors } = extractApiError(err);
 
-      if (response?.status === 401) {
+      if (status === 401) {
         router.push("/login");
-        return;
+        return false;
       }
 
-      const errors = response?.data?.errors;
-      setUpdateErrors(
-        Array.isArray(errors) && errors.length > 0
-          ? errors
-          : ["管理者の更新に失敗しました"],
-      );
+      setUpdateErrors(errors ?? ["管理者の更新に失敗しました"]);
+      return false;
     } finally {
       setUpdating(false);
     }

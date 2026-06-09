@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { Alert, Box, Button, CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { Presenter } from "./Presenter";
 import { useFetchAdminDetail } from "./hooks/useFetchAdminDetail";
@@ -11,7 +11,9 @@ import type { SnackbarState } from "./types";
 
 type Props = {
   adminId: number;
-  // ログイン中の管理者 ID（自己削除ガード用）。未取得時は null。
+  // ログイン中の管理者 ID（自己削除ガード用）。/me 取得失敗時は null。
+  // null の場合は本人判定ができないため UI ガードは無効になるが、
+  // 自己削除・最後の管理者の削除は Rails 側でも 422 で防がれる。
   currentAdminId: number | null;
 };
 
@@ -24,17 +26,18 @@ const initialSnackbar: SnackbarState = {
 export const AdminAdminDetail = ({ adminId, currentAdminId }: Props) => {
   const [snackbar, setSnackbar] = useState<SnackbarState>(initialSnackbar);
 
-  const { admin, refetch } = useFetchAdminDetail(adminId);
+  const { admin, setAdmin, fetchError, refetch } = useFetchAdminDetail(adminId);
 
   const { updating, updateErrors, handleUpdate } = useUpdateAdmin({
     adminId,
-    onUpdated: () => {
+    onUpdated: (updated) => {
+      // PATCH レスポンスの最新 admin で表示を更新する（再取得しない）
+      setAdmin(updated);
       setSnackbar({
         open: true,
         message: "管理者を更新しました",
         severity: "success",
       });
-      refetch();
     },
   });
 
@@ -67,6 +70,23 @@ export const AdminAdminDetail = ({ adminId, currentAdminId }: Props) => {
   const handleSnackbarClose = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
+
+  if (fetchError) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              再試行
+            </Button>
+          }
+        >
+          {fetchError}
+        </Alert>
+      </Box>
+    );
+  }
 
   if (!admin) {
     return (

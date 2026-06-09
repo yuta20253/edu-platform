@@ -15,7 +15,7 @@ const mockAdmin: AdminDetail = {
 const defaultProps = {
   admin: mockAdmin,
   isSelf: false,
-  onUpdate: vi.fn(),
+  onUpdate: vi.fn(async () => true),
   updating: false,
   updateErrors: [] as string[],
   onPasswordReset: vi.fn(),
@@ -56,7 +56,7 @@ describe("AdminAdminDetailPresenter", () => {
   });
 
   it("編集して保存すると onUpdate が編集値で呼ばれる", async () => {
-    const onUpdate = vi.fn();
+    const onUpdate = vi.fn(async () => true);
     render(<Presenter {...defaultProps} onUpdate={onUpdate} />);
     fireEvent.click(screen.getByRole("button", { name: "編集" }));
 
@@ -71,6 +71,32 @@ describe("AdminAdminDetailPresenter", () => {
         email: "tanaka@example.com",
       });
     });
+  });
+
+  it("保存が成功すると編集モードを抜けて読み取り表示に戻る", async () => {
+    const onUpdate = vi.fn(async () => true);
+    render(<Presenter {...defaultProps} onUpdate={onUpdate} />);
+    fireEvent.click(screen.getByRole("button", { name: "編集" }));
+    fireEvent.click(screen.getByRole("button", { name: "保存" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "編集" })).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("textbox", { name: "名前" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("保存が失敗すると編集モードのままになる", async () => {
+    const onUpdate = vi.fn(async () => false);
+    render(<Presenter {...defaultProps} onUpdate={onUpdate} />);
+    fireEvent.click(screen.getByRole("button", { name: "編集" }));
+    fireEvent.click(screen.getByRole("button", { name: "保存" }));
+
+    await waitFor(() => {
+      expect(onUpdate).toHaveBeenCalled();
+    });
+    expect(screen.getByRole("textbox", { name: "名前" })).toBeInTheDocument();
   });
 
   it("「キャンセル」で編集モードが解除され読み取り表示に戻る", () => {
