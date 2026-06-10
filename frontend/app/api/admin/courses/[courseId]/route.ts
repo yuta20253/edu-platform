@@ -8,6 +8,11 @@ export async function GET(
 ) {
   const { courseId } = await params;
 
+  // courseId は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
+  if (!/^\d+$/.test(courseId)) {
+    return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
+  }
+
   try {
     const { status, data, setCookie } = await railsFetch(
       `/api/v1/admin/courses/${courseId}`,
