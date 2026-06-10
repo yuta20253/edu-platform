@@ -12,6 +12,7 @@
 #  publisher_id :bigint           not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  scheduled_at :datetime
 #
 FactoryBot.define do
   factory :announcement do
@@ -19,5 +20,10 @@ FactoryBot.define do
     content { 'テスト内容' }
     status { :draft }
     association :publisher, factory: :user
+  end
+
+  trait :scheduled do
+    status { :scheduled }
+    scheduled_at { 1.minute.from_now }
   end
 end

@@ -12,7 +12,10 @@
 #  publisher_id :bigint           not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  scheduled_at :datetime
 #
 class AnnouncementSerializer < ActiveModel::Serializer
   attributes :id, :title, :content, :published_at
+
+  belongs_to :publisher
 end
