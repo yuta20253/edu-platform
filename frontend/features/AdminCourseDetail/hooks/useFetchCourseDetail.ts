@@ -12,13 +12,20 @@ export const useFetchCourseDetail = (courseId: number) => {
   const router = useRouter();
 
   useEffect(() => {
+    // courseId が変わった際、古いリクエストの応答で新しい表示を上書きしないようにする
+    let ignore = false;
+
     setLoading(true);
     setError(false);
 
     apiClient
       .get<AdminCourseDetail>(`/api/admin/courses/${courseId}`)
-      .then((res) => setCourse(res.data))
+      .then((res) => {
+        if (ignore) return;
+        setCourse(res.data);
+      })
       .catch((err) => {
+        if (ignore) return;
         if (err.response?.status === 401) {
           router.push("/login");
           return;
@@ -26,7 +33,14 @@ export const useFetchCourseDetail = (courseId: number) => {
         setError(true);
         setCourse(null);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (ignore) return;
+        setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, [courseId, router]);
 
   return { course, loading, error };
