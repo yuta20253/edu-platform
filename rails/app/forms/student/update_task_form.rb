@@ -20,7 +20,6 @@ module Student
     validates :title, presence: true
     validates :content, presence: true
     validates :due_date, presence: true
-    validates :memo, presence: true
 
     validate :due_date_must_be_valid
 

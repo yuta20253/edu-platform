@@ -16,7 +16,6 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       content: '内容',
       due_date: '2026-12-31',
       priority: '1',
-      memo: 'メモ',
       unit_ids: [unit1.id, unit2.id]
     }
   end
@@ -61,15 +60,6 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       it 'エラーになる' do
         expect(form).to be_invalid
         expect(form.errors[:due_date]).to include('は正しい日付を入力してください')
-      end
-    end
-
-    context 'memoが空' do
-      before { params[:memo] = '' }
-
-      it 'エラーになる' do
-        expect(form).to be_invalid
-        expect(form.errors[:memo]).to be_present
       end
     end
 
