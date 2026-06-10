@@ -120,7 +120,7 @@ module Teacher
       return unless announcement_targets.is_a?(Array)
 
       announcement_targets.each do |target|
-        next unless targe['target_type'] == 'by_user'
+        next unless target['target_type'] == 'by_user'
 
         user = User.find_by(id: target['user_id'])
 
