@@ -21,6 +21,8 @@ module Teacher
     validate :grade_ids_must_exist
     validate :user_role_ids_must_exist
     validate :user_ids_must_exist
+    validate :users_must_belong_to_same_high_school
+    validate :grades_must_belong_to_same_high_school
 
     attr_reader :current_user
 
@@ -111,6 +113,34 @@ module Teacher
         elsif !User.exists?(target['user_id'])
           errors.add(:announcement_targets, '存在しないユーザーです')
         end
+      end
+    end
+
+    def users_must_belong_to_same_high_school
+      return unless announcement_targets.is_a?(Array)
+
+      announcement_targets.each do |target|
+        next unless targe['target_type'] == 'by_user'
+
+        user = User.find_by(id: target['user_id'])
+
+        next if user.blank?
+
+        errors.add(:announcement_targets, '他校のユーザーは指定できません') if user.high_school_id != current_user.high_school_id
+      end
+    end
+
+    def grades_must_belong_to_same_high_school
+      return unless announcement_targets.is_a?(Array)
+
+      announcement_targets.each do |target|
+        next unless target['target_type'] == 'by_grade'
+
+        grade = Grade.find_by(id: target['grade_id'])
+
+        next if grade.blank?
+
+        errors.add(:announcement_targets, '他校の学年は指定できません') if grade.high_school_id != current_user.high_school_id
       end
     end
   end
