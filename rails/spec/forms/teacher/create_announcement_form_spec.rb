@@ -161,6 +161,31 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
     end
 
+    context 'by_gradeで正常系' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:grade) { create(:grade, high_school: teacher.high_school) }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_grade',
+            'grade_id' => grade.id,
+            'user_role_id' => UserRole.names[:teacher]
+          }
+        ]
+      end
+
+      let(:permission) { instance_double(TeacherPermission, own_grade?: false) }
+
+      before do
+        allow(teacher).to receive(:teacher_permission).and_return(permission)
+      end
+
+      it 'validになる' do
+        expect(form).to be_valid
+      end
+    end
+
     context 'by_roleでuser_role_idが存在しない場合' do
       let(:title) { 'テストタイトル' }
       let(:content) { 'テスト内容' }
@@ -179,6 +204,23 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
     end
 
+    context 'by_roleで正常系' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_role',
+            'user_role_id' => UserRole.names[:teacher]
+          }
+        ]
+      end
+
+      it 'validになる' do
+        expect(form).to be_valid
+      end
+    end
+
     context 'by_userでuser_idが存在しない場合' do
       let(:title) { 'テストタイトル' }
       let(:content) { 'テスト内容' }
@@ -194,6 +236,104 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       it '存在しないユーザーのエラーになる' do
         expect(form).not_to be_valid
         expect(form.errors[:announcement_targets]).to include('存在しないユーザーです')
+      end
+    end
+
+    context 'by_userで正常系' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:other_user) { create(:user, high_school: teacher.high_school) }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_user',
+            'user_id' => other_user.id
+          }
+        ]
+      end
+
+      it 'validになる' do
+        expect(form).to be_valid
+      end
+    end
+
+    context 'by_userで他校のユーザーを指定' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:other_high_school) { create(:high_school) }
+      let(:other_user) { create(:user, high_school: other_high_school) }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_user',
+            'user_id' => other_user.id
+          }
+        ]
+      end
+
+      it 'エラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('他校のユーザーは指定できません')
+      end
+    end
+
+    context 'by_gradeで他校の学年を指定' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:other_high_school) { create(:high_school) }
+      let(:other_grade) { create(:grade, high_school: other_high_school) }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_grade',
+            'grade_id' => other_grade.id,
+            'user_role_id' => UserRole.names[:teacher]
+          }
+        ]
+      end
+
+      let(:permission) { instance_double(TeacherPermission, own_grade?: false) }
+
+      before do
+        allow(teacher).to receive(:teacher_permission).and_return(permission)
+      end
+
+      it 'エラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('他校の学年は指定できません')
+      end
+    end
+
+    context '複数のアナウンスターゲット' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:grade) { create(:grade, high_school: teacher.high_school) }
+      let(:other_user) { create(:user, high_school: teacher.high_school) }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_school'
+          },
+          {
+            'target_type' => 'by_grade',
+            'grade_id' => grade.id,
+            'user_role_id' => UserRole.names[:teacher]
+          },
+          {
+            'target_type' => 'by_user',
+            'user_id' => other_user.id
+          }
+        ]
+      end
+
+      let(:permission) { instance_double(TeacherPermission, own_grade?: false) }
+
+      before do
+        allow(teacher).to receive(:teacher_permission).and_return(permission)
+      end
+
+      it 'validになる' do
+        expect(form).to be_valid
       end
     end
   end
