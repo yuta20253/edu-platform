@@ -18,9 +18,9 @@ class Announcement < ApplicationRecord
   before_validation :set_published_at
 
   STATUS_TRANSITIONS = {
-    "draft" => %w[scheduled published],
-    "scheduled" => %w[published],
-    "published" => []
+    'draft' => %w[scheduled published],
+    'scheduled' => %w[published],
+    'published' => []
   }.freeze
 
   has_many :announcement_targets, dependent: :destroy
