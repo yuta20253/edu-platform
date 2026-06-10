@@ -17,6 +17,12 @@
 class Announcement < ApplicationRecord
   before_validation :set_published_at
 
+  STATUS_TRANSITIONS = {
+    "draft" => %w[scheduled published],
+    "scheduled" => %w[published],
+    "published" => []
+  }.freeze
+
   has_many :announcement_targets, dependent: :destroy
   belongs_to :publisher, class_name: 'User'
 
@@ -42,6 +48,7 @@ class Announcement < ApplicationRecord
   }
 
   validate :scheduled_at_must_be_future
+  validate :valid_status_transition
 
   private
 
@@ -53,6 +60,17 @@ class Announcement < ApplicationRecord
     elsif scheduled_at < Time.current
       errors.add(:scheduled_at, 'は未来日時を指定してください')
     end
+  end
+
+  def valid_status_transition
+    return unless will_save_change_to_status?
+
+    from = status_was
+    to = status
+
+    return if STATUS_TRANSITIONS[from].include?(to)
+
+    errors.add(:status, "#{from} から #{to} へは変更できません")
   end
 
   def set_published_at
