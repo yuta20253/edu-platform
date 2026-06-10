@@ -63,6 +63,7 @@ class Announcement < ApplicationRecord
   end
 
   def valid_status_transition
+    return unless persisted?
     return unless will_save_change_to_status?
 
     from = status_was
