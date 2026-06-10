@@ -40,6 +40,18 @@ module Teacher
 
     private
 
+    def targets_of_type(type)
+      return [] unless announcement_targets.is_a?(Array)
+
+      announcement_targets.select { |t| t['target_type'] == type }
+    end
+
+    def targets_of_types(*types)
+      return [] unless announcement_targets.is_a?(Array)
+
+      announcement_targets.select { |t| types.include?(t['target_type']) }
+    end
+
     def announcement_targets_must_be_array
       return if announcement_targets.is_a?(Array)
 
@@ -60,14 +72,9 @@ module Teacher
     end
 
     def grade_scope_validation
-      return unless announcement_targets.is_a?(Array)
       return unless current_user.teacher_permission&.own_grade?
 
-      grade_targets = announcement_targets.select do |target|
-        target['target_type'] == 'by_grade'
-      end
-
-      grade_targets.each do |target|
+      targets_of_type('by_grade').each do |target|
         next if target['grade_id'].to_i == current_user.grade_id
 
         errors.add(:announcement_targets, '指定できない学年です')
@@ -75,11 +82,7 @@ module Teacher
     end
 
     def grade_ids_must_exist
-      return unless announcement_targets.is_a?(Array)
-
-      announcement_targets.each do |target|
-        next unless target['target_type'] == 'by_grade'
-
+      targets_of_type('by_grade').each do |target|
         if target['grade_id'].blank?
           errors.add(:announcement_targets, '学年を指定してください')
         elsif !Grade.exists?(target['grade_id'])
@@ -89,11 +92,7 @@ module Teacher
     end
 
     def user_role_ids_must_exist
-      return unless announcement_targets.is_a?(Array)
-
-      announcement_targets.each do |target|
-        next unless TARGET_TYPES_REQUIRING_USER_ROLE.include?(target['target_type'])
-
+      targets_of_types(*TARGET_TYPES_REQUIRING_USER_ROLE).each do |target|
         if target['user_role_id'].blank?
           errors.add(:announcement_targets, '権限を指定してください')
         elsif UserRole.names.values.exclude?(target['user_role_id'].to_i)
@@ -103,11 +102,7 @@ module Teacher
     end
 
     def user_ids_must_exist
-      return unless announcement_targets.is_a?(Array)
-
-      announcement_targets.each do |target|
-        next unless target['target_type'] == 'by_user'
-
+      targets_of_type('by_user').each do |target|
         if target['user_id'].blank?
           errors.add(:announcement_targets, 'ユーザーを指定してください')
         elsif !User.exists?(target['user_id'])
@@ -117,11 +112,7 @@ module Teacher
     end
 
     def users_must_belong_to_same_high_school
-      return unless announcement_targets.is_a?(Array)
-
-      announcement_targets.each do |target|
-        next unless target['target_type'] == 'by_user'
-
+      targets_of_type('by_user').each do |target|
         user = User.find_by(id: target['user_id'])
 
         next if user.blank?
@@ -131,11 +122,7 @@ module Teacher
     end
 
     def grades_must_belong_to_same_high_school
-      return unless announcement_targets.is_a?(Array)
-
-      announcement_targets.each do |target|
-        next unless target['target_type'] == 'by_grade'
-
+      targets_of_type('by_grade').each do |target|
         grade = Grade.find_by(id: target['grade_id'])
 
         next if grade.blank?
