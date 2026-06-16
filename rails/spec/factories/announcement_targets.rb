@@ -12,6 +12,7 @@
 #  user_id         :bigint
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  target_type     :integer          default("all_users"), not null
 #
 FactoryBot.define do
   factory :announcement_target do

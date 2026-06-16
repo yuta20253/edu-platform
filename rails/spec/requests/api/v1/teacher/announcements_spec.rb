@@ -165,6 +165,158 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(json['meta']['total_count']).to eq(3)
         expect(json['meta']['per_page']).to eq(20)
       end
+
+      context 'tab=authored の場合' do
+        let!(:scheduled_announcements) do
+          create_list(:announcement, 2, :scheduled, publisher: teacher).map do |a|
+            create(:announcement_target, :all_users, announcement: a)
+            a
+          end
+        end
+
+        it '自分が作成したお知らせが返る' do
+          get '/api/v1/teacher/announcements',
+              params: { tab: 'authored' },
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          returned_ids = json['announcements'].pluck('id')
+
+          expect(returned_ids).to match_array(
+            (
+              announcements +
+              draft_announcements +
+              scheduled_announcements +
+              student_announcements
+            ).map(&:id)
+          )
+        end
+
+        it 'draft が返る' do
+          get '/api/v1/teacher/announcements',
+              params: { tab: 'authored' },
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          returned_ids = json['announcements'].pluck('id')
+
+          expect(returned_ids).to include(*draft_announcements.map(&:id))
+        end
+
+        it 'scheduled が返る' do
+          get '/api/v1/teacher/announcements',
+              params: { tab: 'authored' },
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          returned_ids = json['announcements'].pluck('id')
+
+          expect(returned_ids).to include(*scheduled_announcements.map(&:id))
+        end
+
+        it '他人が作成したお知らせは返らない' do
+          get '/api/v1/teacher/announcements',
+              params: { tab: 'authored' },
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          returned_ids = json['announcements'].pluck('id')
+
+          expect(returned_ids).not_to include(
+            *other_school_announcements.map(&:id),
+            *other_user_announcements.map(&:id)
+          )
+        end
+
+        it 'publisher情報は返らない' do
+          get '/api/v1/teacher/announcements',
+              params: { tab: 'authored' },
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          expect(json['announcements'].first).not_to have_key('publisher')
+        end
+      end
+
+      it 'publishedタブではpublisher情報が返る' do
+        get '/api/v1/teacher/announcements',
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['announcements'].first).to have_key('publisher')
+      end
+
+      context '並び順' do
+        let!(:high_school) { create(:high_school) }
+
+        let!(:teacher) { create(:user, :teacher, high_school: high_school) }
+        let(:cookie) { login_and_get_cookie(teacher) }
+
+        before do
+          AnnouncementTarget.delete_all
+        end
+
+        it 'published_atの降順で返る' do
+          old = create(:announcement, :published, publisher: teacher, published_at: 2.days.ago)
+          new = create(:announcement, :published, publisher: teacher, published_at: 1.day.ago)
+
+          create(:announcement_target, :all_users, announcement: old)
+          create(:announcement_target, :all_users, announcement: new)
+
+          get '/api/v1/teacher/announcements',
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          ids = json['announcements'].first(2).pluck('id')
+
+          expect(ids).to eq([new.id, old.id])
+        end
+      end
+
+      context 'ページネーション' do
+        before do
+          create_list(:announcement, 25, :published, publisher: teacher).each do |a|
+            create(:announcement_target, :all_users, announcement: a)
+          end
+        end
+
+        it '1ページ20件返る' do
+          get '/api/v1/teacher/announcements',
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          expect(json['announcements'].size).to eq(20)
+        end
+
+        it 'page=2で2ページ目が返る' do
+          get '/api/v1/teacher/announcements',
+              params: { page: 2 },
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          expect(json['meta']['current_page']).to eq(2)
+          expect(json['announcements'].size).to be_positive
+        end
+
+        it 'meta情報に総件数が返る' do
+          get '/api/v1/teacher/announcements',
+              headers: headers.merge('Cookie' => cookie)
+
+          json = response.parsed_body
+
+          expect(json['meta']['total_count']).to eq(28)
+          expect(json['meta']['total_pages']).to eq(2)
+        end
+      end
     end
   end
 
