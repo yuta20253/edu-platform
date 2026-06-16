@@ -8,6 +8,7 @@ module Api
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
           announcements = Announcement
+                          .includes(:publisher)
                           .for_user(current_user)
                           .published
                           .order(published_at: :desc)
