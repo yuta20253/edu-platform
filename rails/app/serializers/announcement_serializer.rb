@@ -17,5 +17,5 @@
 class AnnouncementSerializer < ActiveModel::Serializer
   attributes :id, :title, :content, :published_at
 
-  belongs_to :publisher
+  belongs_to :publisher, serializer: AnnouncementPublisherSerializer
 end
