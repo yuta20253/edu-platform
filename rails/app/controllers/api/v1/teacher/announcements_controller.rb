@@ -8,7 +8,7 @@ module Api
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
           announcements = announcement_scope
-                          .order(published_at: :desc)
+                          .order(published_at: :desc, id: :desc)
                           .page(params[:page])
                           .per(20)
 
@@ -67,9 +67,9 @@ module Api
 
         def announcement_scope
           case params[:tab]
-          when "authored"
+          when 'authored'
             current_user.announcements
-          when "published", nil
+          when 'published', nil
             Announcement.for_user(current_user).includes(:publisher).published
           end
         end
