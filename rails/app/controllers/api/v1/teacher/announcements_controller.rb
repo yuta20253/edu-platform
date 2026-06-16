@@ -7,17 +7,14 @@ module Api
         before_action :set_announcement, only: :update
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
-          announcements = Announcement
-                          .includes(:publisher)
-                          .for_user(current_user)
-                          .published
+          announcements = announcement_scope
                           .order(published_at: :desc)
                           .page(params[:page])
                           .per(20)
 
           render json: {
             announcements: ActiveModelSerializers::SerializableResource.new(
-              announcements, each_serializer: AnnouncementSerializer
+              announcements, each_serializer: serializer_class
             ),
             meta: {
               current_page: announcements.current_page,
@@ -66,6 +63,24 @@ module Api
 
         def update_announcement_params
           params.require(:announcement).permit(:status, :scheduled_at)
+        end
+
+        def announcement_scope
+          case params[:tab]
+          when "authored"
+            current_user.announcements
+          when "published", nil
+            Announcement.for_user(current_user).includes(:publisher).published
+          end
+        end
+
+        def serializer_class
+          case params[:tab]
+          when 'authored'
+            AuthoredAnnouncementSerializer
+          else
+            AnnouncementSerializer
+          end
         end
       end
     end
