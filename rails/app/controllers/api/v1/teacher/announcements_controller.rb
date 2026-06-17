@@ -69,7 +69,7 @@ module Api
           case params[:tab]
           when 'authored'
             current_user.announcements
-          when 'published', nil
+          else
             Announcement.for_user(current_user).includes(:publisher).published
           end
         end

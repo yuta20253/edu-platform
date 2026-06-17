@@ -252,6 +252,19 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(json['announcements'].first).to have_key('publisher')
       end
 
+      it 'unknown tabはpublishedにフォールバックされる' do
+        get '/api/v1/teacher/announcements',
+            params: { tab: 'unknown' },
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+        returned_ids = json['announcements'].pluck('id')
+
+        expected_ids = Announcement.for_user(teacher).published.pluck(:id)
+
+        expect(returned_ids).to match_array(expected_ids)
+      end
+
       context '並び順' do
         let!(:high_school) { create(:high_school) }
 
