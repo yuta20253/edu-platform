@@ -93,9 +93,10 @@ module Teacher
 
     def user_role_ids_must_exist
       targets_of_types(*TARGET_TYPES_REQUIRING_USER_ROLE).each do |target|
+        role_id = target['user_role_id']
         if target['user_role_id'].blank?
           errors.add(:announcement_targets, '権限を指定してください')
-        elsif UserRole.names.values.exclude?(target['user_role_id'].to_i)
+        elsif !UserRole.exists?(id: role_id)
           errors.add(:announcement_targets, '存在しない権限です')
         end
       end

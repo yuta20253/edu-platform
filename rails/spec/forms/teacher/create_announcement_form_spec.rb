@@ -170,7 +170,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
           {
             'target_type' => 'by_grade',
             'grade_id' => grade.id,
-            'user_role_id' => UserRole.names[:teacher]
+            'user_role_id' => UserRole.find_by(name: :teacher).id
           }
         ]
       end
@@ -211,7 +211,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
         [
           {
             'target_type' => 'by_role',
-            'user_role_id' => UserRole.names[:teacher]
+            'user_role_id' => UserRole.find_by(name: :teacher).id
           }
         ]
       end
@@ -287,7 +287,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
           {
             'target_type' => 'by_grade',
             'grade_id' => other_grade.id,
-            'user_role_id' => UserRole.names[:teacher]
+            'user_role_id' => UserRole.find_by(name: :teacher).id
           }
         ]
       end
@@ -304,6 +304,23 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
     end
 
+    context 'by_roleでuser_role_idが空' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:announcement_targets) do
+        [
+          {
+            'target_type' => 'by_role'
+          }
+        ]
+      end
+
+      it 'エラーになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:announcement_targets]).to include('権限を指定してください')
+      end
+    end
+
     context '複数のアナウンスターゲット' do
       let(:title) { 'テストタイトル' }
       let(:content) { 'テスト内容' }
@@ -317,7 +334,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
           {
             'target_type' => 'by_grade',
             'grade_id' => grade.id,
-            'user_role_id' => UserRole.names[:teacher]
+            'user_role_id' => UserRole.find_by(name: :teacher).id
           },
           {
             'target_type' => 'by_user',
