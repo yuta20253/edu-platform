@@ -12,11 +12,18 @@
 #  user_id         :bigint
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  target_type     :integer          default("all_users"), not null
 #
 FactoryBot.define do
   factory :announcement_target do
     association :announcement
-    target_type { :all_users }
+
+    trait :all_users do
+      user_id { nil }
+      grade_id { nil }
+      high_school_id { nil }
+      user_role_id { nil }
+    end
 
     trait :by_role do
       target_type { :by_role }

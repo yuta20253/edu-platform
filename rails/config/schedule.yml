@@ -1,0 +1,4 @@
+publish_scheduled_announcements:
+  cron: "*/1 * * * *"
+  class: "PublishScheduledAnnouncementsJob"
+  queue: default

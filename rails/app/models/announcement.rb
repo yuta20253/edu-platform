@@ -12,53 +12,72 @@
 #  publisher_id :bigint           not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  scheduled_at :datetime
 #
 class Announcement < ApplicationRecord
+  before_validation :set_published_at
+
+  STATUS_TRANSITIONS = {
+    'draft' => %w[scheduled published],
+    'scheduled' => %w[published],
+    'published' => []
+  }.freeze
+
   has_many :announcement_targets, dependent: :destroy
   belongs_to :publisher, class_name: 'User'
 
-  enum status: {
+  enum :status, {
     draft: 0,
     scheduled: 1,
     published: 2
-  }
+  }, validate: true
 
   scope :for_user, lambda { |user|
-    base = joins(:announcement_targets)
-
-    base
-      .where(announcement_targets: { target_type: :all_users })
-      .or(
-        base
-          .where(announcement_targets: { target_type: :by_role, user_role_id: user.user_role_id })
-      )
-      .or(
-        base
-          .where(announcement_targets: { target_type: :by_school, high_school_id: user.high_school_id })
-      )
-      .or(
-        base
-          .where(announcement_targets: { target_type: :by_grade, grade_id: user.grade_id })
+    joins(:announcement_targets)
+      .where(
+        "(announcement_targets.high_school_id IS NULL OR announcement_targets.high_school_id = ?) AND
+        (announcement_targets.user_role_id IS NULL OR announcement_targets.user_role_id = ?) AND
+        (announcement_targets.grade_id IS NULL OR announcement_targets.grade_id = ?) AND
+        (announcement_targets.user_id IS NULL OR announcement_targets.user_id = ?)",
+        user.high_school_id,
+        user.user_role_id,
+        user.grade_id,
+        user.id
       )
       .distinct
   }
 
-  scope :targeting_all_users, lambda {
-    joins(:announcement_targets).where(announcement_targets: { target_type: :all_users })
-  }
+  validate :scheduled_at_must_be_future
+  validate :valid_status_transition
 
-  scope :targeting_by_role, lambda { |role_id|
-    joins(:announcement_targets)
-      .where(announcement_targets: { target_type: :by_role, user_role_id: role_id })
-  }
+  private
 
-  scope :targeting_by_school, lambda { |school_id|
-    joins(:announcement_targets)
-      .where(announcement_targets: { target_type: :by_school, high_school_id: school_id })
-  }
+  def scheduled_at_must_be_future
+    return unless scheduled?
 
-  scope :targeting_by_grade, lambda { |grade_id|
-    joins(:announcement_targets)
-      .where(announcement_targets: { target_type: :by_grade, grade_id: grade_id })
-  }
+    if scheduled_at.blank?
+      errors.add(:scheduled_at, 'を指定してください')
+    elsif scheduled_at < Time.current
+      errors.add(:scheduled_at, 'は未来日時を指定してください')
+    end
+  end
+
+  def valid_status_transition
+    return unless persisted?
+    return unless will_save_change_to_status?
+
+    from = status_was
+    to = status
+
+    return if STATUS_TRANSITIONS[from].include?(to)
+
+    errors.add(:status, "#{from} から #{to} へは変更できません")
+  end
+
+  def set_published_at
+    return unless will_save_change_to_status?
+    return unless published?
+
+    self.published_at ||= Time.current
+  end
 end
