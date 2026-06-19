@@ -12,20 +12,38 @@ import {
   Grid,
   Snackbar,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
 import Link from "next/link";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { format } from "date-fns";
+import type { Prefecture } from "@/types/common/prefecture";
 import { colors } from "@/app/theme/colors";
 import { DeleteConfirmDialog } from "./components/DeleteConfirmDialog";
+import { ProfileEditForm } from "./components/ProfileEditForm";
 import type { AdminDetail, SnackbarState, UpdateAdminInput } from "./types";
+
+const GENDER_LABELS: Record<string, string> = {
+  male: "男",
+  female: "女",
+  other: "その他",
+};
+
+// 読み取り表示の 1 項目。未設定は「未設定」と表示する。
+const ReadOnlyField = ({ label, value }: { label: string; value: string }) => (
+  <Box>
+    <Typography variant="body2" sx={{ color: colors.text.muted, mb: 0.5 }}>
+      {label}
+    </Typography>
+    <Typography variant="body1">{value || "未設定"}</Typography>
+  </Box>
+);
 
 type Props = {
   admin: AdminDetail;
+  // 住所カスケード（都道府県プルダウン）用の都道府県一覧
+  prefectures: Prefecture[];
   // 表示中の管理者がログイン中の本人かどうか（自己削除ガード用）
   isSelf: boolean;
 
@@ -53,6 +71,7 @@ type Props = {
 
 export const Presenter = ({
   admin,
+  prefectures,
   isSelf,
   onUpdate,
   updating,
@@ -70,17 +89,7 @@ export const Presenter = ({
 }: Props) => {
   const [editing, setEditing] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UpdateAdminInput>({
-    defaultValues: { name: admin.name, email: admin.email },
-  });
-
   const handleEditClick = () => {
-    reset({ name: admin.name, email: admin.email });
     setEditing(true);
   };
 
@@ -88,12 +97,26 @@ export const Presenter = ({
     setEditing(false);
   };
 
-  const handleSave = async (input: UpdateAdminInput) => {
+  // 編集フォームから呼ばれる。成功したら編集モードを抜ける。
+  const handleUpdate = async (input: UpdateAdminInput) => {
     const success = await onUpdate(input);
     if (success) {
       setEditing(false);
     }
+    return success;
   };
+
+  const personalInfo = admin.user_personal_info;
+  const address = admin.address;
+  const addressText = address
+    ? [
+        address.prefecture?.name ?? "",
+        address.city,
+        address.town,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
 
   return (
     <Box sx={{ p: 3 }}>
@@ -146,105 +169,40 @@ export const Presenter = ({
               <Divider sx={{ mb: 3 }} />
 
               {editing ? (
-                <Box component="form" onSubmit={handleSubmit(handleSave)}>
-                  {updateErrors.length > 0 && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                      <Stack component="ul" sx={{ m: 0, pl: 2 }} spacing={0.5}>
-                        {updateErrors.map((message, index) => (
-                          <li key={index}>{message}</li>
-                        ))}
-                      </Stack>
-                    </Alert>
-                  )}
-
-                  <Stack spacing={3}>
-                    <TextField
-                      label="名前"
-                      fullWidth
-                      required
-                      {...register("name", {
-                        required: "名前を入力してください",
-                      })}
-                      error={!!errors.name}
-                      helperText={errors.name?.message}
-                    />
-                    <TextField
-                      label="メールアドレス"
-                      type="email"
-                      fullWidth
-                      required
-                      {...register("email", {
-                        required: "メールアドレスを入力してください",
-                        pattern: {
-                          value: /^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/,
-                          message: "メールアドレスの形式が正しくありません",
-                        },
-                      })}
-                      error={!!errors.email}
-                      helperText={errors.email?.message}
-                    />
-                  </Stack>
-
-                  <Box
-                    sx={{
-                      mt: 3,
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 1.5,
-                    }}
-                  >
-                    <Button
-                      onClick={handleCancel}
-                      disabled={updating}
-                      color="inherit"
-                    >
-                      キャンセル
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={updating}
-                      startIcon={
-                        updating ? (
-                          <CircularProgress size={16} color="inherit" />
-                        ) : null
-                      }
-                    >
-                      保存
-                    </Button>
-                  </Box>
-                </Box>
+                <ProfileEditForm
+                  admin={admin}
+                  prefectures={prefectures}
+                  onUpdate={handleUpdate}
+                  onCancel={handleCancel}
+                  updating={updating}
+                  updateErrors={updateErrors}
+                />
               ) : (
                 <Stack spacing={3}>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: colors.text.muted, mb: 0.5 }}
-                    >
-                      名前
-                    </Typography>
-                    <Typography variant="body1">{admin.name}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: colors.text.muted, mb: 0.5 }}
-                    >
-                      メールアドレス
-                    </Typography>
-                    <Typography variant="body1">{admin.email}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: colors.text.muted, mb: 0.5 }}
-                    >
-                      登録日
-                    </Typography>
-                    <Typography variant="body1">
-                      {format(new Date(admin.created_at), "yyyy/MM/dd")}
-                    </Typography>
-                  </Box>
+                  <ReadOnlyField label="名前" value={admin.name} />
+                  <ReadOnlyField label="メールアドレス" value={admin.email} />
+                  <ReadOnlyField
+                    label="電話番号"
+                    value={personalInfo?.phone_number ?? ""}
+                  />
+                  <ReadOnlyField
+                    label="生年月日"
+                    value={personalInfo?.birthday ?? ""}
+                  />
+                  <ReadOnlyField
+                    label="性別"
+                    value={
+                      personalInfo?.gender
+                        ? (GENDER_LABELS[personalInfo.gender] ??
+                          personalInfo.gender)
+                        : ""
+                    }
+                  />
+                  <ReadOnlyField label="住所" value={addressText} />
+                  <ReadOnlyField
+                    label="登録日"
+                    value={format(new Date(admin.created_at), "yyyy/MM/dd")}
+                  />
                 </Stack>
               )}
 

@@ -10,10 +10,24 @@ const mockAdmin: AdminDetail = {
   created_at: "2025-06-04T10:30:00.000Z",
   updated_at: "2025-06-05T10:30:00.000Z",
   activity_log: [],
+  user_personal_info: {
+    id: 10,
+    phone_number: "08012345678",
+    birthday: "1999-01-01",
+    gender: "male",
+  },
+  address: {
+    id: 5,
+    postal_code: "1000001",
+    city: "千代田区",
+    town: "千代田",
+    prefecture: { id: 13, name: "東京都" },
+  },
 };
 
 const defaultProps = {
   admin: mockAdmin,
+  prefectures: [{ id: 13, name: "東京都" }],
   isSelf: false,
   onUpdate: vi.fn(async () => true),
   updating: false,
@@ -37,6 +51,29 @@ describe("AdminAdminDetailPresenter", () => {
     expect(screen.getAllByText("田中管理者").length).toBeGreaterThan(0);
     expect(screen.getByText("tanaka@example.com")).toBeInTheDocument();
     expect(screen.getByText("2025/06/04")).toBeInTheDocument();
+  });
+
+  it("電話番号・生年月日・性別・住所が読み取り表示される", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.getByText("08012345678")).toBeInTheDocument();
+    expect(screen.getByText("1999-01-01")).toBeInTheDocument();
+    expect(screen.getByText("男")).toBeInTheDocument();
+    expect(screen.getByText("東京都 千代田区 千代田")).toBeInTheDocument();
+  });
+
+  it("個人情報・住所が未設定なら「未設定」と表示される", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        admin={{
+          ...mockAdmin,
+          user_personal_info: null,
+          address: null,
+        }}
+      />,
+    );
+    // 電話番号・生年月日・性別・住所の 4 項目が未設定表示になる
+    expect(screen.getAllByText("未設定").length).toBeGreaterThanOrEqual(4);
   });
 
   it("「編集」ボタンで入力フィールドと「保存」「キャンセル」が現れる", () => {
@@ -66,10 +103,16 @@ describe("AdminAdminDetailPresenter", () => {
     fireEvent.click(screen.getByRole("button", { name: "保存" }));
 
     await waitFor(() => {
-      expect(onUpdate).toHaveBeenCalledWith({
-        name: "鈴木管理者",
-        email: "tanaka@example.com",
-      });
+      expect(onUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "鈴木管理者",
+          email: "tanaka@example.com",
+          phone_number: "08012345678",
+          birthday: "1999-01-01",
+          gender: "male",
+          address_id: 5,
+        }),
+      );
     });
   });
 

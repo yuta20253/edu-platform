@@ -8,6 +8,7 @@ import { useUpdateAdmin } from "./hooks/useUpdateAdmin";
 import { useDeleteAdmin } from "./hooks/useDeleteAdmin";
 import { usePasswordReset } from "./hooks/usePasswordReset";
 import type { SnackbarState } from "./types";
+import type { Prefecture } from "@/types/common/prefecture";
 
 type Props = {
   adminId: number;
@@ -15,6 +16,8 @@ type Props = {
   // null の場合は本人判定ができないため UI ガードは無効になるが、
   // 自己削除・最後の管理者の削除は Rails 側でも 422 で防がれる。
   currentAdminId: number | null;
+  // 住所カスケード（都道府県プルダウン）用の都道府県一覧
+  prefectures: Prefecture[];
 };
 
 const initialSnackbar: SnackbarState = {
@@ -23,7 +26,11 @@ const initialSnackbar: SnackbarState = {
   severity: "success",
 };
 
-export const AdminAdminDetail = ({ adminId, currentAdminId }: Props) => {
+export const AdminAdminDetail = ({
+  adminId,
+  currentAdminId,
+  prefectures,
+}: Props) => {
   const [snackbar, setSnackbar] = useState<SnackbarState>(initialSnackbar);
 
   const { admin, setAdmin, fetchError, refetch } = useFetchAdminDetail(adminId);
@@ -106,6 +113,7 @@ export const AdminAdminDetail = ({ adminId, currentAdminId }: Props) => {
   return (
     <Presenter
       admin={admin}
+      prefectures={prefectures}
       isSelf={currentAdminId === admin.id}
       onUpdate={handleUpdate}
       updating={updating}
