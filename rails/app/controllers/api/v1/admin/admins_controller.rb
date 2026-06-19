@@ -25,7 +25,7 @@ module Api
         end
 
         def show
-          admin = User.admins.where(deleted_at: nil).find(params[:id])
+          admin = admin_scope.find(params[:id])
 
           render json: { admin: ::Admin::AdminDetailSerializer.new(admin) }
         end
@@ -41,7 +41,7 @@ module Api
         end
 
         def update
-          admin = User.admins.where(deleted_at: nil).find(params[:id])
+          admin = admin_scope.find(params[:id])
           form = ::Admin::AdminForm.new(update_params.merge(user: admin))
 
           if form.save
@@ -74,12 +74,17 @@ module Api
 
         private
 
+        # show / update で個人情報・住所まで返すため eager load して N+1 を避ける
+        def admin_scope
+          User.admins.where(deleted_at: nil).includes(:user_personal_info, address: :prefecture)
+        end
+
         def create_params
           params.permit(:name, :email)
         end
 
         def update_params
-          params.permit(:name, :email)
+          params.permit(:name, :email, :address_id, :phone_number, :birthday, :gender)
         end
 
         def last_active_admin?(target)

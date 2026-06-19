@@ -187,6 +187,24 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
         expect(response.parsed_body['admin']['activity_log']).to eq([])
       end
+
+      it 'user_personal_info / address フィールドを含む' do
+        get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body['admin'].keys).to include('user_personal_info', 'address')
+      end
+
+      it '個人情報・住所が設定済みなら値が返される' do
+        address = create(:address)
+        target.update_columns(address_id: address.id)
+        target.create_user_personal_info!(phone_number: '08012345678', birthday: Date.new(1999, 1, 1), gender: 'male')
+
+        get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
+        admin_data = response.parsed_body['admin']
+        expect(admin_data['user_personal_info']).to include(
+          'phone_number' => '08012345678', 'gender' => 'male'
+        )
+        expect(admin_data['address']['id']).to eq(address.id)
+      end
     end
 
     context '異常系' do
@@ -298,6 +316,30 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         target.reload
         expect(target.name).to eq('更新後太郎')
         expect(target.email).to eq('after-admin@example.com')
+      end
+
+      it '住所・個人情報も更新される' do
+        address = create(:address)
+        patch "/api/v1/admin/admins/#{target.id}",
+              params: {
+                name: '更新後太郎', email: 'after-admin@example.com',
+                address_id: address.id, phone_number: '08012345678',
+                birthday: '1999-01-01', gender: 'male'
+              }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+        target.reload
+        expect(target.address_id).to eq(address.id)
+        expect(target.user_personal_info.phone_number).to eq('08012345678')
+        expect(target.user_personal_info.gender).to eq('male')
+      end
+
+      it 'birthday が未来日付の場合 422 が返される' do
+        patch "/api/v1/admin/admins/#{target.id}",
+              params: { name: '更新後太郎', birthday: (Date.current + 1).iso8601 }.to_json,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
