@@ -6,6 +6,7 @@ module Admin
     include ActiveModel::Attributes
 
     attribute :name, :string
+    attribute :name_kana, :string
     attribute :email, :string
     attribute :address_id, :integer
     attribute :phone_number, :string
@@ -48,7 +49,7 @@ module Admin
 
     def update_admin
       ActiveRecord::Base.transaction do
-        @user.update!({ name: name, email: email, address_id: address_id }.compact)
+        @user.update!({ name: name, name_kana: name_kana, email: email, address_id: address_id }.compact)
         update_user_personal_info!
       end
       @user

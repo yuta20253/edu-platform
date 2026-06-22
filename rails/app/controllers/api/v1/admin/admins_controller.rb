@@ -84,7 +84,7 @@ module Api
         end
 
         def update_params
-          params.permit(:name, :email, :address_id, :phone_number, :birthday, :gender)
+          params.permit(:name, :name_kana, :email, :address_id, :phone_number, :birthday, :gender)
         end
 
         def last_active_admin?(target)

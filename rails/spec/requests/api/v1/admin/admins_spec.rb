@@ -177,10 +177,12 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it '詳細レスポンスに id/name/email/created_at/updated_at/activity_log を含む' do
+      it '詳細レスポンスに id/name/name_kana/email/created_at/updated_at/activity_log を含む' do
         get "/api/v1/admin/admins/#{target.id}", headers: headers.merge('Cookie' => cookie)
         admin_data = response.parsed_body['admin']
-        expect(admin_data.keys).to include('id', 'name', 'email', 'created_at', 'updated_at', 'activity_log')
+        expect(admin_data.keys).to include(
+          'id', 'name', 'name_kana', 'email', 'created_at', 'updated_at', 'activity_log'
+        )
       end
 
       it 'activity_log は空配列で返される' do
@@ -318,11 +320,12 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
         expect(target.email).to eq('after-admin@example.com')
       end
 
-      it '住所・個人情報も更新される' do
+      it 'name_kana・住所・個人情報も更新される' do
         address = create(:address)
         patch "/api/v1/admin/admins/#{target.id}",
               params: {
-                name: '更新後太郎', email: 'after-admin@example.com',
+                name: '更新後太郎', name_kana: 'コウシンゴタロウ',
+                email: 'after-admin@example.com',
                 address_id: address.id, phone_number: '08012345678',
                 birthday: '1999-01-01', gender: 'male'
               }.to_json,
@@ -330,6 +333,7 @@ RSpec.describe 'Api::V1::Admin::Admins', type: :request do
 
         expect(response).to have_http_status(:ok)
         target.reload
+        expect(target.name_kana).to eq('コウシンゴタロウ')
         expect(target.address_id).to eq(address.id)
         expect(target.user_personal_info.phone_number).to eq('08012345678')
         expect(target.user_personal_info.gender).to eq('male')

@@ -22,10 +22,11 @@ RSpec.describe Admin::AdminForm, type: :model do
     let(:address) { create(:address) }
     let!(:user) { create(:user, :admin, high_school: nil, name: '更新前', email: 'before@example.com') }
 
-    it 'name / email / 住所 / 個人情報をまとめて更新する' do
+    it 'name / name_kana / email / 住所 / 個人情報をまとめて更新する' do
       form = described_class.new(
         user: user,
         name: '更新後',
+        name_kana: 'コウシンゴ',
         email: 'after@example.com',
         address_id: address.id,
         phone_number: '08012345678',
@@ -37,6 +38,7 @@ RSpec.describe Admin::AdminForm, type: :model do
 
       user.reload
       expect(user.name).to eq('更新後')
+      expect(user.name_kana).to eq('コウシンゴ')
       expect(user.email).to eq('after@example.com')
       expect(user.address_id).to eq(address.id)
 
