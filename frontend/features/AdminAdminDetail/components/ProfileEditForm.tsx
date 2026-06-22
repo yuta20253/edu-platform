@@ -192,6 +192,17 @@ export const ProfileEditForm = ({
           label="電話番号"
           fullWidth
           placeholder="ハイフンなし"
+          // フォーカス時にブラウザのオートフィル候補で入力欄がグレーに
+          // 塗られるのを抑止する（autofill 背景を box-shadow で打ち消す）
+          autoComplete="off"
+          sx={{
+            "& input:-webkit-autofill, & input:-webkit-autofill:focus, & input:-webkit-autofill:hover":
+              {
+                WebkitBoxShadow: "0 0 0 1000px #fff inset",
+                WebkitTextFillColor: "inherit",
+                transition: "background-color 9999s ease-in-out 0s",
+              },
+          }}
           {...register("phone_number", {
             pattern: {
               value: /^\d{10,11}$/,
