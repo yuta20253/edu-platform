@@ -23,12 +23,8 @@ import { colors } from "@/app/theme/colors";
 import { DeleteConfirmDialog } from "./components/DeleteConfirmDialog";
 import { ProfileEditForm } from "./components/ProfileEditForm";
 import type { AdminDetail, SnackbarState, UpdateAdminInput } from "./types";
-
-const GENDER_LABELS: Record<string, string> = {
-  male: "男",
-  female: "女",
-  other: "その他",
-};
+import { GenderLabel } from "@/constants/gender";
+import type { GenderType } from "@/types/common/gender";
 
 // 読み取り表示の 1 項目。未設定は「未設定」と表示する。
 const ReadOnlyField = ({ label, value }: { label: string; value: string }) => (
@@ -193,7 +189,7 @@ export const Presenter = ({
                     label="性別"
                     value={
                       personalInfo?.gender
-                        ? (GENDER_LABELS[personalInfo.gender] ??
+                        ? (GenderLabel[personalInfo.gender as GenderType] ??
                           personalInfo.gender)
                         : ""
                     }
