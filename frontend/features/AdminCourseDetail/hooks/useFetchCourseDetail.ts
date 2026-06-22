@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import type { AdminCourseDetail } from "../types";
 
@@ -12,20 +13,22 @@ export const useFetchCourseDetail = (courseId: number) => {
   const router = useRouter();
 
   useEffect(() => {
-    // courseId が変わった際、古いリクエストの応答で新しい表示を上書きしないようにする
-    let ignore = false;
+    // courseId が変わった際、古いリクエストをキャンセルして
+    // 古い応答で新しい表示を上書きしないようにする
+    const controller = new AbortController();
 
     setLoading(true);
     setError(false);
 
     apiClient
-      .get<AdminCourseDetail>(`/api/admin/courses/${courseId}`)
+      .get<AdminCourseDetail>(`/api/admin/courses/${courseId}`, {
+        signal: controller.signal,
+      })
       .then((res) => {
-        if (ignore) return;
         setCourse(res.data);
       })
       .catch((err) => {
-        if (ignore) return;
+        if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
           router.push("/login");
           return;
@@ -34,12 +37,12 @@ export const useFetchCourseDetail = (courseId: number) => {
         setCourse(null);
       })
       .finally(() => {
-        if (ignore) return;
+        if (controller.signal.aborted) return;
         setLoading(false);
       });
 
     return () => {
-      ignore = true;
+      controller.abort();
     };
   }, [courseId, router]);
 
