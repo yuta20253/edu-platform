@@ -51,6 +51,14 @@ RSpec.describe User, type: :model do
         expect(user.errors[:name]).to include('を入力してください')
         expect(user.errors[:name_kana]).to include('を入力してください')
       end
+
+      it 'admin は更新時も name_kana が必須ではない（name は必須）' do
+        user = create(:user, email: 'admin@example.com', password: 'password', user_role: admin_role,
+                             high_school: nil, name_kana: nil)
+        user.name_kana = nil
+
+        expect(user.valid?(:update)).to be true
+      end
     end
 
     describe 'user_role' do

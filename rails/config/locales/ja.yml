@@ -7,6 +7,17 @@ ja:
     models:
       goal: 目標
       task: タスク
+    attributes:
+      user:
+        name: 名前
+        name_kana: 氏名カナ
+        email: メールアドレス
+        address: 住所
+        address_id: 住所
+      user_personal_info:
+        phone_number: 電話番号
+        birthday: 生年月日
+        gender: 性別
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました"
@@ -19,3 +30,13 @@ ja:
           attributes:
             user:
               not_teacher: "教職員アカウントのみ設定可能です"
+  activemodel:
+    attributes:
+      admin/admin_form:
+        name: 名前
+        name_kana: 氏名カナ
+        email: メールアドレス
+        address_id: 住所
+        phone_number: 電話番号
+        birthday: 生年月日
+        gender: 性別

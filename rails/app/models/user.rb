@@ -55,7 +55,9 @@ class User < ApplicationRecord
                                             inverse_of: :receiver_user, dependent: :destroy
 
   validates :name, presence: true, on: :update
-  validates :name_kana, presence: true, on: :update
+  # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
+  # カナ必須は各プロフィールフォーム側で担保しているため、ここでは admin を除外する。
+  validates :name_kana, presence: true, on: :update, unless: :admin?
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?

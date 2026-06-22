@@ -52,6 +52,13 @@ RSpec.describe Admin::AdminForm, type: :model do
       expect(user.reload.user_personal_info).to be_nil
     end
 
+    it 'name_kana が未設定の admin でも更新できる（admin はカナ不要）' do
+      user.update_columns(name_kana: nil)
+      form = described_class.new(user: user, name: '更新後', email: 'after@example.com')
+      expect(form.save).to be(true)
+      expect(user.reload.name).to eq('更新後')
+    end
+
     it '個人情報が全て未入力なら空の user_personal_info を作らない' do
       expect do
         described_class.new(user: user, name: '更新後', email: 'after@example.com').save
