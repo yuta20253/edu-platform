@@ -109,11 +109,7 @@ export const Presenter = ({
   const personalInfo = admin.user_personal_info;
   const address = admin.address;
   const addressText = address
-    ? [
-        address.prefecture?.name ?? "",
-        address.city,
-        address.town,
-      ]
+    ? [address.prefecture?.name ?? "", address.city, address.town]
         .filter(Boolean)
         .join(" ")
     : "";
