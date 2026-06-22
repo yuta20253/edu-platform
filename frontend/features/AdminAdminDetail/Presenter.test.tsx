@@ -3,9 +3,18 @@ import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
 import type { AdminDetail } from "./types";
 
+// 編集モードに入ると住所カスケードが /api/admin/addresses を叩くため、
+// 実 HTTP を発生させないようにモックする。
+vi.mock("@/libs/http/apiClient", () => ({
+  apiClient: {
+    get: vi.fn(async () => ({ data: [] })),
+  },
+}));
+
 const mockAdmin: AdminDetail = {
   id: 1,
   name: "田中管理者",
+  name_kana: "タナカカンリシャ",
   email: "tanaka@example.com",
   created_at: "2025-06-04T10:30:00.000Z",
   updated_at: "2025-06-05T10:30:00.000Z",
@@ -49,6 +58,7 @@ describe("AdminAdminDetailPresenter", () => {
     render(<Presenter {...defaultProps} />);
     // 名前はパンくず・見出しにも出るため、複数存在することだけ確認する
     expect(screen.getAllByText("田中管理者").length).toBeGreaterThan(0);
+    expect(screen.getByText("タナカカンリシャ")).toBeInTheDocument();
     expect(screen.getByText("tanaka@example.com")).toBeInTheDocument();
     expect(screen.getByText("2025/06/04")).toBeInTheDocument();
   });
@@ -106,6 +116,7 @@ describe("AdminAdminDetailPresenter", () => {
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           name: "鈴木管理者",
+          name_kana: "タナカカンリシャ",
           email: "tanaka@example.com",
           phone_number: "08012345678",
           birthday: "1999-01-01",

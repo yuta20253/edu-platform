@@ -3,6 +3,7 @@
 export type AdminDetail = {
   id: number;
   name: string;
+  name_kana: string | null;
   email: string;
   created_at: string;
   updated_at: string;
@@ -29,6 +30,7 @@ export type AdminDetail = {
 // 個人情報・住所は任意（未設定の admin を弾かない）。
 export type UpdateAdminInput = {
   name: string;
+  name_kana?: string;
   email: string;
   phone_number?: string;
   birthday?: string;
@@ -39,6 +41,7 @@ export type UpdateAdminInput = {
 // 編集フォームの内部値（住所カスケード用に都道府県/市区町村/町名を持つ）。
 export type AdminEditForm = {
   name: string;
+  name_kana: string;
   email: string;
   phone_number: string;
   birthday: string;

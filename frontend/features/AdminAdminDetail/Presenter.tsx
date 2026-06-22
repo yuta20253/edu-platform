@@ -180,6 +180,10 @@ export const Presenter = ({
               ) : (
                 <Stack spacing={3}>
                   <ReadOnlyField label="名前" value={admin.name} />
+                  <ReadOnlyField
+                    label="氏名カナ"
+                    value={admin.name_kana ?? ""}
+                  />
                   <ReadOnlyField label="メールアドレス" value={admin.email} />
                   <ReadOnlyField
                     label="電話番号"

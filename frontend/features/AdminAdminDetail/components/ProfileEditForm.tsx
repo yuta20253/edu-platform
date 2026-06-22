@@ -37,6 +37,7 @@ type Props = {
 
 const buildDefaultValues = (admin: AdminDetail): AdminEditForm => ({
   name: admin.name,
+  name_kana: admin.name_kana ?? "",
   email: admin.email,
   phone_number: admin.user_personal_info?.phone_number ?? "",
   birthday: admin.user_personal_info?.birthday ?? "",
@@ -133,6 +134,7 @@ export const ProfileEditForm = ({
   const handleSave = (data: AdminEditForm) => {
     return onUpdate({
       name: data.name,
+      name_kana: data.name_kana,
       email: data.email,
       phone_number: data.phone_number,
       birthday: data.birthday,
@@ -163,6 +165,13 @@ export const ProfileEditForm = ({
           {...register("name", { required: "名前を入力してください" })}
           error={!!errors.name}
           helperText={errors.name?.message}
+        />
+        <TextField
+          label="氏名カナ"
+          fullWidth
+          {...register("name_kana")}
+          error={!!errors.name_kana}
+          helperText={errors.name_kana?.message}
         />
         <TextField
           label="メールアドレス"
