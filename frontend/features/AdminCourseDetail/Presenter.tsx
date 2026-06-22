@@ -78,7 +78,7 @@ export const Presenter = ({ course }: Props) => {
                 variant="body2"
                 sx={{ color: colors.text.muted, mb: 0.5 }}
               >
-                レベル
+                難易度
               </Typography>
               <Typography variant="h6" fontWeight={700}>
                 {courseLabel}
