@@ -104,6 +104,7 @@ class User < ApplicationRecord
   scope :by_high_school, ->(high_school_ids) { where(high_school_id: high_school_ids) }
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
   scope :invitation_pending, -> { where(password_reset_required: true) }
+  scope :active, -> { where(deleted_at: nil) }
 
   private
 

@@ -52,7 +52,7 @@ module Api
         end
 
         def destroy
-          target = User.admins.where(deleted_at: nil).find(params[:id])
+          target = User.admins.active.find(params[:id])
 
           if last_active_admin?(target)
             return render json: { errors: ['最後の管理者は削除できません'] },
@@ -76,7 +76,7 @@ module Api
 
         # show / update で個人情報・住所まで返すため eager load して N+1 を避ける
         def admin_scope
-          User.admins.where(deleted_at: nil).includes(:user_personal_info, address: :prefecture)
+          User.admins.active.includes(:user_personal_info, address: :prefecture)
         end
 
         def create_params
@@ -88,7 +88,7 @@ module Api
         end
 
         def last_active_admin?(target)
-          !User.admins.where(deleted_at: nil).where.not(id: target.id).exists?
+          !User.admins.active.where.not(id: target.id).exists?
         end
 
         def sanitized_per_page
