@@ -44,6 +44,10 @@ class Task < ApplicationRecord
   scope :active_status, -> { where(status: %i[not_started in_progress]) }
   scope :by_status, ->(status) { status.present? && statuses.key?(status) ? where(status: status) : active_status }
 
+  def started_unit_ids
+    question_histories.distinct.pluck(:unit_id)
+  end
+
   private
 
   def sync_completed_at
