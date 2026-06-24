@@ -54,15 +54,8 @@ module Api
         def destroy
           target = User.admins.active.find(params[:id])
 
-          if last_active_admin?(target)
-            return render json: { errors: ['最後の管理者は削除できません'] },
-                          status: :unprocessable_content
-          end
-
-          if target == current_user
-            return render json: { errors: ['自分自身は削除できません'] },
-                          status: :unprocessable_content
-          end
+          return render_delete_error('最後の管理者は削除できません') if last_active_admin?(target)
+          return render_delete_error('自分自身は削除できません') if target == current_user
 
           # 論理削除は内部的な状態変更のため、name_kana など on: :update の
           # presence バリデーション（プロフィール未設定の招待直後 admin で失敗する）を
@@ -89,6 +82,10 @@ module Api
 
         def last_active_admin?(target)
           !User.admins.active.where.not(id: target.id).exists?
+        end
+
+        def render_delete_error(message)
+          render json: { errors: [message] }, status: :unprocessable_content
         end
 
         def sanitized_per_page
