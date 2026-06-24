@@ -71,6 +71,29 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
         expect(form.errors[:unit_ids]).to be_present
       end
     end
+
+    context '学習開始済みの単元を削除した場合' do
+      before do
+        allow(task).to receive(:started_unit_ids).and_return([unit1.id])
+        params[:unit_ids] = [unit2.id]
+      end
+
+      it 'エラーになる' do
+        expect(form).to be_invalid
+        expect(form.errors[:unit_ids]).to include('学習開始済みの単元は削除できません')
+      end
+    end
+
+    context '学習開始済みの単元を残した場合' do
+      before do
+        allow(task).to receive(:started_unit_ids).and_return([unit1.id])
+        params[:unit_ids] = [unit1.id, unit2.id]
+      end
+
+      it '有効である' do
+        expect(form).to be_valid
+      end
+    end
   end
 
   describe '#parsed_due_date' do
