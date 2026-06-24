@@ -2,6 +2,7 @@
 
 import { colors } from "@/app/theme/colors";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   Alert,
   Avatar,
@@ -9,6 +10,7 @@ import {
   Button,
   Card,
   CardContent,
+  IconButton,
   Pagination,
   Snackbar,
   Stack,
@@ -19,9 +21,11 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { format } from "date-fns";
+import Link from "next/link";
 import { AdminCreateDrawer } from "./components/AdminCreateDrawer";
 import type { AdminsData, CreateAdminInput, SnackbarState } from "./types";
 
@@ -134,6 +138,9 @@ export const Presenter = ({
                       メールアドレス
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>登録日</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                      詳細
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -165,6 +172,18 @@ export const Presenter = ({
                       <TableCell>{admin.email}</TableCell>
                       <TableCell>
                         {format(new Date(admin.created_at), "yyyy/MM/dd")}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="詳細">
+                          <IconButton
+                            component={Link}
+                            href={`/admin/admins/${admin.id}`}
+                            size="small"
+                            aria-label={`${admin.name}の詳細`}
+                          >
+                            <ChevronRightIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}

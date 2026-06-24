@@ -49,13 +49,16 @@ class User < ApplicationRecord
   has_many :teacher_grades, dependent: :destroy
   has_many :grades, through: :teacher_grades, source: :grade
   has_many :import_histories, dependent: :destroy
+  has_many :announcements, foreign_key: :publisher_id, dependent: :destroy, inverse_of: :publisher
   has_many :sent_teacher_notifications, class_name: 'TeacherNotification', foreign_key: :sender_user_id,
                                         inverse_of: :sender_user, dependent: :destroy
   has_many :received_teacher_notifications, class_name: 'TeacherNotification', foreign_key: :receiver_user_id,
                                             inverse_of: :receiver_user, dependent: :destroy
 
   validates :name, presence: true, on: :update
-  validates :name_kana, presence: true, on: :update
+  # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
+  # カナ必須は各プロフィールフォーム側で担保しているため、ここでは admin を除外する。
+  validates :name_kana, presence: true, on: :update, unless: :admin?
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
@@ -102,6 +105,7 @@ class User < ApplicationRecord
   scope :by_high_school, ->(high_school_ids) { where(high_school_id: high_school_ids) }
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
   scope :invitation_pending, -> { where(password_reset_required: true) }
+  scope :active, -> { where(deleted_at: nil) }
 
   private
 

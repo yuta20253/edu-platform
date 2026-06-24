@@ -88,6 +88,14 @@ RSpec.describe 'Api::V1::Teacher::Dashboards', type: :request do
         expect(ids).to all(be_in(announcements.map(&:id)))
         expect(ids).not_to include(*draft_announcements.map(&:id))
       end
+
+      it 'publisher情報を含むannouncementが返る' do
+        subject
+
+        announcement = response.parsed_body['announcements'].first
+
+        expect(announcement).to have_key('publisher')
+      end
     end
 
     context '異常系 - 未認証アクセス' do

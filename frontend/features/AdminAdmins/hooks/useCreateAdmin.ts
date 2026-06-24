@@ -1,6 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { CreateAdminInput, SnackbarState } from "../types";
@@ -49,26 +50,14 @@ export const useCreateAdmin = ({ onCreated }: UseCreateAdminParams) => {
       });
       onCreated();
     } catch (err) {
-      const status =
-        err && typeof err === "object" && "response" in err
-          ? (
-              err as {
-                response?: { status?: number; data?: { errors?: string[] } };
-              }
-            ).response
-          : undefined;
+      const { status, errors } = extractApiError(err);
 
-      if (status?.status === 401) {
+      if (status === 401) {
         router.push("/login");
         return;
       }
 
-      const errors = status?.data?.errors;
-      setCreateErrors(
-        Array.isArray(errors) && errors.length > 0
-          ? errors
-          : ["管理者の追加に失敗しました"],
-      );
+      setCreateErrors(errors ?? ["管理者の追加に失敗しました"]);
     } finally {
       setCreating(false);
     }

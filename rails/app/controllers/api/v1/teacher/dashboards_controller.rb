@@ -14,6 +14,7 @@ module Api
           # お知らせ(教師向け5件くらい)
           announcements = Announcement
                           .for_user(current_user)
+                          .includes(:publisher)
                           .published
                           .order(published_at: :desc)
                           .limit(5)

@@ -12,7 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { formatAddress, GenderLabel } from "./constants";
+import { GenderLabel } from "@/constants/gender";
+import { formatAddress } from "./constants";
 import { Teacher } from "./types";
 
 type Props = {

@@ -85,6 +85,9 @@ Metrics/BlockLength:
   Exclude:
     - 'db/seeds/**/*'
 
+Metrics/ClassLength:
+  Max: 120
+
 Naming/PredicateMethod:
   Enabled: false
 
