@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AdminsQuery
-  def initialize(scope = User.admins.where(deleted_at: nil))
+  def initialize(scope = User.admins.active)
     @scope = scope
   end
 
