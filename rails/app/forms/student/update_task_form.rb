@@ -22,6 +22,7 @@ module Student
     validates :due_date, presence: true
 
     validate :due_date_must_be_valid
+    validate :started_unit_cannot_be_removed
 
     def initialize(task:, **attributes)
       @unit_ids_provided = attributes.key?(:unit_ids) && !attributes[:unit_ids].nil?
@@ -48,6 +49,18 @@ module Student
       parsed_due_date
     rescue ArgumentError, TypeError
       errors.add(:due_date, 'は正しい日付を入力してください')
+    end
+
+    def started_unit_cannot_be_removed
+      return unless unit_ids_provided
+
+      started_unit_ids = task.started_unit_ids
+
+      removed_started_unit_ids = started_unit_ids - unit_ids.map(&:to_i)
+
+      return if removed_started_unit_ids.empty?
+
+      errors.add(:unit_ids, '学習開始済みの単元は削除できません')
     end
   end
 end
