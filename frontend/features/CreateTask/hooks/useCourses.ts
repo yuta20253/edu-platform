@@ -2,7 +2,7 @@
 
 import { apiClient } from "@/libs/http/apiClient";
 import { CourseType } from "../types";
-import { SubjectName } from "@/features/CreateTask/subject";
+import { SubjectName } from "@/constants/subject";
 import { useState } from "react";
 
 export const useCourses = () => {
