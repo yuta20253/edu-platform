@@ -17,12 +17,15 @@ export type Unit = {
   course_id: number;
   unit_name: string;
   course: Course;
+  started: boolean;
 };
 
 export type Course = {
   id: number;
   level_number: number;
   level_name: string;
+  description: string;
+  units: Unit[];
 };
 
 export type EditTaskForm = {

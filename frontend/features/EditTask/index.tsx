@@ -6,6 +6,9 @@ import { useFetchTask } from "./hooks/useFetchTask";
 import { useForm } from "react-hook-form";
 import { EditTaskForm } from "./types";
 import { useSubmit } from "./hooks/useSubmit";
+import { useFetchCourses } from "./hooks/useFetchCources";
+import { useUnitSelection } from "./unitSelection";
+
 
 type Props = {
   goalId?: number;
@@ -21,6 +24,19 @@ export const EditTask = ({ goalId, taskId }: Props) => {
     handleSubmit,
     formState: { errors },
   } = useForm<EditTaskForm>();
+
+  const {
+    courses,
+    selectedCourseId,
+    showAllCourses,
+    fetchCourse,
+    selectedCourse,
+    displayedCourses,
+    setSelectedCourseId,
+    setShowAllCourses
+  } = useFetchCourses();
+
+  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } = useUnitSelection();
 
   const { onSubmit, toast, closeToast } = useSubmit({ goalId, taskId });
 
@@ -62,6 +78,17 @@ export const EditTask = ({ goalId, taskId }: Props) => {
     <Presenter
       goalId={goalId}
       task={task}
+      courses={courses}
+      selectedCourseId={selectedCourseId}
+      showAllCourses={showAllCourses}
+      fetchCourse={fetchCourse}
+      selectedCourse={selectedCourse}
+      displayedCourses={displayedCourses}
+      setSelectedCourseId={setSelectedCourseId}
+      setShowAllCourses={setShowAllCourses}
+      selectedUnitIds={selectedUnitIds}
+      handleToggleUnit={handleToggleUnit}
+      setSelectedUnitIds={setSelectedUnitIds}
       register={register}
       control={control}
       errors={errors}

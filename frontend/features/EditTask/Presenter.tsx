@@ -4,14 +4,20 @@ import {
   Alert,
   Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  Checkbox,
+  Divider,
   FormControl,
+  FormControlLabel,
   MenuItem,
   Select,
   Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
-import { EditTaskForm, Task } from "./types";
+import { Course, EditTaskForm, Task } from "./types";
 import {
   Control,
   Controller,
@@ -22,13 +28,27 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
-import { priorities } from "./constants";
+import { priorities, subjectLists } from "./constants";
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { colors } from "@/app/theme/colors";
+import { SubjectName } from "@/constants/subject";
+import { Dispatch, SetStateAction } from "react";
 
 type Props = {
   goalId?: number;
   task: Task;
+  courses: Course[] | null;
+  selectedCourseId: number | null;
+  showAllCourses: boolean;
+  fetchCourse: (name: SubjectName) => Promise<void>;
+  selectedCourse: Course | null;
+  displayedCourses: Course[] | null | undefined;
+  setSelectedCourseId: (value: number) => void;
+  setShowAllCourses: Dispatch<SetStateAction<boolean>>;
+  selectedUnitIds: number[];
+  handleToggleUnit: (userId: number) => void;
+  setSelectedUnitIds: (unitIds: number[]) => void;
   register: UseFormRegister<EditTaskForm>;
   control: Control<EditTaskForm>;
   errors: FieldErrors<EditTaskForm>;
@@ -45,6 +65,17 @@ type Props = {
 export const Presenter = ({
   goalId,
   task,
+  courses,
+  selectedCourseId,
+  showAllCourses,
+  fetchCourse,
+  selectedCourse,
+  displayedCourses,
+  setSelectedCourseId,
+  setShowAllCourses,
+  selectedUnitIds,
+  handleToggleUnit,
+  setSelectedUnitIds,
   register,
   control,
   errors,
@@ -187,6 +218,158 @@ export const Presenter = ({
                   ></Controller>
                 </LocalizationProvider>
               </Box>
+
+            <Box
+              sx={{
+                mt: 4,
+                borderRadius: 2,
+                overflow: "hidden",
+                border: `1px solid ${colors.border.default}`,
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: colors.brand.primary,
+                  color: colors.text.inverse,
+                  px: 3,
+                  py: 2,
+                }}
+              >
+                <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                  講座を選択
+                </Typography>
+              </Box>
+              <Box sx={{ p: 3 }}>
+                <Typography sx={{ mb: 1, fontWeight: 500 }}>
+                  教科選択
+                </Typography>
+
+                <TextField
+                  select
+                  fullWidth
+                  defaultValue=""
+                  onChange={(e) => fetchCourse(e.target.value as SubjectName)}
+                  slotProps={{
+                    select: {
+                      MenuProps: {
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 48 * 4,
+                          },
+                        },
+                      },
+                    },
+                  }}
+                  sx={{
+                    backgroundColor: colors.surface.white,
+                  }}
+                >
+                  <MenuItem value="">選択してください</MenuItem>
+                  {subjectLists.map((subject, i) => (
+                    <MenuItem key={i} value={subject}>
+                      {subject}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+              <Box sx={{ p: 3, mb: 3 }}>
+                <Typography sx={{ mb: 1, fontWeight: 500 }}>
+                  講座一覧
+                </Typography>
+                {displayedCourses?.map((course) => (
+                  <Card sx={{ mt: 2 }} key={course.id}>
+                    <CardContent>
+                      <Typography variant="h6" component="div" gutterBottom>
+                        {course.level_name}レベル{course.level_number}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {course.description ?? "説明はありません"}
+                      </Typography>
+                    </CardContent>
+                    <CardActions sx={{ justifyContent: "flex-end" }}>
+                      <Button
+                        onClick={() => setSelectedCourseId(course.id)}
+                        sx={{
+                          backgroundColor: colors.brand.primary,
+                          color: colors.text.inverse,
+                          fontSize: "small",
+                        }}
+                      >
+                        詳細を見る
+                      </Button>
+                    </CardActions>
+                  </Card>
+                ))}
+                {courses && courses.length > 3 && (
+                  <Box sx={{ textAlign: "center", mt: 2 }}>
+                    <Button
+                      onClick={() => setShowAllCourses((prev) => !prev)}
+                      sx={{ color: colors.brand.primary }}
+                    >
+                      {showAllCourses ? "閉じる" : "もっと見る"}
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+            {selectedCourseId && (
+              <Box
+                sx={{
+                  mt: 4,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  border: `1px solid ${colors.border.default}`,
+                }}
+              >
+                <Box
+                  sx={{
+                    backgroundColor: colors.brand.primary,
+                    color: colors.text.inverse,
+                    px: 3,
+                    py: 2,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                    講座詳細
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {selectedCourse?.level_name}レベル
+                    {selectedCourse?.level_number}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    {selectedCourse?.description ?? "説明はありません"}
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: "bold", mb: 1 }}
+                  >
+                    単元一覧
+                  </Typography>
+                  {selectedCourse?.units.map((unit) => (
+                    <FormControlLabel
+                      key={unit.id}
+                      control={
+                        <Checkbox
+                          checked={selectedUnitIds.includes(unit.id)}
+                          onChange={() => handleToggleUnit(unit.id)}
+                        />
+                      }
+                      label={unit.unit_name}
+                      sx={{ display: "block" }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+
             </Box>
 
             <Box sx={{ textAlign: "end", mt: 4 }}>
