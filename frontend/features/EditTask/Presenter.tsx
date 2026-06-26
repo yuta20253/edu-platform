@@ -17,7 +17,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { CourseType, EditTaskForm, TaskType } from "./types";
+import { EditTaskForm, Task } from "./types";
 import {
   Control,
   Controller,
@@ -34,16 +34,17 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { colors } from "@/app/theme/colors";
 import { SubjectName } from "@/constants/subject";
 import { Dispatch, SetStateAction } from "react";
+import { Course } from "@/types/tasks/course";
 
 type Props = {
   goalId?: number;
-  task: TaskType;
-  courses: CourseType[] | null;
+  task: Task;
+  courses: Course[] | null;
   selectedCourseId: number | null;
   showAllCourses: boolean;
   fetchCourse: (name: SubjectName) => Promise<void>;
-  selectedCourse: CourseType | null;
-  displayedCourses: CourseType[] | null | undefined;
+  selectedCourse: Course | null;
+  displayedCourses: Course[] | null | undefined;
   setSelectedCourseId: (value: number) => void;
   setShowAllCourses: Dispatch<SetStateAction<boolean>>;
   selectedUnitIds: number[];

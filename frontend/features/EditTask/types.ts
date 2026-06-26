@@ -1,6 +1,7 @@
 import { Status } from "@/types/common/status";
+import { Unit } from "@/types/tasks/unit";
 
-export type TaskType = {
+export type Task = {
   id: number;
   goal_id: number;
   title: string;
@@ -9,23 +10,7 @@ export type TaskType = {
   priority: string;
   status: Status;
   completed_at: string;
-  units?: UnitType[];
-};
-
-export type UnitType = {
-  id: number;
-  course_id: number;
-  unit_name: string;
-  course: CourseType;
-  started: boolean;
-};
-
-export type CourseType = {
-  id: number;
-  level_number: number;
-  level_name: string;
-  description: string;
-  units: UnitType[];
+  units?: Unit[];
 };
 
 export type EditTaskForm = {
@@ -33,5 +18,9 @@ export type EditTaskForm = {
   content: string;
   due_date: string;
   priority: string;
-  units?: UnitType[];
+  units?: Unit[];
+};
+
+export type TaskUnit = Unit& {
+  started: boolean;
 };
