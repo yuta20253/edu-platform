@@ -58,7 +58,7 @@ export const useSubmit = ({ goalId, taskId }: Props) => {
 
       setToast({
         open: true,
-        message: "目標の更新に失敗しました",
+        message: "タスクの更新に失敗しました",
         severity: "error",
       });
     }
