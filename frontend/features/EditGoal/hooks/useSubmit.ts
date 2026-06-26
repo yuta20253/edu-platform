@@ -34,7 +34,9 @@ export const useSubmit = ({ goalId }: Props) => {
         ...data,
         due_date: data.due_date ? format(data.due_date, "yyyy-MM-dd") : null,
       };
-      await apiClient.patch(`/api/student/goals/${goalId}`, payload);
+      await apiClient.patch(`/api/student/goals/${goalId}`, {
+        goal: payload,
+      });
 
       setToast({
         open: true,
