@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { EditTaskForm } from "./types";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
-import { useUnitSelection } from "@/hooks/unitSelection";
+import { useUnitSelection } from "@/hooks/useUnitSelection";
 
 type Props = {
   goalId?: number;
