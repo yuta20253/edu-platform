@@ -1,6 +1,6 @@
 import { Status } from "@/types/common/status";
 
-export type Task = {
+export type TaskType = {
   id: number;
   goal_id: number;
   title: string;
@@ -9,23 +9,23 @@ export type Task = {
   priority: string;
   status: Status;
   completed_at: string;
-  units?: Unit[];
+  units?: UnitType[];
 };
 
-export type Unit = {
+export type UnitType = {
   id: number;
   course_id: number;
   unit_name: string;
-  course: Course;
+  course: CourseType;
   started: boolean;
 };
 
-export type Course = {
+export type CourseType = {
   id: number;
   level_number: number;
   level_name: string;
   description: string;
-  units: Unit[];
+  units: UnitType[];
 };
 
 export type EditTaskForm = {
@@ -33,5 +33,5 @@ export type EditTaskForm = {
   content: string;
   due_date: string;
   priority: string;
-  units?: Unit[];
+  units?: UnitType[];
 };

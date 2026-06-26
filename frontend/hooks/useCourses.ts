@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { CourseType } from "../types";
+import { CourseType } from "../features/CreateTask/types";
 import { SubjectName } from "@/constants/subject";
 import { useState } from "react";
 

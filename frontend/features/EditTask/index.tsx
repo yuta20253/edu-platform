@@ -6,8 +6,8 @@ import { useFetchTask } from "./hooks/useFetchTask";
 import { useForm } from "react-hook-form";
 import { EditTaskForm } from "./types";
 import { useSubmit } from "./hooks/useSubmit";
-import { useFetchCourses } from "./hooks/useFetchCources";
 import { useUnitSelection } from "./unitSelection";
+import { useCourses } from "@/hooks/useCourses";
 
 type Props = {
   goalId?: number;
@@ -33,7 +33,7 @@ export const EditTask = ({ goalId, taskId }: Props) => {
     displayedCourses,
     setSelectedCourseId,
     setShowAllCourses,
-  } = useFetchCourses();
+  } = useCourses();
 
   const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
     useUnitSelection();

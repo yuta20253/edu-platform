@@ -2,11 +2,11 @@
 
 import { apiClient } from "@/libs/http/apiClient";
 import { useEffect, useState } from "react";
-import { Task } from "../types";
+import { TaskType } from "../types";
 import { useRouter } from "next/navigation";
 
 export const useFetchTask = (taskId: number) => {
-  const [task, setTask] = useState<Task | null>(null);
+  const [task, setTask] = useState<TaskType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();

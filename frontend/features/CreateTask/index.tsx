@@ -23,7 +23,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
 import { SubjectName } from "@/constants/subject";
-import { useCourses } from "./hooks/useCourses";
+import { useCourses } from "../../hooks/useCourses";
 import { priorities, PRIORITY, subjectLists } from "./constants";
 import { useUnitSelection } from "./unitSelection";
 import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";

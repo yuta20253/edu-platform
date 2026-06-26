@@ -17,7 +17,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Course, EditTaskForm, Task } from "./types";
+import { CourseType, EditTaskForm, TaskType } from "./types";
 import {
   Control,
   Controller,
@@ -37,13 +37,13 @@ import { Dispatch, SetStateAction } from "react";
 
 type Props = {
   goalId?: number;
-  task: Task;
-  courses: Course[] | null;
+  task: TaskType;
+  courses: CourseType[] | null;
   selectedCourseId: number | null;
   showAllCourses: boolean;
   fetchCourse: (name: SubjectName) => Promise<void>;
-  selectedCourse: Course | null;
-  displayedCourses: Course[] | null | undefined;
+  selectedCourse: CourseType | null;
+  displayedCourses: CourseType[] | null | undefined;
   setSelectedCourseId: (value: number) => void;
   setShowAllCourses: Dispatch<SetStateAction<boolean>>;
   selectedUnitIds: number[];
