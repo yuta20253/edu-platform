@@ -9,7 +9,6 @@ import { useSubmit } from "./hooks/useSubmit";
 import { useFetchCourses } from "./hooks/useFetchCources";
 import { useUnitSelection } from "./unitSelection";
 
-
 type Props = {
   goalId?: number;
   taskId: number;
@@ -33,10 +32,11 @@ export const EditTask = ({ goalId, taskId }: Props) => {
     selectedCourse,
     displayedCourses,
     setSelectedCourseId,
-    setShowAllCourses
+    setShowAllCourses,
   } = useFetchCourses();
 
-  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } = useUnitSelection();
+  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
+    useUnitSelection();
 
   const { onSubmit, toast, closeToast } = useSubmit({ goalId, taskId });
 
