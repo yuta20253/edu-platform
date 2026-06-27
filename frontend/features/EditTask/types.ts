@@ -10,7 +10,7 @@ export type Task = {
   priority: string;
   status: Status;
   completed_at: string;
-  units?: Unit[];
+  units?: TaskUnit[];
 };
 
 export type EditTaskForm = {
@@ -18,9 +18,9 @@ export type EditTaskForm = {
   content: string;
   due_date: string;
   priority: string;
-  units?: Unit[];
+  unit_ids: number[] | null;
 };
 
-export type TaskUnit = Unit& {
+export type TaskUnit = Unit & {
   started: boolean;
 };
