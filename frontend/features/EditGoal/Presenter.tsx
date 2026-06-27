@@ -193,7 +193,7 @@ export const Presenter = ({
               fontWeight: "bold",
             }}
           >
-            タスク編集
+            紐づくタスク
           </Typography>
 
           {!goal.tasks || goal.tasks.length === 0 ? (
@@ -208,7 +208,7 @@ export const Presenter = ({
                 <Card
                   key={task.id}
                   component={Link}
-                  href={`/goals/${goal.id}/tasks/${task.id}/edit`}
+                  href={`/goals/${goal.id}/tasks/${task.id}`}
                   sx={{
                     width: "min(720px, 90vw)",
                     textDecoration: "none",
@@ -273,6 +273,22 @@ export const Presenter = ({
               );
             })
           )}
+          <Box
+            sx={{
+              width: "min(720px, 90vw)",
+              my: 4,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              component={Link}
+              href={`/goals/${goal.id}/tasks/new`}
+              variant="contained"
+            >
+              タスク追加
+            </Button>
+          </Box>
         </Box>
       </Box>
       <Snackbar
