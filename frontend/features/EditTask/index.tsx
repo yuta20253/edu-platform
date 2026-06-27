@@ -8,6 +8,7 @@ import { EditTaskForm } from "./types";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
 import { useUnitSelection } from "@/hooks/useUnitSelection";
+import { useEffect } from "react";
 
 type Props = {
   goalId?: number;
@@ -38,7 +39,18 @@ export const EditTask = ({ goalId, taskId }: Props) => {
   const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
     useUnitSelection();
 
-  const { onSubmit, toast, closeToast } = useSubmit({ goalId, taskId });
+  const { onSubmit, toast, closeToast } = useSubmit({
+    goalId,
+    taskId,
+    selectedUnitIds,
+  });
+
+  useEffect(() => {
+    if (!task?.units) return;
+    const unitIds = task?.units?.map((u) => u.id) ?? [];
+    setSelectedUnitIds(unitIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task?.units]);
 
   if (loading) {
     return (
@@ -88,7 +100,6 @@ export const EditTask = ({ goalId, taskId }: Props) => {
       setShowAllCourses={setShowAllCourses}
       selectedUnitIds={selectedUnitIds}
       handleToggleUnit={handleToggleUnit}
-      setSelectedUnitIds={setSelectedUnitIds}
       register={register}
       control={control}
       errors={errors}

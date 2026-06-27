@@ -49,7 +49,6 @@ type Props = {
   setShowAllCourses: Dispatch<SetStateAction<boolean>>;
   selectedUnitIds: number[];
   handleToggleUnit: (userId: number) => void;
-  setSelectedUnitIds: (unitIds: number[]) => void;
   register: UseFormRegister<EditTaskForm>;
   control: Control<EditTaskForm>;
   errors: FieldErrors<EditTaskForm>;
@@ -76,7 +75,6 @@ export const Presenter = ({
   setShowAllCourses,
   selectedUnitIds,
   handleToggleUnit,
-  setSelectedUnitIds,
   register,
   control,
   errors,
@@ -88,6 +86,10 @@ export const Presenter = ({
   const backHref = goalId
     ? `/goals/${goalId}/tasks/${task.id}`
     : `/tasks/${task.id}`;
+
+  const startedUnitIds = new Set(
+    task.units?.filter((u) => u.started).map((u) => u.id),
+  );
   return (
     <Box
       sx={{
@@ -359,10 +361,11 @@ export const Presenter = ({
                         control={
                           <Checkbox
                             checked={selectedUnitIds.includes(unit.id)}
+                            disabled={startedUnitIds.has(unit.id)}
                             onChange={() => handleToggleUnit(unit.id)}
                           />
                         }
-                        label={unit.unit_name}
+                        label={`${unit.unit_name}${startedUnitIds.has(unit.id) ? "（学習開始済み）" : ""}`}
                         sx={{ display: "block" }}
                       />
                     ))}

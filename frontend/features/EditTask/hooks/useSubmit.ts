@@ -12,9 +12,10 @@ type ToastType = "success" | "error";
 type Props = {
   goalId?: number;
   taskId: number;
+  selectedUnitIds: number[] | null;
 };
 
-export const useSubmit = ({ goalId, taskId }: Props) => {
+export const useSubmit = ({ goalId, taskId, selectedUnitIds }: Props) => {
   const router = useRouter();
 
   const [toast, setToast] = useState({
@@ -34,6 +35,7 @@ export const useSubmit = ({ goalId, taskId }: Props) => {
       const payload = {
         ...data,
         due_date: data.due_date ? format(data.due_date, "yyyy-MM-dd") : null,
+        unit_ids: selectedUnitIds,
       };
 
       await apiClient.patch(`/api/student/tasks/${taskId}`, {
@@ -55,7 +57,6 @@ export const useSubmit = ({ goalId, taskId }: Props) => {
       }, 1000);
     } catch (error) {
       console.error(error);
-
       setToast({
         open: true,
         message: "タスクの更新に失敗しました",
