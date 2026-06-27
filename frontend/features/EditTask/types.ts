@@ -16,7 +16,7 @@ export type Task = {
 export type EditTaskForm = {
   title: string;
   content: string;
-  due_date: string;
+  due_date: Date | null;
   priority: string;
   unit_ids: number[] | null;
 };
