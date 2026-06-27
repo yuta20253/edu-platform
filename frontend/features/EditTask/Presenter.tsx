@@ -203,7 +203,9 @@ export const Presenter = ({
                     rules={{
                       required: "期限を選択してください",
                     }}
-                    defaultValue={task.due_date ? new Date(task.due_date) : null}
+                    defaultValue={
+                      task.due_date ? new Date(task.due_date) : null
+                    }
                     render={({ field }) => (
                       <DatePicker
                         format="yyyy/MM/dd"
