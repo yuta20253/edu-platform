@@ -1,37 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
 import { Goal } from "../types";
+import { extractApiError } from "@/libs/http/extractApiError";
 
 export const useFetchGoal = (goalId: number) => {
   const [goal, setGoal] = useState<Goal | null>(null);
-  const [loading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    setIsLoading(true);
-    setError(false);
+  const fetchGoal = useCallback(() => {
+    setFetchError(null);
 
     apiClient
       .get<Goal>(`/api/student/goals/${goalId}`)
       .then((res) => setGoal(res.data))
       .catch((err) => {
-        if (err.response?.status === 401) {
+        const { status } = extractApiError(err);
+        if (status === 401) {
           router.push("/login");
           return;
         }
-        setIsLoading(false);
-        setError(true);
-      })
-      .finally(() => setIsLoading(false));
+
+        setFetchError(
+          status === 404
+            ? "目標が見つかりませんでした"
+            : "目標の取得に失敗しました",
+        );
+      });
   }, [goalId, router]);
+
+  useEffect(() => {
+    fetchGoal();
+  }, [fetchGoal]);
 
   return {
     goal,
-    error,
-    loading,
+    fetchError,
+    refetch: fetchGoal,
   };
 };
