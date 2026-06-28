@@ -23,6 +23,12 @@ module Api
           }
         end
 
+        def show
+          announcement = announcement_scope.find(params[:id])
+
+          render json: announcement, serializer: AnnouncementSerializer, status: :ok
+        end
+
         private
 
         def announcement_scope
