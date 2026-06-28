@@ -1,34 +1,40 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Task } from "../types";
 import { useRouter } from "next/navigation";
+import { extractApiError } from "@/libs/http/extractApiError";
 
 export const useFetchTask = (taskId: number) => {
   const [task, setTask] = useState<Task | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
   const router = useRouter();
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    setError(false);
+  const fetchTask = useCallback(() => {
+    setFetchError(null);
 
     apiClient
       .get(`/api/student/tasks/${taskId}`)
       .then((res) => setTask(res.data))
       .catch((err) => {
-        if (err.response?.status === 401) {
+        const { status } = extractApiError(err);
+        if (status === 401) {
           router.push("/login");
           return;
         }
 
-        setLoading(false);
-        setError(true);
-      })
-      .finally(() => setLoading(false));
+        setFetchError(
+          status === 404
+            ? "タスクが見つかりませんでした"
+            : "タスクの取得に失敗しました",
+        );
+      });
   }, [router, taskId]);
 
-  return { task, loading, error };
+  useEffect(() => {
+    fetchTask();
+  }, [fetchTask]);
+
+  return { task, fetchError, refetch: fetchTask };
 };

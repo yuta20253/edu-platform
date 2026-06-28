@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress } from "@mui/material";
 import { Presenter } from "./Presenter";
 import { useFetchTask } from "./hooks/useFetchTask";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export const EditTask = ({ goalId, taskId }: Props) => {
-  const { task, loading, error } = useFetchTask(taskId);
+  const { task, fetchError, refetch } = useFetchTask(taskId);
 
   const {
     register,
@@ -52,7 +52,31 @@ export const EditTask = ({ goalId, taskId }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [task?.units]);
 
-  if (loading) {
+  if (fetchError) {
+    return (
+      <Box
+        sx={{
+          mt: 10,
+          display: "flex",
+          justifyContent: "center",
+          px: 3,
+        }}
+      >
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              再試行
+            </Button>
+          }
+        >
+          {fetchError}
+        </Alert>
+      </Box>
+    );
+  }
+
+  if (!task) {
     return (
       <Box
         sx={{
@@ -63,25 +87,6 @@ export const EditTask = ({ goalId, taskId }: Props) => {
         }}
       >
         <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!task || error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          データの取得に失敗しました
-        </Typography>
       </Box>
     );
   }
