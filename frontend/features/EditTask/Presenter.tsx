@@ -150,7 +150,7 @@ export const Presenter = ({
                 variant="outlined"
                 defaultValue={task.title}
                 {...register("title", {
-                  required: "目標名を入力してください",
+                  required: "タスク名を入力してください",
                 })}
                 error={!!errors.title}
                 helperText={errors.title?.message}
