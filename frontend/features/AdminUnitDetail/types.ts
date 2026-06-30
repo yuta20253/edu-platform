@@ -37,10 +37,18 @@ export type ImportHistory = {
   created_at: string;
 };
 
+export type UnitCourse = {
+  id: number;
+  subject: { id: number; name: string };
+  level_name: string;
+  level_number: number;
+};
+
 export type AdminUnitDetail = {
   id: number;
   course_id: number;
   unit_name: string;
+  course: UnitCourse;
   questions: UnitQuestion[];
   recent_import_histories: ImportHistory[];
 };

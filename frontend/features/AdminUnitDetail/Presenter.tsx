@@ -54,6 +54,7 @@ export const Presenter = ({ unit, courseId }: Props) => {
   const importHref = `/admin/courses/${courseId}/units/${unit.id}/import`;
   const hasQuestions = unit.questions.length > 0;
   const histories = unit.recent_import_histories;
+  const courseLabel = `${unit.course.subject.name} ${unit.course.level_name}レベル${unit.course.level_number}`;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -69,7 +70,7 @@ export const Presenter = ({ unit, courseId }: Props) => {
           href={`/admin/courses/${courseId}`}
           style={{ color: colors.brand.primary, textDecoration: "none" }}
         >
-          講座詳細
+          {courseLabel}
         </Link>
         <Typography color="text.primary">{unit.unit_name}</Typography>
       </Breadcrumbs>

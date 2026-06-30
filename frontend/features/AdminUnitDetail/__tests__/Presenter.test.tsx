@@ -17,6 +17,12 @@ const mockUnit: AdminUnitDetail = {
   id: 11,
   course_id: 7,
   unit_name: "二次関数",
+  course: {
+    id: 7,
+    subject: { id: 1, name: "数学" },
+    level_name: "標準",
+    level_number: 2,
+  },
   questions: [
     {
       id: 101,
@@ -64,16 +70,17 @@ describe("AdminUnitDetailPresenter", () => {
     expect(screen.getAllByText("二次関数").length).toBeGreaterThan(0);
   });
 
-  it("パンくずに講座一覧・講座詳細リンクがある", () => {
+  it("パンくずに講座一覧・講座名リンクがある", () => {
     render(<Presenter unit={mockUnit} courseId={7} />);
     expect(screen.getByRole("link", { name: "講座一覧" })).toHaveAttribute(
       "href",
       "/admin/courses",
     );
-    expect(screen.getByRole("link", { name: "講座詳細" })).toHaveAttribute(
-      "href",
-      "/admin/courses/7",
-    );
+    // 「講座詳細」固定文言ではなく、実際の講座名（科目＋レベル）を表示する
+    const courseLink = screen.getByRole("link", {
+      name: "数学 標準レベル2",
+    });
+    expect(courseLink).toHaveAttribute("href", "/admin/courses/7");
   });
 
   it("上部の「CSVで問題を追加」ボタンが正しい href を持つ", () => {
