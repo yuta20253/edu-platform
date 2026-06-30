@@ -120,6 +120,21 @@ describe("AdminUnitDetailPresenter", () => {
     expect(within(failedRow).getByText("失敗")).toBeInTheDocument();
   });
 
+  it("取込日時は実行環境のTZに依存せず日本時間で表示される", () => {
+    // UTC では 6/1、JST(UTC+9) では 6/2 になる時刻
+    const unit = {
+      ...mockUnit,
+      recent_import_histories: [
+        {
+          ...mockUnit.recent_import_histories[0],
+          created_at: "2026-06-01T23:00:00.000Z",
+        },
+      ],
+    };
+    render(<Presenter unit={unit} courseId={7} />);
+    expect(screen.getByText("2026/06/02")).toBeInTheDocument();
+  });
+
   it("問題が0件のとき空状態バナーと追加CTAが表示される", () => {
     render(<Presenter unit={{ ...mockUnit, questions: [] }} courseId={7} />);
     expect(screen.getByText(/まだ問題がありません/)).toBeInTheDocument();

@@ -24,9 +24,16 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { format } from "date-fns";
 import Link from "next/link";
 import type { ImportStatus, AdminUnitDetail } from "./types";
+
+// 取込日時は実行環境のTZに依存せず日本時間(JST)で表示する
+const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: "Asia/Tokyo",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
 
 type Props = {
   unit: AdminUnitDetail;
@@ -361,7 +368,7 @@ export const Presenter = ({ unit, courseId }: Props) => {
                       <TableCell align="right">{history.error_count}</TableCell>
                       <TableCell align="right">{history.total_count}</TableCell>
                       <TableCell>
-                        {format(new Date(history.created_at), "yyyy/MM/dd")}
+                        {dateFormatter.format(new Date(history.created_at))}
                       </TableCell>
                     </TableRow>
                   ))}
