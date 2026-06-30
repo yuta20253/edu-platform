@@ -152,9 +152,17 @@ export const Presenter = ({ course }: Props) => {
                             flexWrap: "wrap",
                           }}
                         >
-                          <Typography variant="body2">
-                            {unit.unit_name}
-                          </Typography>
+                          <Link
+                            href={`/admin/courses/${course.id}/units/${unit.id}`}
+                            style={{
+                              color: colors.brand.primary,
+                              textDecoration: "none",
+                            }}
+                          >
+                            <Typography variant="body2">
+                              {unit.unit_name}
+                            </Typography>
+                          </Link>
                           {/* 問題数0の単元は、何をすべきか管理者に明示する */}
                           {unit.questions_count === 0 && (
                             <Box
