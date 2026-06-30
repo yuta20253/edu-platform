@@ -1,6 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { buildCourseLabel } from "@/libs/domain/course/courseLabel";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import {
@@ -61,7 +62,7 @@ export const Presenter = ({ unit, courseId }: Props) => {
   const importHref = `/admin/courses/${courseId}/units/${unit.id}/import`;
   const hasQuestions = unit.questions.length > 0;
   const histories = unit.recent_import_histories;
-  const courseLabel = `${unit.course.level_name}レベル${unit.course.level_number}`;
+  const courseLabel = buildCourseLabel(unit.course);
 
   return (
     <Box sx={{ p: 3 }}>

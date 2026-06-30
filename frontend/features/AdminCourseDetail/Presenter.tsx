@@ -1,6 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { buildCourseLabel } from "@/libs/domain/course/courseLabel";
 import {
   Box,
   Breadcrumbs,
@@ -26,7 +27,7 @@ type Props = {
 };
 
 export const Presenter = ({ course }: Props) => {
-  const courseLabel = `${course.level_name}レベル${course.level_number}`;
+  const courseLabel = buildCourseLabel(course);
 
   return (
     <Box sx={{ p: 3 }}>
