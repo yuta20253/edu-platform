@@ -79,10 +79,7 @@ describe("AdminUnitDetailPresenter", () => {
   it("上部の「CSVで問題を追加」ボタンが正しい href を持つ", () => {
     render(<Presenter unit={mockUnit} courseId={7} />);
     const link = screen.getByRole("link", { name: /CSVで問題を追加/ });
-    expect(link).toHaveAttribute(
-      "href",
-      "/admin/courses/7/units/11/import",
-    );
+    expect(link).toHaveAttribute("href", "/admin/courses/7/units/11/import");
   });
 
   it("問題文がアコーディオン見出しに表示される", () => {
@@ -94,11 +91,11 @@ describe("AdminUnitDetailPresenter", () => {
 
   it("アコーディオンを展開すると選択肢・ヒント・解説が表示される", () => {
     render(<Presenter unit={mockUnit} courseId={7} />);
-    fireEvent.click(
-      screen.getByRole("button", { name: /頂点の座標を求めよ/ }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: /頂点の座標を求めよ/ }));
     expect(screen.getByText("2. (-1, 2)")).toBeInTheDocument();
-    expect(screen.getByText("ステップ1: 平方完成してみよう")).toBeInTheDocument();
+    expect(
+      screen.getByText("ステップ1: 平方完成してみよう"),
+    ).toBeInTheDocument();
     expect(screen.getByText("y = (x-1)^2 - 2 に変形する")).toBeInTheDocument();
     expect(screen.getByText("基本解説")).toBeInTheDocument();
   });
@@ -117,12 +114,8 @@ describe("AdminUnitDetailPresenter", () => {
   });
 
   it("問題が0件のとき空状態バナーと追加CTAが表示される", () => {
-    render(
-      <Presenter unit={{ ...mockUnit, questions: [] }} courseId={7} />,
-    );
-    expect(
-      screen.getByText(/まだ問題がありません/),
-    ).toBeInTheDocument();
+    render(<Presenter unit={{ ...mockUnit, questions: [] }} courseId={7} />);
+    expect(screen.getByText(/まだ問題がありません/)).toBeInTheDocument();
     // 空状態でも CSV 追加導線が存在する
     expect(
       screen.getAllByRole("link", { name: /CSVで問題を追加/ }).length,
@@ -136,8 +129,6 @@ describe("AdminUnitDetailPresenter", () => {
         courseId={7}
       />,
     );
-    expect(
-      screen.getByText("インポート履歴はありません"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("インポート履歴はありません")).toBeInTheDocument();
   });
 });
