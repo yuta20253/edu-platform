@@ -39,7 +39,7 @@ export type ImportHistory = {
 
 export type UnitCourse = {
   id: number;
-  subject: { id: number; name: string };
+  subject: { id: number; name: string } | null;
   level_name: string;
   level_number: number;
 };

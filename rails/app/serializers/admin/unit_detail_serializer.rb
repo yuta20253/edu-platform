@@ -10,7 +10,7 @@ module Admin
       course = object.course
       {
         id: course.id,
-        subject: { id: course.subject.id, name: course.subject.name },
+        subject: course.subject&.slice(:id, :name),
         level_name: course.level_name,
         level_number: course.level_number
       }

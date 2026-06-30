@@ -54,6 +54,16 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
         expect(course_body['level_number']).to eq(2)
       end
 
+      context 'course.subject が nil の場合' do
+        before { course.update_column(:subject_id, nil) }
+
+        it '500にならず subject は nil で返る' do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body['course']['subject']).to be_nil
+        end
+      end
+
       it 'id / course_id / unit_name が正しい' do
         subject
         body = response.parsed_body
