@@ -54,7 +54,7 @@ export const Presenter = ({ unit, courseId }: Props) => {
   const importHref = `/admin/courses/${courseId}/units/${unit.id}/import`;
   const hasQuestions = unit.questions.length > 0;
   const histories = unit.recent_import_histories;
-  const courseLabel = `${unit.course.subject.name} ${unit.course.level_name}レベル${unit.course.level_number}`;
+  const courseLabel = `${unit.course.level_name}レベル${unit.course.level_number}`;
 
   return (
     <Box sx={{ p: 3 }}>

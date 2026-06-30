@@ -76,9 +76,9 @@ describe("AdminUnitDetailPresenter", () => {
       "href",
       "/admin/courses",
     );
-    // 「講座詳細」固定文言ではなく、実際の講座名（科目＋レベル）を表示する
+    // 「講座詳細」固定文言ではなく、実際の講座名（レベル）を表示する
     const courseLink = screen.getByRole("link", {
-      name: "数学 標準レベル2",
+      name: "標準レベル2",
     });
     expect(courseLink).toHaveAttribute("href", "/admin/courses/7");
   });
