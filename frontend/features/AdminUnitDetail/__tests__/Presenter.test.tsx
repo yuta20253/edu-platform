@@ -87,14 +87,18 @@ describe("AdminUnitDetailPresenter", () => {
 
   it("問題文がアコーディオン見出しに表示される", () => {
     render(<Presenter unit={mockUnit} courseId={7} />);
-    expect(screen.getByText(/頂点の座標を求めよ/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /頂点の座標を求めよ/ }),
+    ).toBeInTheDocument();
   });
 
   it("アコーディオンを展開すると選択肢・ヒント・解説が表示される", () => {
     render(<Presenter unit={mockUnit} courseId={7} />);
-    fireEvent.click(screen.getByText(/頂点の座標を求めよ/));
-    expect(screen.getByText("(-1, 2)")).toBeInTheDocument();
-    expect(screen.getByText("平方完成してみよう")).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /頂点の座標を求めよ/ }),
+    );
+    expect(screen.getByText("2. (-1, 2)")).toBeInTheDocument();
+    expect(screen.getByText("ステップ1: 平方完成してみよう")).toBeInTheDocument();
     expect(screen.getByText("y = (x-1)^2 - 2 に変形する")).toBeInTheDocument();
     expect(screen.getByText("基本解説")).toBeInTheDocument();
   });
