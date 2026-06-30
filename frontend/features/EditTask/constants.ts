@@ -9,11 +9,11 @@ export const PRIORITY = {
 } as const;
 
 export const priorities = [
-  { value: PRIORITY.VERY_LOW, label: "とても低い" },
-  { value: PRIORITY.LOW, label: "低い" },
-  { value: PRIORITY.NORMAL, label: "普通" },
-  { value: PRIORITY.HIGH, label: "高い" },
-  { value: PRIORITY.VERY_HIGH, label: "とても高い" },
+  { value: "very_low", label: "とても低い" },
+  { value: "low", label: "低い" },
+  { value: "normal", label: "普通" },
+  { value: "high", label: "高い" },
+  { value: "very_high", label: "とても高い" },
 ];
 
 export const subjectLists: SubjectName[] = [

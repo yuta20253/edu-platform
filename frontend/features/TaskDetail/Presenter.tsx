@@ -14,6 +14,9 @@ type Props = {
 
 export const Presenter = ({ task, goalId }: Props) => {
   const statusColor = colors.statusUi[task.status];
+  const editHref = goalId
+    ? `/goals/${goalId}/tasks/${task.id}/edit`
+    : `/tasks/${task.id}/edit`;
 
   return (
     <Box
@@ -30,47 +33,69 @@ export const Presenter = ({ task, goalId }: Props) => {
       </Typography>
       <Box
         sx={{
-          textAlign: "start",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           mb: 3,
+          gap: 2,
+          flexWrap: "wrap",
         }}
       >
-        {goalId ? (
-          <Link href={`/goals/${goalId}`} style={{ textDecoration: "none" }}>
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "text.secondary",
-                cursor: "pointer",
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-              <Typography sx={{ fontSize: 14 }}>目標詳細に戻る</Typography>
-            </Box>
-          </Link>
-        ) : (
-          <Link href="/tasks" style={{ textDecoration: "none" }}>
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "text.secondary",
-                cursor: "pointer",
-                "&:hover": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-              <Typography sx={{ fontSize: 14 }}>タスク一覧に戻る</Typography>
-            </Box>
-          </Link>
-        )}
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          {goalId ? (
+            <Link href={`/goals/${goalId}`} style={{ textDecoration: "none" }}>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  color: "text.secondary",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  "&:hover": {
+                    color: "primary.main",
+                  },
+                }}
+              >
+                <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+                <Typography sx={{ fontSize: 14 }}>目標詳細に戻る</Typography>
+              </Box>
+            </Link>
+          ) : (
+            <Link href="/tasks" style={{ textDecoration: "none" }}>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  color: "text.secondary",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  "&:hover": {
+                    color: "primary.main",
+                  },
+                }}
+              >
+                <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+                <Typography sx={{ fontSize: 14 }}>タスク一覧に戻る</Typography>
+              </Box>
+            </Link>
+          )}
+        </Box>
+        <Button
+          component={Link}
+          href={editHref}
+          variant="contained"
+          size="small"
+          sx={{
+            whiteSpace: "nowrap",
+            minWidth: 96,
+            borderRadius: 2,
+            px: 2,
+          }}
+        >
+          編集する
+        </Button>
       </Box>
       <Box display="flex" justifyContent="center">
         <Card

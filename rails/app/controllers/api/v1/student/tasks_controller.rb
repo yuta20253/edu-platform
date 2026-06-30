@@ -7,6 +7,7 @@ module Api
         def index
           tasks = current_user
                   .tasks
+                  .includes([units: :course])
                   .by_status(params[:status])
                   .order(due_date: :asc)
                   .page(params[:page])
@@ -28,9 +29,12 @@ module Api
         end
 
         def show
-          task = current_user.tasks.includes(:units).find(params[:id])
+          task = current_user.tasks.includes(units: :course).find(params[:id])
 
-          render json: task, serializer: TaskSerializer, status: :ok
+          render json: task,
+                 serializer: TaskDetailSerializer,
+                 started_unit_ids: task.started_unit_ids,
+                 status: :ok
         end
 
         def create

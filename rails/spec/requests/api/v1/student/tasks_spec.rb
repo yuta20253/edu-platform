@@ -159,6 +159,8 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
       let!(:units) { create_list(:unit, 3, course: course) }
       let!(:task) { create(:task, user: user, goal: goal, units: units) }
       let!(:other_task) { create(:task, user: user, goal: goal) }
+      let!(:question) { create(:question, unit: units.first) }
+      let!(:question_choice) { create(:question_choice, question: question) }
 
       let!(:cookie) { login_and_get_cookie(user) }
 
@@ -181,6 +183,35 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
 
         expect(json['units'].size).to eq(3)
         expect(json['units'].pluck('id')).to match_array(units.map(&:id))
+      end
+
+      it 'started_unit_idsに基づいてstartedが返る' do
+        create(:question_history,
+               user: user,
+               task: task,
+               unit: units.first,
+               course: units.first.course,
+               question: question,
+               question_choice: question_choice)
+        get "/api/v1/student/tasks/#{task.id}", headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        started_unit = json['units'].find { |u| u['id'] == units.first.id }
+        not_started_unit = json['units'].find { |u| u['id'] == units.second.id }
+
+        expect(started_unit['started']).to be true
+        expect(not_started_unit['started']).to be false
+      end
+
+      it 'indexではstartedが含まれない' do
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body['tasks'].first
+
+        unit = json['units'].first
+
+        expect(unit).not_to have_key('started')
       end
     end
 

@@ -16,7 +16,6 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       content: '内容',
       due_date: '2026-12-31',
       priority: '1',
-      memo: 'メモ',
       unit_ids: [unit1.id, unit2.id]
     }
   end
@@ -64,21 +63,35 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       end
     end
 
-    context 'memoが空' do
-      before { params[:memo] = '' }
-
-      it 'エラーになる' do
-        expect(form).to be_invalid
-        expect(form.errors[:memo]).to be_present
-      end
-    end
-
     context 'unit_idsに不正なIDが含まれる' do
       before { params[:unit_ids] = [unit1.id, 999_999] }
 
       it 'エラーになる' do
         expect(form).to be_invalid
         expect(form.errors[:unit_ids]).to be_present
+      end
+    end
+
+    context '学習開始済みの単元を削除した場合' do
+      before do
+        allow(task).to receive(:started_unit_ids).and_return([unit1.id])
+        params[:unit_ids] = [unit2.id]
+      end
+
+      it 'エラーになる' do
+        expect(form).to be_invalid
+        expect(form.errors[:unit_ids]).to include('学習開始済みの単元は削除できません')
+      end
+    end
+
+    context '学習開始済みの単元を残した場合' do
+      before do
+        allow(task).to receive(:started_unit_ids).and_return([unit1.id])
+        params[:unit_ids] = [unit1.id, unit2.id]
+      end
+
+      it '有効である' do
+        expect(form).to be_valid
       end
     end
   end

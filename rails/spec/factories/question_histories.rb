@@ -27,10 +27,12 @@ FactoryBot.define do
     association :unit
     association :question
     association :question_choice
+    association :course
 
     is_correct { false }
     explanation_viewed { false }
     time_spent_sec { 30 }
     answer_text { 'A' }
+    answered_at { Time.current }
   end
 end

@@ -1,12 +1,12 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { CourseType } from "../types";
-import { SubjectName } from "@/features/CreateTask/subject";
+import { SubjectName } from "@/constants/subject";
 import { useState } from "react";
+import { Course } from "@/types/tasks/course";
 
 export const useCourses = () => {
-  const [courses, setCourses] = useState<CourseType[] | null>(null);
+  const [courses, setCourses] = useState<Course[] | null>(null);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [showAllCourses, setShowAllCourses] = useState<boolean>(false);
 
@@ -14,7 +14,7 @@ export const useCourses = () => {
     setSelectedCourseId(null);
     setShowAllCourses(false);
     try {
-      const res = await apiClient.get<CourseType[]>(
+      const res = await apiClient.get<Course[]>(
         `/api/student/courses?subject=${name}`,
       );
 
