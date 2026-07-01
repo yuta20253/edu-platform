@@ -19,6 +19,7 @@
 #  deleted_at    :datetime
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  mode          :integer          default("append"), not null
 #
 FactoryBot.define do
   factory :import_history do
@@ -32,6 +33,10 @@ FactoryBot.define do
         filename: 'questions.csv',
         content_type: 'text/csv'
       )
+    end
+
+    trait :overwrite do
+      mode { :overwrite }
     end
   end
 end

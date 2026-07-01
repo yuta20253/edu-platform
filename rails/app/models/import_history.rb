@@ -19,6 +19,7 @@
 #  deleted_at    :datetime
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  mode          :integer          default("append"), not null
 #
 class ImportHistory < ApplicationRecord
   belongs_to :user
@@ -32,5 +33,10 @@ class ImportHistory < ApplicationRecord
     processing: 1,
     completed: 2,
     failed: 3
+  }
+
+  enum mode: {
+    append: 0,
+    overwrite: 1
   }
 end
