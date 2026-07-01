@@ -87,6 +87,9 @@ RSpec.configure do |config|
   end
 
   config.around do |example|
+    # サービス側が独自にトランザクションをロールバックする例では、
+    # transaction 戦略だと savepoint が壊れ後続例に波及するため truncation を使う
+    DatabaseCleaner.strategy = example.metadata[:db_clean] || :transaction
     DatabaseCleaner.cleaning do
       example.run
     end
