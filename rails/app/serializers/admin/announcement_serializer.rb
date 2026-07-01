@@ -3,11 +3,9 @@
 module Admin
   class AnnouncementSerializer < ActiveModel::Serializer
     attributes :id, :title, :content, :status, :published_at, :scheduled_at,
-               :created_at, :publisher, :targets
+               :created_at, :targets
 
-    def publisher
-      { id: object.publisher_id, name: object.publisher&.name }
-    end
+    belongs_to :publisher, serializer: AnnouncementPublisherSerializer
 
     def targets
       high_school_id = instance_options[:high_school_id]

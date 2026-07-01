@@ -25,8 +25,10 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
       end
 
       let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:publisher)  { create(:user, :admin, high_school: nil, name: '配信者太郎') }
-      let!(:school)     { create(:high_school) }
+      let!(:publisher) do
+        create(:user, :admin, high_school: nil, name: '配信者太郎', name_kana: 'ハイシンシャタロウ')
+      end
+      let!(:school) { create(:high_school) }
       let!(:announcement) do
         ann = create(:announcement, publisher: publisher)
         create(:announcement_target, announcement: ann, target_type: :by_school, high_school_id: school.id)
@@ -57,6 +59,7 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         subject
         data = response.parsed_body['announcements'].first
         expect(data['publisher']['name']).to eq('配信者太郎')
+        expect(data['publisher']['name_kana']).to eq('ハイシンシャタロウ')
       end
 
       it 'targets が配列で返される' do
