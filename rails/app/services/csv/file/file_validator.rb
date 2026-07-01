@@ -28,7 +28,7 @@ module Csv
       end
 
       def valid_extension?
-        ALLOWED_EXTENSIONS.include?(File.extname(@file.original_filename).downcase)
+        ALLOWED_EXTENSIONS.include?(::File.extname(@file.original_filename).downcase)
       end
     end
   end
