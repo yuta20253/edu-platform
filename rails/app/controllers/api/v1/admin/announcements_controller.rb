@@ -11,7 +11,7 @@ module Api
                           .where(announcement_targets: { high_school_id: school.id })
                           .includes(:publisher, :announcement_targets)
                           .distinct
-                          .order(created_at: :desc)
+                          .order(created_at: :desc, id: :desc)
 
           render json: {
             announcements: ActiveModelSerializers::SerializableResource.new(

@@ -108,6 +108,16 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         ids = response.parsed_body['announcements'].pluck('id')
         expect(ids).to eq([newer.id, announcement.id])
       end
+
+      it 'created_at が同一の場合は id の降順で返される' do
+        same_time = announcement.created_at
+        newer = create(:announcement, publisher: publisher)
+        create(:announcement_target, announcement: newer, target_type: :by_school, high_school_id: school.id)
+        newer.update!(created_at: same_time)
+        subject
+        ids = response.parsed_body['announcements'].pluck('id')
+        expect(ids).to eq([newer.id, announcement.id])
+      end
     end
 
     context '異常系 - 未認証アクセス' do
