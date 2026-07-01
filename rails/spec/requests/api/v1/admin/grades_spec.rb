@@ -40,6 +40,16 @@ RSpec.describe 'Api::V1::Admin::Grades', type: :request do
         expect(response.parsed_body).to have_key('grades')
       end
 
+      it 'meta にページネーション情報が含まれる' do
+        subject
+        expect(response.parsed_body['meta']).to include(
+          'current_page' => 1,
+          'total_pages' => 1,
+          'total_count' => 2,
+          'per_page' => 20
+        )
+      end
+
       it '各学年に必要なフィールドが含まれる' do
         subject
         grade_data = response.parsed_body['grades'].first
