@@ -16,7 +16,8 @@ module Api
           render json: {
             announcements: ActiveModelSerializers::SerializableResource.new(
               announcements,
-              each_serializer: ::Admin::AnnouncementSerializer
+              each_serializer: ::Admin::AnnouncementSerializer,
+              high_school_id: school.id
             )
           }
         end

@@ -66,6 +66,16 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         expect(data['targets'].first['high_school_id']).to eq(school.id)
       end
 
+      it '他校をターゲットにした行は targets に含まれない' do
+        other_school = create(:high_school)
+        create(:announcement_target, announcement: announcement, target_type: :by_school,
+                                     high_school_id: other_school.id)
+        subject
+        data = response.parsed_body['announcements'].find { |a| a['id'] == announcement.id }
+        school_ids = data['targets'].pluck('high_school_id')
+        expect(school_ids).to all(eq(school.id))
+      end
+
       it 'status が文字列で返される' do
         subject
         data = response.parsed_body['announcements'].first

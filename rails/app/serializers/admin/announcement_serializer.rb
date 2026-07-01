@@ -10,7 +10,9 @@ module Admin
     end
 
     def targets
-      object.announcement_targets.map do |t|
+      high_school_id = instance_options[:high_school_id]
+
+      object.announcement_targets.select { |t| t.high_school_id == high_school_id }.map do |t|
         {
           id: t.id,
           target_type: t.target_type,
