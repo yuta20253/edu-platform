@@ -9,17 +9,12 @@ module Admin
 
     def targets
       high_school_id = instance_options[:high_school_id]
+      scoped_targets = object.announcement_targets.select { |t| t.high_school_id == high_school_id }
 
-      object.announcement_targets.select { |t| t.high_school_id == high_school_id }.map do |t|
-        {
-          id: t.id,
-          target_type: t.target_type,
-          high_school_id: t.high_school_id,
-          grade_id: t.grade_id,
-          user_role_id: t.user_role_id,
-          user_id: t.user_id
-        }
-      end
+      ActiveModelSerializers::SerializableResource.new(
+        scoped_targets,
+        each_serializer: AnnouncementTargetSerializer
+      )
     end
   end
 end
