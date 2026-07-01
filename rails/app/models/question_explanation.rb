@@ -16,4 +16,6 @@ class QuestionExplanation < ApplicationRecord
   belongs_to :question
 
   BASIC = '基本解説'
+
+  scope :active, -> { where(deleted_at: nil) }
 end

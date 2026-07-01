@@ -59,5 +59,27 @@ RSpec.describe Admin::QuestionCsvImportService do
         expect { described_class.new(form, unit.id).call }.not_to change(Question, :count)
       end
     end
+
+    context '同一内容のquestionが論理削除済みの場合' do
+      let!(:deleted_question) do
+        create(
+          :question,
+          unit: unit,
+          question_text: '1+1は？',
+          correct_answer: '2',
+          deleted_at: Time.current
+        )
+      end
+
+      it '論理削除済みを復活させず新しいquestionを作成する' do
+        expect { service_call }.to change(Question, :count).by(1)
+      end
+
+      it '論理削除済みquestionはdeleted_atのまま' do
+        service_call
+
+        expect(deleted_question.reload.deleted_at).to be_present
+      end
+    end
   end
 end
