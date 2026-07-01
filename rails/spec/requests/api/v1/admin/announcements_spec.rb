@@ -76,7 +76,7 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         other_school = create(:high_school)
         other_ann = create(:announcement, publisher: publisher)
         create(:announcement_target, announcement: other_ann, target_type: :by_school,
-                                      high_school_id: other_school.id)
+                                     high_school_id: other_school.id)
         subject
         ids = response.parsed_body['announcements'].pluck('id')
         expect(ids).to contain_exactly(announcement.id)
