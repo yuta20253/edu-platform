@@ -29,11 +29,14 @@ module Admin
       end
 
       @form.hints.each_with_index do |hint_text, index|
-        QuestionHint.active.find_or_create_by!(
+        # (question_id, step_number) は UNIQUE(deleted_at 非対象)。論理削除済みの
+        # 同キー行があると .active では拾えずINSERTが衝突するため、UNIQUEキーで
+        # 引き当てて内容更新＆復活させる。
+        hint = QuestionHint.find_or_initialize_by(
           question_id: question.id,
-          step_number: index + 1,
-          hint_text: hint_text
+          step_number: index + 1
         )
+        hint.update!(hint_text: hint_text, deleted_at: nil)
       end
     end
   end
