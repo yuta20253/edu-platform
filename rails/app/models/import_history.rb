@@ -35,8 +35,8 @@ class ImportHistory < ApplicationRecord
     failed: 3
   }
 
-  enum mode: {
+  enum :mode, {
     append: 0,
     overwrite: 1
-  }
+  }, validate: true
 end
