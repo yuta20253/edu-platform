@@ -44,13 +44,13 @@ module Admin
     # 回答履歴(question_histories)は保持し、FK制約を壊さない。
     def overwrite_existing_questions!
       now = Time.current
-      question_ids = Question.active.where(unit_id: @unit_id).pluck(:id)
-      return if question_ids.empty?
+      question_scope = Question.active.where(unit_id: @unit_id)
+      child_scope = { question_id: question_scope.select(:id) }
 
-      QuestionChoice.active.where(question_id: question_ids).update_all(deleted_at: now, updated_at: now)
-      QuestionHint.active.where(question_id: question_ids).update_all(deleted_at: now, updated_at: now)
-      QuestionExplanation.active.where(question_id: question_ids).update_all(deleted_at: now, updated_at: now)
-      Question.active.where(id: question_ids).update_all(deleted_at: now, updated_at: now)
+      QuestionChoice.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
+      QuestionHint.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
+      QuestionExplanation.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
+      question_scope.update_all(deleted_at: now, updated_at: now)
     end
 
     def process_row(row, line_number)
