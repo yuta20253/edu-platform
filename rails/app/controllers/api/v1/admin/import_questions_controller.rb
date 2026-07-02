@@ -8,6 +8,7 @@ module Api
         DEFAULT_MODE = 'append'
 
         def create
+          unit = find_unit!
           file = import_questions_csv_params[:file]
 
           Csv::File::FileValidator.new(file).call
@@ -15,7 +16,7 @@ module Api
           import_history = nil
           ActiveRecord::Base.transaction do
             import_history = current_user.import_histories.create!(
-              unit_id: import_questions_csv_params[:unit_id],
+              unit_id: unit.id,
               status: :processing,
               mode: import_mode,
               file_name: file.original_filename,
@@ -32,8 +33,17 @@ module Api
 
         private
 
+        # 破壊的な操作のため、対象単元は route の course/unit で厳密にスコープする。
+        # body の unit_id は信用しない（IDOR 防止）。
+        def find_unit!
+          unit = Unit.active.find_by(id: params[:unit_id], course_id: params[:course_id])
+          raise ActiveRecord::RecordNotFound.new(nil, Unit.name) if unit.nil?
+
+          unit
+        end
+
         def import_questions_csv_params
-          params.permit(:file, :unit_id, :mode)
+          params.permit(:file, :mode)
         end
 
         # 許可値以外・未指定は append にフォールバックし、既存動作を維持する

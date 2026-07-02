@@ -95,5 +95,50 @@ RSpec.describe 'Api::V1::Admin::ImportQuestions', type: :request do
         expect(response).to have_http_status(:unprocessable_content)
       end
     end
+
+    context 'unit が course に属さない場合' do
+      let(:mode) { 'append' }
+      let!(:other_course) { create(:course) }
+      let!(:unit)         { create(:unit, course: other_course) }
+
+      it 'ステータス404が返り ImportHistory は作成されない' do
+        expect { post_import }.not_to change(ImportHistory, :count)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '存在しない unit を指定した場合' do
+      subject(:post_import) do
+        post "/api/v1/admin/courses/#{course.id}/units/0/import_questions",
+             params: params,
+             headers: { 'Accept' => 'application/json', 'Cookie' => cookie }
+      end
+
+      let(:mode) { 'append' }
+
+      it 'ステータス404が返る' do
+        post_import
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'body の unit_id で別単元を差し替えようとした場合' do
+      let(:mode) { 'overwrite' }
+      let!(:victim_course) { create(:course) }
+      let!(:victim_unit)   { create(:unit, course: victim_course) }
+      let!(:victim_question) { create(:question, unit: victim_unit) }
+      let(:params) { { file: file, mode: mode, unit_id: victim_unit.id } }
+
+      it 'route の unit が使われ body の unit_id は無視される' do
+        post_import
+        expect(response).to have_http_status(:accepted)
+        expect(ImportHistory.last.unit_id).to eq(unit.id)
+      end
+
+      it '別単元(victim)の問題は削除されない' do
+        perform_enqueued_jobs { post_import }
+        expect(victim_question.reload.deleted_at).to be_nil
+      end
+    end
   end
 end
