@@ -4,7 +4,6 @@ module Api
   module V1
     module Admin
       class ImportQuestionsController < Api::V1::Admin::BaseController
-        MODES = %w[append overwrite].freeze
         DEFAULT_MODE = 'append'
 
         def create
@@ -46,10 +45,10 @@ module Api
           params.permit(:file, :mode)
         end
 
-        # 許可値以外・未指定は append にフォールバックし、既存動作を維持する
+        # 許可値(enumのキー)以外・未指定は append にフォールバックし、既存動作を維持する
         def import_mode
           mode = import_questions_csv_params[:mode]
-          MODES.include?(mode) ? mode : DEFAULT_MODE
+          ImportHistory.modes.key?(mode) ? mode : DEFAULT_MODE
         end
       end
     end
