@@ -47,10 +47,10 @@ module Admin
       question_ids = Question.active.where(unit_id: @unit_id).pluck(:id)
       return if question_ids.empty?
 
-      QuestionChoice.active.where(question_id: question_ids).update_all(deleted_at: now)
-      QuestionHint.active.where(question_id: question_ids).update_all(deleted_at: now)
-      QuestionExplanation.active.where(question_id: question_ids).update_all(deleted_at: now)
-      Question.active.where(id: question_ids).update_all(deleted_at: now)
+      QuestionChoice.active.where(question_id: question_ids).update_all(deleted_at: now, updated_at: now)
+      QuestionHint.active.where(question_id: question_ids).update_all(deleted_at: now, updated_at: now)
+      QuestionExplanation.active.where(question_id: question_ids).update_all(deleted_at: now, updated_at: now)
+      Question.active.where(id: question_ids).update_all(deleted_at: now, updated_at: now)
     end
 
     def process_row(row, line_number)

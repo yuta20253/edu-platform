@@ -155,6 +155,16 @@ RSpec.describe Admin::QuestionCsvBatchImportService, type: :service do
           expect(existing_question.reload.deleted_at).to be_present
         end
 
+        it '論理削除時にupdated_atも更新される' do
+          existing_question.update_columns(updated_at: 1.day.ago)
+          existing_choice.update_columns(updated_at: 1.day.ago)
+
+          described_class.new(import_history).call
+
+          expect(existing_question.reload.updated_at).to be > 1.hour.ago
+          expect(existing_choice.reload.updated_at).to be > 1.hour.ago
+        end
+
         it '回答履歴(question_histories)は破壊されない' do
           expect { described_class.new(import_history).call }.not_to(change(QuestionHistory, :count))
         end
