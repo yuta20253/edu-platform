@@ -7,8 +7,7 @@ module Api
         def show
           unit = Unit.includes(course: :subject,
                                questions: %i[question_choices question_hints question_explanations])
-                     .find_by(id: params[:id], course_id: params[:course_id])
-          raise ActiveRecord::RecordNotFound.new(nil, Unit.name) if unit.nil?
+                     .find_by!(id: params[:id], course_id: params[:course_id])
 
           render json: unit, serializer: ::Admin::UnitDetailSerializer
         end
