@@ -25,8 +25,10 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { importStatusLabel } from "@/constants/import_status";
+import type { ImportStatus } from "@/types/common/import_history";
 import Link from "next/link";
-import type { ImportStatus, AdminUnitDetail } from "./types";
+import type { AdminUnitDetail } from "./types";
 
 // 取込日時は実行環境のTZに依存せず日本時間(JST)で表示する
 const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
@@ -39,13 +41,6 @@ const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
 type Props = {
   unit: AdminUnitDetail;
   courseId: number;
-};
-
-const IMPORT_STATUS_LABEL: Record<ImportStatus, string> = {
-  pending: "待機中",
-  processing: "処理中",
-  completed: "完了",
-  failed: "失敗",
 };
 
 const IMPORT_STATUS_COLOR: Record<
@@ -357,7 +352,7 @@ export const Presenter = ({ unit, courseId }: Props) => {
                       <TableCell>{history.file_name}</TableCell>
                       <TableCell>
                         <Chip
-                          label={IMPORT_STATUS_LABEL[history.status]}
+                          label={importStatusLabel[history.status]}
                           size="small"
                           color={IMPORT_STATUS_COLOR[history.status]}
                           variant="outlined"

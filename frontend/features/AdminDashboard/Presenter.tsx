@@ -22,7 +22,9 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
-import type { AdminDashboardData, ImportStatus } from "./types";
+import { importStatusLabel } from "@/constants/import_status";
+import type { ImportStatus } from "@/types/common/import_history";
+import type { AdminDashboardData } from "./types";
 
 type Props = {
   data: AdminDashboardData;
@@ -55,11 +57,12 @@ const kpiCards = (stats: AdminDashboardData["stats"]) => [
   },
 ];
 
-const statusConfig: Record<ImportStatus, { label: string; color: string }> = {
-  completed: { label: "完了", color: colors.status.success },
-  failed: { label: "失敗", color: colors.status.error },
-  processing: { label: "処理中", color: colors.status.info },
-  pending: { label: "待機中", color: colors.status.pending },
+// 色はダッシュボード固有の表現。ラベルは共通の importStatusLabel を使う。
+const statusColor: Record<ImportStatus, string> = {
+  completed: colors.status.success,
+  failed: colors.status.error,
+  processing: colors.status.info,
+  pending: colors.status.pending,
 };
 
 export const Presenter = ({ data }: Props) => {
@@ -157,10 +160,10 @@ export const Presenter = ({ data }: Props) => {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={statusConfig[item.status].label}
+                          label={importStatusLabel[item.status]}
                           size="small"
                           sx={{
-                            bgcolor: statusConfig[item.status].color,
+                            bgcolor: statusColor[item.status],
                             color: colors.text.inverse,
                             fontWeight: 600,
                             fontSize: "0.7rem",
