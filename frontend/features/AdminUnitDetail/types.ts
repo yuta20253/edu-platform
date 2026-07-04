@@ -1,4 +1,5 @@
 import type { ImportHistory } from "@/types/common/import_history";
+import type { Subject } from "@/types/common/subject";
 
 export type QuestionChoice = {
   id: number;
@@ -29,7 +30,7 @@ export type UnitQuestion = {
 
 export type UnitCourse = {
   id: number;
-  subject: { id: number; name: string } | null;
+  subject: Subject | null;
   level_name: string;
   level_number: number;
 };
