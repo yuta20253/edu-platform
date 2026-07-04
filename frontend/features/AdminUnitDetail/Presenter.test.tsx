@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Presenter } from "../Presenter";
-import type { AdminUnitDetail } from "../types";
+import { Presenter } from "./Presenter";
+import type { AdminUnitDetail } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
