@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import type { AdminUnitDetail } from "../types";
 
 export const useFetchUnitDetail = (courseId: number, unitId: number) => {
@@ -32,7 +33,7 @@ export const useFetchUnitDetail = (courseId: number, unitId: number) => {
       })
       .catch((err) => {
         if (axios.isCancel(err)) return;
-        if (err.response?.status === 401) {
+        if (extractApiError(err).status === 401) {
           router.push("/login");
           return;
         }
