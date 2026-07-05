@@ -25,8 +25,11 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
       end
 
       let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:course)     { create(:course) }
-      let!(:unit)       { create(:unit, course: course, unit_name: '単元A') }
+      let!(:subject_record) { create(:subject, name: '国語') }
+      let!(:course) do
+        create(:course, subject: subject_record, level_name: '標準', level_number: 2)
+      end
+      let!(:unit) { create(:unit, course: course, unit_name: '単元A') }
 
       let(:cookie) { login_and_get_cookie(admin_user) }
 
@@ -38,8 +41,27 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
       it '基本フィールドが含まれる' do
         subject
         expect(response.parsed_body.keys).to include(
-          'id', 'course_id', 'unit_name', 'questions', 'recent_import_histories'
+          'id', 'course_id', 'unit_name', 'course', 'questions', 'recent_import_histories'
         )
+      end
+
+      it 'course に id / subject / level_name / level_number が含まれる' do
+        subject
+        course_body = response.parsed_body['course']
+        expect(course_body['id']).to eq(course.id)
+        expect(course_body['subject']).to eq('id' => subject_record.id, 'name' => '国語')
+        expect(course_body['level_name']).to eq('標準')
+        expect(course_body['level_number']).to eq(2)
+      end
+
+      context 'course.subject が nil の場合' do
+        before { course.update_column(:subject_id, nil) }
+
+        it '500にならず subject は nil で返る' do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body['course']['subject']).to be_nil
+        end
       end
 
       it 'id / course_id / unit_name が正しい' do

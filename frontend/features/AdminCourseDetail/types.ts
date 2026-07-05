@@ -1,7 +1,4 @@
-export type Subject = {
-  id: number;
-  name: string;
-};
+import type { Subject } from "@/types/common/subject";
 
 export type CourseUnit = {
   id: number;

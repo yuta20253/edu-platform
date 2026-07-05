@@ -62,6 +62,12 @@ describe("AdminCourseDetailPresenter", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("単元名が単元詳細へのリンクになっている", () => {
+    render(<Presenter course={mockCourse} />);
+    const link = screen.getByRole("link", { name: "二次関数" });
+    expect(link).toHaveAttribute("href", "/admin/courses/7/units/11");
+  });
+
   it("各単元行のCSVボタンが正しい href を持つ", () => {
     render(<Presenter course={mockCourse} />);
     const row = screen.getByText("二次関数").closest("tr");
