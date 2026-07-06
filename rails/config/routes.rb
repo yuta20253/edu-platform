@@ -58,6 +58,8 @@ Rails.application.routes.draw do
         resources :addresses, only: :index
         resources :high_schools, only: [:index, :show] do
           resources :teachers, only: [:index, :create, :update]
+          resources :grades, only: :index
+          resources :announcements, only: :index
         end
         resources :courses do
           resources :units do
