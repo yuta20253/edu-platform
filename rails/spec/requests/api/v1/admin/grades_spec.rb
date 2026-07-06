@@ -40,14 +40,14 @@ RSpec.describe 'Api::V1::Admin::Grades', type: :request do
         expect(response.parsed_body).to have_key('grades')
       end
 
-      it 'meta にページネーション情報が含まれる' do
+      it 'meta は含まれない' do
         subject
-        expect(response.parsed_body['meta']).to include(
-          'current_page' => 1,
-          'total_pages' => 1,
-          'total_count' => 2,
-          'per_page' => 20
-        )
+        expect(response.parsed_body).not_to have_key('meta')
+      end
+
+      it '全件が返される' do
+        subject
+        expect(response.parsed_body['grades'].size).to eq(2)
       end
 
       it '各学年に必要なフィールドが含まれる' do
