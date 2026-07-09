@@ -5,7 +5,7 @@ class AuthMailer < Devise::Mailer
   layout 'mailer'
 
   def send_email(user, token)
-    url = "#{ENV.fetch('FRONTEND_URL', nil)}/password/reset/#{token}?email=#{user.email}"
+    url = "#{ENV.fetch('FRONTEND_URL', nil)}/password/reset/#{token}"
 
     mail(to: user.email, subject: 'パスワード再設定のご案内', body: "パスワード再設定はこちらのリンクからお願いします： #{url}")
   end
