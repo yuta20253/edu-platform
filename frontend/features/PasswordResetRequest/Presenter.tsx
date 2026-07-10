@@ -58,9 +58,7 @@ export const Presenter = ({
             </Box>
 
             <Box sx={{ mt: 3 }}>
-                <Link href="/login">
-                    ログインに戻る
-                </Link>
+              <Link href="/login">ログインに戻る</Link>
             </Box>
           </>
         ) : (
