@@ -15,7 +15,7 @@ export const useSubmit = ({ setSent, setErrorMessage }: Props) => {
 
     try {
       await apiClient.post("/api/auth/password-reset-request", {
-        data,
+        email: data.email,
       });
 
       setSent(true);
