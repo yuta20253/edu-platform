@@ -57,9 +57,11 @@ export const Presenter = ({
               </Typography>
             </Box>
 
-            <PrimaryCta component={Link} href="/login">
-              ログイン画面へ
-            </PrimaryCta>
+            <Box sx={{ mt: 3 }}>
+                <Link href="/login">
+                    ログインに戻る
+                </Link>
+            </Box>
           </>
         ) : (
           <>
