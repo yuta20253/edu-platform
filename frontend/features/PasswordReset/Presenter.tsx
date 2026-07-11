@@ -4,6 +4,8 @@ import {
   Alert,
   Box,
   CircularProgress,
+  IconButton,
+  InputAdornment,
   TextField,
   Typography,
 } from "@mui/material";
@@ -12,6 +14,8 @@ import { FieldErrors, UseFormRegister } from "react-hook-form";
 
 import { PrimaryCta } from "@/components/PrimaryCta";
 import { NewPasswordForm } from "./types";
+import { Dispatch, SetStateAction } from "react";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 type Props = {
   verifying: boolean;
@@ -21,6 +25,10 @@ type Props = {
   errorMessage: string;
   password?: string;
   onSubmit: () => void;
+  showPassword: boolean;
+  showConfirmPassword: boolean;
+  toggeleShowPassword: Dispatch<SetStateAction<boolean>>;
+  toggeleShowConfirmPassword: Dispatch<SetStateAction<boolean>>;
 };
 
 export const Presenter = ({
@@ -31,6 +39,10 @@ export const Presenter = ({
   errorMessage,
   password,
   onSubmit,
+  showPassword,
+  showConfirmPassword,
+  toggeleShowPassword,
+  toggeleShowConfirmPassword
 }: Props) => {
   if (verifying) {
     return (
@@ -128,7 +140,7 @@ export const Presenter = ({
 
                 <TextField
                   fullWidth
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   {...register("password", {
                     required: "パスワードを入力してください",
                     minLength: {
@@ -136,6 +148,21 @@ export const Presenter = ({
                       message: "8文字以上で入力してください",
                     },
                   })}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => toggeleShowPassword((prev) => !prev)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                 />
@@ -148,12 +175,27 @@ export const Presenter = ({
 
                 <TextField
                   fullWidth
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   {...register("password_confirmation", {
                     required: "確認用パスワードを入力してください",
                     validate: (value) =>
                       value === password || "パスワードが一致しません",
                   })}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => toggeleShowConfirmPassword((prev) => !prev)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
                   error={!!errors.password_confirmation}
                   helperText={errors.password_confirmation?.message}
                 />
