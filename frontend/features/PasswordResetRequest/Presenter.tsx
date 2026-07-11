@@ -57,7 +57,7 @@ export const Presenter = ({
               </Typography>
             </Box>
 
-            <Box sx={{ mt: 3 }}>
+            <Box sx={{ textAlign: "center", mt: 3 }}>
               <Link href="/login">ログインに戻る</Link>
             </Box>
           </>
