@@ -4,7 +4,6 @@ module Api
   module V1
     class PasswordResetsController < ApplicationController
       skip_before_action :authenticate_user!, only: %i[create update verify]
-      wrap_parameters false
       def create
         user = User.find_by(email: params[:email])
         Auth::ResetPasswordService.new(user).call
