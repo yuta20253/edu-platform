@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/libs/http/apiClient";
 
-export type NewPasswordForm = {
-  password: string;
-  password_confirmation: string;
-};
-
 type VerifyState = {
   verifying: boolean;
   tokenValid: boolean;
