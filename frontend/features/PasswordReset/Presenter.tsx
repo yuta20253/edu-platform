@@ -42,7 +42,7 @@ export const Presenter = ({
   showPassword,
   showConfirmPassword,
   toggeleShowPassword,
-  toggeleShowConfirmPassword
+  toggeleShowConfirmPassword,
 }: Props) => {
   if (verifying) {
     return (
@@ -148,21 +148,21 @@ export const Presenter = ({
                       message: "8文字以上で入力してください",
                     },
                   })}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => toggeleShowPassword((prev) => !prev)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={() => toggeleShowPassword((prev) => !prev)}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                 />
@@ -181,21 +181,23 @@ export const Presenter = ({
                     validate: (value) =>
                       value === password || "パスワードが一致しません",
                   })}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => toggeleShowConfirmPassword((prev) => !prev)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={() =>
+                              toggeleShowConfirmPassword((prev) => !prev)
+                            }
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                   error={!!errors.password_confirmation}
                   helperText={errors.password_confirmation?.message}
                 />

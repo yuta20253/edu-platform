@@ -15,7 +15,8 @@ export const PasswordReset = ({ token }: Props): React.JSX.Element => {
   const { verifying, tokenValid } = useVerifyToken(token);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const {
     register,
     handleSubmit,
