@@ -13,7 +13,7 @@ import Link from "next/link";
 export const Footer = (): React.JSX.Element => {
   const theme = useTheme();
   const pathName = usePathname();
-  const hidden = pathName === "/login" || pathName.endsWith("/signup");
+  const hidden = pathName === "/login" || pathName.endsWith("/signup") || pathName.startsWith("/password/reset");
   const isAdmin = pathName.startsWith("/admin");
 
   const icons = [
