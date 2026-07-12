@@ -4,6 +4,8 @@ module Api
   module V1
     module Teacher
       class PermissionsController < Api::V1::Teacher::BaseController
+        before_action :set_teacher, only: %i[show update]
+
         def index
           teachers = teachers_query.order(:name_kana).page(params[:page]).per(20)
 
@@ -24,15 +26,46 @@ module Api
         end
 
         def show
-          teacher = teachers_query.find(params[:id])
-          render json: teacher, serializer: ::Teacher::TeacherPermissionManagementSerializer
+          render json: @teacher, serializer: ::Teacher::TeacherPermissionManagementSerializer
+        end
+
+        def update
+          return render_update_error('最後の教員は更新できません') if only_active_teacher?(@teacher)
+          return render_update_error('自分自身は更新できません') if @teacher == current_user
+
+          form = ::Teacher::UpdatePermissionForm.new(
+            target: @teacher,
+            **update_permission_params.to_h.symbolize_keys
+          )
+
+          if form.save
+            render json: { message: '権限更新に成功しました' }, status: :ok
+          else
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+          end
         end
 
         private
 
+        def set_teacher
+          @teacher = teachers_query.active.find(params[:id])
+        end
+
+        def update_permission_params
+          params.require(:teacher_permission).permit(:grade_scope, :manage_other_teachers)
+        end
+
         def teachers_query
           query = ::Teacher::TeachersQuery.new(current_user.high_school.users).colleagues_for_permissions
           query.result
+        end
+
+        def only_active_teacher?(target)
+          !teachers_query.active.where.not(id: target.id).exists?
+        end
+
+        def render_update_error(message)
+          render json: { errors: [message] }, status: :unprocessable_content
         end
       end
     end
