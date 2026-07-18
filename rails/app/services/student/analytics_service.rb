@@ -33,9 +33,6 @@ module Student
     end
 
     def task_completion
-      total_count = @user.tasks.count
-      completed_count = @user.tasks.completed.count
-
       {
         completed_count: completed_count,
         total_count: total_count,
@@ -48,10 +45,7 @@ module Student
     end
 
     def grade_average
-      {
-        my_score: my_score,
-        grade_average: grade_average
-      }
+      build_grade_average
     end
 
     def course_rank
@@ -92,14 +86,13 @@ module Student
             subject_name: subject.name,
             courses: course_histories.map do |course, course_histories|
               unit_histories = course_histories.group_by(&:unit)
-
               {
                 level_name: course.level_name,
                 level_number: course.level_number,
                 units: unit_histories.map do |unit, unit_histories|
                   {
                     unit_name: unit.unit_name,
-                    score: calculate_score(unit_histories)
+                    score: calculate_correct_rate(unit_histories)
                   }
                 end
               }
@@ -109,12 +102,67 @@ module Student
       }
     end
 
-    def calculate_score(histories)
+    # メモ:
+    # 引数には @user.question_histories のような Association と、
+    # QuestionHistory.where(...) のような ActiveRecord::Relation の両方が渡される。
+    # Association では Enumerable#count(&:is_correct) が使えるため共通メソッドとしている。
+    def calculate_correct_rate(histories)
       total_count = histories.size
       return 0 if total_count.zero?
 
       correct_count = histories.count(&:is_correct)
+
       (correct_count.to_f / total_count * 100).round(1)
+    end
+
+    def build_grade_average
+      {
+        correct_rate: {
+          my: calculate_correct_rate(@user.question_histories),
+          average: average_correct_rate
+        },
+        task_completion_rate: {
+          my: calculate_completion_rate(completed_count, total_count),
+          average: average_task_completion_rate
+        }
+      }
+    end
+
+    # メモ:
+    # 学年全体の集計は DB 上で集計した方が効率的。
+    # calculate_correct_rate は Association を前提としているため、
+    # ここでは SQL の count を利用して正答率を算出している。
+    def average_correct_rate
+      return 0 if grade_users.empty?
+
+      histories = QuestionHistory.where(user_id: grade_users.select(:id))
+
+      total_count = histories.count
+      return 0 if total_count.zero?
+
+      correct_count = histories.where(is_correct: true).count
+
+      (correct_count.to_f / total_count * 100).round(1)
+    end
+
+    def average_task_completion_rate
+      return 0 if grade_users.empty?
+
+      tasks = Task.where(user_id: grade_users.select(:id))
+
+      calculate_completion_rate(tasks.completed.count, tasks.count)
+    end
+
+    def completed_count
+      @completed_count ||= @user.tasks.completed.count
+    end
+
+    def total_count
+      @total_count ||= @user.tasks.count
+    end
+
+    def grade_users
+      @grade_users ||= User.joins(:grade).where(grades: { year: @user.grade.year })
     end
   end
 end
