@@ -27,8 +27,6 @@ module Student
         course_rank
       when 'unit_rank'
         unit_rank
-      when 'correct_rate_rank'
-        correct_rate_rank
       else
         raise ArgumentError, "指定された分析タイプ（#{@type}）は存在しません。"
       end
@@ -56,12 +54,6 @@ module Student
 
     def unit_rank
       build_unit_rank
-    end
-
-    def correct_rate_rank
-      {
-        rankings: rankings
-      }
     end
 
     def calculate_completion_rate(completed_count, total_count)
