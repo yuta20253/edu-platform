@@ -5,7 +5,11 @@ module Api
     module Student
       class AnalyticsController < Api::V1::Student::BaseController
         def index
-          data = ::Student::AnalyticsService.new(user: current_user, type: analytics_type_params).call
+          data = ::Student::AnalyticsService.new(
+            user: current_user,
+            type: analytics_type_params,
+            course_id: params[:course_id],
+          ).call
           render json: data, status: :ok
         end
 

@@ -2,9 +2,10 @@
 
 module Student
   class AnalyticsService
-    def initialize(user, type)
+    def initialize(user, type, course_id: nil)
       @user = user
       @type = type
+      @course_id = course_id
     end
 
     def call
@@ -49,10 +50,7 @@ module Student
     end
 
     def course_rank
-      {
-        rank: rank,
-        total_users: total_users
-      }
+      build_course_rank
     end
 
     def unit_rank
@@ -151,6 +149,38 @@ module Student
       tasks = Task.where(user_id: grade_users.select(:id))
 
       calculate_completion_rate(tasks.completed.count, tasks.count)
+    end
+
+    def build_course_rank
+      histories = QuestionHistory
+                  .where(course_id: @course_id)
+                  .group(:user_id)
+                  .select(
+                    :user_id,
+                    'COUNT(*) AS total_count',
+                    'SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) AS correct_count'
+                  )
+
+      rankings = histories.map do |history|
+        {
+          user_id: history.user_id,
+          correct_rate: calculate_correct_rate_from_counts(history.correct_count, history.total_count)
+        }
+      end
+
+      rankings.sort_by! { |ranking| -ranking[:correct_rate] }
+      my_rank = rankings.index { |ranking| ranking[:user_id] == @user.id }
+
+      {
+        rank: my_rank ? my_rank + 1 : nil,
+        total_users: rankings.size
+      }
+    end
+
+    def calculate_correct_rate_from_counts(correct_count, total_count)
+      return 0 if total_count.zero?
+
+      (correct_count.to_f / total_count * 100).round(1)
     end
 
     def completed_count
