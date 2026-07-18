@@ -2,10 +2,11 @@
 
 module Student
   class AnalyticsService
-    def initialize(user, type, course_id: nil)
+    def initialize(user, type, course_id: nil, unit_id: nil)
       @user = user
       @type = type
       @course_id = course_id
+      @unit_id = unit_id
     end
 
     def call
@@ -54,10 +55,7 @@ module Student
     end
 
     def unit_rank
-      {
-        rank: rank,
-        total_users: total_users
-      }
+      build_unit_rank
     end
 
     def correct_rate_rank
@@ -152,8 +150,16 @@ module Student
     end
 
     def build_course_rank
+      build_rank(:course_id, @course_id)
+    end
+
+    def build_unit_rank
+      build_rank(:unit_id, @unit_id)
+    end
+
+    def build_rank(column_name, id)
       histories = QuestionHistory
-                  .where(course_id: @course_id)
+                  .where(column_name => id)
                   .group(:user_id)
                   .select(
                     :user_id,
@@ -169,6 +175,7 @@ module Student
       end
 
       rankings.sort_by! { |ranking| -ranking[:correct_rate] }
+
       my_rank = rankings.index { |ranking| ranking[:user_id] == @user.id }
 
       {

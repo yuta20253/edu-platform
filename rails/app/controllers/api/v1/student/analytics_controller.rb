@@ -9,6 +9,7 @@ module Api
             user: current_user,
             type: analytics_type_params,
             course_id: params[:course_id],
+            unit_id: params[:unit_id]
           ).call
           render json: data, status: :ok
         end
