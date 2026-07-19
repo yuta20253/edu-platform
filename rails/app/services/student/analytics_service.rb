@@ -9,11 +9,11 @@ module Student
       @unit_id = unit_id
     end
 
-    delegate :call, to: :analyzer
+    delegate :call, to: :analytics
 
     private
 
-    def analyzer
+    def analytics
       case @type.presence || 'task_completion'
       when 'task_completion'
         Student::Analytics::TaskCompletion.call(@user)
