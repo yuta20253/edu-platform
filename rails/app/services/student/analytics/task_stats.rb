@@ -3,10 +3,6 @@
 module Student
   module Analytics
     class TaskStats
-      def self.call(user)
-        new(user)
-      end
-
       def initialize(user)
         @user = user
       end

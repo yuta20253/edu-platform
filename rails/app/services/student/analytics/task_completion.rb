@@ -3,16 +3,12 @@
 module Student
   module Analytics
     class TaskCompletion
-      def self.call(user)
-        new(user).call
-      end
-
       def initialize(user)
         @user = user
       end
 
       def call
-        task_stats = TaskStats.call(@user)
+        task_stats = TaskStats.new(@user)
 
         completed_count = task_stats.completed_count
         total_count = task_stats.total_count

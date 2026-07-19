@@ -3,10 +3,6 @@
 module Student
   module Analytics
     class GradeAverage
-      def self.call(user)
-        new(user).call
-      end
-
       def initialize(user)
         @user = user
       end
@@ -18,7 +14,7 @@ module Student
       private
 
       def build_grade_average
-        task_stats = TaskStats.call(@user)
+        task_stats = TaskStats.new(@user)
 
         completed_count = task_stats.completed_count
         total_count = task_stats.total_count

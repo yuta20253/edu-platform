@@ -3,10 +3,6 @@
 module Student
   module Analytics
     class UnderstandingScore
-      def self.call(user)
-        new(user).call
-      end
-
       def initialize(user)
         @user = user
       end

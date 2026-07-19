@@ -3,10 +3,6 @@
 module Student
   module Analytics
     class Rank
-      def self.call(user, column_name, id)
-        new(user, column_name, id).call
-      end
-
       def initialize(user, column_name, id)
         @user = user
         @column_name = column_name
