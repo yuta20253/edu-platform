@@ -2,7 +2,7 @@
 
 module Student
   class AnalyticsService
-    def initialize(user, type, course_id: nil, unit_id: nil)
+    def initialize(user:, type:, course_id: nil, unit_id: nil)
       @user = user
       @type = type
       @course_id = course_id
