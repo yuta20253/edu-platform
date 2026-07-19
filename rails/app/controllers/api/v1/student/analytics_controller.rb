@@ -7,7 +7,7 @@ module Api
         def index
           analytics = ::Student::AnalyticsService.new(
             user: current_user,
-            type: analytics_type_params,
+            type: analytics_type,
             course_id: params[:course_id],
             unit_id: params[:unit_id]
           ).call
@@ -16,8 +16,8 @@ module Api
 
         private
 
-        def analytics_type_params
-          params.require(:analytics).permit(:type)
+        def analytics_type
+          params.require(:analytics).permit(:type)[:type]
         end
       end
     end
