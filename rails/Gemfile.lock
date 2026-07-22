@@ -95,6 +95,8 @@ GEM
     bigdecimal (3.2.2)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
+    brakeman (8.0.5)
+      racc
     builder (3.3.0)
     bullet (8.1.0)
       activesupport (>= 3.0.0)
@@ -403,6 +405,7 @@ DEPENDENCIES
   active_model_serializers
   annotate
   bootsnap
+  brakeman
   bullet
   csv
   database_cleaner-active_record

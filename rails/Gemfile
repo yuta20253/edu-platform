@@ -55,6 +55,8 @@ group :development, :test do
   # N+1の検知
   gem 'bullet'
 
+  gem 'brakeman', require: false
+
   gem 'debug', platforms: %i[mri windows]
   gem 'factory_bot_rails'
   gem 'faker'
