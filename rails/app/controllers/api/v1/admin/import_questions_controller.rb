@@ -34,11 +34,14 @@ module Api
 
         # 破壊的な操作のため、対象単元は route の course/unit で厳密にスコープする。
         # body の unit_id は信用しない（IDOR 防止）。
+        # 見つからなければ find が RecordNotFound を raise し、application_controller の
+        # not_found ハンドラに委譲する。
         def find_unit!
-          unit = Unit.active.find_by(id: params[:unit_id], course_id: params[:course_id])
-          raise ActiveRecord::RecordNotFound.new(nil, Unit.name) if unit.nil?
-
-          unit
+          Course
+            .find(params[:course_id])
+            .units
+            .active
+            .find(params[:unit_id])
         end
 
         def import_questions_csv_params
