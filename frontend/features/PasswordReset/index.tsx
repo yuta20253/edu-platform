@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Presenter } from "./Presenter";
 import { useVerifyToken } from "./hooks/useVerifyToken";
 import { NewPasswordForm } from "./types";
-import { useSubmit } from "../PasswordReset/hooks/useSubmit";
+import { useSubmit } from "./hooks/useSubmit";
 
 type Props = {
   token: string;
