@@ -8,13 +8,16 @@ import { apiClient } from "@/libs/http/apiClient";
 type SubmitProps = {
   token: string;
   setErrorMessage: (m: string) => void;
+  setIsSubmitting: (b: boolean) => void;
 };
 
-export const useSubmit = ({ token, setErrorMessage }: SubmitProps) => {
+export const useSubmit = ({ token, setErrorMessage, setIsSubmitting }: SubmitProps) => {
   const router = useRouter();
 
   const onSubmit: SubmitHandler<NewPasswordForm> = async (data) => {
     setErrorMessage("");
+    setIsSubmitting(true);
+
     try {
       await updatePassword(token, data);
       router.push("/login?reset=done");
@@ -23,6 +26,8 @@ export const useSubmit = ({ token, setErrorMessage }: SubmitProps) => {
       setErrorMessage(
         "パスワードの更新に失敗しました。リンクの有効期限が切れている可能性があります。",
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

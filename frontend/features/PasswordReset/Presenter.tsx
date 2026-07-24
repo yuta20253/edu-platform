@@ -27,6 +27,7 @@ type Props = {
   onSubmit: () => void;
   showPassword: boolean;
   showConfirmPassword: boolean;
+  isSubmitting: boolean;
   toggeleShowPassword: Dispatch<SetStateAction<boolean>>;
   toggeleShowConfirmPassword: Dispatch<SetStateAction<boolean>>;
 };
@@ -41,6 +42,7 @@ export const Presenter = ({
   onSubmit,
   showPassword,
   showConfirmPassword,
+  isSubmitting,
   toggeleShowPassword,
   toggeleShowConfirmPassword,
 }: Props) => {
@@ -203,7 +205,7 @@ export const Presenter = ({
                 />
               </Box>
 
-              <PrimaryCta type="submit">パスワードを更新する</PrimaryCta>
+              <PrimaryCta type="submit" disabled={isSubmitting}>パスワードを更新する</PrimaryCta>
 
               <Box sx={{ textAlign: "center", mt: 3 }}>
                 <Link href="/login">ログインへ戻る</Link>

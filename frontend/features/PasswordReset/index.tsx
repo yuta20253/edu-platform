@@ -17,13 +17,14 @@ export const PasswordReset = ({ token }: Props): React.JSX.Element => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<NewPasswordForm>();
-  const { onSubmit } = useSubmit({ token, setErrorMessage });
+  const { onSubmit } = useSubmit({ token, setErrorMessage, setIsSubmitting });
 
   return (
     <Presenter
@@ -36,6 +37,7 @@ export const PasswordReset = ({ token }: Props): React.JSX.Element => {
       onSubmit={handleSubmit(onSubmit)}
       showPassword={showPassword}
       showConfirmPassword={showConfirmPassword}
+      isSubmitting={isSubmitting}
       toggeleShowPassword={setShowPassword}
       toggeleShowConfirmPassword={setShowConfirmPassword}
     />
