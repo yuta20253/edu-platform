@@ -17,6 +17,8 @@ module Student
 
       def build_rank
         histories = QuestionHistory
+                    .joins(:user)
+                    .merge(User.active)
                     .where(@column_name => @id)
                     .group(:user_id)
                     .select(
