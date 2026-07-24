@@ -194,7 +194,11 @@ export const Presenter = ({
                             }
                             edge="end"
                           >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -205,7 +209,9 @@ export const Presenter = ({
                 />
               </Box>
 
-              <PrimaryCta type="submit" disabled={isSubmitting}>パスワードを更新する</PrimaryCta>
+              <PrimaryCta type="submit" disabled={isSubmitting}>
+                パスワードを更新する
+              </PrimaryCta>
 
               <Box sx={{ textAlign: "center", mt: 3 }}>
                 <Link href="/login">ログインへ戻る</Link>

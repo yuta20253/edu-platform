@@ -11,7 +11,11 @@ type SubmitProps = {
   setIsSubmitting: (b: boolean) => void;
 };
 
-export const useSubmit = ({ token, setErrorMessage, setIsSubmitting }: SubmitProps) => {
+export const useSubmit = ({
+  token,
+  setErrorMessage,
+  setIsSubmitting,
+}: SubmitProps) => {
   const router = useRouter();
 
   const onSubmit: SubmitHandler<NewPasswordForm> = async (data) => {
