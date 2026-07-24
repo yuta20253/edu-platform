@@ -40,12 +40,9 @@ export const useVerifyToken = (token: string): VerifyState => {
 };
 
 const verifyResetToken = async (token: string) => {
-  console.log("verify start", token);
   const res = await apiClient.post("/api/auth/password-verify", {
     reset_password_token: token,
   });
-
-  console.log(res);
 
   return res;
 };
