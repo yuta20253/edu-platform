@@ -24,10 +24,8 @@ module Api
       end
 
       def verify
-        Rails.logger.debug params.inspect
         user = User.with_reset_password_token(params[:reset_password_token])
 
-        Rails.logger.debug user.inspect
         return render_user_not_found unless user
         return render_expired_token unless user.reset_password_period_valid?
 
