@@ -16,6 +16,8 @@ module Admin
 
       begin
         ActiveRecord::Base.transaction do
+          overwrite_existing_questions! if @import_history.overwrite?
+
           @file.open do |template|
             CSV.foreach(template.path, headers: true, encoding: 'bom|utf-8').with_index(2) do |row, line_number|
               @total_count += 1
@@ -37,6 +39,19 @@ module Admin
     end
 
     private
+
+    # overwriteモード: 単元内の既存問題と子レコードを論理削除する。
+    # 回答履歴(question_histories)は保持し、FK制約を壊さない。
+    def overwrite_existing_questions!
+      now = Time.current
+      question_scope = Question.active.where(unit_id: @unit_id)
+      child_scope = { question_id: question_scope.select(:id) }
+
+      QuestionChoice.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
+      QuestionHint.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
+      QuestionExplanation.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
+      question_scope.update_all(deleted_at: now, updated_at: now)
+    end
 
     def process_row(row, line_number)
       form = build_form(row)
