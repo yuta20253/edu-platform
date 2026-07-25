@@ -167,13 +167,26 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
 
   context '最後のアクティブ教員を更新する場合' do
     subject do
-      patch "/api/v1/teacher/permissions/#{login_teacher.id}",
+      patch "/api/v1/teacher/permissions/#{target_teacher.id}",
             params: params.to_json,
             headers: headers.merge('Cookie' => cookie)
     end
 
+    let!(:target_teacher) do
+      create(
+        :user,
+        user_role: teacher_role,
+        high_school: high_school
+      )
+    end
+
+    let!(:target_teacher_permission) do
+      create(:teacher_permission, user: target_teacher)
+    end
+
     before do
       same_school_teacher.update!(deleted_at: Time.current)
+      login_teacher.update!(deleted_at: Time.current)
     end
 
     it '更新できないこと' do
