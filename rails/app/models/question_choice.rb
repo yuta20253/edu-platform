@@ -15,4 +15,6 @@
 class QuestionChoice < ApplicationRecord
   belongs_to :question
   has_many :question_histories
+
+  scope :active, -> { where(deleted_at: nil) }
 end

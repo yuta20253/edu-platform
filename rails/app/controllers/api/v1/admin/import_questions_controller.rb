@@ -4,7 +4,10 @@ module Api
   module V1
     module Admin
       class ImportQuestionsController < Api::V1::Admin::BaseController
+        DEFAULT_MODE = 'append'
+
         def create
+          unit = find_unit!
           file = import_questions_csv_params[:file]
 
           Csv::File::FileValidator.new(file).call
@@ -12,8 +15,9 @@ module Api
           import_history = nil
           ActiveRecord::Base.transaction do
             import_history = current_user.import_histories.create!(
-              unit_id: import_questions_csv_params[:unit_id],
+              unit_id: unit.id,
               status: :processing,
+              mode: import_mode,
               file_name: file.original_filename,
               file_size: file.size,
               content_type: file.content_type
@@ -21,15 +25,33 @@ module Api
             import_history.file.attach(file)
           end
 
-          Admin::QuestionCsvImportJob.perform_later(import_history.id)
+          ::Admin::QuestionCsvImportJob.perform_later(import_history.id)
 
           render json: { message: 'インポートを開始しました' }, status: :accepted
         end
 
         private
 
+        # 破壊的な操作のため、対象単元は route の course/unit で厳密にスコープする。
+        # body の unit_id は信用しない（IDOR 防止）。
+        # 見つからなければ find が RecordNotFound を raise し、application_controller の
+        # not_found ハンドラに委譲する。
+        def find_unit!
+          Course
+            .find(params[:course_id])
+            .units
+            .active
+            .find(params[:unit_id])
+        end
+
         def import_questions_csv_params
-          params.permit(:file, :unit_id)
+          params.permit(:file, :mode)
+        end
+
+        # 許可値(enumのキー)以外・未指定は append にフォールバックし、既存動作を維持する
+        def import_mode
+          mode = import_questions_csv_params[:mode]
+          ImportHistory.modes.key?(mode) ? mode : DEFAULT_MODE
         end
       end
     end

@@ -55,6 +55,8 @@ group :development, :test do
   # N+1の検知
   gem 'bullet'
 
+  gem 'brakeman', require: false
+
   gem 'debug', platforms: %i[mri windows]
   gem 'factory_bot_rails'
   gem 'faker'
@@ -65,10 +67,13 @@ group :development, :test do
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
   gem 'shoulda-matchers'
+
+  gem 'bundler-audit', require: false
 end
 
 group :test do
   gem 'database_cleaner-active_record'
+  gem 'simplecov', require: false
 end
 
 group :development do
