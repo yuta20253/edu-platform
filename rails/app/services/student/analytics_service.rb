@@ -26,7 +26,7 @@ module Student
       when 'unit_rank'
         Student::Analytics::Rank.new(@user, :unit_id, @unit_id)
       else
-        raise ArgumentError, "指定された分析タイプ（#{@type}）は存在しません。"
+        raise ::Student::InvalidAnalyticsTypeError, "指定された分析タイプ（#{@type}）は存在しません。"
       end
     end
   end

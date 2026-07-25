@@ -116,7 +116,7 @@ RSpec.describe Student::AnalyticsService, type: :model do
             type: 'unknown'
           ).call
         end.to raise_error(
-          ArgumentError,
+          Student::InvalidAnalyticsTypeError,
           '指定された分析タイプ（unknown）は存在しません。'
         )
       end
