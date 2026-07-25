@@ -31,8 +31,8 @@ module Api
         end
 
         def update
-          return render_update_error('最後の教員は更新できません') if only_active_teacher?(@teacher)
           return render_update_error('自分自身は更新できません') if @teacher == current_user
+          return render_update_error('最後の教員は更新できません') if only_active_teacher?(@teacher)
 
           form = ::Teacher::UpdatePermissionForm.new(
             target: @teacher,
