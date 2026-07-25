@@ -22,6 +22,7 @@
 #  grade_id                :bigint
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
+#  school_class_id         :bigint
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -32,6 +33,7 @@ class User < ApplicationRecord
   belongs_to :address, optional: true
   belongs_to :high_school, optional: true
   belongs_to :grade, optional: true
+  belongs_to :school_class, optional: true
 
   has_one :user_personal_info, dependent: :destroy
   has_one :user_overall_question_stat, dependent: :destroy
