@@ -5,6 +5,7 @@ module Api
     module Teacher
       class PermissionsController < Api::V1::Teacher::BaseController
         before_action :set_teacher, only: %i[show update]
+        before_action :require_manage_other_teachers!, only: :update
 
         def index
           teachers = teachers_query.order(:name_kana).page(params[:page]).per(20)
@@ -66,6 +67,12 @@ module Api
 
         def render_update_error(message)
           render json: { errors: [message] }, status: :unprocessable_content
+        end
+
+        def require_manage_other_teachers!
+          return if current_user.teacher_permission.manage_other_teachers?
+
+          render_update_error('他教員を編集する権限がありません')
         end
       end
     end

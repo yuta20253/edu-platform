@@ -232,4 +232,24 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
       expect(response.parsed_body['errors']).to be_present
     end
   end
+
+  context '他教員を管理する権限がない場合' do
+    subject do
+      patch "/api/v1/teacher/permissions/#{same_school_teacher.id}",
+            params: params.to_json,
+            headers: headers.merge('Cookie' => cookie)
+    end
+
+    before do
+      teacher_permission.update!(manage_other_teachers: false)
+    end
+
+    it '更新できないこと' do
+      subject
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body['errors'])
+        .to include('他教員を編集する権限がありません')
+    end
+  end
 end
