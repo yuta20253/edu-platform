@@ -10,9 +10,9 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
-class SchoolClass < ApplicationRecord
-  belongs_to :grade
-  has_many :users
-
-  validates :name, presence: true
+FactoryBot.define do
+  factory :school_class do
+    association :grade
+    name { 'A組' }
+  end
 end

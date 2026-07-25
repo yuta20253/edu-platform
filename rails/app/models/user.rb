@@ -65,6 +65,8 @@ class User < ApplicationRecord
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
 
+  validate :school_class_belongs_to_grade
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -113,5 +115,11 @@ class User < ApplicationRecord
 
   def set_jti
     self.jti ||= SecureRandom.uuid
+  end
+
+  def school_class_belongs_to_grade
+    return if school_class.blank? || grade.blank?
+
+    errors.add(:school_class, '学年が一致しません') if school_class.grade_id != grade_id
   end
 end

@@ -10,9 +10,10 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
-class SchoolClass < ApplicationRecord
-  belongs_to :grade
-  has_many :users
+require 'rails_helper'
 
-  validates :name, presence: true
+RSpec.describe SchoolClass, type: :model do
+  describe 'バリデーショ' do
+    it { is_expected.to validate_presence_of(:name) }
+  end
 end
