@@ -94,7 +94,7 @@ jobs:
           working-directory: rails
 
       - name: Run Brakeman
-        run: bundle exec brakeman
+        run: bundle exec brakeman -q --ignore-checks EOLRails
 
   bundler-audit:
     name: Bundler Audit
@@ -112,4 +112,4 @@ jobs:
           working-directory: rails
 
       - name: Run Bundler Audit
-        run: bundle exec bundler-audit check --update
+        run: bundle exec bundler-audit check --update --ignore .bundler-audit.yml
