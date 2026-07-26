@@ -7,8 +7,8 @@ module Api
         def index
           announcements = announcement_scope
                           .order(published_at: :desc, id: :desc)
-                          .page(params[:page])
-                          .per(20)
+                          .page(sanitized_page)
+                          .per(sanitized_per_page)
 
           render json: {
             announcements: ActiveModelSerializers::SerializableResource.new(
@@ -18,7 +18,7 @@ module Api
               current_page: announcements.current_page,
               total_pages: announcements.total_pages,
               total_count: announcements.total_count,
-              per_page: 20
+              per_page: announcements.limit_value
             }
           }
         end

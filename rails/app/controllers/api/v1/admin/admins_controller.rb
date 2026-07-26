@@ -5,11 +5,10 @@ module Api
     module Admin
       class AdminsController < BaseController
         DEFAULT_PER_PAGE = 25
-        MAX_PER_PAGE = 100
 
         def index
           scope = AdminsQuery.new.search(params[:q]).order_default.result
-          admins = scope.page(params[:page]).per(sanitized_per_page)
+          admins = scope.page(sanitized_page).per(sanitized_per_page)
 
           render json: {
             admins: ActiveModelSerializers::SerializableResource.new(

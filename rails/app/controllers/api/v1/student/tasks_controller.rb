@@ -4,14 +4,16 @@ module Api
   module V1
     module Student
       class TasksController < Api::V1::Student::BaseController
+        DEFAULT_PER_PAGE = 5
+
         def index
           tasks = current_user
                   .tasks
                   .includes([units: :course])
                   .by_status(params[:status])
                   .order(due_date: :asc)
-                  .page(params[:page])
-                  .per(5)
+                  .page(sanitized_page)
+                  .per(sanitized_per_page)
 
           render json: {
             tasks:
@@ -23,7 +25,7 @@ module Api
               current_page: tasks.current_page,
               total_pages: tasks.total_pages,
               total_count: tasks.total_count,
-              per_page: 5
+              per_page: tasks.limit_value
             }
           }, status: :ok
         end
