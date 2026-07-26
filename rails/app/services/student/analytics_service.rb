@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+module Student
+  class AnalyticsService
+    def initialize(user:, type:, course_id: nil, unit_id: nil)
+      @user = user
+      @type = type
+      @course_id = course_id
+      @unit_id = unit_id
+    end
+
+    delegate :call, to: :analytics
+
+    private
+
+    def analytics
+      case @type.presence || 'task_completion'
+      when 'task_completion'
+        Student::Analytics::TaskCompletion.new(@user)
+      when 'understanding_score'
+        Student::Analytics::UnderstandingScore.new(@user)
+      when 'grade_average'
+        Student::Analytics::GradeAverage.new(@user)
+      when 'course_rank'
+        Student::Analytics::Rank.new(@user, :course_id, @course_id)
+      when 'unit_rank'
+        Student::Analytics::Rank.new(@user, :unit_id, @unit_id)
+      else
+        raise ::Student::InvalidAnalyticsTypeError, "指定された分析タイプ（#{@type}）は存在しません。"
+      end
+    end
+  end
+end
