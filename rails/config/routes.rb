@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
       post "/password/reset/request", to: "password_resets#create"
       patch "/password/reset", to: "password_resets#update"
+      post "password/verify", to: "password_resets#verify"
 
       get "/me", to: "users#show"
       patch "/profile", to: "profiles#update"
@@ -42,11 +43,13 @@ Rails.application.routes.draw do
         end
         resources :courses, only: :index
         resources :announcements, only: [:index, :show]
+        resources :analytics, only: :index
       end
 
       namespace :teacher do
         resources :colleagues, controller: "teachers"
         resources :students
+        resources :permissions, only: [:index, :show, :update]
         resources :announcements, only: [:index, :show, :create, :update]
         resources :teacher_notifications
         resources :teacher_notification_results
