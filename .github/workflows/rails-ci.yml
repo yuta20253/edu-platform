@@ -13,6 +13,7 @@ jobs:
   rubocop:
     name: RuboCop
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,7 +21,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4.4'
+          ruby-version-file: rails/.ruby-version
           bundler-cache: true
           working-directory: rails
 
@@ -61,7 +62,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4.4'
+          ruby-version-file: rails/.ruby-version
           bundler-cache: true
           working-directory: rails
 
@@ -72,3 +73,43 @@ jobs:
 
       - name: Run RSpec
         run: bundle exec rspec
+
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@v5
+
+  brakeman:
+    name: Brakeman
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version-file: rails/.ruby-version
+          bundler-cache: true
+          working-directory: rails
+
+      - name: Run Brakeman
+        run: bundle exec brakeman
+
+  bundler-audit:
+    name: Bundler Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version-file: rails/.ruby-version
+          bundler-cache: true
+          working-directory: rails
+
+      - name: Run Bundler Audit
+        run: bundle exec bundler-audit check --update
