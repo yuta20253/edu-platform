@@ -48,6 +48,7 @@ Rails.application.routes.draw do
       namespace :teacher do
         resources :colleagues, controller: "teachers"
         resources :students
+        resources :permissions, only: [:index, :show, :update]
         resources :announcements, only: [:index, :show, :create, :update]
         resources :teacher_notifications
         resources :teacher_notification_results
