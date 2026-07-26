@@ -8,7 +8,7 @@ module Api
         before_action :require_manage_other_teachers!, only: :update
 
         def index
-          teachers = teachers_query.order(:name_kana).page(params[:page]).per(20)
+          teachers = teachers_query.order(:name_kana).page(sanitized_page).per(sanitized_per_page)
 
           render json: {
             current_user: ActiveModelSerializers::SerializableResource.new(
@@ -21,7 +21,7 @@ module Api
               current_page: teachers.current_page,
               total_pages: teachers.total_pages,
               total_count: teachers.total_count,
-              per_page: 20
+              per_page: teachers.limit_value
             }
           }, status: :ok
         end
