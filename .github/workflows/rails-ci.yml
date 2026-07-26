@@ -72,3 +72,37 @@ jobs:
 
       - name: Run RSpec
         run: bundle exec rspec
+
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@v5
+
+  brakeman:
+    name: Brakeman
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: true
+          working-directory: rails
+
+      - run: bundle exec brakeman
+
+  bundler-audit:
+    name: Bundler Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: true
+          working-directory: rails
+
+      - run: bundle exec bundler-audit check --update
+
