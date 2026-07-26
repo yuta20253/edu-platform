@@ -13,7 +13,7 @@
 require 'rails_helper'
 
 RSpec.describe SchoolClass, type: :model do
-  describe 'バリデーショ' do
+  describe 'バリデーション' do
     it { is_expected.to validate_presence_of(:name) }
   end
 end
