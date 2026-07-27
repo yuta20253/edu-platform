@@ -45,4 +45,20 @@ RSpec.describe Grade, type: :model do
 
     expect { grade.destroy }.to change(TeacherGrade, :count).by(-1)
   end
+
+  it '生徒がいるgradeは削除できない' do
+    grade = create(:grade)
+    create(:user, grade: grade)
+
+    expect { grade.destroy }.not_to change(described_class, :count)
+    expect(grade.errors[:base]).to be_present
+  end
+
+  it 'school_classがあるgradeは削除できない' do
+    grade = create(:grade)
+    create(:school_class, grade: grade)
+
+    expect { grade.destroy }.not_to change(described_class, :count)
+    expect(grade.errors[:base]).to be_present
+  end
 end

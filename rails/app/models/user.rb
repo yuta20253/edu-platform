@@ -22,6 +22,7 @@
 #  grade_id                :bigint
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
+#  school_class_id         :bigint
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -32,6 +33,7 @@ class User < ApplicationRecord
   belongs_to :address, optional: true
   belongs_to :high_school, optional: true
   belongs_to :grade, optional: true
+  belongs_to :school_class, optional: true
 
   has_one :user_personal_info, dependent: :destroy
   has_one :user_overall_question_stat, dependent: :destroy
@@ -62,6 +64,8 @@ class User < ApplicationRecord
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
+
+  validate :school_class_belongs_to_grade
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -111,5 +115,11 @@ class User < ApplicationRecord
 
   def set_jti
     self.jti ||= SecureRandom.uuid
+  end
+
+  def school_class_belongs_to_grade
+    return if school_class.blank? || grade.blank?
+
+    errors.add(:school_class, '学年が一致しません') if school_class.grade_id != grade_id
   end
 end

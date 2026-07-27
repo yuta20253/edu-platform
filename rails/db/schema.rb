@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_01_145418) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_25_091059) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -308,6 +308,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_01_145418) do
     t.index ["course_id"], name: "index_review_tests_on_course_id"
   end
 
+  create_table "school_classes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "grade_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grade_id"], name: "index_school_classes_on_grade_id"
+  end
+
   create_table "study_logs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "task_id", null: false
@@ -484,12 +492,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_01_145418) do
     t.bigint "grade_id"
     t.boolean "password_reset_required", default: false, null: false
     t.datetime "activated_at"
+    t.bigint "school_class_id"
     t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["grade_id"], name: "index_users_on_grade_id"
     t.index ["high_school_id"], name: "index_users_on_high_school_id"
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["school_class_id"], name: "index_users_on_school_class_id"
     t.index ["user_role_id"], name: "index_users_on_user_role_id"
   end
 
@@ -529,6 +539,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_01_145418) do
   add_foreign_key "review_question_choices", "review_questions"
   add_foreign_key "review_questions", "review_tests"
   add_foreign_key "review_tests", "courses"
+  add_foreign_key "school_classes", "grades"
   add_foreign_key "study_logs", "tasks"
   add_foreign_key "study_logs", "users"
   add_foreign_key "task_courses", "courses"
@@ -553,5 +564,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_01_145418) do
   add_foreign_key "users", "addresses"
   add_foreign_key "users", "grades"
   add_foreign_key "users", "high_schools"
+  add_foreign_key "users", "school_classes"
   add_foreign_key "users", "user_roles"
 end

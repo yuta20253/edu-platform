@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+# == Schema Information
+#
+# Table name: school_classes
+#
+#  id         :bigint           not null, primary key
+#  grade_id   :bigint           not null
+#  name       :string(255)      not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+FactoryBot.define do
+  factory :school_class do
+    association :grade
+    name { 'A組' }
+  end
+end

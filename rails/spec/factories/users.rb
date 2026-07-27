@@ -22,6 +22,7 @@
 #  grade_id                :bigint
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
+#  school_class_id         :bigint
 #
 FactoryBot.define do
   factory :user do
@@ -58,6 +59,13 @@ FactoryBot.define do
 
     trait :invitation_pending do
       password_reset_required { true }
+    end
+
+    trait :with_school_class do
+      after(:build) do |user|
+        user.grade ||= create(:grade)
+        user.school_class ||= create(:school_class, grade: user.grade)
+      end
     end
   end
 end

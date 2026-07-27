@@ -8,7 +8,7 @@ class PublishScheduledAnnouncementsJob < ApplicationJob
       .scheduled
       .where(scheduled_at: ..Time.current)
       .find_each do |announcement|
-        publish(announcement)
+      publish(announcement)
     end
   end
 

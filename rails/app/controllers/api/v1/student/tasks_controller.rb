@@ -7,7 +7,7 @@ module Api
         def index
           tasks = current_user
                   .tasks
-                  .includes([units: :course])
+                  .includes(units: :course)
                   .by_status(params[:status])
                   .order(due_date: :asc)
                   .page(params[:page])
