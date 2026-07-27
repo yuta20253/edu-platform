@@ -22,6 +22,7 @@
 #  grade_id                :bigint
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
+#  school_class_id         :bigint
 #
 require 'rails_helper'
 
@@ -65,6 +66,37 @@ RSpec.describe User, type: :model do
       it { is_expected.to validate_presence_of(:user_role) }
     end
 
-    # it '生徒と教員の場合はhigh_schoolは必須'
+    describe '#school_class_belongs_to_grade' do
+      let(:high_school) { create(:high_school) }
+      let(:grade1) { create(:grade, high_school:) }
+      let(:grade2) { create(:grade, high_school:) }
+
+      let(:school_class) { create(:school_class, grade: grade1) }
+
+      it '学年が一致していれば有効' do
+        user = build(
+          :user,
+          user_role: student_role,
+          high_school:,
+          grade: grade1,
+          school_class:
+        )
+
+        expect(user).to be_valid
+      end
+
+      it '学年が一致していなければ無効' do
+        user = build(
+          :user,
+          user_role: student_role,
+          high_school:,
+          grade: grade2,
+          school_class:
+        )
+
+        expect(user).to be_invalid
+        expect(user.errors[:school_class]).to include('学年が一致しません')
+      end
+    end
   end
 end

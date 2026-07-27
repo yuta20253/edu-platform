@@ -94,7 +94,7 @@ jobs:
           working-directory: rails
 
       - name: Run Brakeman
-        run: bundle exec brakeman
+        run: bundle exec brakeman -q -c config/brakeman.yml -i config/brakeman.ignore
 
   bundler-audit:
     name: Bundler Audit
