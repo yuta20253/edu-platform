@@ -33,7 +33,7 @@ class ApplicationController < ActionController::API
     raw = value.to_i
     return self.class::DEFAULT_PER_PAGE if raw <= 0
 
-    [raw, self::class::MAX_PER_PAGE].min
+    [raw, self.class::MAX_PER_PAGE].min
   end
 
   def sanitized_page
