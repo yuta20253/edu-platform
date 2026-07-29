@@ -86,13 +86,6 @@ module Api
         def render_delete_error(message)
           render json: { errors: [message] }, status: :unprocessable_content
         end
-
-        def sanitized_per_page
-          requested = params[:per_page].to_i
-          return DEFAULT_PER_PAGE if requested <= 0
-
-          [requested, MAX_PER_PAGE].min
-        end
       end
     end
   end
