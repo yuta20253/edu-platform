@@ -1,11 +1,15 @@
 import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const page = searchParams.get("page") ?? "1";
+
+  const params = new URLSearchParams({ page });
   try {
     const { status, data, setCookie } = await railsFetch(
-      "/api/v1/student/goals",
+      `/api/v1/student/goals?${params.toString()}`,
     );
 
     const res = NextResponse.json(data, { status });

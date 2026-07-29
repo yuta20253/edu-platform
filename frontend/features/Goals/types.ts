@@ -18,3 +18,15 @@ export type Goal = {
   due_date: string;
   tasks: Task[];
 };
+
+type GoalMeta = {
+  current_page: number;
+  total_pages: number;
+  total_count: number;
+  per_page: number;
+};
+
+export type GoalsData = {
+  goals: Goal[];
+  meta: GoalMeta;
+};
