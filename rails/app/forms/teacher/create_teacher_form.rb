@@ -11,7 +11,7 @@ module Teacher
     attribute :name, :string
     attribute :name_kana, :string
     attribute :email, :string
-    attribute :grade_scope, :integer
+    attribute :grade_scope, :string
     attribute :manage_other_teachers, :boolean
     attribute :grade_id, :integer
 
@@ -21,7 +21,7 @@ module Teacher
       message: 'はカタカナで入力してください'
     }
     validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-    validates :grade_scope, inclusion: { in: TeacherPermission.grade_scopes.values }
+    validates :grade_scope, inclusion: { in: TeacherPermission.grade_scopes.keys }
     validates :manage_other_teachers, inclusion: { in: [true, false] }
     validates :grade_id, presence: true
     validate :grade_id_must_be_in_high_school

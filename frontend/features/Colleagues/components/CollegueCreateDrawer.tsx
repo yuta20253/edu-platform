@@ -52,7 +52,7 @@ export const CollegueCreateDrawer = ({
       name_kana: "",
       email: "",
       grade_id: 0,
-      grade_scope: 0,
+      grade_scope: "own_grade",
       manage_other_teachers: false,
     },
   });
@@ -64,7 +64,7 @@ export const CollegueCreateDrawer = ({
         name_kana: "",
         email: "",
         grade_id: 0,
-        grade_scope: 0,
+        grade_scope: "own_grade",
         manage_other_teachers: false,
       });
       setGradeOptions([]);
@@ -206,17 +206,14 @@ export const CollegueCreateDrawer = ({
                     row
                     {...field}
                     value={field.value}
-                    onChange={(event) =>
-                      field.onChange(Number(event.target.value))
-                    }
                   >
                     <FormControlLabel
-                      value={0}
+                      value="own_grade"
                       control={<Radio />}
                       label="自学年"
                     />
                     <FormControlLabel
-                      value={1}
+                      value="all_grades"
                       control={<Radio />}
                       label="全学年"
                     />

@@ -33,7 +33,7 @@ export type CreateTeacherInput = {
   name_kana: string;
   email: string;
   grade_id: number;
-  grade_scope: number;
+  grade_scope: GradeScope;
   manage_other_teachers: boolean;
 };
 

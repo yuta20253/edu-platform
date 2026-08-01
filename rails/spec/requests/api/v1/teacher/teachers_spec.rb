@@ -159,7 +159,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
         name_kana: 'ヤマダ タロウ',
         email: 'yamada@example.com',
         grade_id: grade.id,
-        grade_scope: 1,
+        grade_scope: 'all_grades',
         manage_other_teachers: true
       }
     end
@@ -229,7 +229,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'ヤマダ タロウ',
           email: login_teacher.email,
           grade_id: grade.id,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
@@ -267,7 +267,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'ヤマダ タロウ',
           email: 'test@example.com',
           grade_id: nil,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
@@ -286,7 +286,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'ヤマダ タロウ',
           email: 'test@example.com',
           grade_id: other_school_grade.id,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
@@ -305,7 +305,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'やまだ たろう',
           email: 'test@example.com',
           grade_id: grade.id,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
