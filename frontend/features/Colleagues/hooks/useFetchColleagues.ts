@@ -2,19 +2,16 @@
 
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { TeachersData } from "./types";
+import { useCallback, useEffect, useState } from "react";
+import { TeachersData } from "../types";
 
-export const useColleagues = () => {
+export const useFetchColleagues = () => {
   const [data, setData] = useState<TeachersData | null>(null);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
+  const fetchColleagues = useCallback(() => {
     const params: Record<string, string> = { page: String(page) };
-
-    setLoading(true);
 
     apiClient
       .get<TeachersData>("/api/teacher/colleagues", { params })
@@ -23,9 +20,12 @@ export const useColleagues = () => {
         if (err.response?.status === 401) {
           router.push("/login");
         }
-      })
-      .finally(() => setLoading(false));
+      });
   }, [page, router]);
 
-  return { data, page, loading, setPage };
+  useEffect(() => {
+    fetchColleagues();
+  }, [fetchColleagues]);
+
+  return { data, page, setPage, refetch: fetchColleagues };
 };

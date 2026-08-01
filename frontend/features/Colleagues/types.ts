@@ -25,3 +25,18 @@ export type TeachersData = {
   teachers: Teacher[];
   meta: TeacherMeta;
 };
+
+export type CreateTeacherInput = {
+  name: string;
+  name_kana: string;
+  email: string;
+  grade_id: number;
+  grade_scope: number;
+  manage_other_teachers: boolean;
+};
+
+export type SnackbarState = {
+  open: boolean;
+  message: string;
+  severity: "success" | "error";
+};

@@ -2,12 +2,14 @@
 
 import { colors } from "@/app/theme/colors";
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   Chip,
   Pagination,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -17,15 +19,36 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { TeachersData } from "./types";
+import { CreateTeacherInput, SnackbarState, TeachersData } from "./types";
+import { CollegueCreateDrawer } from "./components/CollegueCreateDrawer";
 
 type Props = {
   data: TeachersData;
   page: number;
   onPageChange: (page: number) => void;
+  drawerOpen: boolean;
+  onAddClick: () => void;
+  onDrawerClose: () => void;
+  onCreate: (input: CreateTeacherInput) => void;
+  creating: boolean;
+  createErrors: string[];
+  snackbar: SnackbarState;
+  onSnackbarClose: () => void;
 };
 
-export const Presenter = ({ data, page, onPageChange }: Props) => {
+export const Presenter = ({
+  data,
+  page,
+  onPageChange,
+  drawerOpen,
+  onAddClick,
+  onDrawerClose,
+  onCreate,
+  creating,
+  createErrors,
+  snackbar,
+  onSnackbarClose,
+}: Props) => {
   const { current_user, teachers, meta } = data;
 
   return (
@@ -88,6 +111,7 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
                 textTransform: "none",
                 fontWeight: 600,
               }}
+              onClick={onAddClick}
             >
               新規登録
             </Button>
@@ -222,6 +246,29 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
           </TableContainer>
         </CardContent>
       </Card>
+
+      <CollegueCreateDrawer
+        open={drawerOpen}
+        onClose={onDrawerClose}
+        onCreate={onCreate}
+        creating={creating}
+        createErrors={createErrors}
+      />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={onSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={onSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {meta.total_pages > 1 && (
         <Box
