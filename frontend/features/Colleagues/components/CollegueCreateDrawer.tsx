@@ -202,11 +202,7 @@ export const CollegueCreateDrawer = ({
                   <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
                     操作範囲
                   </Typography>
-                  <RadioGroup
-                    row
-                    {...field}
-                    value={field.value}
-                  >
+                  <RadioGroup row {...field} value={field.value}>
                     <FormControlLabel
                       value="own_grade"
                       control={<Radio />}
