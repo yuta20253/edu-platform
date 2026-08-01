@@ -17,7 +17,7 @@ type UseCreateTeacherParams = {
   onCreated: () => void;
 };
 
-export const useCreateCollegue = ({ onCreated }: UseCreateTeacherParams) => {
+export const useCreateColleague = ({ onCreated }: UseCreateTeacherParams) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createErrors, setCreateErrors] = useState<string[]>([]);
@@ -39,7 +39,7 @@ export const useCreateCollegue = ({ onCreated }: UseCreateTeacherParams) => {
     setCreateErrors([]);
 
     try {
-      await apiClient.post("/api/teacher/collegues", input);
+      await apiClient.post("/api/teacher/colleagues", input);
       setDrawerOpen(false);
       setSnackbar({
         open: true,
