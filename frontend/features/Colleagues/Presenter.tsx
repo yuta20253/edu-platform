@@ -183,9 +183,10 @@ export const Presenter = ({
                     <TableCell align="center">
                       <Chip
                         label={
-                          teacher.teacher_permission.grade_scope
-                            ? "自学年"
-                            : "全学年"
+                          teacher.teacher_permission.grade_scope ===
+                          "all_grades"
+                            ? "全学年"
+                            : "自学年"
                         }
                         size="small"
                         color="primary"

@@ -75,7 +75,7 @@ export const CollegueCreateDrawer = ({
       try {
         const res = await apiClient.get<
           Array<{ id: number; year: number; display_name: string }>
-        >("/api/v1/high_schools/1/grades");
+        >("/api/v1/teacher/grades");
         setGradeOptions(res.data);
         console.log(res.data);
       } catch (error) {
@@ -202,7 +202,14 @@ export const CollegueCreateDrawer = ({
                   <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
                     操作範囲
                   </Typography>
-                  <RadioGroup row {...field} value={field.value ?? 0}>
+                  <RadioGroup
+                    row
+                    {...field}
+                    value={field.value}
+                    onChange={(event) =>
+                      field.onChange(Number(event.target.value))
+                    }
+                  >
                     <FormControlLabel
                       value={0}
                       control={<Radio />}

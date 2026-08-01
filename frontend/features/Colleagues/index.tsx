@@ -3,7 +3,7 @@
 import { Box, CircularProgress } from "@mui/material";
 import { useFetchColleagues } from "./hooks/useFetchColleagues";
 import { Presenter } from "./Presenter";
-import { useCreateCollegue } from "./hooks/useCreateCollegue";
+import { useCreateColleague } from "./hooks/useCreateColleague";
 
 export const Colleagues = () => {
   const { data, page, setPage, refetch } = useFetchColleagues();
@@ -17,7 +17,7 @@ export const Colleagues = () => {
     handleDrawerClose,
     handleCreate,
     handleSnackbarClose,
-  } = useCreateCollegue({ onCreated: refetch });
+  } = useCreateColleague({ onCreated: refetch });
 
   if (!data) {
     return (

@@ -5,6 +5,8 @@ export type TeacherMeta = {
   per_page: number;
 };
 
+export type GradeScope = "own_grade" | "all_grades";
+
 export type Teacher = {
   id: number;
   name: string;
@@ -15,7 +17,7 @@ export type Teacher = {
   };
   teacher_permission: {
     id: number;
-    grade_scope: number;
+    grade_scope: GradeScope;
     manage_other_teachers: boolean;
   };
 };
