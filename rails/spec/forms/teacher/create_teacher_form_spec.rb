@@ -49,7 +49,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
         name_kana: 'ヤマダ タロウ',
         email: 'yamada@example.com',
         grade_id: grade.id,
-        grade_scope: "all_grades",
+        grade_scope: 'all_grades',
         manage_other_teachers: false
       )
     end
@@ -91,7 +91,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
           grade_id: nil,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -110,7 +110,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
           grade_id: other_grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -129,7 +129,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
           grade_id: 999_999,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -148,7 +148,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -167,7 +167,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: '',
           email: 'yamada@example.com',
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -186,7 +186,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'やまだ たろう',
           email: 'yamada@example.com',
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -205,7 +205,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: '',
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -224,7 +224,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'abc',
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -243,7 +243,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: current_user.email,
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         )
       end
@@ -262,7 +262,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
           grade_id: grade.id,
-          grade_scope: "aaa",
+          grade_scope: 'aaa',
           manage_other_teachers: false
         )
       end
@@ -281,7 +281,7 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
           name_kana: 'ヤマダ タロウ',
           email: 'yamada@example.com',
           grade_id: grade.id,
-          grade_scope: "all_grades",
+          grade_scope: 'all_grades',
           manage_other_teachers: nil
         )
       end
