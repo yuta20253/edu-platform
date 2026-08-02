@@ -4,6 +4,8 @@ import { Box, CircularProgress } from "@mui/material";
 import { useFetchColleagues } from "./hooks/useFetchColleagues";
 import { Presenter } from "./Presenter";
 import { useCreateColleague } from "./hooks/useCreateColleague";
+import { useGradeOptions } from "./hooks/useGradeOptions";
+import { useCreateTeacherForm } from "./hooks/useCreateTeacherForm";
 
 export const Colleagues = () => {
   const { data, page, setPage, refetch } = useFetchColleagues();
@@ -18,6 +20,10 @@ export const Colleagues = () => {
     handleCreate,
     handleSnackbarClose,
   } = useCreateColleague({ onCreated: refetch });
+
+  const gradeOptions = useGradeOptions(drawerOpen);
+
+  const form = useCreateTeacherForm();
 
   if (!data) {
     return (
@@ -47,6 +53,8 @@ export const Colleagues = () => {
       createErrors={createErrors}
       snackbar={snackbar}
       onSnackbarClose={handleSnackbarClose}
+      form={form}
+      gradeOptions={gradeOptions}
     />
   );
 };

@@ -16,10 +16,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import type { CreateTeacherInput } from "../types";
-import { apiClient } from "@/libs/http/apiClient";
+import { Controller, UseFormReturn } from "react-hook-form";
+import type { CreateTeacherInput, GradeOption } from "../types";
 
 type Props = {
   open: boolean;
@@ -27,6 +25,8 @@ type Props = {
   onCreate: (input: CreateTeacherInput) => void;
   creating: boolean;
   createErrors: string[];
+  gradeOptions: GradeOption[];
+  form: UseFormReturn<CreateTeacherInput>;
 };
 
 export const CollegueCreateDrawer = ({
@@ -35,56 +35,15 @@ export const CollegueCreateDrawer = ({
   onCreate,
   creating,
   createErrors,
+  gradeOptions,
+  form,
 }: Props) => {
-  const [gradeOptions, setGradeOptions] = useState<
-    Array<{ id: number; year: number; display_name: string }>
-  >([]);
-
   const {
     register,
     handleSubmit,
-    reset,
     control,
     formState: { errors },
-  } = useForm<CreateTeacherInput>({
-    defaultValues: {
-      name: "",
-      name_kana: "",
-      email: "",
-      grade_id: 0,
-      grade_scope: "own_grade",
-      manage_other_teachers: false,
-    },
-  });
-
-  useEffect(() => {
-    if (!open) {
-      reset({
-        name: "",
-        name_kana: "",
-        email: "",
-        grade_id: 0,
-        grade_scope: "own_grade",
-        manage_other_teachers: false,
-      });
-      setGradeOptions([]);
-      return;
-    }
-
-    const fetchGrades = async () => {
-      try {
-        const res = await apiClient.get<
-          Array<{ id: number; year: number; display_name: string }>
-        >("/api/v1/teacher/grades");
-        setGradeOptions(res.data);
-        console.log(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    void fetchGrades();
-  }, [open, reset]);
+  } = form;
 
   return (
     <Drawer

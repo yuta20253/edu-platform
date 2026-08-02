@@ -8,6 +8,6 @@ class TeacherSerializer < ActiveModel::Serializer
 
   def invitation_status
     latest = object.received_teacher_notifications.order(sent_at: :desc).limit(1).first
-    latest ? latest.status : 'not_sent'
+    latest ? latest.status : 'pending'
   end
 end

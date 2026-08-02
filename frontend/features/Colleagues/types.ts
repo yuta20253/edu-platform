@@ -20,8 +20,10 @@ export type Teacher = {
     grade_scope: GradeScope;
     manage_other_teachers: boolean;
   };
-  invitation_status: "not_sent" | "sent" | "failed";
+  invitation_status: InvitationStatus;
 };
+
+export type InvitationStatus = "pending" | "sent" | "failed";
 
 export type TeachersData = {
   current_user: Teacher;
@@ -36,6 +38,12 @@ export type CreateTeacherInput = {
   grade_id: number;
   grade_scope: GradeScope;
   manage_other_teachers: boolean;
+};
+
+export type GradeOption = {
+  id: number;
+  year: number;
+  display_name: string;
 };
 
 export type SnackbarState = {

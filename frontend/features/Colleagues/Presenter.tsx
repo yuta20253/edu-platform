@@ -19,8 +19,15 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { CreateTeacherInput, SnackbarState, TeachersData } from "./types";
+import {
+  CreateTeacherInput,
+  GradeOption,
+  SnackbarState,
+  TeachersData,
+} from "./types";
 import { CollegueCreateDrawer } from "./components/CollegueCreateDrawer";
+import { UseFormReturn } from "react-hook-form";
+import { invitationStatusConfig } from "./constants";
 
 type Props = {
   data: TeachersData;
@@ -34,6 +41,8 @@ type Props = {
   createErrors: string[];
   snackbar: SnackbarState;
   onSnackbarClose: () => void;
+  gradeOptions: GradeOption[];
+  form: UseFormReturn<CreateTeacherInput>;
 };
 
 export const Presenter = ({
@@ -48,6 +57,8 @@ export const Presenter = ({
   createErrors,
   snackbar,
   onSnackbarClose,
+  gradeOptions,
+  form,
 }: Props) => {
   const { current_user, teachers, meta } = data;
 
@@ -178,19 +189,8 @@ export const Presenter = ({
 
               <TableBody>
                 {teachers.map((teacher) => {
-                  const statusLabel =
-                    teacher.invitation_status === "sent"
-                      ? "送信済"
-                      : teacher.invitation_status === "failed"
-                        ? "送信失敗"
-                        : "未送信";
-
-                  const statusColor =
-                    teacher.invitation_status === "sent"
-                      ? "success"
-                      : teacher.invitation_status === "failed"
-                        ? "error"
-                        : "default";
+                  const status =
+                    invitationStatusConfig[teacher.invitation_status];
 
                   return (
                     <TableRow
@@ -255,18 +255,9 @@ export const Presenter = ({
 
                       <TableCell align="center">
                         <Chip
-                          label={statusLabel}
+                          label={status.label}
                           size="small"
-                          color={
-                            statusColor as
-                              | "default"
-                              | "primary"
-                              | "secondary"
-                              | "error"
-                              | "info"
-                              | "success"
-                              | "warning"
-                          }
+                          color={status.color}
                           variant="outlined"
                           sx={{
                             minWidth: 64,
@@ -312,6 +303,8 @@ export const Presenter = ({
         onCreate={onCreate}
         creating={creating}
         createErrors={createErrors}
+        gradeOptions={gradeOptions}
+        form={form}
       />
 
       <Snackbar
