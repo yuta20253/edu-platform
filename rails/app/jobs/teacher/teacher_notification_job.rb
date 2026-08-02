@@ -12,6 +12,8 @@ module Teacher
         token = target_teacher.send(:set_reset_password_token)
         AuthMailer.invite_teacher(target_teacher, token).deliver_now
 
+        target_teacher.update!(password_reset_required: false)
+
         TeacherNotification.create!(
           sender_user: sender,
           receiver_user: target_teacher,

@@ -46,6 +46,7 @@ RSpec.describe Teacher::TeacherNotificationJob, type: :job do
         expect(notification.receiver_user_id).to eq(receiver.id)
         expect(notification.email).to eq(receiver.email)
         expect(notification.status).to eq('sent')
+        expect(receiver.reload.password_reset_required).to eq(false)
 
         expect(AuthMailer).to have_received(:invite_teacher).with(receiver, anything)
         expect(mailer).to have_received(:deliver_now)
