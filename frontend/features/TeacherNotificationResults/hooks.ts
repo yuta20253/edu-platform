@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import {
-  TeacherNotificationResultsData,
-} from "./types";
+import { TeacherNotificationResultsData } from "./types";
 
 export const useTeacherNotificationResults = () => {
   const [data, setData] = useState<TeacherNotificationResultsData | null>(null);
