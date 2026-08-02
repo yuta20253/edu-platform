@@ -16,73 +16,37 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
-import { apiClient } from "@/libs/http/apiClient";
-import { useRouter } from "next/navigation";
 import { UnsentTeacher } from "./types";
 
 type Props = {
   teachers: UnsentTeacher[];
   loading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+
+  selectedTeacherIds: number[];
+  submitting: boolean;
+  submitError: string | null;
+  successMessage: string | null;
+  allSelected: boolean;
+
+  onToggleTeacher: (teacherId: number) => void;
+  onToggleAll: () => void;
+  onSendInvites: () => void;
 };
 
-export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
-  const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const router = useRouter();
-
-  const handleToggleTeacher = (teacherId: number) => {
-    setSelectedTeacherIds((prev) =>
-      prev.includes(teacherId)
-        ? prev.filter((id) => id !== teacherId)
-        : [...prev, teacherId],
-    );
-  };
-
-  const selectableTeacherIds = teachers.map((teacher) => teacher.id);
-  const allSelected =
-    selectableTeacherIds.length > 0 &&
-    selectableTeacherIds.every((id) => selectedTeacherIds.includes(id));
-
-  const handleSendInvites = async () => {
-    if (selectedTeacherIds.length === 0) {
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError(null);
-    setSuccessMessage(null);
-
-    try {
-      const response = await apiClient.post(
-        "/api/teacher/teacher_notifications",
-        {
-          teacher_ids: selectedTeacherIds,
-        },
-      );
-
-      if (response.status === 202) {
-        setSuccessMessage("招待の送信を開始しました。");
-      }
-
-      setSelectedTeacherIds([]);
-      await refetch();
-    } catch (err: unknown) {
-      const axiosError = err as { response?: { status?: number } };
-      if (axiosError.response?.status === 401) {
-        router.push("/login");
-        return;
-      }
-      setSubmitError("招待送信に失敗しました。もう一度お試しください。");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
+export const Presenter = ({
+  teachers,
+  loading,
+  error,
+  selectedTeacherIds,
+  submitting,
+  submitError,
+  successMessage,
+  allSelected,
+  onToggleTeacher,
+  onToggleAll,
+  onSendInvites,
+}: Props) => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography
@@ -138,13 +102,7 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
                         indeterminate={
                           selectedTeacherIds.length > 0 && !allSelected
                         }
-                        onChange={() => {
-                          if (allSelected) {
-                            setSelectedTeacherIds([]);
-                          } else {
-                            setSelectedTeacherIds(selectableTeacherIds);
-                          }
-                        }}
+                        onChange={onToggleAll}
                       />
                     </TableCell>
                     <TableCell>氏名</TableCell>
@@ -158,7 +116,7 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
                       <TableCell padding="checkbox">
                         <Checkbox
                           checked={selectedTeacherIds.includes(teacher.id)}
-                          onChange={() => handleToggleTeacher(teacher.id)}
+                          onChange={() => onToggleTeacher(teacher.id)}
                         />
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>
@@ -197,7 +155,7 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
               disabled={
                 selectedTeacherIds.length === 0 || submitting || loading
               }
-              onClick={handleSendInvites}
+              onClick={onSendInvites}
               sx={{
                 minWidth: 160,
                 height: 40,

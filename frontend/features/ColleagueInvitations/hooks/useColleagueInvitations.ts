@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import { ColleagueInvitationsData } from "./types";
+import { ColleagueInvitationsData } from "../types";
 
 export const useColleagueInvitations = () => {
   const [data, setData] = useState<ColleagueInvitationsData | null>(null);

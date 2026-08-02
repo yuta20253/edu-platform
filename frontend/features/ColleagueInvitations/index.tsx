@@ -1,17 +1,41 @@
 "use client";
 
+import { useColleagueInvitations } from "./hooks/useColleagueInvitations";
+import { useSendInvites } from "./hooks/useSendInvites";
 import { Presenter } from "./Presenter";
-import { useColleagueInvitations } from "./hooks";
 
 export const ColleagueInvitations = () => {
   const { data, loading, error, refetch } = useColleagueInvitations();
 
+  const teachers = data ?? [];
+
+  const {
+    selectedTeacherIds,
+    submitting,
+    submitError,
+    successMessage,
+    handleToggleTeacher,
+    handleToggleAll,
+    handleSendInvites,
+    allSelected,
+  } = useSendInvites({
+    teachers,
+    refetch,
+  });
+
   return (
     <Presenter
-      teachers={data ?? []}
+      teachers={teachers}
       loading={loading}
       error={error}
-      refetch={refetch}
+      selectedTeacherIds={selectedTeacherIds}
+      submitting={submitting}
+      submitError={submitError}
+      successMessage={successMessage}
+      allSelected={allSelected}
+      onToggleTeacher={handleToggleTeacher}
+      onToggleAll={handleToggleAll}
+      onSendInvites={handleSendInvites}
     />
   );
 };
