@@ -101,6 +101,21 @@ export const Presenter = ({
             </Button>
             <Button
               component={Link}
+              href="/teacher/colleague-invitations"
+              variant="outlined"
+              size="small"
+              sx={{
+                minWidth: 110,
+                height: 36,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              未招待者一覧
+            </Button>
+            <Button
+              component={Link}
               href=""
               variant="outlined"
               size="small"
@@ -156,29 +171,45 @@ export const Presenter = ({
                   <TableCell>担当学年</TableCell>
                   <TableCell align="center">操作範囲</TableCell>
                   <TableCell align="center">他職員権限</TableCell>
+                  <TableCell align="center">送信状況</TableCell>
                   <TableCell align="center">詳細</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {teachers.map((teacher) => (
-                  <TableRow
-                    key={teacher.id}
-                    hover
-                    sx={{
-                      transition: "background-color 0.15s ease",
-                      "&:last-child td": {
-                        borderBottom: 0,
-                      },
-                    }}
-                  >
-                    <TableCell sx={{ fontWeight: 600 }}>
-                      {teacher.name}
-                    </TableCell>
+                {teachers.map((teacher) => {
+                  const statusLabel =
+                    teacher.invitation_status === "sent"
+                      ? "送信済"
+                      : teacher.invitation_status === "failed"
+                      ? "送信失敗"
+                      : "未送信";
 
-                    <TableCell>{teacher.name_kana}</TableCell>
+                  const statusColor =
+                    teacher.invitation_status === "sent"
+                      ? "success"
+                      : teacher.invitation_status === "failed"
+                      ? "error"
+                      : "default";
 
-                    <TableCell>{teacher.grade.display_name}</TableCell>
+                  return (
+                    <TableRow
+                      key={teacher.id}
+                      hover
+                      sx={{
+                        transition: "background-color 0.15s ease",
+                        "&:last-child td": {
+                          borderBottom: 0,
+                        },
+                      }}
+                    >
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {teacher.name}
+                      </TableCell>
+
+                      <TableCell>{teacher.name_kana}</TableCell>
+
+                      <TableCell>{teacher.grade.display_name}</TableCell>
 
                     <TableCell align="center">
                       <Chip
@@ -200,48 +231,72 @@ export const Presenter = ({
                       />
                     </TableCell>
 
-                    <TableCell align="center">
-                      <Chip
-                        label={
-                          teacher.teacher_permission.manage_other_teachers
-                            ? "有"
-                            : "無"
-                        }
-                        size="small"
-                        color={
-                          teacher.teacher_permission.manage_other_teachers
-                            ? "success"
-                            : "default"
-                        }
-                        sx={{
-                          minWidth: 48,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                        }}
-                      />
-                    </TableCell>
+                      <TableCell align="center">
+                        <Chip
+                          label={
+                            teacher.teacher_permission.manage_other_teachers
+                              ? "有"
+                              : "無"
+                          }
+                          size="small"
+                          color={
+                            teacher.teacher_permission.manage_other_teachers
+                              ? "success"
+                              : "default"
+                          }
+                          sx={{
+                            minWidth: 48,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                          }}
+                        />
+                      </TableCell>
 
-                    <TableCell align="center">
-                      <Button
-                        component={Link}
-                        href={`/teacher/colleagues/${teacher.id}`}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          minWidth: 64,
-                          height: 28,
-                          px: 1.5,
-                          fontSize: "0.75rem",
-                          borderRadius: 1.5,
-                          textTransform: "none",
-                        }}
-                      >
-                        詳細
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      <TableCell align="center">
+                        <Chip
+                          label={statusLabel}
+                          size="small"
+                          color={statusColor as
+                            | "default"
+                            | "primary"
+                            | "secondary"
+                            | "error"
+                            | "info"
+                            | "success"
+                            | "warning"}
+                          variant="outlined"
+                          sx={{
+                            minWidth: 64,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            opacity: teacher.invitation_status === "sent" ? 0.7 : 1,
+                          }}
+                        />
+                      </TableCell>
+
+                      <TableCell align="center">
+                        <Button
+                          component={Link}
+                          href={`/teacher/colleagues/${teacher.id}`}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            minWidth: 64,
+                            height: 28,
+                            px: 1.5,
+                            fontSize: "0.75rem",
+                            borderRadius: 1.5,
+                            textTransform: "none",
+                          }}
+                        >
+                          詳細
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

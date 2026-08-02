@@ -20,6 +20,7 @@ export type Teacher = {
     grade_scope: GradeScope;
     manage_other_teachers: boolean;
   };
+  invitation_status: 'not_sent' | 'sent' | 'failed';
 };
 
 export type TeachersData = {
