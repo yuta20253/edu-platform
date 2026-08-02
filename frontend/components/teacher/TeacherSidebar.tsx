@@ -54,6 +54,11 @@ const navItems = [
     icon: <CampaignIcon fontSize="small" />,
   },
   {
+    label: "送信結果",
+    href: "/teacher/notification-results",
+    icon: <NotificationsIcon fontSize="small" />,
+  },
+  {
     label: "分析・レポート",
     href: "/teacher/analytics",
     icon: <BarChartIcon fontSize="small" />,
