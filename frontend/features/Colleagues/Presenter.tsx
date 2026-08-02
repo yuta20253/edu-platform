@@ -182,15 +182,15 @@ export const Presenter = ({
                     teacher.invitation_status === "sent"
                       ? "送信済"
                       : teacher.invitation_status === "failed"
-                      ? "送信失敗"
-                      : "未送信";
+                        ? "送信失敗"
+                        : "未送信";
 
                   const statusColor =
                     teacher.invitation_status === "sent"
                       ? "success"
                       : teacher.invitation_status === "failed"
-                      ? "error"
-                      : "default";
+                        ? "error"
+                        : "default";
 
                   return (
                     <TableRow
@@ -211,25 +211,25 @@ export const Presenter = ({
 
                       <TableCell>{teacher.grade.display_name}</TableCell>
 
-                    <TableCell align="center">
-                      <Chip
-                        label={
-                          teacher.teacher_permission.grade_scope ===
-                          "all_grades"
-                            ? "全学年"
-                            : "自学年"
-                        }
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                        sx={{
-                          minWidth: 72,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                        }}
-                      />
-                    </TableCell>
+                      <TableCell align="center">
+                        <Chip
+                          label={
+                            teacher.teacher_permission.grade_scope ===
+                            "all_grades"
+                              ? "全学年"
+                              : "自学年"
+                          }
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                          sx={{
+                            minWidth: 72,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                          }}
+                        />
+                      </TableCell>
 
                       <TableCell align="center">
                         <Chip
@@ -257,21 +257,24 @@ export const Presenter = ({
                         <Chip
                           label={statusLabel}
                           size="small"
-                          color={statusColor as
-                            | "default"
-                            | "primary"
-                            | "secondary"
-                            | "error"
-                            | "info"
-                            | "success"
-                            | "warning"}
+                          color={
+                            statusColor as
+                              | "default"
+                              | "primary"
+                              | "secondary"
+                              | "error"
+                              | "info"
+                              | "success"
+                              | "warning"
+                          }
                           variant="outlined"
                           sx={{
                             minWidth: 64,
                             height: 24,
                             fontSize: "0.75rem",
                             fontWeight: 600,
-                            opacity: teacher.invitation_status === "sent" ? 0.7 : 1,
+                            opacity:
+                              teacher.invitation_status === "sent" ? 0.7 : 1,
                           }}
                         />
                       </TableCell>

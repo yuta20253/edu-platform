@@ -26,7 +26,9 @@ export const useColleagueInvitations = () => {
         router.push("/login");
         return;
       }
-      setError("未招待の教員一覧の取得に失敗しました。ページを再読み込みしてください。");
+      setError(
+        "未招待の教員一覧の取得に失敗しました。ページを再読み込みしてください。",
+      );
     } finally {
       setLoading(false);
     }

@@ -56,16 +56,27 @@ export const Presenter = ({ data }: Props) => {
                       {item.formatted_sent_at ?? "-"}
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <Typography>{item.sender_user.name}</Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <Typography>{item.receiver_user.name}</Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <TableCell
+                      sx={{
+                        maxWidth: 240,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {item.email}
                     </TableCell>
                     <TableCell>
@@ -73,7 +84,8 @@ export const Presenter = ({ data }: Props) => {
                         label={item.status === "sent" ? "成功" : "失敗"}
                         size="small"
                         sx={{
-                          bgcolor: item.status === "sent" ? "#22c55e" : "#64748b",
+                          bgcolor:
+                            item.status === "sent" ? "#22c55e" : "#64748b",
                           color: "#fff",
                           fontWeight: 600,
                           fontSize: "0.7rem",

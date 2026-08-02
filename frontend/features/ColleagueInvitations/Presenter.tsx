@@ -58,9 +58,12 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
     setSuccessMessage(null);
 
     try {
-      const response = await apiClient.post("/api/teacher/teacher_notifications", {
-        teacher_ids: selectedTeacherIds,
-      });
+      const response = await apiClient.post(
+        "/api/teacher/teacher_notifications",
+        {
+          teacher_ids: selectedTeacherIds,
+        },
+      );
 
       if (response.status === 202) {
         setSuccessMessage("招待の送信を開始しました。");
@@ -90,7 +93,10 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
         未招待教員一覧
       </Typography>
 
-      <Card elevation={0} sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}>
+      <Card
+        elevation={0}
+        sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
+      >
         <CardContent sx={{ p: 0 }}>
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
@@ -104,13 +110,34 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
             </Box>
           ) : (
             <TableContainer>
-              <Table size="small" sx={{ "& th, & td": { py: 1.5, px: 2, verticalAlign: "middle", whiteSpace: "nowrap" } }}>
+              <Table
+                size="small"
+                sx={{
+                  "& th, & td": {
+                    py: 1.5,
+                    px: 2,
+                    verticalAlign: "middle",
+                    whiteSpace: "nowrap",
+                  },
+                }}
+              >
                 <TableHead>
-                  <TableRow sx={{ bgcolor: colors.surface.light, "& th": { fontWeight: 700, color: colors.text.primary, borderBottom: `1px solid ${colors.border.light}` } }}>
+                  <TableRow
+                    sx={{
+                      bgcolor: colors.surface.light,
+                      "& th": {
+                        fontWeight: 700,
+                        color: colors.text.primary,
+                        borderBottom: `1px solid ${colors.border.light}`,
+                      },
+                    }}
+                  >
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={allSelected}
-                        indeterminate={selectedTeacherIds.length > 0 && !allSelected}
+                        indeterminate={
+                          selectedTeacherIds.length > 0 && !allSelected
+                        }
                         onChange={() => {
                           if (allSelected) {
                             setSelectedTeacherIds([]);
@@ -134,7 +161,9 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
                           onChange={() => handleToggleTeacher(teacher.id)}
                         />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>{teacher.name}</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {teacher.name}
+                      </TableCell>
                       <TableCell>{teacher.name_kana}</TableCell>
                       <TableCell>{teacher.email}</TableCell>
                     </TableRow>
@@ -146,21 +175,36 @@ export const Presenter = ({ teachers, loading, error, refetch }: Props) => {
         </CardContent>
       </Card>
 
-      {(submitError || successMessage || selectedTeacherIds.length > 0 || teachers.length > 0) && (
+      {(submitError ||
+        successMessage ||
+        selectedTeacherIds.length > 0 ||
+        teachers.length > 0) && (
         <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
           {submitError && (
-            <Box sx={{ color: colors.status.error, fontWeight: 600 }}>{submitError}</Box>
+            <Box sx={{ color: colors.status.error, fontWeight: 600 }}>
+              {submitError}
+            </Box>
           )}
           {successMessage && (
-            <Box sx={{ color: colors.status.success, fontWeight: 600 }}>{successMessage}</Box>
+            <Box sx={{ color: colors.status.success, fontWeight: 600 }}>
+              {successMessage}
+            </Box>
           )}
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               variant="contained"
               color="primary"
-              disabled={selectedTeacherIds.length === 0 || submitting || loading}
+              disabled={
+                selectedTeacherIds.length === 0 || submitting || loading
+              }
               onClick={handleSendInvites}
-              sx={{ minWidth: 160, height: 40, borderRadius: 2, textTransform: "none", fontWeight: 700 }}
+              sx={{
+                minWidth: 160,
+                height: 40,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 700,
+              }}
             >
               {submitting ? "送信中..." : "選択した教員に招待を送信"}
             </Button>
