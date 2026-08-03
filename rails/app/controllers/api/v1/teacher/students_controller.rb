@@ -4,8 +4,9 @@ module Api
   module V1
     module Teacher
       class StudentsController < Api::V1::Teacher::BaseController
+        DEFAULT_PER_PAGE = 10
         def index
-          students = students_query.order(:name_kana).page(params[:page]).per(10)
+          students = students_query.order(:name_kana).page(sanitized_page).per(sanitized_per_page)
           render json: {
             students: ActiveModelSerializers::SerializableResource.new(
               students, each_serializer: StudentSerializer
@@ -14,7 +15,7 @@ module Api
               current_page: students.current_page,
               total_pages: students.total_pages,
               total_count: students.total_count,
-              per_page: 10
+              per_page: students.limit_value
             }
           }, status: :ok
         end

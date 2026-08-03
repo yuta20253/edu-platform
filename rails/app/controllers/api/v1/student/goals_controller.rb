@@ -4,10 +4,23 @@ module Api
   module V1
     module Student
       class GoalsController < Api::V1::Student::BaseController
+        DEFAULT_PER_PAGE = 5
+
         def index
-          goals = GoalsQuery.new(current_user.goals).due_soon.paginate(page: params[:page],
-                                                                       per_page: params[:per_page] || 10).result
-          render json: goals, each_serializer: ::Student::GoalSerializer, status: :ok
+          goals = GoalsQuery.new(current_user.goals).due_soon.paginate(page: sanitized_page,
+                                                                       per_page: sanitized_per_page).result
+          render json: {
+            goals: ActiveModelSerializers::SerializableResource.new(
+              goals,
+              each_serializer: ::Student::GoalSerializer
+            ),
+            meta: {
+              current_page: goals.current_page,
+              total_pages: goals.total_pages,
+              total_count: goals.total_count,
+              per_page: goals.limit_value
+            }
+          }, status: :ok
         end
 
         def show

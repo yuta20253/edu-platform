@@ -8,7 +8,7 @@ module Api
           schools = HighSchool.includes(:prefecture)
                               .order(:id)
                               .by_prefecture(params[:prefecture_id])
-                              .page(params[:page]).per(20)
+                              .page(sanitized_page).per(sanitized_per_page)
 
           school_ids = schools.pluck(:id)
           student_counts = User.students.by_high_school(school_ids).group(:high_school_id).count
@@ -25,7 +25,7 @@ module Api
               current_page: schools.current_page,
               total_pages: schools.total_pages,
               total_count: schools.total_count,
-              per_page: 20
+              per_page: schools.limit_value
             }
           }
         end

@@ -4,9 +4,10 @@ import {
   CardContent,
   Typography,
   LinearProgress,
+  Pagination,
 } from "@mui/material";
 import Link from "next/link";
-import type { Goal } from "./types";
+import { GoalsData } from "./types";
 import { colors } from "@/app/theme/colors";
 import { GoalStatus } from "@/types/goals/status";
 import { statusLabel } from "@/constants/status";
@@ -14,13 +15,13 @@ import { getProgressColor } from "@/libs/ui/progressColor";
 import { calcProgress } from "@/libs/domain/progress/calcProgress";
 
 type Props = {
-  data: Goal[];
+  data: GoalsData;
   page: number;
   onPageChange: (page: number) => void;
 };
 
-export const Presenter = ({ data }: Props) => {
-  const goals = data;
+export const Presenter = ({ data, page, onPageChange }: Props) => {
+  const { goals, meta } = data;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -38,97 +39,120 @@ export const Presenter = ({ data }: Props) => {
               目標が見つかりません
             </Typography>
           ) : (
-            goals.map((goal) => {
-              const progress = calcProgress(goal.tasks);
-              const statusColor = colors.statusUi[goal.status];
-              const progressColor = getProgressColor(progress);
+            <>
+              {goals.map((goal) => {
+                const progress = calcProgress(goal.tasks);
+                const statusColor = colors.statusUi[goal.status];
+                const progressColor = getProgressColor(progress);
 
-              return (
-                <Card
-                  key={goal.id}
-                  component={Link}
-                  href={`/goals/${goal.id}`}
-                  sx={{
-                    width: "min(720px, 90vw)",
-                    textDecoration: "none",
-                    borderRadius: 3,
-                    boxShadow: 2,
-                    overflow: "hidden",
-                    ":hover": { boxShadow: 4 },
-                    m: 1,
-                  }}
-                >
-                  <CardContent
+                return (
+                  <Card
+                    key={goal.id}
+                    component={Link}
+                    href={`/goals/${goal.id}`}
                     sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                      p: 2,
+                      width: "min(720px, 90vw)",
+                      textDecoration: "none",
+                      borderRadius: 3,
+                      boxShadow: 2,
+                      overflow: "hidden",
+                      ":hover": { boxShadow: 4 },
+                      m: 1,
                     }}
                   >
-                    <Typography sx={{ fontWeight: "bold", fontSize: 18 }}>
-                      {goal.title}
-                    </Typography>
-                    <Box
+                    <CardContent
                       sx={{
                         display: "flex",
                         flexDirection: "column",
                         gap: 1,
-                        width: "100%",
+                        p: 2,
                       }}
                     >
+                      <Typography sx={{ fontWeight: "bold", fontSize: 18 }}>
+                        {goal.title}
+                      </Typography>
                       <Box
                         sx={{
                           display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
+                          flexDirection: "column",
+                          gap: 1,
+                          width: "100%",
                         }}
                       >
-                        <Typography
-                          sx={{ fontSize: 12, color: "text.secondary" }}
-                        >
-                          期限: {goal.due_date}
-                        </Typography>
-                        <Typography
+                        <Box
                           sx={{
-                            fontSize: 12,
-                            px: 1,
-                            py: 0.3,
-                            borderRadius: 1,
-                            bgcolor: statusColor.bg,
-                            color: statusColor.text,
-                            width: "fit-content",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            width: "100%",
                           }}
                         >
-                          {statusLabel[goal.status as GoalStatus]}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Box sx={{ flex: 1 }}>
-                          <LinearProgress
-                            variant="determinate"
-                            value={progress}
+                          <Typography
+                            sx={{ fontSize: 12, color: "text.secondary" }}
+                          >
+                            期限: {goal.due_date}
+                          </Typography>
+                          <Typography
                             sx={{
-                              height: 6,
-                              borderRadius: 3,
-                              backgroundColor: colors.border.subtle,
-                              "& .MuiLinearProgress-bar": {
-                                backgroundColor: progressColor,
-                              },
+                              fontSize: 12,
+                              px: 1,
+                              py: 0.3,
+                              borderRadius: 1,
+                              bgcolor: statusColor.bg,
+                              color: statusColor.text,
+                              width: "fit-content",
                             }}
-                          />
+                          >
+                            {statusLabel[goal.status as GoalStatus]}
+                          </Typography>
                         </Box>
-                        <Typography sx={{ fontSize: 12, minWidth: 40 }}>
-                          進捗率:{progress}%
-                        </Typography>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Box sx={{ flex: 1 }}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={progress}
+                              sx={{
+                                height: 6,
+                                borderRadius: 3,
+                                backgroundColor: colors.border.subtle,
+                                "& .MuiLinearProgress-bar": {
+                                  backgroundColor: progressColor,
+                                },
+                              }}
+                            />
+                          </Box>
+                          <Typography sx={{ fontSize: 12, minWidth: 40 }}>
+                            進捗率:{progress}%
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              );
-            })
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {meta.total_pages > 1 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    mt: 3,
+                    width: "100%",
+                    mb: 8,
+                  }}
+                >
+                  <Pagination
+                    count={meta.total_pages}
+                    page={page}
+                    onChange={(_, value) => onPageChange(value)}
+                    color="primary"
+                    shape="rounded"
+                  />
+                </Box>
+              )}
+            </>
           )}
         </Box>
       </Box>
