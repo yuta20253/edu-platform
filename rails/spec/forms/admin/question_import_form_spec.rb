@@ -138,4 +138,74 @@ RSpec.describe Admin::QuestionImportForm, type: :model do
       end
     end
   end
+
+  describe '.from_csv_row' do
+    subject(:form) { described_class.from_csv_row(row) }
+
+    context 'CSVの全カラムが揃っている場合' do
+      let(:row) do
+        {
+          '問題文' => '問題1',
+          '正解番号' => '1',
+          '解説' => '解説',
+          '選択肢1' => 'A',
+          '選択肢2' => 'B',
+          '選択肢3' => 'C',
+          '選択肢4' => 'D',
+          'ヒント1' => 'ヒント1',
+          'ヒント2' => 'ヒント2'
+        }
+      end
+
+      it '各カラムがFormの属性にマッピングされる' do
+        expect(form.question_text).to eq('問題1')
+        expect(form.correct_answer).to eq(1)
+        expect(form.explanation_text).to eq('解説')
+        expect(form.choices).to eq(%w[A B C D])
+        expect(form.hints).to eq(%w[ヒント1 ヒント2])
+      end
+
+      it 'validになる' do
+        expect(form.valid?).to be true
+      end
+    end
+
+    context 'ヒント列がCSVに存在しない場合' do
+      let(:row) do
+        {
+          '問題文' => '問題1',
+          '正解番号' => '1',
+          '解説' => '解説',
+          '選択肢1' => 'A',
+          '選択肢2' => 'B',
+          '選択肢3' => 'C',
+          '選択肢4' => 'D'
+        }
+      end
+
+      it 'hintsが空配列になりvalidになる' do
+        expect(form.hints).to eq([])
+        expect(form.valid?).to be true
+      end
+    end
+
+    context '正解番号が空文字の場合' do
+      let(:row) do
+        {
+          '問題文' => '問題1',
+          '正解番号' => '',
+          '解説' => '解説',
+          '選択肢1' => 'A',
+          '選択肢2' => 'B',
+          '選択肢3' => 'C',
+          '選択肢4' => 'D'
+        }
+      end
+
+      it 'correct_answerが0になりinvalidになる' do
+        expect(form.correct_answer).to eq(0)
+        expect(form.valid?).to be false
+      end
+    end
+  end
 end

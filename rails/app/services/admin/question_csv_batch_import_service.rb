@@ -54,7 +54,7 @@ module Admin
     end
 
     def process_row(row, line_number)
-      form = build_form(row)
+      form = Admin::QuestionImportForm.from_csv_row(row)
 
       unless form.valid?
         @errors << {
@@ -68,24 +68,6 @@ module Admin
       end
 
       Admin::QuestionCsvImportService.new(form, @unit_id).call
-    end
-
-    def build_form(row)
-      Admin::QuestionImportForm.new(
-        question_text: row['問題文'],
-        correct_answer: row['正解番号']&.to_i,
-        explanation_text: row['解説'],
-        choices: [
-          row['選択肢1'],
-          row['選択肢2'],
-          row['選択肢3'],
-          row['選択肢4']
-        ],
-        hints: [
-          row['ヒント1'],
-          row['ヒント2']
-        ].compact_blank
-      )
     end
 
     def start_import!
