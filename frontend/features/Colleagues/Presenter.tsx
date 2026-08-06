@@ -112,7 +112,7 @@ export const Presenter = ({
             </Button>
             <Button
               component={Link}
-              href="/teacher/colleague-invitations"
+              href="/teacher/colleague-invitation"
               variant="outlined"
               size="small"
               sx={{
