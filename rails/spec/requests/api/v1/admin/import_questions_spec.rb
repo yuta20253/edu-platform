@@ -141,4 +141,138 @@ RSpec.describe 'Api::V1::Admin::ImportQuestions', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/admin/courses/:course_id/units/:unit_id/import_questions/dry_run' do
+    subject(:post_dry_run) do
+      post "/api/v1/admin/courses/#{course.id}/units/#{unit.id}/import_questions/dry_run",
+           params: params,
+           headers: { 'Accept' => 'application/json', 'Cookie' => cookie }
+    end
+
+    let!(:admin_user) { create(:user, :admin, high_school: nil) }
+    let!(:course)     { create(:course) }
+    let!(:unit)       { create(:unit, course: course) }
+    let(:cookie)      { login_and_get_cookie(admin_user) }
+
+    let(:file) { fixture_file_upload('questions.csv', 'text/csv') }
+    let(:params) { { file: file, mode: mode } }
+    let(:mode) { 'append' }
+
+    around do |example|
+      perform_enqueued_jobs_was = ActiveJob::Base.queue_adapter
+      ActiveJob::Base.queue_adapter = :test
+      example.run
+      ActiveJob::Base.queue_adapter = perform_enqueued_jobs_was
+    end
+
+    context '全行成功するCSVの場合' do
+      it 'ステータス200が返り検証結果が返る' do
+        post_dry_run
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body).to eq(
+          'total_count' => 1,
+          'valid_count' => 1,
+          'rows' => []
+        )
+      end
+
+      it 'ImportHistoryが作成されない' do
+        expect { post_dry_run }.not_to change(ImportHistory, :count)
+      end
+
+      it 'Questionが作成されない' do
+        expect { post_dry_run }.not_to change(Question, :count)
+      end
+
+      it 'インポートジョブがenqueueされない' do
+        post_dry_run
+        expect(Admin::QuestionCsvImportJob).not_to have_been_enqueued
+      end
+    end
+
+    context 'エラー行を含むCSVの場合' do
+      let(:file) { fixture_file_upload('questions_with_errors.csv', 'text/csv') }
+
+      it 'ステータス200を維持しつつ該当行のみrowsに含まれる' do
+        post_dry_run
+        expect(response).to have_http_status(:ok)
+
+        body = response.parsed_body
+        expect(body['total_count']).to eq(3)
+        expect(body['valid_count']).to eq(1)
+        expect(body['rows'].size).to eq(2)
+        expect(body['rows'].pluck('row_number')).to eq([3, 4])
+        expect(body['rows'].pluck('severity')).to all(eq('error'))
+      end
+
+      it 'ImportHistoryが作成されない' do
+        expect { post_dry_run }.not_to change(ImportHistory, :count)
+      end
+
+      it 'Questionが作成されない' do
+        expect { post_dry_run }.not_to change(Question, :count)
+      end
+    end
+
+    context 'mode を指定しない場合' do
+      let(:params) { { file: file } }
+
+      it 'ステータス200が返る' do
+        post_dry_run
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'mode=overwrite の場合' do
+      let(:mode) { 'overwrite' }
+      let!(:existing_question) { create(:question, unit: unit) }
+
+      it 'ステータス200が返り既存問題に影響しない' do
+        post_dry_run
+        expect(response).to have_http_status(:ok)
+        expect(existing_question.reload.deleted_at).to be_nil
+      end
+    end
+
+    context '不正な mode の場合' do
+      let(:mode) { 'invalid_mode' }
+
+      it 'ステータス200が返る（フォールバックしエラーにならない）' do
+        post_dry_run
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'CSV以外のファイルをアップロードした場合' do
+      let(:file) { fixture_file_upload('questions.csv', 'text/plain') }
+
+      it 'ステータス422が返る' do
+        post_dry_run
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context 'unit が course に属さない場合' do
+      let!(:other_course) { create(:course) }
+      let!(:unit)         { create(:unit, course: other_course) }
+
+      it 'ステータス404が返る' do
+        post_dry_run
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '存在しない unit を指定した場合' do
+      subject(:post_dry_run) do
+        post "/api/v1/admin/courses/#{course.id}/units/0/import_questions/dry_run",
+             params: params,
+             headers: { 'Accept' => 'application/json', 'Cookie' => cookie }
+      end
+
+      it 'ステータス404が返る' do
+        post_dry_run
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
