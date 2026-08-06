@@ -4,7 +4,7 @@ import { useColleagueInvitations } from "./hooks/useColleagueInvitations";
 import { useSendInvites } from "./hooks/useSendInvites";
 import { Presenter } from "./Presenter";
 
-export const ColleagueInvitations = () => {
+export const ColleagueInvitation = () => {
   const { data, loading, error, refetch } = useColleagueInvitations();
 
   const teachers = data ?? [];
