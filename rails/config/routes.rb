@@ -65,6 +65,9 @@ Rails.application.routes.draw do
           resources :grades, only: :index
           resources :announcements, only: :index
         end
+
+        get 'csv_template/questions', to: 'csv_templates#questions'
+
         resources :courses do
           resources :units do
             resource :import_questions, only: :create
