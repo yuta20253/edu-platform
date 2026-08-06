@@ -5,6 +5,8 @@ module Csv
     class FileValidator
       ALLOWED_TYPES = 'text/csv'
       ALLOWED_EXTENSIONS = ['.csv'].freeze
+      MAX_FILE_SIZE = 5.megabytes
+
       def initialize(file)
         @file = file
       end
@@ -16,9 +18,12 @@ module Csv
         raise Csv::Errors::InvalidFileType, 'ファイルが存在しません' if @file.blank?
 
         # ファイル形式が不正
-        return if valid_content_type? && valid_extension?
+        raise Csv::Errors::InvalidFileType, 'CSVファイルのみアップロード可能です' unless valid_content_type? && valid_extension?
 
-        raise Csv::Errors::InvalidFileType, 'CSVファイルのみアップロード可能です'
+        # ファイルサイズが上限を超えている
+        return if valid_size?
+
+        raise Csv::Errors::InvalidFileType, "ファイルサイズは#{MAX_FILE_SIZE / 1.megabyte}MB以内にしてください"
       end
 
       private
@@ -29,6 +34,10 @@ module Csv
 
       def valid_extension?
         ALLOWED_EXTENSIONS.include?(::File.extname(@file.original_filename).downcase)
+      end
+
+      def valid_size?
+        @file.size <= MAX_FILE_SIZE
       end
     end
   end
