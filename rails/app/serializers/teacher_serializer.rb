@@ -7,7 +7,7 @@ class TeacherSerializer < ActiveModel::Serializer
   has_one :teacher_permission, serializer: TeacherPermissionSerializer
 
   def invitation_status
-    latest = object.received_teacher_notifications.order(sent_at: :desc).limit(1).first
-    latest ? latest.status : 'pending'
+    latest = instance_options[:latest_notifications]&.dig(object.id)&.first
+    latest&.status || 'pending'
   end
 end
