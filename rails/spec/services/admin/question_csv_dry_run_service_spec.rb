@@ -130,6 +130,23 @@ RSpec.describe Admin::QuestionCsvDryRunService, type: :service do
       end
     end
 
+    context '無効な行がMAX_ERROR_ROWSを超える場合' do
+      let(:row_count) { Admin::QuestionCsvDryRunService::MAX_ERROR_ROWS + 10 }
+      let(:csv_content) do
+        header = "問題文,正解番号,解説,選択肢1,選択肢2,選択肢3,選択肢4\n"
+        rows = (1..row_count).map { ',1,解説,A,B,C,D' }.join("\n")
+        header + rows
+      end
+
+      it 'total_count/valid_countは全行分正しく数えるがrowsはMAX_ERROR_ROWS件に切り上げられる' do
+        result = described_class.new(file).call
+
+        expect(result[:total_count]).to eq(row_count)
+        expect(result[:valid_count]).to eq(0)
+        expect(result[:rows].size).to eq(Admin::QuestionCsvDryRunService::MAX_ERROR_ROWS)
+      end
+    end
+
     context 'DBへの影響' do
       let(:csv_content) do
         <<~CSV
