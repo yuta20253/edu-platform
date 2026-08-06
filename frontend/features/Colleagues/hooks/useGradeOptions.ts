@@ -19,7 +19,7 @@ export const useGradeOptions = (open: boolean) => {
     const fetchGrades = async () => {
       try {
         const res = await apiClient.get<GradeOption[]>(
-          "/api/v1/teacher/grades",
+          "/api/teacher/grades",
         );
         setGradeOptions(res.data);
       } catch (err) {
