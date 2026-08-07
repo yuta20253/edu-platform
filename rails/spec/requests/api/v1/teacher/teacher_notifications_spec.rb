@@ -9,8 +9,11 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       'Accept' => 'application/json'
     }
   end
+
   let!(:teacher_role) { create(:user_role, name: :teacher) }
+
   let!(:high_school) { create(:high_school) }
+
   let!(:login_teacher) do
     create(
       :user,
@@ -18,13 +21,17 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       high_school: high_school
     )
   end
+
   let!(:teacher_permission) do
     create(
       :teacher_permission,
       user: login_teacher,
-      manage_other_teachers: true
+      manage_other_teachers: manage_other_teachers
     )
   end
+
+  let(:manage_other_teachers) { true }
+
   let!(:pending_teacher1) do
     create(
       :user,
@@ -34,6 +41,7 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       name: '未送信教員1'
     )
   end
+
   let!(:pending_teacher2) do
     create(
       :user,
@@ -43,6 +51,7 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       name: '未送信教員2'
     )
   end
+
   let!(:already_sent_teacher) do
     create(
       :user,
@@ -52,6 +61,7 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
       name: '送信済み教員'
     )
   end
+
   let(:cookie) { login_and_get_cookie(login_teacher) }
 
   def login_and_get_cookie(user)
@@ -165,6 +175,25 @@ RSpec.describe 'Api::V1::Teacher::TeacherNotifications', type: :request do
           )
 
         expect(service).to have_received(:call)
+      end
+    end
+
+    context '教員権限設定が存在しない場合' do
+      let(:manage_other_teachers) { false }
+      let(:teacher_ids) { [pending_teacher1.id] }
+
+      it '403 Forbiddenを返すこと' do
+        subject
+
+        expect(response).to have_http_status(:forbidden)
+
+        json = response.parsed_body
+
+        expect(json['errors'])
+          .to include('他教員を招待する権限がありません')
+
+        expect(Teacher::TeacherNotificationSenderService)
+          .not_to have_received(:new)
       end
     end
 
