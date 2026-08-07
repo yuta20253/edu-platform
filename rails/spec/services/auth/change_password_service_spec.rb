@@ -36,5 +36,52 @@ RSpec.describe Auth::ChangePasswordService do
         expect { service.call }.to raise_error(ValidationError)
       end
     end
+
+    context 'teacherの場合' do
+      let(:teacher_role) { create(:user_role, name: :teacher) }
+      let(:user) do
+        create(
+          :user,
+          :invitation_pending,
+          user_role: teacher_role
+        )
+      end
+
+      let(:raw_token) { user.send_reset_password_instructions }
+
+      let(:form) do
+        Auth::PasswordResetForm.new(
+          reset_password_token: raw_token,
+          password: 'newpassword',
+          password_confirmation: 'newpassword'
+        )
+      end
+
+      it 'password_reset_requiredがfalseになる' do
+        described_class.new(form).call
+
+        expect(user.reload.password_reset_required).to be(false)
+      end
+    end
+
+    context 'teacher以外の場合' do
+      let(:user) { create(:user, password_reset_required: true) }
+
+      let(:raw_token) { user.send_reset_password_instructions }
+
+      let(:form) do
+        Auth::PasswordResetForm.new(
+          reset_password_token: raw_token,
+          password: 'newpassword',
+          password_confirmation: 'newpassword'
+        )
+      end
+
+      it 'password_reset_requiredは変更されない' do
+        described_class.new(form).call
+
+        expect(user.reload.password_reset_required).to be(true)
+      end
+    end
   end
 end
