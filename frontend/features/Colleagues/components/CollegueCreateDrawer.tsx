@@ -190,14 +190,21 @@ export const CollegueCreateDrawer = ({
                   <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
                     他の教員操作権限
                   </Typography>
-                  <RadioGroup row {...field} value={field.value ? 1 : 0}>
+
+                  <RadioGroup
+                    row
+                    value={field.value ? "1" : "0"}
+                    onChange={(event) =>
+                      field.onChange(event.target.value === "1")
+                    }
+                  >
                     <FormControlLabel
-                      value={0}
+                      value="0"
                       control={<Radio />}
                       label="無"
                     />
                     <FormControlLabel
-                      value={1}
+                      value="1"
                       control={<Radio />}
                       label="有"
                     />

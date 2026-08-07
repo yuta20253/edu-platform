@@ -5,6 +5,7 @@ import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { CreateTeacherInput, SnackbarState } from "../types";
+import { UseFormReturn } from "react-hook-form";
 
 const initialSnackbar: SnackbarState = {
   open: false,
@@ -15,9 +16,13 @@ const initialSnackbar: SnackbarState = {
 type UseCreateTeacherParams = {
   // 作成成功後に呼ばれる（一覧の再取得など）
   onCreated: () => void;
+  form: UseFormReturn<CreateTeacherInput>;
 };
 
-export const useCreateColleague = ({ onCreated }: UseCreateTeacherParams) => {
+export const useCreateColleague = ({
+  onCreated,
+  form,
+}: UseCreateTeacherParams) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createErrors, setCreateErrors] = useState<string[]>([]);
@@ -25,11 +30,13 @@ export const useCreateColleague = ({ onCreated }: UseCreateTeacherParams) => {
   const router = useRouter();
 
   const handleAddClick = () => {
+    form.reset();
     setCreateErrors([]);
     setDrawerOpen(true);
   };
 
   const handleDrawerClose = () => {
+    form.reset();
     setDrawerOpen(false);
     setCreateErrors([]);
   };

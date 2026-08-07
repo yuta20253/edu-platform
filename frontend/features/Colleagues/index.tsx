@@ -10,6 +10,8 @@ import { useCreateTeacherForm } from "./hooks/useCreateTeacherForm";
 export const Colleagues = () => {
   const { data, page, setPage, refetch } = useFetchColleagues();
 
+  const form = useCreateTeacherForm();
+
   const {
     drawerOpen,
     creating,
@@ -19,11 +21,9 @@ export const Colleagues = () => {
     handleDrawerClose,
     handleCreate,
     handleSnackbarClose,
-  } = useCreateColleague({ onCreated: refetch });
+  } = useCreateColleague({ onCreated: refetch, form });
 
   const gradeOptions = useGradeOptions(drawerOpen);
-
-  const form = useCreateTeacherForm();
 
   if (!data) {
     return (
