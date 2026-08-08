@@ -43,19 +43,17 @@ RSpec.describe 'Api::V1::Admin::CsvTemplates', type: :request do
         expect(response.headers['Content-Disposition']).to include('questions_template.csv')
       end
 
-      it 'ヘッダー行が既存インポート実装のカラム順と一致する' do
+      it 'ヘッダー行がAdmin::QuestionImportForm::HEADERSと一致する' do
         get_template
-        body = response.body.delete_prefix('﻿')
+        body = response.body.delete_prefix("\uFEFF")
         parsed = CSV.parse(body, headers: true)
 
-        expect(parsed.headers).to eq(
-          %w[問題文 正解番号 解説 選択肢1 選択肢2 選択肢3 選択肢4 ヒント1 ヒント2]
-        )
+        expect(parsed.headers).to eq(Admin::QuestionImportForm::HEADERS)
       end
 
       it 'サンプル行が1行含まれる' do
         get_template
-        body = response.body.delete_prefix('﻿')
+        body = response.body.delete_prefix("\uFEFF")
         parsed = CSV.parse(body, headers: true)
 
         expect(parsed.size).to eq(1)

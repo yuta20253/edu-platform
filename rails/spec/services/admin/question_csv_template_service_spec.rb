@@ -6,7 +6,7 @@ RSpec.describe Admin::QuestionCsvTemplateService, type: :service do
   describe '#call' do
     subject(:csv) { described_class.new.call }
 
-    let(:bom) { '﻿' }
+    let(:bom) { "\uFEFF" }
 
     it 'UTF-8 BOM付きのCSV文字列を返す' do
       expect(csv).to start_with(bom)

@@ -4,7 +4,7 @@ module Admin
   class QuestionCsvTemplateService
     require 'csv'
 
-    BOM = '﻿'
+    BOM = "\uFEFF"
 
     SAMPLE_ROW = %w[
       サンプル問題文 1 サンプル解説
