@@ -15,7 +15,7 @@ module Api
         end
 
         def bad_request(exception)
-          render json: { errors: exception.message }, status: :bad_request
+          render json: { errors: [exception.message] }, status: :bad_request
         end
       end
     end
