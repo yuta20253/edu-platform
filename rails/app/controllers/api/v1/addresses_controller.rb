@@ -5,7 +5,7 @@ module Api
     class AddressesController < ApplicationController
       def index
         if params[:prefecture_id].blank?
-          render json: { error: ['都道府県は必須です。'] }, status: :bad_request
+          render json: { errors: ['都道府県は必須です。'] }, status: :bad_request
           return
         end
 
