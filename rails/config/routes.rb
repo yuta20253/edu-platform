@@ -53,6 +53,7 @@ Rails.application.routes.draw do
         resources :announcements, only: [:index, :show, :create, :update]
         resources :teacher_notifications
         resources :teacher_notification_results
+        resources :grades, only: :index
         resource :dashboard, only: :show
       end
 

@@ -15,5 +15,11 @@
 #
 FactoryBot.define do
   factory :teacher_notification do
+    association :sender_user, factory: :user
+    association :receiver_user, factory: :user
+
+    email { receiver_user.email }
+    status { :pending }
+    sent_at { nil }
   end
 end

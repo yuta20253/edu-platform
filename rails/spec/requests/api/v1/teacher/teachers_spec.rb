@@ -83,6 +83,17 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
     )
   end
 
+  let!(:notification) do
+    create(
+      :teacher_notification,
+      sender_user: login_teacher,
+      receiver_user: same_school_teacher,
+      email: same_school_teacher.email,
+      status: :sent,
+      sent_at: Time.current
+    )
+  end
+
   def login_and_get_cookie(user)
     post '/api/v1/user/login',
          params: {
@@ -111,6 +122,18 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
       expect(names).to include(login_teacher.name)
       expect(names).to include('同校 教員')
       expect(names).not_to include('他校 教員')
+    end
+
+    it '招待ステータスを返すこと' do
+      notification
+
+      subject
+
+      json = response.parsed_body
+
+      teacher = json['teachers'].find { |t| t['id'] == same_school_teacher.id }
+
+      expect(teacher['invitation_status']).to eq('sent')
     end
   end
 
@@ -159,7 +182,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
         name_kana: 'ヤマダ タロウ',
         email: 'yamada@example.com',
         grade_id: grade.id,
-        grade_scope: 1,
+        grade_scope: 'all_grades',
         manage_other_teachers: true
       }
     end
@@ -229,7 +252,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'ヤマダ タロウ',
           email: login_teacher.email,
           grade_id: grade.id,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
@@ -267,7 +290,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'ヤマダ タロウ',
           email: 'test@example.com',
           grade_id: nil,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
@@ -286,7 +309,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'ヤマダ タロウ',
           email: 'test@example.com',
           grade_id: other_school_grade.id,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
@@ -305,7 +328,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
           name_kana: 'やまだ たろう',
           email: 'test@example.com',
           grade_id: grade.id,
-          grade_scope: 1,
+          grade_scope: 'all_grades',
           manage_other_teachers: false
         }
       end
