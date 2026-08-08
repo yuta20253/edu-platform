@@ -40,7 +40,7 @@ module Api
           if form.save
             render json: { message: '教員の新規作成に成功しました。' }, status: :created
           else
-            render json: { errors:  form.errors.full_messages }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
