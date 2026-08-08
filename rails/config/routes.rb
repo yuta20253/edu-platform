@@ -44,6 +44,7 @@ Rails.application.routes.draw do
         resources :courses, only: :index
         resources :announcements, only: [:index, :show]
         resources :analytics, only: :index
+        resources :study_logs, only: [:create, :update]
       end
 
       namespace :teacher do

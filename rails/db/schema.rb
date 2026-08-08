@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_25_091059) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -325,7 +325,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_25_091059) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "unit_id", null: false
+    t.integer "status", default: 0, null: false
     t.index ["task_id"], name: "index_study_logs_on_task_id"
+    t.index ["unit_id"], name: "index_study_logs_on_unit_id"
     t.index ["user_id"], name: "index_study_logs_on_user_id"
   end
 
@@ -401,6 +404,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_25_091059) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_teacher_permissions_on_user_id", unique: true
+  end
+
+  create_table "teacher_school_classes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "school_class_id", null: false
+    t.integer "role", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_class_id"], name: "index_teacher_school_classes_on_school_class_id"
+    t.index ["school_class_id"], name: "index_teacher_school_classes_on_school_class_id_homeroom", unique: true
+    t.index ["user_id", "school_class_id"], name: "index_teacher_school_classes_on_user_id_and_school_class_id", unique: true
+    t.index ["user_id"], name: "index_teacher_school_classes_on_user_id"
   end
 
   create_table "units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -541,6 +556,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_25_091059) do
   add_foreign_key "review_tests", "courses"
   add_foreign_key "school_classes", "grades"
   add_foreign_key "study_logs", "tasks"
+  add_foreign_key "study_logs", "units"
   add_foreign_key "study_logs", "users"
   add_foreign_key "task_courses", "courses"
   add_foreign_key "task_courses", "tasks"
@@ -553,6 +569,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_25_091059) do
   add_foreign_key "teacher_notifications", "users", column: "receiver_user_id"
   add_foreign_key "teacher_notifications", "users", column: "sender_user_id"
   add_foreign_key "teacher_permissions", "users"
+  add_foreign_key "teacher_school_classes", "school_classes"
+  add_foreign_key "teacher_school_classes", "users"
   add_foreign_key "units", "courses"
   add_foreign_key "user_overall_question_stats", "users"
   add_foreign_key "user_personal_infos", "users"
