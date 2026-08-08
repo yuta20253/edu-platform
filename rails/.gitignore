@@ -34,3 +34,5 @@
 .ruby-lsp/
 
 coverage/
+
+tmp/
