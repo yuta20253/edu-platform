@@ -33,6 +33,7 @@ Rails.application.routes.draw do
           resource :submission, only: :update
           resources :units, only: :show do
             resources :questions, only: :index
+            resources :study_logs, only: [:create, :update]
             resources :answers, only: [:create] do
               collection do
                 patch :update
@@ -44,7 +45,6 @@ Rails.application.routes.draw do
         resources :courses, only: :index
         resources :announcements, only: [:index, :show]
         resources :analytics, only: :index
-        resources :study_logs, only: [:create, :update]
       end
 
       namespace :teacher do
