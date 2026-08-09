@@ -7,6 +7,8 @@ module Student
     end
 
     def call
+      raise AlreadyCompletedStudyLogError, ['この学習ログはすでに完了しています'] if @study_log.completed?
+
       ended_at = Time.current
 
       @study_log.update!(
