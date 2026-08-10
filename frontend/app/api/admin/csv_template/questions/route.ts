@@ -18,10 +18,13 @@ export async function GET() {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const response = await fetch(`${origin}/api/v1/admin/csv_template/questions`, {
-    headers: cookieHeader ? { Cookie: cookieHeader } : {},
-    cache: "no-store",
-  });
+  const response = await fetch(
+    `${origin}/api/v1/admin/csv_template/questions`,
+    {
+      headers: cookieHeader ? { Cookie: cookieHeader } : {},
+      cache: "no-store",
+    },
+  );
 
   if (response.status === 401) {
     return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
@@ -39,7 +42,8 @@ export async function GET() {
   const contentType = response.headers.get("content-type");
   const contentDisposition = response.headers.get("content-disposition");
   if (contentType) headers.set("content-type", contentType);
-  if (contentDisposition) headers.set("content-disposition", contentDisposition);
+  if (contentDisposition)
+    headers.set("content-disposition", contentDisposition);
 
   return new NextResponse(body, { status: response.status, headers });
 }
