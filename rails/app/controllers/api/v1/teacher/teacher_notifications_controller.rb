@@ -4,6 +4,8 @@ module Api
   module V1
     module Teacher
       class TeacherNotificationsController < Api::V1::Teacher::BaseController
+        before_action :require_manage_other_teachers!, only: :create
+
         def index
           unsent_teachers = base_teachers_scope
 
@@ -38,6 +40,16 @@ module Api
             .by_high_school(current_user.high_school_id)
             .teachers
             .invitation_pending
+        end
+
+        def render_forbidden_error(message)
+          render json: { errors: [message] }, status: :forbidden
+        end
+
+        def require_manage_other_teachers!
+          return if current_user.teacher_permission&.manage_other_teachers?
+
+          render_forbidden_error('他教員を招待する権限がありません')
         end
       end
     end

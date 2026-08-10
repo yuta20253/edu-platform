@@ -15,7 +15,9 @@ module Auth
         password_confirmation: @form.password_confirmation
       )
 
-      raise ValidationError, user.errors.full_messages unless user.persisted?
+      raise ValidationError, user.errors.full_messages if user.errors.any?
+
+      user.update!(password_reset_required: false) if user.teacher?
 
       'パスワードを更新しました。'
     end
