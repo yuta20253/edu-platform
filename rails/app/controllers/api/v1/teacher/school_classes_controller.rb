@@ -20,19 +20,6 @@ module Api
 
           render json: school_class, serializer: SchoolClassSerializer, status: :ok
         end
-
-        def create
-          ::Teacher::CreateSchoolClassRequestForm.new(
-            user: current_user,
-            **create_school_class_params.to_h.symbolize_keys
-          )
-        end
-
-        private
-
-        def create_school_class_params
-          params.require(:school_class).permit(:name, :grade_id)
-        end
       end
     end
   end
