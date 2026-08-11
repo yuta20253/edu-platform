@@ -26,9 +26,9 @@ class SchoolClassRequest < ApplicationRecord
   validate :validate_request_attributes
 
   enum action: {
-    create: 0,
-    update: 1,
-    delete: 2
+    creation: 0,
+    modification: 1,
+    deletion: 2
   }
 
   enum status: {
