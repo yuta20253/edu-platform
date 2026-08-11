@@ -42,12 +42,12 @@ class SchoolClassRequest < ApplicationRecord
 
   def validate_request_attributes
     case action
-    when 'create'
+    when 'creation'
       validate_create_request
-    when 'update'
+    when 'modification'
       validate_update_request
       school_class_belongs_to_grade
-    when 'delete'
+    when 'deletion'
       validate_delete_request
       school_class_belongs_to_grade
     end
