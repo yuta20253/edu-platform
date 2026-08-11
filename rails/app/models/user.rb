@@ -56,6 +56,9 @@ class User < ApplicationRecord
                                         inverse_of: :sender_user, dependent: :destroy
   has_many :received_teacher_notifications, class_name: 'TeacherNotification', foreign_key: :receiver_user_id,
                                             inverse_of: :receiver_user, dependent: :destroy
+  has_many :school_class_requests, foreign_key: :applicant_id, inverse_of: :applicant
+  has_many :approved_school_class_requests, class_name: 'SchoolClassRequest', foreign_key: :approver_id,
+                                            inverse_of: :approver
 
   validates :name, presence: true, on: :update
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の

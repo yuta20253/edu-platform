@@ -13,6 +13,7 @@
 class SchoolClass < ApplicationRecord
   belongs_to :grade
   has_many :users, dependent: :restrict_with_error
+  has_many :school_class_requests, dependent: :restrict_with_error
 
   validates :name, presence: true
 end
