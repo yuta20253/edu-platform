@@ -13,7 +13,7 @@ module Api
 
         def update
           unless current_user.teacher_permission.manage_other_teachers
-            return render json: { errors: '承認権限がないユーザーです' },
+            return render json: { errors: ['承認権限がないユーザーです'] },
                           status: :forbidden
           end
 
