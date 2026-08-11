@@ -3,7 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateAnnouncementService do
-  subject(:service) { described_class.new(form) }
+  subject(:service) do
+    described_class.new(
+      publisher: teacher,
+      title: 'テストタイトル',
+      content: 'テスト内容',
+      announcement_targets: announcement_targets
+    )
+  end
 
   let!(:high_school) { create(:high_school) }
 
@@ -12,15 +19,6 @@ RSpec.describe Teacher::CreateAnnouncementService do
       :user,
       :teacher,
       high_school: high_school
-    )
-  end
-
-  let(:form) do
-    Teacher::CreateAnnouncementForm.new(
-      current_user: teacher,
-      title: 'テストタイトル',
-      content: 'テスト内容',
-      announcement_targets: announcement_targets
     )
   end
 

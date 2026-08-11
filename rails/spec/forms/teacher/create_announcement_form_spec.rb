@@ -365,7 +365,12 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
         allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
-          .with(form)
+          .with(
+            publisher: teacher,
+            title: title,
+            content: content,
+            announcement_targets: announcement_targets
+          )
           .and_return(service)
 
         allow(service).to receive(:call)
@@ -380,6 +385,12 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
         allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
+          .with(
+            publisher: teacher,
+            title: title,
+            content: content,
+            announcement_targets: announcement_targets
+          )
           .and_return(service)
 
         expect(form.save).to be true
