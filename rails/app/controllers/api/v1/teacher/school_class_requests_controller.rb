@@ -5,10 +5,16 @@ module Api
     module Teacher
       class SchoolClassRequestsController < Api::V1::Teacher::BaseController
         def create
-          ::Teacher::CreateSchoolClassRequestForm.new(
+          form = ::Teacher::CreateSchoolClassRequestForm.new(
             user: current_user,
             **create_school_class_params.to_h.symbolize_keys
           )
+
+          if form.save
+            render json: { message: '学級作成申請を受け付けました' }, status: :created
+          else
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+          end
         end
 
         def update
@@ -17,7 +23,7 @@ module Api
                           status: :forbidden
           end
 
-          result = ::Teacher::ApproveSchoolClassRequestService
+          result = ::Teacher::ProcessSchoolClassRequestService
                    .new(
                      user:,
                      id: params[:id],
@@ -25,9 +31,9 @@ module Api
                    ).call
 
           if result
-            render json: { message: '学級新規作成申請が承認されました' }, status: :created
+            render json: { message: '申請が承認されました' }, status: :ok
           else
-            render json: { message: '学級新規作成申請が却下されました' }, status: :ok
+            render json: { message: '申請が却下されました' }, status: :ok
           end
         end
 

@@ -9,28 +9,12 @@ module Teacher
     end
 
     def call
-      ActiveRecord::Base.transaction do
-        return false unless school_class_request.pending?
+      return false unless school_class_request.pending?
 
+      ActiveRecord::Base.transaction do
         update_school_class_request
 
-        return false unless school_class_request.approved?
-
-        case school_class_request.action
-
-        when 'creation'
-          ::Teacher::SchoolClassRequest::Creation.new(
-            school_class_request: school_class_request
-          ).call
-        when 'modification'
-          ::Teacher::SchoolClassRequest::Modification.new(
-            school_class_request: school_class_request
-          ).call
-        when 'deletion'
-          ::Teacher::SchoolClassRequest::Deletion.new(
-            school_class_request: school_class_request
-          ).call
-        end
+        process_school_class_request if school_class_request.approved?
       end
     end
 
@@ -43,6 +27,23 @@ module Teacher
           id: @school_class_request_id,
           grades: { high_school_id: @user.high_school_id }
         )
+    end
+
+    def process_school_class_request
+      case school_class_request.action
+      when 'creation'
+        ::Teacher::SchoolClassRequest::Creation.new(
+          school_class_request: school_class_request
+        ).call
+      when 'modification'
+        ::Teacher::SchoolClassRequest::Modification.new(
+          school_class_request: school_class_request
+        ).call
+      when 'deletion'
+        ::Teacher::SchoolClassRequest::Deletion.new(
+          school_class_request: school_class_request
+        ).call
+      end
     end
 
     def update_school_class_request

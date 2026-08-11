@@ -18,6 +18,8 @@ module Teacher
     end
 
     def save
+      return false unless valid?
+
       ::Teacher::CreateSchoolClassRequestService.new(user:, attributes: attributes).call
     end
 
