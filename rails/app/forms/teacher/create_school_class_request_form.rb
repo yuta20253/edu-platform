@@ -1,30 +1,34 @@
-class Teacher::CreateSchoolClassRequestForm
-  include ActiveModel::Model
-  include ActiveModel::Attributes
+# frozen_string_literal: true
 
-  attribute :name, :string
-  attribute :grade_id, :integer
+module Teacher
+  class CreateSchoolClassRequestForm
+    include ActiveModel::Model
+    include ActiveModel::Attributes
 
-  validates :name, presence: true
-  validates :grade_id, presence: true
-  validate :grade_belongs_to_user_high_school
+    attribute :name, :string
+    attribute :grade_id, :integer
 
-  def initialize(user:, **attributes)
-    super(attributes)
-    @user = user
-  end
+    validates :name, presence: true
+    validates :grade_id, presence: true
+    validate :grade_belongs_to_user_high_school
 
-  def save
-    result = ::Teacher::CreateSchoolClassRequestService.new(user:, attributes: attributes).call
-  end
+    def initialize(user:, **attributes)
+      super(attributes)
+      @user = user
+    end
 
-  private
+    def save
+      ::Teacher::CreateSchoolClassRequestService.new(user:, attributes: attributes).call
+    end
 
-  def grade_belongs_to_user_high_school
-    return if grade_id.blank?
+    private
 
-    return if @user.high_school.grades.exists?(id: grade_id)
+    def grade_belongs_to_user_high_school
+      return if grade_id.blank?
 
-    errors.add(:grade_id, '学年IDが存在しません')
+      return if @user.high_school.grades.exists?(id: grade_id)
+
+      errors.add(:grade_id, '学年IDが存在しません')
+    end
   end
 end

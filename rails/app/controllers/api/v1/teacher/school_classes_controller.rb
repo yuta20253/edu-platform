@@ -22,7 +22,7 @@ module Api
         end
 
         def create
-          result = ::Teacher::CreateSchoolClassRequestForm.new(
+          ::Teacher::CreateSchoolClassRequestForm.new(
             user: current_user,
             **create_school_class_params.to_h.symbolize_keys
           )
