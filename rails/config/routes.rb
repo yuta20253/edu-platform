@@ -54,7 +54,8 @@ Rails.application.routes.draw do
         resources :teacher_notifications
         resources :teacher_notification_results
         resources :grades, only: :index
-        resources :school_classes
+        resources :school_classes, only: [:index, :show]
+        resources :school_class_requests, only: [:create, :update]
         resource :dashboard, only: :show
       end
 
