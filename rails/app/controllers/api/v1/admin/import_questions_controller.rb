@@ -30,6 +30,17 @@ module Api
           render json: { message: 'インポートを開始しました' }, status: :accepted
         end
 
+        def dry_run
+          find_unit!
+          file = import_questions_csv_params[:file]
+
+          Csv::File::FileValidator.new(file).call
+
+          result = ::Admin::QuestionCsvDryRunService.new(file).call
+
+          render json: result, status: :ok
+        end
+
         private
 
         # 破壊的な操作のため、対象単元は route の course/unit で厳密にスコープする。
