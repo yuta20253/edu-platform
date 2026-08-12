@@ -38,7 +38,7 @@ module Api
           if form.save
             render json: { message: 'お知らせを下書きで作成しました。' }, status: :created
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 

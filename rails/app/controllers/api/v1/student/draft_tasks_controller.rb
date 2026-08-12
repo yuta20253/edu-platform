@@ -16,7 +16,7 @@ module Api
           if form.save
             render json: form.draft_task_id, status: :created
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
