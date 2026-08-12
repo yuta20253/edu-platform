@@ -6,13 +6,18 @@ module Api
       class TeachersController < Api::V1::Teacher::BaseController
         def index
           teachers = teachers_query.order(:name_kana).page(sanitized_page).per(sanitized_per_page)
+          latest_notifications = TeacherNotification
+                                 .where(receiver_user_id: teachers.pluck(:id))
+                                 .order(sent_at: :desc)
+                                 .group_by(&:receiver_user_id)
 
           render json: {
             current_user: ActiveModelSerializers::SerializableResource.new(
               current_user, serializer: TeacherSerializer
             ),
             teachers: ActiveModelSerializers::SerializableResource.new(
-              teachers, each_serializer: TeacherSerializer
+              teachers, each_serializer: TeacherSerializer,
+                        latest_notifications: latest_notifications
             ),
             meta: {
               current_page: teachers.current_page,
