@@ -45,7 +45,7 @@ module Api
           if form.save
             render json: { message: 'タスクが作成されました。' }, status: :created
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
@@ -57,7 +57,7 @@ module Api
           if form.save
             render json: { message: 'タスクが更新されました。' }, status: :ok
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 

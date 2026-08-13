@@ -222,7 +222,7 @@ RSpec.describe 'Api::V1::Teacher::Teachers', type: :request do
 
         json = response.parsed_body
 
-        expect(json['errors']).to eq('他職員操作権限がありません')
+        expect(json['errors']).to eq(['他職員操作権限がありません'])
       end
     end
 
