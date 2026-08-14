@@ -104,11 +104,18 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
     end
 
     context '異常系 - バリデーションエラー' do
+      let(:errors) do
+        instance_double(
+          ActiveModel::Errors,
+          full_messages: ['error']
+        )
+      end
+
       let(:form) do
         instance_double(
           Student::CreateQuestionHistoryForm,
           save: false,
-          errors: ['error']
+          errors: errors
         )
       end
 
@@ -229,11 +236,18 @@ RSpec.describe 'Api::V1::Student::Answers', type: :request do
     end
 
     context '異常系 - バリデーションエラー' do
+      let(:errors) do
+        instance_double(
+          ActiveModel::Errors,
+          full_messages: ['error']
+        )
+      end
+
       let(:form) do
         instance_double(
           Student::UpdateQuestionHistoryForm,
           save: false,
-          errors: ['error']
+          errors: errors
         )
       end
 

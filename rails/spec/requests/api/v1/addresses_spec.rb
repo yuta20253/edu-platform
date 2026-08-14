@@ -50,7 +50,7 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
             headers: headers.merge('Cookie' => cookie)
 
         expect(response).to have_http_status(:bad_request)
-        expect(response.parsed_body['error']).to eq('都道府県は必須です。')
+        expect(response.parsed_body['errors']).to eq(['都道府県は必須です。'])
       end
 
       it '都道府県で絞り込める' do

@@ -34,7 +34,7 @@ module Api
           if form.save
             render json: form.goal.id, status: :created
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
@@ -46,7 +46,7 @@ module Api
           if form.save
             render json: form.goal.id, status: :ok
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
