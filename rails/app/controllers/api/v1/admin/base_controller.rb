@@ -7,7 +7,7 @@ module Api
         before_action :authorize_admin_service
 
         rescue_from Csv::Errors::InvalidFileType do |e|
-          render json: { error: e.message }, status: :unprocessable_content
+          render json: { errors: [e.message] }, status: :unprocessable_content
         end
 
         private

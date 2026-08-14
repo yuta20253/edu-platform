@@ -13,7 +13,7 @@ module Api
           if result
             render json: result, status: :created
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
@@ -26,7 +26,7 @@ module Api
           if result
             render json: result, status: :ok
           else
-            render json: { errors: form.errors }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
