@@ -15,7 +15,7 @@ module Teacher
     private
 
     def create_school_class_request
-      SchoolClassRequest.create!(
+      ::SchoolClassRequest.create!(
         applicant: @user,
         grade_id: @attributes['grade_id'],
         name: @attributes['name'],
@@ -25,7 +25,7 @@ module Teacher
     end
 
     def create_school_class_request_notification
-      Teacher::CreateSchoolClassRequestNotificationService
+      ::Teacher::CreateSchoolClassRequestNotificationService
         .new(user: @user)
         .call
     end

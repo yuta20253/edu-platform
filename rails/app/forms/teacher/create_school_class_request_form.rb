@@ -20,7 +20,7 @@ module Teacher
     def save
       return false unless valid?
 
-      ::Teacher::CreateSchoolClassRequestService.new(user:, attributes: attributes).call
+      ::Teacher::CreateSchoolClassRequestService.new(user: @user, attributes: attributes).call
     end
 
     private

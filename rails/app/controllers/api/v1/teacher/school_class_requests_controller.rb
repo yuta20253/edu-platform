@@ -25,7 +25,7 @@ module Api
 
           result = ::Teacher::ProcessSchoolClassRequestService
                    .new(
-                     user:,
+                     user: current_user,
                      id: params[:id],
                      **update_school_class_params.to_h.symbolize_keys
                    ).call
@@ -44,7 +44,7 @@ module Api
         end
 
         def update_school_class_params
-          params.require(:school_class_request).permit(:status)
+          params.require(:school_class_request).permit(:status, :lock_version)
         end
       end
     end

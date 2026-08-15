@@ -21,12 +21,12 @@ module Teacher
     private
 
     def school_class_request
-      SchoolClassRequest
-        .joins(:grade)
-        .find_by!(
-          id: @school_class_request_id,
-          grades: { high_school_id: @user.high_school_id }
-        )
+      @school_class_request ||= ::SchoolClassRequest
+                                .joins(:grade)
+                                .find_by!(
+                                  id: @school_class_request_id,
+                                  grades: { high_school_id: @user.high_school_id }
+                                )
     end
 
     def process_school_class_request
@@ -47,6 +47,8 @@ module Teacher
     end
 
     def update_school_class_request
+      raise ActiveRecord::StaleObjectError, school_class_request unless current_lock_version?
+
       school_class_request.update!(
         status: @attributes[:status],
         approver_id: @user.id,
@@ -54,8 +56,12 @@ module Teacher
       )
     end
 
+    def current_lock_version?
+      school_class_request.lock_version == @attributes[:lock_version].to_i
+    end
+
     def approved_at
-      return nil if @attributes[:status] != :approved
+      return false if @attributes[:status] != 'approved'
 
       Time.current
     end
