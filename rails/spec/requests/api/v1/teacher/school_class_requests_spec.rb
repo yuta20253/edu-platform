@@ -44,7 +44,8 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       {
         school_class_request: {
           name: '1組',
-          grade_id: grade.id
+          grade_id: grade.id,
+          action: 'creation'
         }
       }
     end
@@ -96,7 +97,8 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         {
           school_class_request: {
             name: '',
-            grade_id: grade.id
+            grade_id: grade.id,
+            action: 'creation'
           }
         }
       end
@@ -133,7 +135,8 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         {
           school_class_request: {
             name: '1組',
-            grade_id: nil
+            grade_id: nil,
+            action: 'creation'
           }
         }
       end
@@ -169,7 +172,8 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         {
           school_class_request: {
             name: '1組',
-            grade_id: other_grade.id
+            grade_id: other_grade.id,
+            action: 'creation'
           }
         }
       end

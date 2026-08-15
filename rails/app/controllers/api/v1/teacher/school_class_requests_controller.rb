@@ -40,7 +40,7 @@ module Api
         private
 
         def create_school_class_params
-          params.require(:school_class_request).permit(:name, :grade_id)
+          params.require(:school_class_request).permit(:name, :grade_id, :school_class_id, :action)
         end
 
         def update_school_class_params

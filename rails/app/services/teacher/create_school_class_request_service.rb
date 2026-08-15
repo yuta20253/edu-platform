@@ -19,7 +19,8 @@ module Teacher
         applicant: @user,
         grade_id: @attributes['grade_id'],
         name: @attributes['name'],
-        action: :creation,
+        action: @attributes['action'],
+        school_class_id: @attributes['school_class_id'],
         status: :pending
       )
     end
