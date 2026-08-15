@@ -135,6 +135,52 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
         expect(form).to be_valid
       end
     end
+
+    context 'actionがdeletionで在籍者チェックを行う場合' do
+      let(:action) { 'deletion' }
+      let(:name) { '' }
+      let!(:school_class) { create(:school_class, grade: grade) }
+      let(:school_class_id) { school_class.id }
+
+      context '所属する生徒も教員もいない場合' do
+        it 'validになる' do
+          expect(form).to be_valid
+        end
+      end
+
+      context '所属する生徒がいる場合' do
+        let!(:student) do
+          create(:user, :student, high_school: high_school, grade: grade, school_class: school_class)
+        end
+
+        it 'invalidになる' do
+          expect(form).not_to be_valid
+        end
+
+        it 'エラーが追加される' do
+          form.valid?
+
+          expect(form.errors[:school_class_id]).to include('生徒または教員が所属しているため削除できません')
+        end
+      end
+
+      context '所属する教員がいる場合' do
+        let!(:homeroom_teacher) { create(:user, :teacher, high_school: high_school) }
+        let!(:teacher_school_class) do
+          create(:teacher_school_class, user: homeroom_teacher, school_class: school_class)
+        end
+
+        it 'invalidになる' do
+          expect(form).not_to be_valid
+        end
+
+        it 'エラーが追加される' do
+          form.valid?
+
+          expect(form.errors[:school_class_id]).to include('生徒または教員が所属しているため削除できません')
+        end
+      end
+    end
   end
 
   describe '#save' do

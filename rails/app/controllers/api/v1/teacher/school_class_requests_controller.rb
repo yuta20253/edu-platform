@@ -37,6 +37,19 @@ module Api
           end
         end
 
+        def destroy
+          result = ::Teacher::CancelSchoolClassRequestService.new(
+            user: current_user,
+            id: params[:id]
+          ).call
+
+          if result
+            render json: { message: '申請を取り消しました' }, status: :ok
+          else
+            render json: { errors: ['承認待ちの申請のみ取り消せます'] }, status: :unprocessable_content
+          end
+        end
+
         private
 
         def create_school_class_params

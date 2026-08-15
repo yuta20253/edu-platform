@@ -539,4 +539,113 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
   end
+
+  describe 'DELETE /api/v1/teacher/school_class_requests/:id' do
+    let!(:school_class_request) do
+      create(
+        :school_class_request,
+        applicant: teacher,
+        grade: grade,
+        action: :creation,
+        status: :pending,
+        name: '1組'
+      )
+    end
+
+    context '申請者本人が取り消す場合' do
+      it '200が返る' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '申請が取り消し済みになる' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers.merge('Cookie' => cookie)
+
+        expect(school_class_request.reload.status).to eq('cancelled')
+      end
+
+      it 'cancelled_atが保存される' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers.merge('Cookie' => cookie)
+
+        expect(school_class_request.reload.cancelled_at).to be_present
+      end
+
+      it '取り消しメッセージが返る' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['message']).to eq('申請を取り消しました')
+      end
+
+      it '学級が作成されない' do
+        expect do
+          delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                 headers: headers.merge('Cookie' => cookie)
+        end.not_to change(SchoolClass, :count)
+      end
+    end
+
+    context '申請がpendingではない場合' do
+      before do
+        school_class_request.update!(status: :approved)
+      end
+
+      it '422が返る' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it '申請が更新されない' do
+        expect do
+          delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                 headers: headers.merge('Cookie' => cookie)
+        end.not_to(change { school_class_request.reload.updated_at })
+      end
+    end
+
+    context '申請者本人以外が取り消そうとした場合' do
+      let!(:other_teacher) { create(:user, :teacher, high_school: high_school) }
+      let(:other_cookie) { login_and_get_cookie(other_teacher) }
+
+      it '404が返る' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers.merge('Cookie' => other_cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '申請が更新されない' do
+        expect do
+          delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                 headers: headers.merge('Cookie' => other_cookie)
+        end.not_to(change { school_class_request.reload.status })
+      end
+    end
+
+    context '未認証の場合' do
+      it 'アクセスできない' do
+        delete "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+               headers: headers
+
+        expect(response).not_to have_http_status(:ok)
+      end
+    end
+
+    context '存在しない申請の場合' do
+      it '404が返る' do
+        delete '/api/v1/teacher/school_class_requests/999999',
+               headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
