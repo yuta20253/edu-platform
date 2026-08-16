@@ -92,6 +92,13 @@ export const Presenter = ({ user }: { user: MeUser | null }): JSX.Element => {
                 >
                   ユーザー情報
                 </MenuItem>
+                <MenuItem
+                  component={Link}
+                  href="/announcements"
+                  onClick={handleClose}
+                >
+                  お知らせ
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
               </Menu>
             </Box>
