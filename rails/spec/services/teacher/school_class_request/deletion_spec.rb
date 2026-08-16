@@ -35,7 +35,7 @@ RSpec.describe Teacher::SchoolClassRequest::Deletion do
 
       it '担任解除できるためSchoolClassとTeacherSchoolClassごと削除される' do
         expect { service.call }.to change(SchoolClass, :count).by(-1)
-                                .and change(TeacherSchoolClass, :count).by(-1)
+                                                              .and change(TeacherSchoolClass, :count).by(-1)
       end
     end
 

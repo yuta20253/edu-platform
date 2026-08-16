@@ -65,11 +65,9 @@ RSpec.describe Teacher::CancelSchoolClassRequestService do
 
         it '申請が更新されない' do
           expect do
-            begin
-              service.call
-            rescue ActiveRecord::RecordNotFound
-              nil
-            end
+            service.call
+          rescue ActiveRecord::RecordNotFound
+            nil
           end.not_to(change { school_class_request.reload.status })
         end
       end
