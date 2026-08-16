@@ -20,7 +20,7 @@ module Api
           study_log = StudyLog.find_by!(id: params[:id], user: current_user, task: task, unit: unit)
           ::Student::CompleteStudyLogService.new(study_log: study_log).call
 
-          render json: study_log, status: :ok
+          render json: study_log, serializer: StudyLogSerializer, status: :ok
         end
 
         private
