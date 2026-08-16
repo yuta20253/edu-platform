@@ -10,7 +10,7 @@ module Teacher
     attribute :action, :string
     attribute :school_class_id, :integer
 
-    validates :name, presence: true, if: -> { action.in?(%w[creation modification]) }
+    validates :name, presence: true, length: { maximum: 255 }, if: -> { action.in?(%w[creation modification]) }
     validates :grade_id, presence: true
     validates :action, inclusion: { in: ::SchoolClassRequest.actions.keys }
 

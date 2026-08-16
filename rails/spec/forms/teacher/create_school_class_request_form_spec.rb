@@ -67,6 +67,28 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
       end
     end
 
+    context 'nameが256文字の場合' do
+      let(:name) { 'あ' * 256 }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:name]).to be_present
+      end
+    end
+
+    context 'nameが255文字(境界値)の場合' do
+      let(:name) { 'あ' * 255 }
+
+      it 'validになる' do
+        expect(form).to be_valid
+      end
+    end
+
     context 'grade_idが空の場合' do
       let(:grade_id) { nil }
 

@@ -2,6 +2,8 @@
 
 module Teacher
   class ProcessSchoolClassRequestService
+    class ApplicantCannotProcessOwnRequestError < StandardError; end
+
     def initialize(user:, id:, **attributes)
       @user = user
       @school_class_request_id = id
@@ -10,6 +12,7 @@ module Teacher
 
     def call
       return false unless school_class_request.pending?
+      raise ApplicantCannotProcessOwnRequestError if applicant?
 
       ActiveRecord::Base.transaction do
         update_school_class_request
@@ -19,6 +22,10 @@ module Teacher
     end
 
     private
+
+    def applicant?
+      school_class_request.applicant_id == @user.id
+    end
 
     def school_class_request
       @school_class_request ||= ::SchoolClassRequest

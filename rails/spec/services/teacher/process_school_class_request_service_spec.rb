@@ -68,6 +68,76 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
           .with(school_class_request: school_class_request)
         expect(creation).to have_received(:call)
       end
+
+      context 'action=modificationの場合' do
+        let!(:school_class_request) do
+          create(
+            :school_class_request,
+            applicant: applicant,
+            grade: grade,
+            school_class: create(:school_class, grade: grade),
+            action: :modification,
+            status: :pending,
+            name: '2組'
+          )
+        end
+
+        it 'SchoolClassRequest::Modificationが呼ばれる' do
+          modification = instance_double(Teacher::SchoolClassRequest::Modification, call: true)
+
+          allow(Teacher::SchoolClassRequest::Modification).to receive(:new).and_return(modification)
+
+          service.call
+
+          expect(Teacher::SchoolClassRequest::Modification)
+            .to have_received(:new)
+            .with(school_class_request: school_class_request)
+          expect(modification).to have_received(:call)
+        end
+
+        it 'SchoolClassRequest::Creationは呼ばれない' do
+          allow(Teacher::SchoolClassRequest::Creation).to receive(:new)
+
+          service.call
+
+          expect(Teacher::SchoolClassRequest::Creation).not_to have_received(:new)
+        end
+      end
+
+      context 'action=deletionの場合' do
+        let!(:school_class_request) do
+          create(
+            :school_class_request,
+            applicant: applicant,
+            grade: grade,
+            school_class: create(:school_class, grade: grade),
+            action: :deletion,
+            status: :pending,
+            name: nil
+          )
+        end
+
+        it 'SchoolClassRequest::Deletionが呼ばれる' do
+          deletion = instance_double(Teacher::SchoolClassRequest::Deletion, call: true)
+
+          allow(Teacher::SchoolClassRequest::Deletion).to receive(:new).and_return(deletion)
+
+          service.call
+
+          expect(Teacher::SchoolClassRequest::Deletion)
+            .to have_received(:new)
+            .with(school_class_request: school_class_request)
+          expect(deletion).to have_received(:call)
+        end
+
+        it 'SchoolClassRequest::Creationは呼ばれない' do
+          allow(Teacher::SchoolClassRequest::Creation).to receive(:new)
+
+          service.call
+
+          expect(Teacher::SchoolClassRequest::Creation).not_to have_received(:new)
+        end
+      end
     end
 
     context '却下する場合' do
@@ -141,6 +211,33 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
         expect do
           service.call
         rescue ArgumentError
+          nil
+        end.not_to(change { school_class_request.reload.status })
+      end
+    end
+
+    context '申請者本人が承認しようとした場合' do
+      subject(:service) do
+        described_class.new(
+          user: applicant,
+          id: school_class_request.id,
+          status: status,
+          lock_version: lock_version
+        )
+      end
+
+      let(:status) { 'approved' }
+
+      it 'ApplicantCannotProcessOwnRequestErrorが発生する' do
+        expect { service.call }.to raise_error(
+          Teacher::ProcessSchoolClassRequestService::ApplicantCannotProcessOwnRequestError
+        )
+      end
+
+      it '申請が更新されない' do
+        expect do
+          service.call
+        rescue Teacher::ProcessSchoolClassRequestService::ApplicantCannotProcessOwnRequestError
           nil
         end.not_to(change { school_class_request.reload.status })
       end
