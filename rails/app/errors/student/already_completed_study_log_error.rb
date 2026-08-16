@@ -5,7 +5,7 @@ module Student
     attr_reader :errors
 
     def initialize(errors)
-      super()
+      super(errors.join(', '))
       @errors = errors
     end
   end

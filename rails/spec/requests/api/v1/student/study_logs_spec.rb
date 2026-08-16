@@ -199,6 +199,13 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
           Time.zone.parse('2026-08-09 10:30:00')
         )
       end
+
+      it '400とエラーメッセージが返されること' do
+        request
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body['errors']).to eq(['この学習ログはすでに完了しています'])
+      end
     end
   end
 end
