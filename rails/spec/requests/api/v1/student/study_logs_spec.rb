@@ -13,7 +13,7 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
   let!(:prefecture) { create(:prefecture, name: '東京都') }
   let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
   let!(:user) { create(:user, high_school: high_school) }
-  let!(:cookie) { login_and_get_cookie(user) }
+  let(:cookie) { login_and_get_cookie(user) }
 
   def login_and_get_cookie(user)
     post '/api/v1/user/login',
@@ -103,6 +103,17 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
         expect { request }.not_to change(StudyLog, :count)
 
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        task.units << unit
+
+        post "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/study_logs",
+             headers: headers.merge('Cookie' => nil)
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
@@ -205,6 +216,15 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
 
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body['errors']).to eq(['この学習ログはすでに完了しています'])
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        patch "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/study_logs/#{study_log.id}",
+              headers: headers.merge('Cookie' => nil)
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
