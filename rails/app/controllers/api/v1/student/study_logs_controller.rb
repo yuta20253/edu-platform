@@ -13,7 +13,7 @@ module Api
                          )
                          .call
 
-          render json: { study_log_id: study_log_id }, status: :ok
+          render json: { study_log_id: study_log_id }, status: :created
         end
 
         def update

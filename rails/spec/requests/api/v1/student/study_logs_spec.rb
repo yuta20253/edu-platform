@@ -37,7 +37,7 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
 
       expect { request }.to change(StudyLog, :count).by(1)
 
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:created)
 
       study_log = StudyLog.last
 
@@ -74,7 +74,7 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
 
       expect { request }.to change(StudyLog, :count).by(1)
 
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:created)
 
       study_logs = StudyLog.where(
         user: user,
