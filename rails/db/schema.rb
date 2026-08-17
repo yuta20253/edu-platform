@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_17_145736) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -155,8 +155,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "prefecture_id", null: false
+    t.string "school_code"
+    t.boolean "csv_managed", default: false, null: false
     t.index ["name", "prefecture_id"], name: "index_high_schools_on_name_and_prefecture_id", unique: true
     t.index ["prefecture_id"], name: "index_high_schools_on_prefecture_id"
+    t.index ["school_code"], name: "index_high_schools_on_school_code", unique: true
   end
 
   create_table "import_errors", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -306,6 +309,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_review_tests_on_course_id"
+  end
+
+  create_table "school_class_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "school_class_id"
+    t.bigint "applicant_id", null: false
+    t.bigint "approver_id"
+    t.bigint "grade_id", null: false
+    t.integer "action", null: false
+    t.integer "status", default: 0, null: false
+    t.string "name"
+    t.datetime "approved_at"
+    t.datetime "cancelled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["applicant_id"], name: "index_school_class_requests_on_applicant_id"
+    t.index ["approver_id"], name: "index_school_class_requests_on_approver_id"
+    t.index ["grade_id"], name: "index_school_class_requests_on_grade_id"
+    t.index ["school_class_id"], name: "index_school_class_requests_on_school_class_id"
   end
 
   create_table "school_classes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -508,6 +530,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
     t.boolean "password_reset_required", default: false, null: false
     t.datetime "activated_at"
     t.bigint "school_class_id"
+    t.string "student_number"
     t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["grade_id"], name: "index_users_on_grade_id"
@@ -515,6 +538,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["school_class_id"], name: "index_users_on_school_class_id"
+    t.index ["student_number"], name: "index_users_on_student_number", unique: true
     t.index ["user_role_id"], name: "index_users_on_user_role_id"
   end
 
@@ -554,6 +578,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_08_174745) do
   add_foreign_key "review_question_choices", "review_questions"
   add_foreign_key "review_questions", "review_tests"
   add_foreign_key "review_tests", "courses"
+  add_foreign_key "school_class_requests", "grades"
+  add_foreign_key "school_class_requests", "school_classes"
+  add_foreign_key "school_class_requests", "users", column: "applicant_id"
+  add_foreign_key "school_class_requests", "users", column: "approver_id"
   add_foreign_key "school_classes", "grades"
   add_foreign_key "study_logs", "tasks"
   add_foreign_key "study_logs", "units"

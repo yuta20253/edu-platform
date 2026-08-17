@@ -98,5 +98,62 @@ RSpec.describe User, type: :model do
         expect(user.errors[:school_class]).to include('学年が一致しません')
       end
     end
+
+    describe 'student_number' do
+      it '生徒はstudent_numberを保持できる' do
+        student = build(:user, user_role: student_role, high_school:, grade:, student_number: 'ABC12345')
+
+        expect(student).to be_valid
+      end
+
+      it '生徒以外はstudent_numberを保持できない' do
+        teacher = build(:user, user_role: teacher_role, high_school:, student_number: 'ABC12345')
+
+        expect(teacher).to be_invalid
+        expect(teacher.errors[:student_number]).to be_present
+      end
+
+      it 'student_numberが重複していると無効' do
+        create(:user, user_role: student_role, high_school:, grade:, student_number: 'DUPLICATE1')
+        student2 = build(:user, user_role: student_role, high_school:, grade:, student_number: 'DUPLICATE1')
+
+        expect(student2).to be_invalid
+        expect(student2.errors[:student_number]).to be_present
+      end
+
+      it 'student_numberがnilな生徒は複数存在できる' do
+        create(:user, user_role: student_role, high_school:, grade:, student_number: nil)
+        student2 = build(:user, user_role: student_role, high_school:, grade:, student_number: nil)
+
+        expect(student2).to be_valid
+      end
+    end
+  end
+
+  describe '#generate_student_number' do
+    let(:student) { create(:user, user_role: student_role, high_school:, grade:) }
+
+    it '生徒であればschool_code+ランダム値のstudent_numberが生成される' do
+      student.generate_student_number
+
+      expect(student.student_number).to start_with(high_school.school_code)
+      expect(student.student_number.length).to eq(high_school.school_code.length + 8)
+    end
+
+    it '生徒以外に対して呼ぶと例外になる' do
+      teacher = create(:user, user_role: teacher_role, high_school:)
+
+      expect { teacher.generate_student_number }.to raise_error(/生徒以外/)
+    end
+
+    it '生成されるstudent_numberは既存と衝突しない' do
+      create(:user, user_role: student_role, high_school:, grade:,
+                    student_number: "#{high_school.school_code}AAAAAAAA")
+      allow(SecureRandom).to receive(:alphanumeric).with(8).and_return('aaaaaaaa', 'bbbbbbbb')
+
+      student.generate_student_number
+
+      expect(student.student_number).to eq("#{high_school.school_code}BBBBBBBB")
+    end
   end
 end
