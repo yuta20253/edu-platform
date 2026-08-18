@@ -364,4 +364,81 @@ RSpec.describe 'Api::V1::Admin::ImportHistories', type: :request do
       end
     end
   end
+
+  describe 'GET /api/v1/admin/import_histories/:id/export' do
+    context '正常系' do
+      subject { get "/api/v1/admin/import_histories/#{history.id}/export", headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:history) do
+        create(:import_history, status: :completed, total_count: 2, success_count: 1, error_count: 1)
+      end
+      let!(:import_error) { create(:import_error, import_history: history, row_number: 4, message: '選択肢が不足しています') }
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it 'ステータス200が返される' do
+        subject
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'Content-Type が text/csv になる' do
+        subject
+        expect(response.headers['Content-Type']).to include('text/csv')
+      end
+
+      it 'Content-Disposition が attachment になる' do
+        subject
+        expect(response.headers['Content-Disposition']).to include('attachment')
+      end
+
+      it 'CSV本文にエラー内容が含まれる' do
+        subject
+        expect(response.body).to include('選択肢が不足しています')
+        expect(response.body).to include('total:2')
+      end
+    end
+
+    context '異常系' do
+      context '未認証アクセス' do
+        let!(:history) { create(:import_history) }
+
+        it '401が返される' do
+          get "/api/v1/admin/import_histories/#{history.id}/export", headers: headers
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+
+      context '管理者以外のアクセス（生徒）' do
+        let!(:student_user) { create(:user) }
+        let!(:history) { create(:import_history) }
+
+        it '403が返される' do
+          cookie = login_and_get_cookie(student_user)
+          get "/api/v1/admin/import_histories/#{history.id}/export", headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context '管理者以外のアクセス（教員）' do
+        let!(:teacher_user) { create(:user, :teacher) }
+        let!(:history) { create(:import_history) }
+
+        it '403が返される' do
+          cookie = login_and_get_cookie(teacher_user)
+          get "/api/v1/admin/import_histories/#{history.id}/export", headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context '存在しない id' do
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it '404が返される' do
+          get '/api/v1/admin/import_histories/0/export', headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
 end

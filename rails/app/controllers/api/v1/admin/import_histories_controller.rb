@@ -35,6 +35,16 @@ module Api
 
           render json: history, serializer: ::Admin::ImportHistoryDetailSerializer
         end
+
+        def export
+          history = ImportHistory.includes(:import_errors).find(params[:id])
+          csv = ::Admin::ImportHistoryCsvExporterService.new(history).call
+
+          send_data csv,
+                    filename: "import_history_#{history.id}.csv",
+                    type: 'text/csv; charset=UTF-8',
+                    disposition: 'attachment'
+        end
       end
     end
   end
