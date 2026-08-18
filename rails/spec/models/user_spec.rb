@@ -137,7 +137,7 @@ RSpec.describe User, type: :model do
       student.generate_student_number
 
       expect(student.student_number).to start_with(high_school.school_code)
-      expect(student.student_number.length).to eq(high_school.school_code.length + 8)
+      expect(student.student_number.length).to eq(high_school.school_code.length + 1 + 8)
     end
 
     it '生徒以外に対して呼ぶと例外になる' do
@@ -148,12 +148,12 @@ RSpec.describe User, type: :model do
 
     it '生成されるstudent_numberは既存と衝突しない' do
       create(:user, user_role: student_role, high_school:, grade:,
-                    student_number: "#{high_school.school_code}AAAAAAAA")
+                    student_number: "#{high_school.school_code}-AAAAAAAA")
       allow(SecureRandom).to receive(:alphanumeric).with(8).and_return('aaaaaaaa', 'bbbbbbbb')
 
       student.generate_student_number
 
-      expect(student.student_number).to eq("#{high_school.school_code}BBBBBBBB")
+      expect(student.student_number).to eq("#{high_school.school_code}-BBBBBBBB")
     end
   end
 end

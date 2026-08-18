@@ -17,7 +17,9 @@ namespace :high_schools do
     target.find_each do |high_school|
       high_school.update!(school_code: HighSchool.generate_unique_school_code)
       updated += 1
-      puts "  [#{updated}/#{total}] #{high_school.name} -> #{high_school.school_code}" if (updated % 100).zero? || updated == total
+      if (updated % 100).zero? || updated == total
+        puts "  [#{updated}/#{total}] #{high_school.name} -> #{high_school.school_code}"
+      end
     end
 
     puts "完了: #{updated}件の school_code を採番しました。"

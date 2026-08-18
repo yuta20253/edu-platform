@@ -120,7 +120,7 @@ class User < ApplicationRecord
     raise "生徒以外(#{user_role&.name})にstudent_numberは発行できません" unless student?
 
     self.student_number = loop do
-      code = "#{high_school.school_code}#{SecureRandom.alphanumeric(8).upcase}"
+      code = "#{high_school.school_code}-#{SecureRandom.alphanumeric(8).upcase}"
       break code unless User.exists?(student_number: code)
     end
   end
