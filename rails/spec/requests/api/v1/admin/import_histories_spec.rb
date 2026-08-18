@@ -257,4 +257,111 @@ RSpec.describe 'Api::V1::Admin::ImportHistories', type: :request do
       end
     end
   end
+
+  describe 'GET /api/v1/admin/import_histories/:id' do
+    context '正常系' do
+      subject { get "/api/v1/admin/import_histories/#{history.id}", headers: headers.merge('Cookie' => cookie) }
+
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:executor) { create(:user, :admin, high_school: nil, name: '実行太郎') }
+      let!(:course) { create(:course, level_name: '基礎英語') }
+      let!(:unit) { create(:unit, course: course, unit_name: '単元1') }
+      let!(:history) do
+        create(:import_history, user: executor, unit: unit, status: :completed,
+                                total_count: 3, success_count: 1, error_count: 2)
+      end
+      let(:cookie) { login_and_get_cookie(admin_user) }
+
+      it 'ステータス200が返される' do
+        subject
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '基本フィールドが含まれる' do
+        subject
+        body = response.parsed_body
+        expect(body.keys).to include(
+          'id', 'course', 'unit', 'user', 'file_name', 'status', 'mode',
+          'total_count', 'success_count', 'error_count',
+          'started_at', 'finished_at', 'created_at', 'errors', 'warnings'
+        )
+      end
+
+      it 'course / unit / user がネストされたハッシュで返る' do
+        subject
+        body = response.parsed_body
+        expect(body['course']).to eq('id' => course.id, 'level_name' => '基礎英語')
+        expect(body['unit']).to eq('id' => unit.id, 'unit_name' => '単元1')
+        expect(body['user']).to eq('id' => executor.id, 'name' => '実行太郎')
+      end
+
+      it 'warnings は常に空配列' do
+        subject
+        expect(response.parsed_body['warnings']).to eq([])
+      end
+
+      context 'エラー行が存在する場合' do
+        let!(:earlier_error) { create(:import_error, import_history: history, row_number: 3, message: '問題文は必須です') }
+        let!(:later_error) { create(:import_error, import_history: history, row_number: 5, message: '正解の形式が不正') }
+
+        it 'errors に全件、row_number 昇順で含まれる' do
+          subject
+          errors = response.parsed_body['errors']
+          expect(errors.size).to eq(2)
+          expect(errors.pluck('row_number')).to eq([3, 5])
+          expect(errors.first['message']).to eq('問題文は必須です')
+        end
+      end
+
+      context 'エラー行が存在しない場合' do
+        it 'errors は空配列' do
+          subject
+          expect(response.parsed_body['errors']).to eq([])
+        end
+      end
+    end
+
+    context '異常系' do
+      context '未認証アクセス' do
+        let!(:history) { create(:import_history) }
+
+        it '401が返される' do
+          get "/api/v1/admin/import_histories/#{history.id}", headers: headers
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+
+      context '管理者以外のアクセス（生徒）' do
+        let!(:student_user) { create(:user) }
+        let!(:history) { create(:import_history) }
+
+        it '403が返される' do
+          cookie = login_and_get_cookie(student_user)
+          get "/api/v1/admin/import_histories/#{history.id}", headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context '管理者以外のアクセス（教員）' do
+        let!(:teacher_user) { create(:user, :teacher) }
+        let!(:history) { create(:import_history) }
+
+        it '403が返される' do
+          cookie = login_and_get_cookie(teacher_user)
+          get "/api/v1/admin/import_histories/#{history.id}", headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context '存在しない id' do
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it '404が返される' do
+          get '/api/v1/admin/import_histories/0', headers: headers.merge('Cookie' => cookie)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
 end

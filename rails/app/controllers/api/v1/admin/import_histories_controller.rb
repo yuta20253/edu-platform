@@ -29,6 +29,12 @@ module Api
             }
           }
         end
+
+        def show
+          history = ImportHistory.includes(:user, :import_errors, unit: :course).find(params[:id])
+
+          render json: history, serializer: ::Admin::ImportHistoryDetailSerializer
+        end
       end
     end
   end
