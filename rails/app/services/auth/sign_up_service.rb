@@ -24,10 +24,14 @@ module Auth
           raise SignUpError, '学年が見つかりません' unless grade
         end
 
-        user = User.create!(@form.to_attributes.merge(user_role_id: role.id, high_school: high_school,
+        user = User.new(@form.to_attributes.merge(user_role_id: role.id, high_school: high_school,
                                                       grade: grade))
 
-        user
+        if user.student?
+          user.generate_student_number
+        end
+
+        user.save!
       end
     end
   end
