@@ -70,6 +70,10 @@ Rails.application.routes.draw do
 
         get 'csv_template/questions', to: 'csv_templates#questions'
 
+        resources :import_histories, only: %i[index show] do
+          get :export, on: :member
+        end
+
         resources :courses do
           resources :units do
             resource :import_questions, only: :create do
