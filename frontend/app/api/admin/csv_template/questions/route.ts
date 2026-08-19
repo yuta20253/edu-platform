@@ -1,0 +1,49 @@
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+
+// テンプレートCSVは railsFetch(JSON専用) を使わず、Rails のレスポンス
+// （Content-Type/Content-Disposition・バイナリボディ）をそのままパススルーする。
+export async function GET() {
+  const origin = process.env.API_URL;
+  if (!origin) {
+    return NextResponse.json(
+      { message: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
+  }
+
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+
+  const response = await fetch(
+    `${origin}/api/v1/admin/csv_template/questions`,
+    {
+      headers: cookieHeader ? { Cookie: cookieHeader } : {},
+      cache: "no-store",
+    },
+  );
+
+  if (response.status === 401) {
+    return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
+  }
+
+  if (!response.ok) {
+    return NextResponse.json(
+      { message: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
+  }
+
+  const body = await response.arrayBuffer();
+  const headers = new Headers();
+  const contentType = response.headers.get("content-type");
+  const contentDisposition = response.headers.get("content-disposition");
+  if (contentType) headers.set("content-type", contentType);
+  if (contentDisposition)
+    headers.set("content-disposition", contentDisposition);
+
+  return new NextResponse(body, { status: response.status, headers });
+}
