@@ -6,15 +6,7 @@ module Api
       class ImportHistoriesController < BaseController
         def index
           per_page = sanitized_per_page
-          histories = ::Admin::ImportHistoriesQuery.new
-                                                   .by_status(params[:status])
-                                                   .by_unit_id(params[:unit_id])
-                                                   .by_course_id(params[:course_id])
-                                                   .by_user_id(params[:user_id])
-                                                   .by_period(params[:from], params[:to])
-                                                   .order_by_created_at_desc
-                                                   .result
-                                                   .page(sanitized_page).per(per_page)
+          histories = import_histories_scope.page(sanitized_page).per(per_page)
 
           render json: {
             import_histories: ActiveModelSerializers::SerializableResource.new(
@@ -44,6 +36,19 @@ module Api
                     filename: "import_history_#{history.id}.csv",
                     type: 'text/csv; charset=UTF-8',
                     disposition: 'attachment'
+        end
+
+        private
+
+        def import_histories_scope
+          ::Admin::ImportHistoriesQuery.new
+                                       .by_status(params[:status])
+                                       .by_unit_id(params[:unit_id])
+                                       .by_course_id(params[:course_id])
+                                       .by_user_id(params[:user_id])
+                                       .by_period(params[:from], params[:to])
+                                       .order_by_created_at_desc
+                                       .result
         end
       end
     end
