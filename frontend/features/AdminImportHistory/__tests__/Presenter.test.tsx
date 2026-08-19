@@ -1,0 +1,218 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { Presenter } from "../Presenter";
+import type { ImportHistoriesData } from "../types";
+
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
+}));
+
+const mockData: ImportHistoriesData = {
+  import_histories: [
+    {
+      id: 1,
+      course: { id: 10, level_name: "基礎英語" },
+      unit: { id: 100, unit_name: "単元1" },
+      user: { id: 1000, name: "実行太郎" },
+      file_name: "questions.csv",
+      status: "completed",
+      mode: "append",
+      total_count: 10,
+      success_count: 8,
+      error_count: 2,
+      created_at: "2026-08-01T10:00:00Z",
+    },
+    {
+      id: 2,
+      course: { id: 11, level_name: "標準数学" },
+      unit: { id: 101, unit_name: "単元2" },
+      user: { id: 1001, name: "実行花子" },
+      file_name: "questions2.csv",
+      status: "failed",
+      mode: "overwrite",
+      total_count: 5,
+      success_count: 0,
+      error_count: 5,
+      created_at: "2026-08-02T10:00:00Z",
+    },
+  ],
+  meta: {
+    current_page: 1,
+    total_pages: 3,
+    total_count: 50,
+    per_page: 20,
+  },
+};
+
+const defaultProps = {
+  data: mockData,
+  filters: {
+    status: "" as const,
+    courseId: "",
+    unitId: "",
+    userId: "",
+    from: "",
+    to: "",
+  },
+  courseOptions: [{ id: 10, level_name: "基礎英語" }],
+  unitOptions: [{ id: 100, unit_name: "単元1" }],
+  userOptions: [{ id: 1000, name: "実行太郎" }],
+  sort: "created_at" as const,
+  order: "desc" as const,
+  page: 1,
+  onStatusChange: vi.fn(),
+  onCourseChange: vi.fn(),
+  onUnitChange: vi.fn(),
+  onUserChange: vi.fn(),
+  onFromChange: vi.fn(),
+  onToChange: vi.fn(),
+  onSortChange: vi.fn(),
+  onPageChange: vi.fn(),
+  onRowClick: vi.fn(),
+};
+
+describe("AdminImportHistoryPresenter", () => {
+  it("テーブルヘッダーに指定された列が表示される", () => {
+    render(<Presenter {...defaultProps} />);
+    const headers = screen
+      .getAllByRole("columnheader")
+      .map((h) => h.textContent);
+    expect(headers).toContain("日時");
+    expect(headers).toContain("コース");
+    expect(headers).toContain("単元");
+    expect(headers).toContain("件数");
+    expect(headers).toContain("成功数/エラー数");
+    expect(headers).toContain("実行者");
+    expect(headers).toContain("ステータス");
+  });
+
+  it("import_histories データが行として正しくレンダリングされる", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.getByText("基礎英語")).toBeInTheDocument();
+    expect(screen.getByText("単元1")).toBeInTheDocument();
+    expect(screen.getByText("実行太郎")).toBeInTheDocument();
+    expect(screen.getByText("10")).toBeInTheDocument();
+    expect(screen.getByText("8 / 2")).toBeInTheDocument();
+
+    expect(screen.getByText("標準数学")).toBeInTheDocument();
+    expect(screen.getByText("単元2")).toBeInTheDocument();
+    expect(screen.getByText("実行花子")).toBeInTheDocument();
+  });
+
+  it("ステータスバッジが completed=完了 で表示される", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.getByText("完了")).toBeInTheDocument();
+  });
+
+  it("ステータスバッジが failed=失敗 で表示される", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.getByText("失敗")).toBeInTheDocument();
+  });
+
+  it("ステータスバッジが processing=処理中、pending=待機中 で表示される", () => {
+    const data: ImportHistoriesData = {
+      ...mockData,
+      import_histories: [
+        { ...mockData.import_histories[0], id: 3, status: "processing" },
+        { ...mockData.import_histories[0], id: 4, status: "pending" },
+      ],
+    };
+    render(<Presenter {...defaultProps} data={data} />);
+    expect(screen.getByText("処理中")).toBeInTheDocument();
+    expect(screen.getByText("待機中")).toBeInTheDocument();
+  });
+
+  it("courseId が未設定の行はコース/単元が「-」で表示される", () => {
+    const data: ImportHistoriesData = {
+      ...mockData,
+      import_histories: [
+        { ...mockData.import_histories[0], id: 5, course: null, unit: null },
+      ],
+    };
+    render(<Presenter {...defaultProps} data={data} />);
+    const dashes = screen.getAllByText("-");
+    expect(dashes.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("ステータスセレクトの変更で onStatusChange が呼ばれる", () => {
+    const onStatusChange = vi.fn();
+    render(<Presenter {...defaultProps} onStatusChange={onStatusChange} />);
+    const select = screen.getByLabelText("ステータス");
+    fireEvent.mouseDown(select);
+    fireEvent.click(screen.getByRole("option", { name: "完了" }));
+    expect(onStatusChange).toHaveBeenCalledWith("completed");
+  });
+
+  it("コースセレクトの変更で onCourseChange が呼ばれる", () => {
+    const onCourseChange = vi.fn();
+    render(<Presenter {...defaultProps} onCourseChange={onCourseChange} />);
+    const select = screen.getByLabelText("コース");
+    fireEvent.mouseDown(select);
+    fireEvent.click(screen.getByRole("option", { name: "基礎英語" }));
+    expect(onCourseChange).toHaveBeenCalledWith("10");
+  });
+
+  it("単元セレクトの変更で onUnitChange が呼ばれる", () => {
+    const onUnitChange = vi.fn();
+    render(<Presenter {...defaultProps} onUnitChange={onUnitChange} />);
+    const select = screen.getByLabelText("単元");
+    fireEvent.mouseDown(select);
+    fireEvent.click(screen.getByRole("option", { name: "単元1" }));
+    expect(onUnitChange).toHaveBeenCalledWith("100");
+  });
+
+  it("実行者セレクトの変更で onUserChange が呼ばれる", () => {
+    const onUserChange = vi.fn();
+    render(<Presenter {...defaultProps} onUserChange={onUserChange} />);
+    const select = screen.getByLabelText("実行者");
+    fireEvent.mouseDown(select);
+    fireEvent.click(screen.getByRole("option", { name: "実行太郎" }));
+    expect(onUserChange).toHaveBeenCalledWith("1000");
+  });
+
+  it("日時ヘッダーをクリックすると onSortChange が呼ばれる", () => {
+    const onSortChange = vi.fn();
+    render(<Presenter {...defaultProps} onSortChange={onSortChange} />);
+    const sortButton = screen.getByRole("button", { name: /日時/ });
+    fireEvent.click(sortButton);
+    expect(onSortChange).toHaveBeenCalledWith("created_at");
+  });
+
+  it("件数ヘッダーをクリックすると onSortChange が呼ばれる", () => {
+    const onSortChange = vi.fn();
+    render(<Presenter {...defaultProps} onSortChange={onSortChange} />);
+    const sortButton = screen.getByRole("button", { name: /件数/ });
+    fireEvent.click(sortButton);
+    expect(onSortChange).toHaveBeenCalledWith("total_count");
+  });
+
+  it("ページネーションが表示される", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.getByRole("navigation")).toBeInTheDocument();
+  });
+
+  it("行をクリックすると onRowClick が呼ばれる", () => {
+    const onRowClick = vi.fn();
+    render(<Presenter {...defaultProps} onRowClick={onRowClick} />);
+    fireEvent.click(screen.getByText("基礎英語"));
+    expect(onRowClick).toHaveBeenCalledWith(1);
+  });
+
+  it("import_histories が空のとき「見つかりません」が表示される", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        data={{ ...mockData, import_histories: [] }}
+      />,
+    );
+    expect(
+      screen.getByText("インポート履歴が見つかりません"),
+    ).toBeInTheDocument();
+  });
+});
