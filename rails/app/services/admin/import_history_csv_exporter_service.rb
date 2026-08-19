@@ -4,7 +4,7 @@ module Admin
   class ImportHistoryCsvExporterService
     require 'csv'
 
-    BOM = '﻿'
+    BOM = "\uFEFF"
 
     def initialize(import_history)
       @import_history = import_history
