@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
+import { useSortToggle } from "@/hooks/useSortToggle";
 import type {
   ImportHistoriesData,
   ImportHistoryFilters,
-  ImportHistoryOrder,
   ImportHistorySort,
   ImportHistoryStatus,
 } from "../types";
@@ -36,8 +36,7 @@ export const useFetchHistories = () => {
   const [unitOptions, setUnitOptions] = useState<UnitOption[]>([]);
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [filters, setFilters] = useState<ImportHistoryFilters>(INITIAL_FILTERS);
-  const [sort, setSort] = useState<ImportHistorySort>("created_at");
-  const [order, setOrder] = useState<ImportHistoryOrder>("desc");
+  const { sort, order, toggleSort } = useSortToggle<ImportHistorySort>("created_at");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const router = useRouter();
@@ -159,12 +158,7 @@ export const useFetchHistories = () => {
   };
 
   const handleSortChange = (nextSort: ImportHistorySort) => {
-    if (sort === nextSort) {
-      setOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSort(nextSort);
-      setOrder("asc");
-    }
+    toggleSort(nextSort);
     setPage(1);
   };
 
