@@ -140,6 +140,18 @@ describe("AdminImportHistoryPresenter", () => {
     expect(dashes.length).toBeGreaterThanOrEqual(2);
   });
 
+  it("created_at が不正な値でもクラッシュせず「-」で表示される", () => {
+    const data: ImportHistoriesData = {
+      ...mockData,
+      import_histories: [
+        { ...mockData.import_histories[0], id: 6, created_at: "" },
+      ],
+    };
+    expect(() =>
+      render(<Presenter {...defaultProps} data={data} />),
+    ).not.toThrow();
+  });
+
   it("ステータスセレクトの変更で onStatusChange が呼ばれる", () => {
     const onStatusChange = vi.fn();
     render(<Presenter {...defaultProps} onStatusChange={onStatusChange} />);

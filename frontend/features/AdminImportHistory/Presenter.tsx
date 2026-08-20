@@ -24,7 +24,7 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
-import { format, parseISO } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import {
   IMPORT_STATUS_COLOR,
   IMPORT_STATUS_LABEL,
@@ -68,6 +68,11 @@ const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
 
 const dateToInput = (value: string) => (value ? parseISO(value) : null);
 const dateToParam = (date: Date | null) => (date ? format(date, "yyyy-MM-dd") : "");
+
+const formatDateTime = (value: string) => {
+  const date = new Date(value);
+  return isValid(date) ? format(date, "yyyy/MM/dd HH:mm") : "-";
+};
 
 export const Presenter = ({
   data,
@@ -299,7 +304,7 @@ export const Presenter = ({
                       }}
                     >
                       <TableCell>
-                        {format(new Date(history.created_at), "yyyy/MM/dd HH:mm")}
+                        {formatDateTime(history.created_at)}
                       </TableCell>
                       <TableCell>{history.course?.level_name ?? "-"}</TableCell>
                       <TableCell>{history.unit?.unit_name ?? "-"}</TableCell>
