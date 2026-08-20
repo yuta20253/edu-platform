@@ -66,6 +66,7 @@ const defaultProps = {
   sort: "created_at" as const,
   order: "desc" as const,
   page: 1,
+  perPage: 20,
   onStatusChange: vi.fn(),
   onCourseChange: vi.fn(),
   onUnitChange: vi.fn(),
@@ -74,6 +75,7 @@ const defaultProps = {
   onToChange: vi.fn(),
   onSortChange: vi.fn(),
   onPageChange: vi.fn(),
+  onPerPageChange: vi.fn(),
   onRowClick: vi.fn(),
 };
 
@@ -202,6 +204,18 @@ describe("AdminImportHistoryPresenter", () => {
     const sortButton = screen.getByRole("button", { name: /件数/ });
     fireEvent.click(sortButton);
     expect(onSortChange).toHaveBeenCalledWith("total_count");
+  });
+
+  it("表示件数プルダウンに 20 / 50 / 100 が表示され、変更で onPerPageChange が呼ばれる", () => {
+    const onPerPageChange = vi.fn();
+    render(<Presenter {...defaultProps} onPerPageChange={onPerPageChange} />);
+    const select = screen.getByLabelText("表示件数");
+    fireEvent.mouseDown(select);
+    expect(screen.getByRole("option", { name: "20件" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "50件" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "100件" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: "50件" }));
+    expect(onPerPageChange).toHaveBeenCalledWith(50);
   });
 
   it("ページネーションが表示される", () => {

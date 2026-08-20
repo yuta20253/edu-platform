@@ -28,6 +28,7 @@ import { format, isValid, parseISO } from "date-fns";
 import {
   IMPORT_STATUS_COLOR,
   IMPORT_STATUS_LABEL,
+  PER_PAGE_OPTIONS,
   type ImportHistoriesData,
   type ImportHistoryFilters,
   type ImportHistoryOrder,
@@ -48,6 +49,7 @@ type Props = {
   sort: ImportHistorySort;
   order: ImportHistoryOrder;
   page: number;
+  perPage: number;
   onStatusChange: (status: ImportHistoryStatus | "") => void;
   onCourseChange: (courseId: string) => void;
   onUnitChange: (unitId: string) => void;
@@ -56,6 +58,7 @@ type Props = {
   onToChange: (to: string) => void;
   onSortChange: (sort: ImportHistorySort) => void;
   onPageChange: (page: number) => void;
+  onPerPageChange: (perPage: number) => void;
   onRowClick: (id: number) => void;
 };
 
@@ -83,6 +86,7 @@ export const Presenter = ({
   sort,
   order,
   page,
+  perPage,
   onStatusChange,
   onCourseChange,
   onUnitChange,
@@ -91,6 +95,7 @@ export const Presenter = ({
   onToChange,
   onSortChange,
   onPageChange,
+  onPerPageChange,
   onRowClick,
 }: Props) => {
   const { import_histories: histories, meta } = data;
@@ -113,6 +118,10 @@ export const Presenter = ({
 
   const handleUserChange = (e: SelectChangeEvent<string>) => {
     onUserChange(e.target.value);
+  };
+
+  const handlePerPageChange = (e: SelectChangeEvent<string>) => {
+    onPerPageChange(Number(e.target.value));
   };
 
   return (
@@ -203,6 +212,22 @@ export const Presenter = ({
             {userOptions.map((user) => (
               <MenuItem key={user.id} value={String(user.id)}>
                 {user.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel id="import-history-per-page-label">表示件数</InputLabel>
+          <Select
+            labelId="import-history-per-page-label"
+            label="表示件数"
+            value={String(perPage)}
+            onChange={handlePerPageChange}
+          >
+            {PER_PAGE_OPTIONS.map((option) => (
+              <MenuItem key={option} value={String(option)}>
+                {option}件
               </MenuItem>
             ))}
           </Select>

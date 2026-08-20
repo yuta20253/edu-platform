@@ -39,6 +39,7 @@ export const useFetchHistories = () => {
   const [sort, setSort] = useState<ImportHistorySort>("created_at");
   const [order, setOrder] = useState<ImportHistoryOrder>("desc");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
   const router = useRouter();
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export const useFetchHistories = () => {
   useEffect(() => {
     const params: Record<string, string> = {
       page: String(page),
+      per_page: String(perPage),
       sort,
       order,
     };
@@ -111,7 +113,7 @@ export const useFetchHistories = () => {
     return () => {
       controller.abort();
     };
-  }, [page, sort, order, filters, router]);
+  }, [page, perPage, sort, order, filters, router]);
 
   const handleStatusChange = (status: ImportHistoryStatus | "") => {
     setFilters((prev) => ({ ...prev, status }));
@@ -143,6 +145,11 @@ export const useFetchHistories = () => {
     setPage(1);
   };
 
+  const handlePerPageChange = (nextPerPage: number) => {
+    setPerPage(nextPerPage);
+    setPage(1);
+  };
+
   const handleSortChange = (nextSort: ImportHistorySort) => {
     if (sort === nextSort) {
       setOrder((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -167,6 +174,7 @@ export const useFetchHistories = () => {
     sort,
     order,
     page,
+    perPage,
     onStatusChange: handleStatusChange,
     onCourseChange: handleCourseChange,
     onUnitChange: handleUnitChange,
@@ -175,6 +183,7 @@ export const useFetchHistories = () => {
     onToChange: handleToChange,
     onSortChange: handleSortChange,
     onPageChange: setPage,
+    onPerPageChange: handlePerPageChange,
     onRowClick: handleRowClick,
   };
 };
