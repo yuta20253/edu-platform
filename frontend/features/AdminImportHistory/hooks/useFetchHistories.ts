@@ -30,6 +30,7 @@ const INITIAL_FILTERS: ImportHistoryFilters = {
 
 export const useFetchHistories = () => {
   const [data, setData] = useState<ImportHistoriesData | null>(null);
+  const [error, setError] = useState(false);
   const [courseOptions, setCourseOptions] = useState<CourseOption[]>([]);
   const [unitOptions, setUnitOptions] = useState<UnitOption[]>([]);
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
@@ -86,13 +87,16 @@ export const useFetchHistories = () => {
     if (filters.from) params.from = filters.from;
     if (filters.to) params.to = filters.to;
 
+    setError(false);
     apiClient
       .get<ImportHistoriesData>("/api/admin/import_histories", { params })
       .then((res) => setData(res.data))
       .catch((err) => {
         if (err.response?.status === 401) {
           router.push("/login");
+          return;
         }
+        setError(true);
       });
   }, [page, sort, order, filters, router]);
 
@@ -142,6 +146,7 @@ export const useFetchHistories = () => {
 
   return {
     data,
+    error,
     filters,
     courseOptions,
     unitOptions,
