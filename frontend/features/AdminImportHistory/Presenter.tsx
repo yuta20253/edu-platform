@@ -90,6 +90,10 @@ export const Presenter = ({
 }: Props) => {
   const { import_histories: histories, meta } = data;
 
+  const fromDate = dateToInput(filters.from);
+  const toDate = dateToInput(filters.to);
+  const dateRangeInvalid = !!fromDate && !!toDate && fromDate > toDate;
+
   const handleStatusChange = (e: SelectChangeEvent<string>) => {
     onStatusChange(e.target.value as ImportHistoryStatus | "");
   };
@@ -203,16 +207,26 @@ export const Presenter = ({
           <DatePicker
             label="開始日"
             format="yyyy/MM/dd"
-            value={dateToInput(filters.from)}
+            value={fromDate}
+            maxDate={toDate ?? undefined}
             onChange={(date) => onFromChange(dateToParam(date))}
             slotProps={{ textField: { size: "small" } }}
           />
           <DatePicker
             label="終了日"
             format="yyyy/MM/dd"
-            value={dateToInput(filters.to)}
+            value={toDate}
+            minDate={fromDate ?? undefined}
             onChange={(date) => onToChange(dateToParam(date))}
-            slotProps={{ textField: { size: "small" } }}
+            slotProps={{
+              textField: {
+                size: "small",
+                error: dateRangeInvalid,
+                helperText: dateRangeInvalid
+                  ? "終了日は開始日以降の日付を指定してください"
+                  : undefined,
+              },
+            }}
           />
         </LocalizationProvider>
       </Box>

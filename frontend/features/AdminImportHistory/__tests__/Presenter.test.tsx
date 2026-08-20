@@ -204,6 +204,30 @@ describe("AdminImportHistoryPresenter", () => {
     expect(onRowClick).toHaveBeenCalledWith(1);
   });
 
+  it("終了日が開始日より前のとき、終了日フィールドにエラーが表示される", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, from: "2026-08-20", to: "2026-08-01" }}
+      />,
+    );
+    expect(
+      screen.getByText("終了日は開始日以降の日付を指定してください"),
+    ).toBeInTheDocument();
+  });
+
+  it("開始日が終了日以前のとき、日付レンジのエラーは表示されない", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, from: "2026-08-01", to: "2026-08-20" }}
+      />,
+    );
+    expect(
+      screen.queryByText("終了日は開始日以降の日付を指定してください"),
+    ).not.toBeInTheDocument();
+  });
+
   it("import_histories が空のとき「見つかりません」が表示される", () => {
     render(
       <Presenter
