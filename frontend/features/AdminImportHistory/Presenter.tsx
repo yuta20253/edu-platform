@@ -80,6 +80,18 @@ const flat = {
   stripe: "#F7F7F7",
   accent: "#1ABB9C",
   titleText: "#2A3F54",
+  filterBg: "#FAFBFC",
+};
+
+// フィルタのSelect/DatePickerを角丸なし・小さめのGentelella風に揃えるための共通sx
+const compactFieldSx = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "2px",
+    fontSize: "0.8125rem",
+  },
+  "& .MuiInputLabel-root": {
+    fontSize: "0.8125rem",
+  },
 };
 
 const formatDateTime = (value: string) => {
@@ -148,11 +160,13 @@ export const Presenter = ({
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
-          gap: 2,
+          gap: 1.25,
           mb: 3,
+          p: 1.5,
+          bgcolor: flat.filterBg,
         }}
       >
-        <FormControl size="small" sx={{ minWidth: 140 }}>
+        <FormControl size="small" sx={{ minWidth: 110, ...compactFieldSx }}>
           <InputLabel id="import-history-status-label">ステータス</InputLabel>
           <Select
             labelId="import-history-status-label"
@@ -171,7 +185,7 @@ export const Presenter = ({
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
           <InputLabel id="import-history-course-label">コース</InputLabel>
           <Select
             labelId="import-history-course-label"
@@ -188,7 +202,7 @@ export const Presenter = ({
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
           <InputLabel id="import-history-unit-label">単元</InputLabel>
           <Select
             labelId="import-history-unit-label"
@@ -205,7 +219,7 @@ export const Presenter = ({
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
           <InputLabel id="import-history-user-label">実行者</InputLabel>
           <Select
             labelId="import-history-user-label"
@@ -222,22 +236,6 @@ export const Presenter = ({
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel id="import-history-per-page-label">表示件数</InputLabel>
-          <Select
-            labelId="import-history-per-page-label"
-            label="表示件数"
-            value={String(perPage)}
-            onChange={handlePerPageChange}
-          >
-            {PER_PAGE_OPTIONS.map((option) => (
-              <MenuItem key={option} value={String(option)}>
-                {option}件
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
           <DatePicker
             label="開始日"
@@ -245,7 +243,9 @@ export const Presenter = ({
             value={fromDate}
             maxDate={toDate ?? undefined}
             onChange={(date) => onFromChange(dateToParam(date))}
-            slotProps={{ textField: { size: "small" } }}
+            slotProps={{
+              textField: { size: "small", sx: { width: 140, ...compactFieldSx } },
+            }}
           />
           <DatePicker
             label="終了日"
@@ -260,10 +260,30 @@ export const Presenter = ({
                 helperText: dateRangeInvalid
                   ? "終了日は開始日以降の日付を指定してください"
                   : undefined,
+                sx: { width: 140, ...compactFieldSx },
               },
             }}
           />
         </LocalizationProvider>
+
+        <FormControl
+          size="small"
+          sx={{ minWidth: 90, ml: "auto", ...compactFieldSx }}
+        >
+          <InputLabel id="import-history-per-page-label">表示件数</InputLabel>
+          <Select
+            labelId="import-history-per-page-label"
+            label="表示件数"
+            value={String(perPage)}
+            onChange={handlePerPageChange}
+          >
+            {PER_PAGE_OPTIONS.map((option) => (
+              <MenuItem key={option} value={String(option)}>
+                {option}件
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* テーブル */}
