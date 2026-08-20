@@ -152,6 +152,11 @@ export const useFetchHistories = () => {
     updateFilters({ to });
   };
 
+  const handleClearFilters = () => {
+    setFilters(INITIAL_FILTERS);
+    setPage(1);
+  };
+
   const handlePerPageChange = (nextPerPage: number) => {
     setPerPage(nextPerPage);
     setPage(1);
@@ -186,6 +191,7 @@ export const useFetchHistories = () => {
     onSortChange: handleSortChange,
     onPageChange: setPage,
     onPerPageChange: handlePerPageChange,
+    onClearFilters: handleClearFilters,
     onRowClick: handleRowClick,
   };
 };

@@ -76,6 +76,7 @@ const defaultProps = {
   onSortChange: vi.fn(),
   onPageChange: vi.fn(),
   onPerPageChange: vi.fn(),
+  onClearFilters: vi.fn(),
   onRowClick: vi.fn(),
 };
 
@@ -154,6 +155,107 @@ describe("AdminImportHistoryPresenter", () => {
     expect(() =>
       render(<Presenter {...defaultProps} data={data} />),
     ).not.toThrow();
+  });
+
+  it("フィルタが未設定のとき、個別クリアボタンと一括クリアボタンは表示されない", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(
+      screen.queryByRole("button", { name: "ステータスをクリア" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "フィルタを全てクリア" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("ステータスフィルタ設定時、個別クリアボタンで onStatusChange('') が呼ばれる", () => {
+    const onStatusChange = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, status: "completed" }}
+        onStatusChange={onStatusChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "ステータスをクリア" }));
+    expect(onStatusChange).toHaveBeenCalledWith("");
+  });
+
+  it("コースフィルタ設定時、個別クリアボタンで onCourseChange('') が呼ばれる", () => {
+    const onCourseChange = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, courseId: "10" }}
+        onCourseChange={onCourseChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "コースをクリア" }));
+    expect(onCourseChange).toHaveBeenCalledWith("");
+  });
+
+  it("単元フィルタ設定時、個別クリアボタンで onUnitChange('') が呼ばれる", () => {
+    const onUnitChange = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, unitId: "100" }}
+        onUnitChange={onUnitChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "単元をクリア" }));
+    expect(onUnitChange).toHaveBeenCalledWith("");
+  });
+
+  it("実行者フィルタ設定時、個別クリアボタンで onUserChange('') が呼ばれる", () => {
+    const onUserChange = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, userId: "1000" }}
+        onUserChange={onUserChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "実行者をクリア" }));
+    expect(onUserChange).toHaveBeenCalledWith("");
+  });
+
+  it("開始日フィルタ設定時、個別クリアボタンで onFromChange('') が呼ばれる", () => {
+    const onFromChange = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, from: "2026-08-01" }}
+        onFromChange={onFromChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "開始日をクリア" }));
+    expect(onFromChange).toHaveBeenCalledWith("");
+  });
+
+  it("終了日フィルタ設定時、個別クリアボタンで onToChange('') が呼ばれる", () => {
+    const onToChange = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, to: "2026-08-20" }}
+        onToChange={onToChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "終了日をクリア" }));
+    expect(onToChange).toHaveBeenCalledWith("");
+  });
+
+  it("いずれかのフィルタが設定されているとき、一括クリアボタンが表示され onClearFilters が呼ばれる", () => {
+    const onClearFilters = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        filters={{ ...defaultProps.filters, status: "completed" }}
+        onClearFilters={onClearFilters}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "フィルタを全てクリア" }));
+    expect(onClearFilters).toHaveBeenCalled();
   });
 
   it("ステータスセレクトの変更で onStatusChange が呼ばれる", () => {

@@ -3,10 +3,13 @@
 import { colors } from "@/app/theme/colors";
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
   FormControl,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Pagination,
@@ -21,6 +24,7 @@ import {
   TableSortLabel,
   Typography,
 } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
@@ -59,6 +63,7 @@ type Props = {
   onSortChange: (sort: ImportHistorySort) => void;
   onPageChange: (page: number) => void;
   onPerPageChange: (perPage: number) => void;
+  onClearFilters: () => void;
   onRowClick: (id: number) => void;
 };
 
@@ -118,6 +123,7 @@ export const Presenter = ({
   onSortChange,
   onPageChange,
   onPerPageChange,
+  onClearFilters,
   onRowClick,
 }: Props) => {
   const { import_histories: histories, meta } = data;
@@ -125,6 +131,13 @@ export const Presenter = ({
   const fromDate = dateToInput(filters.from);
   const toDate = dateToInput(filters.to);
   const dateRangeInvalid = !!fromDate && !!toDate && fromDate > toDate;
+  const hasActiveFilters =
+    !!filters.status ||
+    !!filters.courseId ||
+    !!filters.unitId ||
+    !!filters.userId ||
+    !!filters.from ||
+    !!filters.to;
 
   const handlePerPageChange = (e: SelectChangeEvent<string>) => {
     onPerPageChange(Number(e.target.value));
@@ -175,6 +188,22 @@ export const Presenter = ({
             onChange={(e) =>
               onStatusChange(e.target.value as ImportHistoryStatus | "")
             }
+            endAdornment={
+              filters.status && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="ステータスをクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStatusChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
           >
             <MenuItem value="">すべて</MenuItem>
             {STATUS_OPTIONS.map((option) => (
@@ -192,6 +221,22 @@ export const Presenter = ({
             label="コース"
             value={filters.courseId}
             onChange={(e) => onCourseChange(e.target.value)}
+            endAdornment={
+              filters.courseId && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="コースをクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCourseChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
           >
             <MenuItem value="">すべて</MenuItem>
             {courseOptions.map((course) => (
@@ -209,6 +254,22 @@ export const Presenter = ({
             label="単元"
             value={filters.unitId}
             onChange={(e) => onUnitChange(e.target.value)}
+            endAdornment={
+              filters.unitId && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="単元をクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUnitChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
           >
             <MenuItem value="">すべて</MenuItem>
             {unitOptions.map((unit) => (
@@ -226,6 +287,22 @@ export const Presenter = ({
             label="実行者"
             value={filters.userId}
             onChange={(e) => onUserChange(e.target.value)}
+            endAdornment={
+              filters.userId && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="実行者をクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUserChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
           >
             <MenuItem value="">すべて</MenuItem>
             {userOptions.map((user) => (
@@ -244,7 +321,25 @@ export const Presenter = ({
             maxDate={toDate ?? undefined}
             onChange={(date) => onFromChange(dateToParam(date))}
             slotProps={{
-              textField: { size: "small", sx: { width: 140, ...compactFieldSx } },
+              textField: {
+                size: "small",
+                sx: { width: 140, ...compactFieldSx },
+                InputProps: filters.from
+                  ? {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="開始日をクリア"
+                            size="small"
+                            onClick={() => onFromChange("")}
+                          >
+                            <ClearIcon fontSize="inherit" />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                  : undefined,
+              },
             }}
           />
           <DatePicker
@@ -261,10 +356,39 @@ export const Presenter = ({
                   ? "終了日は開始日以降の日付を指定してください"
                   : undefined,
                 sx: { width: 140, ...compactFieldSx },
+                InputProps: filters.to
+                  ? {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="終了日をクリア"
+                            size="small"
+                            onClick={() => onToChange("")}
+                          >
+                            <ClearIcon fontSize="inherit" />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                  : undefined,
               },
             }}
           />
         </LocalizationProvider>
+
+        {hasActiveFilters && (
+          <Button
+            size="small"
+            onClick={onClearFilters}
+            sx={{
+              color: colors.text.muted,
+              textTransform: "none",
+              fontSize: "0.8125rem",
+            }}
+          >
+            フィルタを全てクリア
+          </Button>
+        )}
 
         <FormControl
           size="small"
