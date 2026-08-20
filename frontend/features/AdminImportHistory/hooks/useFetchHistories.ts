@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import type {
   ImportHistoriesData,
@@ -87,17 +88,29 @@ export const useFetchHistories = () => {
     if (filters.from) params.from = filters.from;
     if (filters.to) params.to = filters.to;
 
+    // フィルタを素早く連続変更した際、古いリクエストのレスポンスが新しい
+    // レスポンスを上書きしないよう、リクエストごとにキャンセルする
+    const controller = new AbortController();
+
     setError(false);
     apiClient
-      .get<ImportHistoriesData>("/api/admin/import_histories", { params })
+      .get<ImportHistoriesData>("/api/admin/import_histories", {
+        params,
+        signal: controller.signal,
+      })
       .then((res) => setData(res.data))
       .catch((err) => {
+        if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
           router.push("/login");
           return;
         }
         setError(true);
       });
+
+    return () => {
+      controller.abort();
+    };
   }, [page, sort, order, filters, router]);
 
   const handleStatusChange = (status: ImportHistoryStatus | "") => {
