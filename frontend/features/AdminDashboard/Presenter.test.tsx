@@ -75,4 +75,10 @@ describe("AdminDashboardPresenter", () => {
       screen.getByText("CSVインポート履歴がありません"),
     ).toBeInTheDocument();
   });
+
+  it("「すべて見る」リンクが履歴一覧ページを指す", () => {
+    render(<Presenter data={mockData} />);
+    const link = screen.getByRole("link", { name: "すべて見る" });
+    expect(link).toHaveAttribute("href", "/admin/csv-import/history");
+  });
 });
