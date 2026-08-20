@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
@@ -64,15 +64,26 @@ export const useFetchHistories = () => {
       });
   }, [router]);
 
+  const unitOptionsCache = useRef(new Map<string, UnitOption[]>());
+
   useEffect(() => {
     if (!filters.courseId) {
       setUnitOptions([]);
       return;
     }
 
+    const cached = unitOptionsCache.current.get(filters.courseId);
+    if (cached) {
+      setUnitOptions(cached);
+      return;
+    }
+
     apiClient
       .get<AdminCourseDetailData>(`/api/admin/courses/${filters.courseId}`)
-      .then((res) => setUnitOptions(res.data.units))
+      .then((res) => {
+        unitOptionsCache.current.set(filters.courseId, res.data.units);
+        setUnitOptions(res.data.units);
+      })
       .catch(() => setUnitOptions([]));
   }, [filters.courseId]);
 
