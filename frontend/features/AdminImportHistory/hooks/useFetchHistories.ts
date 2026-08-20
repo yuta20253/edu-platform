@@ -43,15 +43,23 @@ export const useFetchHistories = () => {
     apiClient
       .get<AdminCoursesData>("/api/admin/courses", { params: { per_page: 100 } })
       .then((res) => setCourseOptions(res.data.courses))
-      .catch(() => {});
-  }, []);
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          router.push("/login");
+        }
+      });
+  }, [router]);
 
   useEffect(() => {
     apiClient
       .get<AdminAdminsData>("/api/admin/admins", { params: { per_page: 100 } })
       .then((res) => setUserOptions(res.data.admins))
-      .catch(() => {});
-  }, []);
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          router.push("/login");
+        }
+      });
+  }, [router]);
 
   useEffect(() => {
     if (!filters.courseId) {
