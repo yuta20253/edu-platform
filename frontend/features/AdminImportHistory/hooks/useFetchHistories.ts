@@ -126,34 +126,33 @@ export const useFetchHistories = () => {
     };
   }, [page, perPage, sort, order, filters, router]);
 
-  const handleStatusChange = (status: ImportHistoryStatus | "") => {
-    setFilters((prev) => ({ ...prev, status }));
+  const updateFilters = (patch: Partial<ImportHistoryFilters>) => {
+    setFilters((prev) => ({ ...prev, ...patch }));
     setPage(1);
+  };
+
+  const handleStatusChange = (status: ImportHistoryStatus | "") => {
+    updateFilters({ status });
   };
 
   const handleCourseChange = (courseId: string) => {
-    setFilters((prev) => ({ ...prev, courseId, unitId: "" }));
-    setPage(1);
+    updateFilters({ courseId, unitId: "" });
   };
 
   const handleUnitChange = (unitId: string) => {
-    setFilters((prev) => ({ ...prev, unitId }));
-    setPage(1);
+    updateFilters({ unitId });
   };
 
   const handleUserChange = (userId: string) => {
-    setFilters((prev) => ({ ...prev, userId }));
-    setPage(1);
+    updateFilters({ userId });
   };
 
   const handleFromChange = (from: string) => {
-    setFilters((prev) => ({ ...prev, from }));
-    setPage(1);
+    updateFilters({ from });
   };
 
   const handleToChange = (to: string) => {
-    setFilters((prev) => ({ ...prev, to }));
-    setPage(1);
+    updateFilters({ to });
   };
 
   const handlePerPageChange = (nextPerPage: number) => {
