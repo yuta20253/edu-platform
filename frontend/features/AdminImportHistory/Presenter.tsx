@@ -72,6 +72,16 @@ const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
 const dateToInput = (value: string) => (value ? parseISO(value) : null);
 const dateToParam = (date: Date | null) => (date ? format(date, "yyyy-MM-dd") : "");
 
+// Gentelella風のフラット・ミニマルなテイストを本画面ローカルで再現するトークン。
+// 角丸なし・影なし、薄いグレーのボーダーのみで区切る。
+const flat = {
+  border: "#E6E9ED",
+  headerBg: "#ffffff",
+  stripe: "#F7F7F7",
+  accent: "#1ABB9C",
+  titleText: "#2A3F54",
+};
+
 const formatDateTime = (value: string) => {
   const date = new Date(value);
   return isValid(date) ? format(date, "yyyy/MM/dd HH:mm") : "-";
@@ -110,11 +120,20 @@ export const Presenter = ({
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 1.5,
+          mb: 3,
+          pb: 1.5,
+          borderBottom: `2px solid ${flat.border}`,
+        }}
+      >
         <Typography
           variant="h5"
-          fontWeight={700}
-          sx={{ color: colors.text.primary }}
+          fontWeight={600}
+          sx={{ color: flat.titleText, letterSpacing: 0.3 }}
         >
           インポート履歴一覧
         </Typography>
@@ -251,8 +270,9 @@ export const Presenter = ({
       <Card
         elevation={0}
         sx={{
-          border: `1px solid ${colors.border.light}`,
-          borderRadius: 2,
+          border: `1px solid ${flat.border}`,
+          borderRadius: 0,
+          boxShadow: "none",
           mb: 3,
         }}
       >
@@ -265,10 +285,22 @@ export const Presenter = ({
             </Box>
           ) : (
             <TableContainer>
-              <Table size="small">
+              <Table
+                size="small"
+                sx={{
+                  "& .MuiTableCell-root": {
+                    borderBottom: `1px solid ${flat.border}`,
+                  },
+                }}
+              >
                 <TableHead>
-                  <TableRow sx={{ bgcolor: colors.surface.light }}>
-                    <TableCell sx={{ fontWeight: 600 }}>
+                  <TableRow sx={{ bgcolor: flat.headerBg }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                    >
                       <TableSortLabel
                         active={sort === "created_at"}
                         direction={sort === "created_at" ? order : "desc"}
@@ -277,9 +309,29 @@ export const Presenter = ({
                         日時
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>コース</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>単元</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                    >
+                      コース
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                    >
+                      単元
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                      align="right"
+                    >
                       <TableSortLabel
                         active={sort === "total_count"}
                         direction={sort === "total_count" ? order : "asc"}
@@ -288,7 +340,13 @@ export const Presenter = ({
                         件数
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                      align="right"
+                    >
                       <TableSortLabel
                         active={sort === "success_count"}
                         direction={sort === "success_count" ? order : "asc"}
@@ -305,8 +363,20 @@ export const Presenter = ({
                         エラー数
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>実行者</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                    >
+                      実行者
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        borderBottom: `2px solid ${flat.border}`,
+                      }}
+                    >
                       <TableSortLabel
                         active={sort === "status"}
                         direction={sort === "status" ? order : "asc"}
@@ -318,14 +388,16 @@ export const Presenter = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {histories.map((history) => (
+                  {histories.map((history, index) => (
                     <TableRow
                       key={history.id}
                       hover
                       onClick={() => onRowClick(history.id)}
                       sx={{
                         cursor: "pointer",
+                        bgcolor: index % 2 === 1 ? flat.stripe : "transparent",
                         "&:last-child td": { border: 0 },
+                        "&:hover": { bgcolor: "#EFF3F5" },
                       }}
                     >
                       <TableCell>
@@ -343,7 +415,13 @@ export const Presenter = ({
                           label={IMPORT_STATUS_LABEL[history.status]}
                           size="small"
                           color={IMPORT_STATUS_COLOR[history.status]}
-                          variant="outlined"
+                          variant="filled"
+                          sx={{
+                            borderRadius: "3px",
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                            color: "#fff",
+                          }}
                         />
                       </TableCell>
                     </TableRow>
