@@ -104,22 +104,6 @@ export const Presenter = ({
   const toDate = dateToInput(filters.to);
   const dateRangeInvalid = !!fromDate && !!toDate && fromDate > toDate;
 
-  const handleStatusChange = (e: SelectChangeEvent<string>) => {
-    onStatusChange(e.target.value as ImportHistoryStatus | "");
-  };
-
-  const handleCourseChange = (e: SelectChangeEvent<string>) => {
-    onCourseChange(e.target.value);
-  };
-
-  const handleUnitChange = (e: SelectChangeEvent<string>) => {
-    onUnitChange(e.target.value);
-  };
-
-  const handleUserChange = (e: SelectChangeEvent<string>) => {
-    onUserChange(e.target.value);
-  };
-
   const handlePerPageChange = (e: SelectChangeEvent<string>) => {
     onPerPageChange(Number(e.target.value));
   };
@@ -155,7 +139,9 @@ export const Presenter = ({
             labelId="import-history-status-label"
             label="ステータス"
             value={filters.status}
-            onChange={handleStatusChange}
+            onChange={(e) =>
+              onStatusChange(e.target.value as ImportHistoryStatus | "")
+            }
           >
             <MenuItem value="">すべて</MenuItem>
             {STATUS_OPTIONS.map((option) => (
@@ -172,7 +158,7 @@ export const Presenter = ({
             labelId="import-history-course-label"
             label="コース"
             value={filters.courseId}
-            onChange={handleCourseChange}
+            onChange={(e) => onCourseChange(e.target.value)}
           >
             <MenuItem value="">すべて</MenuItem>
             {courseOptions.map((course) => (
@@ -189,7 +175,7 @@ export const Presenter = ({
             labelId="import-history-unit-label"
             label="単元"
             value={filters.unitId}
-            onChange={handleUnitChange}
+            onChange={(e) => onUnitChange(e.target.value)}
           >
             <MenuItem value="">すべて</MenuItem>
             {unitOptions.map((unit) => (
@@ -206,7 +192,7 @@ export const Presenter = ({
             labelId="import-history-user-label"
             label="実行者"
             value={filters.userId}
-            onChange={handleUserChange}
+            onChange={(e) => onUserChange(e.target.value)}
           >
             <MenuItem value="">すべて</MenuItem>
             {userOptions.map((user) => (
