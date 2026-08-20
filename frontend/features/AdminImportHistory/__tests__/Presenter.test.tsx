@@ -89,7 +89,9 @@ describe("AdminImportHistoryPresenter", () => {
     expect(headers).toContain("コース");
     expect(headers).toContain("単元");
     expect(headers).toContain("件数");
-    expect(headers).toContain("成功数/エラー数");
+    expect(headers.some((h) => h?.includes("成功数") && h?.includes("エラー数"))).toBe(
+      true,
+    );
     expect(headers).toContain("実行者");
     expect(headers).toContain("ステータス");
   });
@@ -204,6 +206,20 @@ describe("AdminImportHistoryPresenter", () => {
     const sortButton = screen.getByRole("button", { name: /件数/ });
     fireEvent.click(sortButton);
     expect(onSortChange).toHaveBeenCalledWith("total_count");
+  });
+
+  it("成功数ソートボタンをクリックすると onSortChange が success_count で呼ばれる", () => {
+    const onSortChange = vi.fn();
+    render(<Presenter {...defaultProps} onSortChange={onSortChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "成功数" }));
+    expect(onSortChange).toHaveBeenCalledWith("success_count");
+  });
+
+  it("エラー数ソートボタンをクリックすると onSortChange が error_count で呼ばれる", () => {
+    const onSortChange = vi.fn();
+    render(<Presenter {...defaultProps} onSortChange={onSortChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "エラー数" }));
+    expect(onSortChange).toHaveBeenCalledWith("error_count");
   });
 
   it("表示件数プルダウンに 20 / 50 / 100 が表示され、変更で onPerPageChange が呼ばれる", () => {

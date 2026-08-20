@@ -303,7 +303,21 @@ export const Presenter = ({
                       </TableSortLabel>
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="right">
-                      成功数/エラー数
+                      <TableSortLabel
+                        active={sort === "success_count"}
+                        direction={sort === "success_count" ? order : "asc"}
+                        onClick={() => onSortChange("success_count")}
+                      >
+                        成功数
+                      </TableSortLabel>
+                      {" / "}
+                      <TableSortLabel
+                        active={sort === "error_count"}
+                        direction={sort === "error_count" ? order : "asc"}
+                        onClick={() => onSortChange("error_count")}
+                      >
+                        エラー数
+                      </TableSortLabel>
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>実行者</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>
