@@ -43,20 +43,18 @@ export const useFetchHistories = () => {
   const router = useRouter();
 
   useEffect(() => {
-    apiClient
-      .get<AdminCoursesData>("/api/admin/courses", { params: { per_page: 100 } })
-      .then((res) => setCourseOptions(res.data.courses))
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-        }
-      });
-  }, [router]);
-
-  useEffect(() => {
-    apiClient
-      .get<AdminAdminsData>("/api/admin/admins", { params: { per_page: 100 } })
-      .then((res) => setUserOptions(res.data.admins))
+    Promise.all([
+      apiClient.get<AdminCoursesData>("/api/admin/courses", {
+        params: { per_page: 100 },
+      }),
+      apiClient.get<AdminAdminsData>("/api/admin/admins", {
+        params: { per_page: 100 },
+      }),
+    ])
+      .then(([coursesRes, adminsRes]) => {
+        setCourseOptions(coursesRes.data.courses);
+        setUserOptions(adminsRes.data.admins);
+      })
       .catch((err) => {
         if (err.response?.status === 401) {
           router.push("/login");
