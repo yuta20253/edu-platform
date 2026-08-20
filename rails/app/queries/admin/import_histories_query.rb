@@ -6,6 +6,16 @@ module Admin
       @scope = scope.includes(:user, unit: :course)
     end
 
+    def call(filters = {})
+      by_status(filters[:status])
+      by_unit_id(filters[:unit_id])
+      by_course_id(filters[:course_id])
+      by_user_id(filters[:user_id])
+      by_period(filters[:from], filters[:to])
+      order_by_created_at_desc
+      result
+    end
+
     def by_status(status)
       return self unless status.is_a?(String) || status.is_a?(Symbol)
       return self if status.to_s.blank?

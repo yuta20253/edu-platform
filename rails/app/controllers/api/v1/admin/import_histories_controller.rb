@@ -41,14 +41,9 @@ module Api
         private
 
         def import_histories_scope
-          ::Admin::ImportHistoriesQuery.new
-                                       .by_status(params[:status])
-                                       .by_unit_id(params[:unit_id])
-                                       .by_course_id(params[:course_id])
-                                       .by_user_id(params[:user_id])
-                                       .by_period(params[:from], params[:to])
-                                       .order_by_created_at_desc
-                                       .result
+          ::Admin::ImportHistoriesQuery.new.call(
+            params.slice(:status, :unit_id, :course_id, :user_id, :from, :to)
+          )
         end
       end
     end

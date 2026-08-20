@@ -3,6 +3,24 @@
 require 'rails_helper'
 
 RSpec.describe Admin::ImportHistoriesQuery, type: :model do
+  describe '#call' do
+    let!(:unit_a) { create(:unit) }
+    let!(:unit_b) { create(:unit) }
+    let!(:matched) { create(:import_history, unit: unit_a, status: :completed) }
+    let!(:unmatched_status) { create(:import_history, unit: unit_a, status: :failed) }
+    let!(:unmatched_unit) { create(:import_history, unit: unit_b, status: :completed) }
+
+    it 'キーワード引数のフィルタを組み合わせて絞り込む' do
+      result = described_class.new.call(status: 'completed', unit_id: unit_a.id)
+      expect(result).to contain_exactly(matched)
+    end
+
+    it '引数を渡さない場合は全件を作成日時降順で返す' do
+      result = described_class.new.call
+      expect(result).to contain_exactly(matched, unmatched_status, unmatched_unit)
+    end
+  end
+
   describe '#result' do
     it 'user / unit / unit.course を preload するように relation に includes を指定する' do
       relation = described_class.new.result
