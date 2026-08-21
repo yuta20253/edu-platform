@@ -42,6 +42,38 @@ RSpec.describe Admin::ImportHistoryCsvExporterService, type: :model do
       end
     end
 
+    context 'message が数式インジェクションを狙った値で始まる場合' do
+      before do
+        create(:import_error, import_history: history, row_number: 1, message: '=HYPERLINK("http://evil.example")')
+        create(:import_error, import_history: history, row_number: 2, message: '+1+1')
+        create(:import_error, import_history: history, row_number: 3, message: '-1+1')
+        create(:import_error, import_history: history, row_number: 4, message: '@SUM(1+1)')
+      end
+
+      it '先頭にシングルクォートを付与してエスケープする' do
+        rows = CSV.parse(csv.delete_prefix('﻿'), headers: true, skip_lines: /\A#/)
+        expect(rows.pluck('message')).to eq(
+          [
+            "'=HYPERLINK(\"http://evil.example\")",
+            "'+1+1",
+            "'-1+1",
+            "'@SUM(1+1)"
+          ]
+        )
+      end
+    end
+
+    context 'message が数式でない通常の文字列の場合' do
+      before do
+        create(:import_error, import_history: history, row_number: 1, message: '問題文は必須です')
+      end
+
+      it 'エスケープされない' do
+        rows = CSV.parse(csv.delete_prefix('﻿'), headers: true, skip_lines: /\A#/)
+        expect(rows.first['message']).to eq('問題文は必須です')
+      end
+    end
+
     context 'エラー行が存在しない場合' do
       it 'ヘッダー行のみでエラー行は出力されない' do
         rows = CSV.parse(csv.delete_prefix('﻿'), headers: true, skip_lines: /\A#/)

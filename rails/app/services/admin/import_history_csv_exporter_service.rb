@@ -5,6 +5,7 @@ module Admin
     require 'csv'
 
     BOM = "\uFEFF"
+    FORMULA_PREFIXES = ['=', '+', '-', '@'].freeze
 
     def initialize(import_history)
       @import_history = import_history
@@ -18,12 +19,21 @@ module Admin
       csv = CSV.generate do |c|
         c << %w[row_number status message]
 
-        @import_history.import_errors.order(:row_number).each do |import_error|
-          c << [import_error.row_number, 'error', import_error.message]
+        @import_history.import_errors.sort_by(&:row_number).each do |import_error|
+          c << [import_error.row_number, 'error', escape_formula(import_error.message)]
         end
       end
 
       "#{BOM}#{summary_line}#{csv}"
+    end
+
+    private
+
+    def escape_formula(value)
+      return value unless value.is_a?(String)
+      return value unless value.start_with?(*FORMULA_PREFIXES)
+
+      "'#{value}"
     end
   end
 end
