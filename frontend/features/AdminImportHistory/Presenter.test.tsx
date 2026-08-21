@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { Presenter } from "../Presenter";
-import type { ImportHistoriesData } from "../types";
+import { Presenter } from "./Presenter";
+import type { ImportHistoriesData } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
