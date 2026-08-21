@@ -116,6 +116,25 @@ RSpec.describe Admin::ImportHistoriesQuery, type: :model do
       expect(described_class.new.by_course_id([course_a.id, course_b.id]).result)
         .to contain_exactly(history_a, history_b)
     end
+
+    context '対象 course に紐づく履歴が複数件あり、ページネーションと組み合わせる場合' do
+      let!(:extra_histories) { create_list(:import_history, 2, unit: unit_a) }
+
+      it 'joins による重複行が発生せず、正しい件数を返す（unit は import_history に対して1件のため複製されない）' do
+        scope = described_class.new.by_course_id(course_a.id).result
+        expect(scope.count).to eq(3)
+      end
+
+      it 'ページを分けても合計件数と重複なく全件を取得できる' do
+        scope = described_class.new.by_course_id(course_a.id).result
+        page1 = scope.page(1).per(2).to_a
+        page2 = scope.page(2).per(2).to_a
+
+        expect(page1.size).to eq(2)
+        expect(page2.size).to eq(1)
+        expect(page1 + page2).to contain_exactly(history_a, *extra_histories)
+      end
+    end
   end
 
   describe '#by_user_id' do
