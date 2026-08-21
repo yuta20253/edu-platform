@@ -2,6 +2,11 @@
 
 module Admin
   class ImportHistoriesQuery
+    SORT_WHITELIST = %w[created_at total_count success_count error_count status].freeze
+    ORDER_WHITELIST = %w[asc desc].freeze
+    DEFAULT_SORT = 'created_at'
+    DEFAULT_ORDER = 'desc'
+
     def initialize(scope = ImportHistory.all)
       @scope = scope.includes(:user, unit: :course)
     end
@@ -12,7 +17,7 @@ module Admin
       by_course_id(filters[:course_id])
       by_user_id(filters[:user_id])
       by_period(filters[:from], filters[:to])
-      order_by_created_at_desc
+      order_by(filters[:sort], filters[:order])
       result
     end
 
@@ -58,8 +63,12 @@ module Admin
       self
     end
 
-    def order_by_created_at_desc
-      @scope = @scope.order(created_at: :desc).order(id: :desc)
+    def order_by(sort, order)
+      sort_key = SORT_WHITELIST.include?(sort.to_s) ? sort.to_s : DEFAULT_SORT
+      order_dir = ORDER_WHITELIST.include?(order.to_s) ? order.to_s : DEFAULT_ORDER
+      # タイブレークは id: :desc 固定。デフォルトの並び順（created_at desc = 新しい順）と
+      # 向きを揃えるため、Admin::CoursesQuery の id: :asc とは意図的に異なる。
+      @scope = @scope.order(import_histories: { sort_key => order_dir }).order(id: :desc)
       self
     end
 

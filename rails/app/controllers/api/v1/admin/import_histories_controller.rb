@@ -42,7 +42,7 @@ module Api
 
         def import_histories_scope
           ::Admin::ImportHistoriesQuery.new.call(
-            params.slice(:status, :unit_id, :course_id, :user_id, :from, :to)
+            params.slice(:status, :unit_id, :course_id, :user_id, :from, :to, :sort, :order)
           )
         end
       end
