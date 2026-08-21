@@ -1,4 +1,8 @@
-export type ImportHistoryStatus = "pending" | "processing" | "completed" | "failed";
+export type ImportHistoryStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed";
 
 export type ImportHistoryMode = "append" | "overwrite";
 

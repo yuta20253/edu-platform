@@ -36,7 +36,8 @@ export const useFetchHistories = () => {
   const [unitOptions, setUnitOptions] = useState<UnitOption[]>([]);
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [filters, setFilters] = useState<ImportHistoryFilters>(INITIAL_FILTERS);
-  const { sort, order, toggleSort } = useSortToggle<ImportHistorySort>("created_at");
+  const { sort, order, toggleSort } =
+    useSortToggle<ImportHistorySort>("created_at");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const router = useRouter();

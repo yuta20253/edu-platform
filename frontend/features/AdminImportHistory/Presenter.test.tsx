@@ -90,9 +90,9 @@ describe("AdminImportHistoryPresenter", () => {
     expect(headers).toContain("コース");
     expect(headers).toContain("単元");
     expect(headers).toContain("件数");
-    expect(headers.some((h) => h?.includes("成功数") && h?.includes("エラー数"))).toBe(
-      true,
-    );
+    expect(
+      headers.some((h) => h?.includes("成功数") && h?.includes("エラー数")),
+    ).toBe(true);
     expect(headers).toContain("実行者");
     expect(headers).toContain("ステータス");
   });
@@ -254,7 +254,9 @@ describe("AdminImportHistoryPresenter", () => {
         onClearFilters={onClearFilters}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "フィルタを全てクリア" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "フィルタを全てクリア" }),
+    );
     expect(onClearFilters).toHaveBeenCalled();
   });
 
@@ -352,7 +354,11 @@ describe("AdminImportHistoryPresenter", () => {
     render(
       <Presenter
         {...defaultProps}
-        filters={{ ...defaultProps.filters, from: "2026-08-20", to: "2026-08-01" }}
+        filters={{
+          ...defaultProps.filters,
+          from: "2026-08-20",
+          to: "2026-08-01",
+        }}
       />,
     );
     expect(
@@ -364,7 +370,11 @@ describe("AdminImportHistoryPresenter", () => {
     render(
       <Presenter
         {...defaultProps}
-        filters={{ ...defaultProps.filters, from: "2026-08-01", to: "2026-08-20" }}
+        filters={{
+          ...defaultProps.filters,
+          from: "2026-08-01",
+          to: "2026-08-20",
+        }}
       />,
     );
     expect(

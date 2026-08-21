@@ -75,7 +75,8 @@ const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
 ];
 
 const dateToInput = (value: string) => (value ? parseISO(value) : null);
-const dateToParam = (date: Date | null) => (date ? format(date, "yyyy-MM-dd") : "");
+const dateToParam = (date: Date | null) =>
+  date ? format(date, "yyyy-MM-dd") : "";
 
 // Gentelella風のフラット・ミニマルなテイストを本画面ローカルで再現するトークン。
 // 角丸なし・影なし、薄いグレーのボーダーのみで区切る。
