@@ -28,6 +28,8 @@ class ImportHistory < ApplicationRecord
 
   has_one_attached :file
 
+  scope :active, -> { where(deleted_at: nil) }
+
   enum status: {
     pending: 0,
     processing: 1,

@@ -12,6 +12,7 @@ module Admin
     end
 
     def call(filters = {})
+      active
       by_status(filters[:status])
       by_unit_id(filters[:unit_id])
       by_course_id(filters[:course_id])
@@ -19,6 +20,11 @@ module Admin
       by_period(filters[:from], filters[:to])
       order_by(filters[:sort], filters[:order])
       result
+    end
+
+    def active
+      @scope = @scope.active
+      self
     end
 
     def by_status(status)

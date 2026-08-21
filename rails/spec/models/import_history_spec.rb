@@ -3,6 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe ImportHistory, type: :model do
+  describe '.active' do
+    let!(:alive) { create(:import_history) }
+    let!(:dead) { create(:import_history, deleted_at: Time.current) }
+
+    it 'deleted_at が NULL のレコードのみ返す' do
+      expect(described_class.active).to contain_exactly(alive)
+    end
+  end
+
   describe 'mode enum' do
     it 'append / overwrite を持つ' do
       expect(described_class.modes.keys).to contain_exactly('append', 'overwrite')

@@ -29,6 +29,15 @@ RSpec.describe Admin::ImportHistoriesQuery, type: :model do
         expect(result.to_a.index(old)).to be < result.to_a.index(recent)
       end
     end
+
+    context 'ソフトデリート済みの履歴が存在する場合' do
+      let!(:deleted) { create(:import_history, deleted_at: Time.current) }
+
+      it '結果に含まれない' do
+        result = described_class.new.call
+        expect(result).not_to include(deleted)
+      end
+    end
   end
 
   describe '#result' do
