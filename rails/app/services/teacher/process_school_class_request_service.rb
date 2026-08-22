@@ -91,7 +91,7 @@ module Teacher
     end
 
     def approved_at
-      return false if @attributes[:status] != 'approved'
+      return nil if @attributes[:status] != 'approved'
 
       Time.current
     end
