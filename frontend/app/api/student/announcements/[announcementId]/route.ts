@@ -1,5 +1,5 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -22,13 +22,6 @@ export async function GET(
 
     return nextResponse;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
-    return NextResponse.json(
-      { message: "INTERNAL_SERVER_ERROR" },
-      { status: 500 },
-    );
+    return handleRailsRouteError(error, "お知らせの取得に失敗しました");
   }
 }
