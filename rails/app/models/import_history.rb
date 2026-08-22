@@ -24,9 +24,11 @@
 class ImportHistory < ApplicationRecord
   belongs_to :user
   belongs_to :unit
-  has_many :import_errors, dependent: :destroy
+  has_many :import_errors, -> { order(:row_number) }, dependent: :destroy, inverse_of: :import_history
 
   has_one_attached :file
+
+  scope :active, -> { where(deleted_at: nil) }
 
   enum status: {
     pending: 0,
