@@ -10,12 +10,14 @@
 #  approver_id     :bigint
 #  grade_id        :bigint           not null
 #  action          :integer          not null
-#  status          :integer          default(0), not null
+#  status          :integer          default("pending"), not null
 #  name            :string(255)
 #  approved_at     :datetime
 #  cancelled_at    :datetime
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  lock_version    :integer          default(0), not null
+#  reason          :text(65535)
 #
 require 'rails_helper'
 

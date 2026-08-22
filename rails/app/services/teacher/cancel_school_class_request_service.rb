@@ -3,15 +3,16 @@
 module Teacher
   # 承認前の申請そのものを取り下げる。SchoolClassは一切変更しない(Deletionとは別物)
   class CancelSchoolClassRequestService
-    def initialize(user:, id:)
+    def initialize(user:, id:, reason: nil)
       @user = user
       @school_class_request_id = id
+      @reason = reason
     end
 
     def call
       return false unless school_class_request.pending?
 
-      school_class_request.update!(status: :cancelled, cancelled_at: Time.current)
+      school_class_request.update!(status: :cancelled, cancelled_at: Time.current, reason: @reason)
     end
 
     private

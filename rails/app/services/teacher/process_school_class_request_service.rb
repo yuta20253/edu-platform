@@ -59,7 +59,8 @@ module Teacher
       school_class_request.update!(
         status: @attributes[:status],
         approver_id: @user.id,
-        approved_at: approved_at
+        approved_at: approved_at,
+        reason: @attributes[:reason]
       )
     end
 

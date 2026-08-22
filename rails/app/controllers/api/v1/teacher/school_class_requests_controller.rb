@@ -40,7 +40,8 @@ module Api
         def destroy
           result = ::Teacher::CancelSchoolClassRequestService.new(
             user: current_user,
-            id: params[:id]
+            id: params[:id],
+            **destroy_school_class_params.to_h.symbolize_keys
           ).call
 
           if result
@@ -57,7 +58,11 @@ module Api
         end
 
         def update_school_class_params
-          params.require(:school_class_request).permit(:status, :lock_version)
+          params.require(:school_class_request).permit(:status, :lock_version, :reason)
+        end
+
+        def destroy_school_class_params
+          params.permit(:reason)
         end
       end
     end
