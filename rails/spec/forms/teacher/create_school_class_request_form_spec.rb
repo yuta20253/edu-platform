@@ -244,5 +244,37 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
         expect(Teacher::CreateSchoolClassRequestService).not_to have_received(:new)
       end
     end
+
+    context '同じschool_class_idに対してpendingの申請が既に存在する場合' do
+      let(:action) { 'deletion' }
+      let!(:school_class) { create(:school_class, grade: grade) }
+      let(:school_class_id) { school_class.id }
+
+      let!(:existing_request) do
+        create(
+          :school_class_request,
+          applicant: user,
+          grade: grade,
+          school_class: school_class,
+          action: :modification,
+          status: :pending,
+          name: '2組'
+        )
+      end
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+
+      it 'モデルのバリデーションエラーがフォームに反映される' do
+        form.save
+
+        expect(form.errors[:school_class_id]).to include('に対して承認待ちの申請が既に存在します')
+      end
+
+      it '重複した申請が作成されない' do
+        expect { form.save }.not_to(change(SchoolClassRequest, :count))
+      end
+    end
   end
 end

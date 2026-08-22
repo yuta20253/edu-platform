@@ -27,6 +27,11 @@ module Teacher
       return false unless valid?
 
       process_school_class_request
+    rescue ActiveRecord::RecordInvalid => e
+      e.record.errors.each do |error|
+        errors.add(error.attribute, error.message)
+      end
+      false
     end
 
     private

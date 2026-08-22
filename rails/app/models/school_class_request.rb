@@ -26,6 +26,7 @@ class SchoolClassRequest < ApplicationRecord
   belongs_to :grade
 
   validate :validate_request_attributes
+  validate :no_duplicate_pending_request_for_school_class
 
   enum action: {
     creation: 0,
@@ -72,5 +73,15 @@ class SchoolClassRequest < ApplicationRecord
     return if school_class.blank?
 
     errors.add(:school_class, '学年が一致しません') if school_class.grade_id != grade_id
+  end
+
+  def no_duplicate_pending_request_for_school_class
+    return if school_class_id.blank?
+    return unless pending?
+
+    duplicates = self.class.where(school_class_id: school_class_id, status: :pending)
+    duplicates = duplicates.where.not(id: id) if persisted?
+
+    errors.add(:school_class_id, 'に対して承認待ちの申請が既に存在します') if duplicates.exists?
   end
 end
