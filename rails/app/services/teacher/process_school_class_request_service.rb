@@ -81,18 +81,13 @@ module Teacher
     end
 
     def update_school_class_request
-      raise ActiveRecord::StaleObjectError, school_class_request unless current_lock_version?
-
       school_class_request.update!(
         status: @attributes[:status],
         approver_id: @user.id,
         approved_at: approved_at,
-        reason: @attributes[:reason]
+        reason: @attributes[:reason],
+        lock_version: @attributes[:lock_version]
       )
-    end
-
-    def current_lock_version?
-      school_class_request.lock_version == @attributes[:lock_version].to_i
     end
 
     def approved_at
