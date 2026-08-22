@@ -51,6 +51,12 @@ RSpec.describe Teacher::CreateAnnouncementService do
 
         expect(target.target_type).to eq('all_users')
       end
+
+      it 'draftで作成される' do
+        service.call
+
+        expect(Announcement.last.status).to eq('draft')
+      end
     end
 
     context 'target_type: by_role' do

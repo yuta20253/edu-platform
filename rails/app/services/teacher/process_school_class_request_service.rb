@@ -14,14 +14,25 @@ module Teacher
       return false unless school_class_request.pending?
       raise ApplicantCannotProcessOwnRequestError if applicant?
 
-      ActiveRecord::Base.transaction do
+      result = ActiveRecord::Base.transaction do
         update_school_class_request
 
         process_school_class_request if school_class_request.approved?
       end
+
+      notify_applicant
+
+      result
     end
 
     private
+
+    def notify_applicant
+      Teacher::CreateSchoolClassRequestResultNotificationService.new(
+        school_class_request: school_class_request,
+        approver: @user
+      ).call
+    end
 
     def applicant?
       school_class_request.applicant_id == @user.id

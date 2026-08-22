@@ -14,7 +14,7 @@ module Teacher
         announcement = Announcement.create!(
           title: @title,
           content: @content,
-          status: :draft,
+          status: initial_status,
           publisher_id: @publisher.id
         )
 
@@ -27,6 +27,10 @@ module Teacher
     end
 
     private
+
+    def initial_status
+      :draft
+    end
 
     def build_target_attributes(target)
       case target['target_type']

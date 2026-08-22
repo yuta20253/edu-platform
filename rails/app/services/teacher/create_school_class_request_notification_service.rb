@@ -7,7 +7,7 @@ module Teacher
     end
 
     def call
-      Teacher::CreateAnnouncementService.new(
+      Teacher::CreateSystemAnnouncementService.new(
         publisher: @user,
         title: 'クラス作成申請',
         content: "#{@user.name}先生からクラス作成申請があります。",

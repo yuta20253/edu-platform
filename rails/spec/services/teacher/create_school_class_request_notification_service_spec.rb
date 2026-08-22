@@ -26,13 +26,13 @@ RSpec.describe Teacher::CreateSchoolClassRequestNotificationService do
 
   describe '#call' do
     it '同校でmanage_other_teachers権限を持つ教師宛にアナウンスサービスが呼ばれる' do
-      service_double = instance_double(Teacher::CreateAnnouncementService, call: true)
+      service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
 
-      allow(Teacher::CreateAnnouncementService).to receive(:new).and_return(service_double)
+      allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
       service.call
 
-      expect(Teacher::CreateAnnouncementService).to have_received(:new).with(
+      expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
         publisher: applicant,
         title: 'クラス作成申請',
         content: '山田太郎先生からクラス作成申請があります。',
@@ -42,6 +42,14 @@ RSpec.describe Teacher::CreateSchoolClassRequestNotificationService do
       )
 
       expect(service_double).to have_received(:call)
+    end
+
+    it '公開済みのannouncementが作成され、対象教師から見える' do
+      service.call
+
+      announcement = Announcement.last
+      expect(announcement.status).to eq('published')
+      expect(Announcement.for_user(manager_teacher).published).to include(announcement)
     end
 
     context '通知対象となる教師がいない場合' do
@@ -55,13 +63,13 @@ RSpec.describe Teacher::CreateSchoolClassRequestNotificationService do
       end
 
       it '空のannouncement_targetsでアナウンスサービスが呼ばれる' do
-        service_double = instance_double(Teacher::CreateAnnouncementService, call: true)
+        service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
 
-        allow(Teacher::CreateAnnouncementService).to receive(:new).and_return(service_double)
+        allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
         service.call
 
-        expect(Teacher::CreateAnnouncementService).to have_received(:new).with(
+        expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
           publisher: isolated_applicant,
           title: 'クラス作成申請',
           content: '田中花子先生からクラス作成申請があります。',

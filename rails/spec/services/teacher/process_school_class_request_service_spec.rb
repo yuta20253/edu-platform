@@ -64,6 +64,12 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
         expect(created.name).to eq(school_class_request.name)
       end
 
+      it '申請者宛に承認通知が作成される' do
+        service.call
+
+        expect(Announcement.for_user(applicant).published.last.title).to eq('クラス作成申請が承認されました')
+      end
+
       context 'action=modificationの場合' do
         let!(:target_school_class) { create(:school_class, grade: grade, name: '旧2組') }
 
@@ -134,6 +140,12 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
       it 'SchoolClassが作成されない' do
         expect { service.call }.not_to change(SchoolClass, :count)
       end
+
+      it '申請者宛に却下通知が作成される' do
+        service.call
+
+        expect(Announcement.for_user(applicant).published.last.title).to eq('クラス作成申請が却下されました')
+      end
     end
 
     context '申請がpendingではない場合' do
@@ -149,6 +161,10 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
 
       it '更新されない' do
         expect { service.call }.not_to(change { school_class_request.reload.updated_at })
+      end
+
+      it '通知が作成されない' do
+        expect { service.call }.not_to change(Announcement, :count)
       end
     end
 
@@ -166,6 +182,14 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
       it 'StaleObjectErrorが発生する' do
         expect { service.call }.to raise_error(ActiveRecord::StaleObjectError)
       end
+
+      it '通知が作成されない' do
+        expect do
+          service.call
+        rescue ActiveRecord::StaleObjectError
+          nil
+        end.not_to change(Announcement, :count)
+      end
     end
 
     context 'statusに不正な値が指定された場合' do
@@ -181,6 +205,14 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
         rescue ArgumentError
           nil
         end.not_to(change { school_class_request.reload.status })
+      end
+
+      it '通知が作成されない' do
+        expect do
+          service.call
+        rescue ArgumentError
+          nil
+        end.not_to change(Announcement, :count)
       end
     end
 
