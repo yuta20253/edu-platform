@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useGetAnnouncement } from "./hooks.ts/useGetAnnouncement";
+import { useGetAnnouncement } from "./hooks/useGetAnnouncement";
 import { Presenter } from "./Presenter";
 
 type Props = {
