@@ -14,10 +14,12 @@ module Auth
     attribute :user_role_name, :string
     attribute :high_school_id, :integer
     attribute :grade_id, :integer
+    attribute :student_number, :string
 
     validates :user_role_name, presence: true
     validates :high_school_id, presence: true, if: :school_required?
     validates :grade_id, presence: true, if: :school_required?
+    validate :student_number_required_for_csv_managed_school, if: :student?
 
     def to_attributes
       attrs = {
@@ -35,6 +37,21 @@ module Auth
 
     def school_required?
       user_role_name.in?(%w[student teacher])
+    end
+
+    def student?
+      user_role_name == 'student'
+    end
+
+    # 生徒コードが実在するか・選択した高校と一致するかは Auth::SignUpService 側で検証する
+    # （high_school/grade の存在チェックと同じ責務分担）。ここでは入力必須かどうかのみ見る。
+    def student_number_required_for_csv_managed_school
+      return if high_school_id.blank?
+
+      high_school = HighSchool.find_by(id: high_school_id)
+      return if high_school.nil?
+
+      errors.add(:student_number, '生徒番号は必須です') if high_school.csv_managed? && student_number.blank?
     end
   end
 end
