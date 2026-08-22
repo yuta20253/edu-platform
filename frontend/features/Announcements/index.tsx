@@ -5,7 +5,22 @@ import { useGetAnnouncements } from "./hooks/useGetAnnouncements";
 import { Presenter } from "./Presenter";
 
 export const Announcements = () => {
-  const { data, page, setPage } = useGetAnnouncements();
+  const { data, page, setPage, error } = useGetAnnouncements();
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        データの取得に失敗しました
+      </Box>
+    );
+  }
 
   if (!data) {
     return (
