@@ -501,6 +501,38 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
 
+    context 'statusにcancelledを指定した場合' do
+      let(:status) { 'cancelled' }
+
+      it '422が返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it '申請が更新されない' do
+        expect do
+          patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                params: request_params.to_json,
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to(change { school_class_request.reload.status })
+      end
+    end
+
+    context 'statusにpendingを指定した場合' do
+      let(:status) { 'pending' }
+
+      it '422が返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
     context '承認権限がない場合' do
       before do
         teacher.teacher_permission.update!(manage_other_teachers: false)

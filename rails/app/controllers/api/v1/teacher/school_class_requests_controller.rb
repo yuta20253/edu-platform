@@ -4,6 +4,11 @@ module Api
   module V1
     module Teacher
       class SchoolClassRequestsController < Api::V1::Teacher::BaseController
+        ALLOWED_UPDATE_STATUSES = %w[approved rejected].freeze
+
+        before_action :require_manage_other_teachers!, only: :update
+        before_action :require_valid_update_status!, only: :update
+
         def create
           form = ::Teacher::CreateSchoolClassRequestForm.new(
             user: current_user,
@@ -18,11 +23,6 @@ module Api
         end
 
         def update
-          unless current_user.teacher_permission.manage_other_teachers
-            return render json: { errors: ['承認権限がないユーザーです'] },
-                          status: :forbidden
-          end
-
           result = ::Teacher::ProcessSchoolClassRequestService
                    .new(
                      user: current_user,
@@ -63,6 +63,18 @@ module Api
 
         def destroy_school_class_params
           params.permit(:reason)
+        end
+
+        def require_manage_other_teachers!
+          return if current_user.teacher_permission.manage_other_teachers
+
+          render json: { errors: ['承認権限がないユーザーです'] }, status: :forbidden
+        end
+
+        def require_valid_update_status!
+          return if update_school_class_params[:status].in?(ALLOWED_UPDATE_STATUSES)
+
+          render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
         end
       end
     end
