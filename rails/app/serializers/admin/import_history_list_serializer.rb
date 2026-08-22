@@ -13,15 +13,17 @@ module Admin
     end
 
     def unit
-      return nil if object.unit.nil?
+      unit = object.unit
+      return nil unless unit
 
-      { id: object.unit.id, unit_name: object.unit.unit_name }
+      { id: unit.id, unit_name: unit.unit_name }
     end
 
     def user
-      return nil if object.user.nil?
+      user = object.user
+      return nil unless user
 
-      { id: object.user.id, name: object.user.name }
+      { id: user.id, name: user.name }
     end
   end
 end
