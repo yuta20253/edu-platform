@@ -19,48 +19,46 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import {
-  CreateTeacherInput,
-  GradeOption,
-  SnackbarState,
-  TeachersData,
-} from "./types";
-import { CollegueCreateDrawer } from "./components/CollegueCreateDrawer";
 import { UseFormReturn } from "react-hook-form";
-import { invitationStatusConfig } from "./constants";
+import { PermissionEditDrawer } from "./components/PermissionEditDrawer";
+import {
+  PermissionTeacher,
+  SnackbarState,
+  TeacherPermissionsData,
+  UpdatePermissionInput,
+} from "./types";
 
 type Props = {
-  data: TeachersData;
+  data: TeacherPermissionsData;
   page: number;
   onPageChange: (page: number) => void;
-  drawerOpen: boolean;
-  onAddClick: () => void;
+  editingTeacher: PermissionTeacher | null;
+  onEditClick: (teacher: PermissionTeacher) => void;
   onDrawerClose: () => void;
-  onCreate: (input: CreateTeacherInput) => void;
-  creating: boolean;
-  createErrors: string[];
+  onUpdate: (input: UpdatePermissionInput) => void;
+  updating: boolean;
+  updateErrors: string[];
   snackbar: SnackbarState;
   onSnackbarClose: () => void;
-  gradeOptions: GradeOption[];
-  form: UseFormReturn<CreateTeacherInput>;
+  form: UseFormReturn<UpdatePermissionInput>;
 };
 
 export const Presenter = ({
   data,
   page,
   onPageChange,
-  drawerOpen,
-  onAddClick,
+  editingTeacher,
+  onEditClick,
   onDrawerClose,
-  onCreate,
-  creating,
-  createErrors,
+  onUpdate,
+  updating,
+  updateErrors,
   snackbar,
   onSnackbarClose,
-  gradeOptions,
   form,
 }: Props) => {
   const { current_user, teachers, meta } = data;
+  const canManage = current_user.teacher_permission.manage_other_teachers;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -85,7 +83,7 @@ export const Presenter = ({
             fontWeight={700}
             sx={{ color: colors.text.primary }}
           >
-            教員一覧
+            教員権限管理
           </Typography>
 
           <Typography variant="body2" sx={{ color: colors.text.muted }}>
@@ -93,57 +91,29 @@ export const Presenter = ({
           </Typography>
         </Box>
 
-        {current_user.teacher_permission.manage_other_teachers && (
-          <Box sx={{ display: "flex", gap: 1.5, ml: "auto" }}>
-            <Button
-              component={Link}
-              href="/teacher/permissions"
-              variant="outlined"
-              size="small"
-              sx={{
-                minWidth: 110,
-                height: 36,
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 600,
-              }}
-            >
-              権限管理
-            </Button>
-            <Button
-              component={Link}
-              href="/teacher/colleague-invitation"
-              variant="outlined"
-              size="small"
-              sx={{
-                minWidth: 110,
-                height: 36,
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 600,
-              }}
-            >
-              未招待者一覧
-            </Button>
-            <Button
-              component={Link}
-              href=""
-              variant="outlined"
-              size="small"
-              sx={{
-                minWidth: 110,
-                height: 36,
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 600,
-              }}
-              onClick={onAddClick}
-            >
-              新規登録
-            </Button>
-          </Box>
-        )}
+        <Button
+          component={Link}
+          href="/teacher/colleagues"
+          variant="outlined"
+          size="small"
+          sx={{
+            minWidth: 110,
+            height: 36,
+            borderRadius: 2,
+            textTransform: "none",
+            fontWeight: 600,
+          }}
+        >
+          教員一覧へ戻る
+        </Button>
       </Box>
+
+      {!canManage && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          権限を編集するには「他の教員操作権限」が必要です。
+        </Alert>
+      )}
+
       <Card
         elevation={0}
         sx={{
@@ -178,19 +148,15 @@ export const Presenter = ({
                   }}
                 >
                   <TableCell>氏名</TableCell>
-                  <TableCell>氏名カナ</TableCell>
-                  <TableCell>担当学年</TableCell>
                   <TableCell align="center">操作範囲</TableCell>
                   <TableCell align="center">他職員権限</TableCell>
-                  <TableCell align="center">送信状況</TableCell>
-                  <TableCell align="center">詳細</TableCell>
+                  <TableCell align="center">編集</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
                 {teachers.map((teacher) => {
-                  const status =
-                    invitationStatusConfig[teacher.invitation_status];
+                  const isSelf = teacher.id === current_user.id;
 
                   return (
                     <TableRow
@@ -205,11 +171,16 @@ export const Presenter = ({
                     >
                       <TableCell sx={{ fontWeight: 600 }}>
                         {teacher.name}
+                        {isSelf && (
+                          <Typography
+                            component="span"
+                            variant="caption"
+                            sx={{ color: colors.text.muted, ml: 1 }}
+                          >
+                            （自分）
+                          </Typography>
+                        )}
                       </TableCell>
-
-                      <TableCell>{teacher.name_kana}</TableCell>
-
-                      <TableCell>{teacher.grade.display_name}</TableCell>
 
                       <TableCell align="center">
                         <Chip
@@ -254,28 +225,11 @@ export const Presenter = ({
                       </TableCell>
 
                       <TableCell align="center">
-                        <Chip
-                          label={status.label}
-                          size="small"
-                          color={status.color}
-                          variant="outlined"
-                          sx={{
-                            minWidth: 64,
-                            height: 24,
-                            fontSize: "0.75rem",
-                            fontWeight: 600,
-                            opacity:
-                              teacher.invitation_status === "sent" ? 0.7 : 1,
-                          }}
-                        />
-                      </TableCell>
-
-                      <TableCell align="center">
                         <Button
-                          component={Link}
-                          href={`/teacher/colleagues/${teacher.id}`}
                           size="small"
                           variant="outlined"
+                          disabled={!canManage || isSelf}
+                          onClick={() => onEditClick(teacher)}
                           sx={{
                             minWidth: 64,
                             height: 28,
@@ -285,7 +239,7 @@ export const Presenter = ({
                             textTransform: "none",
                           }}
                         >
-                          詳細
+                          編集
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -297,13 +251,12 @@ export const Presenter = ({
         </CardContent>
       </Card>
 
-      <CollegueCreateDrawer
-        open={drawerOpen}
+      <PermissionEditDrawer
+        teacher={editingTeacher}
         onClose={onDrawerClose}
-        onCreate={onCreate}
-        creating={creating}
-        createErrors={createErrors}
-        gradeOptions={gradeOptions}
+        onUpdate={onUpdate}
+        updating={updating}
+        updateErrors={updateErrors}
         form={form}
       />
 
