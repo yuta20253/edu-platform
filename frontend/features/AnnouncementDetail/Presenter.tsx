@@ -103,7 +103,7 @@ export const Presenter = ({ announcement }: Props) => {
                   color: "text.secondary",
                 }}
               >
-                配信者：{announcement.publisher.name}
+                発行者：{announcement.publisher.name}
               </Typography>
             </Box>
 
