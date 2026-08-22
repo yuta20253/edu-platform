@@ -6,7 +6,7 @@ export type Announcement = {
   published_at: string;
 };
 
-type Publisher = {
+export type Publisher = {
   id: number;
   name: string;
   name_kana: string;

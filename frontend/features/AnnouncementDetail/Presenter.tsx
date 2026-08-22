@@ -3,7 +3,7 @@
 import { Box, Card, CardContent, Divider, Typography } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Link from "next/link";
-import { Announcement } from "./types";
+import { Announcement } from "@/types/announcement/announcement";
 import { formatPublishedAt } from "@/libs/ui/formatDate";
 
 type Props = {

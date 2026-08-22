@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Announcement } from "../types";
+import { Announcement } from "@/types/announcement/announcement";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
 

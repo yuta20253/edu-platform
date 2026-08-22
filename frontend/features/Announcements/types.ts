@@ -1,16 +1,4 @@
-export type Announcement = {
-  id: number;
-  title: string;
-  content: string;
-  publisher: Publisher;
-  published_at: string;
-};
-
-export type Publisher = {
-  id: number;
-  name: string;
-  name_kana: string;
-};
+import { Announcement } from "@/types/announcement/announcement";
 
 type AnnouncementMeta = {
   current_page: number;
