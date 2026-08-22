@@ -26,9 +26,7 @@ module Teacher
     end
 
     def create_school_class_request_notification
-      ::Teacher::CreateSchoolClassRequestNotificationService
-        .new(user: @user)
-        .call
+      ::Teacher::CreateSchoolClassRequestNotificationJob.perform_later(user_id: @user.id)
     end
   end
 end

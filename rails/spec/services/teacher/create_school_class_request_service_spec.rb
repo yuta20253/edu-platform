@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateSchoolClassRequestService do
+  include ActiveJob::TestHelper
+
   subject(:service) { described_class.new(user: teacher, attributes: attributes) }
 
   let!(:high_school) { create(:high_school) }
@@ -16,12 +18,6 @@ RSpec.describe Teacher::CreateSchoolClassRequestService do
       'action' => 'creation',
       'school_class_id' => nil
     }
-  end
-
-  before do
-    allow(Teacher::CreateSchoolClassRequestNotificationService)
-      .to receive(:new)
-      .and_return(instance_double(Teacher::CreateSchoolClassRequestNotificationService, call: true))
   end
 
   describe '#call' do
@@ -41,12 +37,11 @@ RSpec.describe Teacher::CreateSchoolClassRequestService do
       expect(school_class_request.status).to eq('pending')
     end
 
-    it '通知サービスが呼ばれる' do
-      service.call
-
-      expect(Teacher::CreateSchoolClassRequestNotificationService)
-        .to have_received(:new)
-        .with(user: teacher)
+    it '通知ジョブがキューに積まれる' do
+      expect do
+        service.call
+      end.to have_enqueued_job(Teacher::CreateSchoolClassRequestNotificationJob)
+        .with(user_id: teacher.id)
     end
 
     context 'actionがmodificationの場合' do
@@ -108,10 +103,10 @@ RSpec.describe Teacher::CreateSchoolClassRequestService do
           end.not_to change(SchoolClassRequest, :count)
         end
 
-        it '通知サービスが呼ばれない' do
-          expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
-
-          expect(Teacher::CreateSchoolClassRequestNotificationService).not_to have_received(:new)
+        it '通知ジョブがキューに積まれない' do
+          expect do
+            expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+          end.not_to have_enqueued_job(Teacher::CreateSchoolClassRequestNotificationJob)
         end
       end
 
@@ -127,27 +122,6 @@ RSpec.describe Teacher::CreateSchoolClassRequestService do
 
         it 'RecordInvalidが発生する' do
           expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
-        end
-      end
-
-      context '通知サービスが例外を投げる場合' do
-        before do
-          failing_notification_service = instance_double(Teacher::CreateSchoolClassRequestNotificationService)
-
-          allow(failing_notification_service).to receive(:call).and_raise(StandardError, '通知失敗')
-          allow(Teacher::CreateSchoolClassRequestNotificationService)
-            .to receive(:new)
-            .and_return(failing_notification_service)
-        end
-
-        it '例外がそのまま伝播する' do
-          expect { service.call }.to raise_error(StandardError, '通知失敗')
-        end
-
-        it 'callがトランザクションで囲われていないため、SchoolClassRequestは作成済みのまま残る' do
-          expect { service.call }.to raise_error(StandardError)
-
-          expect(SchoolClassRequest.count).to eq(1)
         end
       end
     end
