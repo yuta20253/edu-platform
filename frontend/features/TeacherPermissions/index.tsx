@@ -7,7 +7,7 @@ import { useUpdatePermission } from "./hooks/useUpdatePermission";
 import { Presenter } from "./Presenter";
 
 export const TeacherPermissions = () => {
-  const { data, page, setPage, refetch } = useFetchTeacherPermissions();
+  const { data, page, setPage, error, refetch } = useFetchTeacherPermissions();
 
   const form = usePermissionForm();
 
@@ -21,6 +21,21 @@ export const TeacherPermissions = () => {
     handleUpdate,
     handleSnackbarClose,
   } = useUpdatePermission({ onUpdated: refetch, form });
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        データの取得に失敗しました
+      </Box>
+    );
+  }
 
   if (!data) {
     return (
