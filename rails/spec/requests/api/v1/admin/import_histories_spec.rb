@@ -208,6 +208,39 @@ RSpec.describe 'Api::V1::Admin::ImportHistories', type: :request do
         end
       end
 
+      context 'sort/order パラメータ指定時' do
+        subject do
+          get '/api/v1/admin/import_histories', params: { sort: 'total_count', order: 'asc' },
+                                                headers: headers.merge('Cookie' => cookie)
+        end
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:small) { create(:import_history, total_count: 1) }
+        let!(:large) { create(:import_history, total_count: 10) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it '指定した sort/order で並び替えて返す' do
+          subject
+          ids = response.parsed_body['import_histories'].pluck('id')
+          expect(ids).to eq([small.id, large.id])
+        end
+      end
+
+      context 'sort/order パラメータ未指定時' do
+        subject { get '/api/v1/admin/import_histories', headers: headers.merge('Cookie' => cookie) }
+
+        let!(:admin_user) { create(:user, :admin, high_school: nil) }
+        let!(:old) { create(:import_history, created_at: 3.days.ago) }
+        let!(:recent) { create(:import_history, created_at: 1.day.ago) }
+        let(:cookie) { login_and_get_cookie(admin_user) }
+
+        it '作成日時の降順（デフォルト）で返す' do
+          subject
+          ids = response.parsed_body['import_histories'].pluck('id')
+          expect(ids).to eq([recent.id, old.id])
+        end
+      end
+
       context 'from/to パラメータ指定時' do
         subject do
           get '/api/v1/admin/import_histories', params: { from: 6.days.ago.to_date.to_s, to: 2.days.ago.to_date.to_s },
