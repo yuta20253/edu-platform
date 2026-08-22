@@ -33,6 +33,7 @@ Rails.application.routes.draw do
           resource :submission, only: :update
           resources :units, only: :show do
             resources :questions, only: :index
+            resources :study_logs, only: [:create, :update]
             resources :answers, only: [:create] do
               collection do
                 patch :update
@@ -70,6 +71,10 @@ Rails.application.routes.draw do
         end
 
         get 'csv_template/questions', to: 'csv_templates#questions'
+
+        resources :import_histories, only: %i[index show] do
+          get :export, on: :member
+        end
 
         resources :courses do
           resources :units do

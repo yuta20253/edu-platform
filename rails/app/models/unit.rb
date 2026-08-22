@@ -18,6 +18,7 @@ class Unit < ApplicationRecord
   has_many :user_unit_question_stats, dependent: :destroy
   has_many :task_units, dependent: :destroy
   has_many :tasks, through: :task_units
+  has_many :study_logs
   has_many :import_histories, dependent: :destroy
 
   scope :active, -> { where(deleted_at: nil) }
