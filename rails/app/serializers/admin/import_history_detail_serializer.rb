@@ -29,7 +29,7 @@ module Admin
     end
 
     def errors
-      object.import_errors.sort_by(&:row_number).map do |import_error|
+      object.import_errors.map do |import_error|
         { row_number: import_error.row_number, message: import_error.message }
       end
     end

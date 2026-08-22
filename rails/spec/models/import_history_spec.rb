@@ -12,6 +12,32 @@ RSpec.describe ImportHistory, type: :model do
     end
   end
 
+  describe '#import_errors' do
+    let!(:history) { create(:import_history) }
+    let!(:later_row) { create(:import_error, import_history: history, row_number: 5) }
+    let!(:earlier_row) { create(:import_error, import_history: history, row_number: 2) }
+
+    it 'row_number 昇順で返る（作成順に依らない）' do
+      expect(history.import_errors).to eq([earlier_row, later_row])
+    end
+
+    it 'includes で preload しても追加クエリなしに row_number 昇順のまま返る' do
+      reloaded = described_class.includes(:import_errors).find(history.id)
+
+      queries = []
+      callback = lambda { |_n, _s, _f, _id, payload|
+        queries << payload[:sql] if payload[:name] != 'SCHEMA'
+      }
+      result = nil
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+        result = reloaded.import_errors.to_a
+      end
+
+      expect(result).to eq([earlier_row, later_row])
+      expect(queries).to be_empty
+    end
+  end
+
   describe 'mode enum' do
     it 'append / overwrite を持つ' do
       expect(described_class.modes.keys).to contain_exactly('append', 'overwrite')
