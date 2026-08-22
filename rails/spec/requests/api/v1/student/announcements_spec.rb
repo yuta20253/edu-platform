@@ -90,7 +90,7 @@ RSpec.describe 'Api::V1::Student::Announcements', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it '最大20件取得できる' do
+      it '最大5件取得できる' do
         get '/api/v1/student/announcements',
             headers: headers.merge('Cookie' => cookie)
 
