@@ -8,10 +8,10 @@ module Admin
                :errors, :warnings
 
     def course
-      unit = object.unit
-      return nil if unit&.course.nil?
+      course = object.unit&.course
+      return nil unless course
 
-      { id: unit.course.id, level_name: unit.course.level_name }
+      { id: course.id, level_name: course.level_name }
     end
 
     def unit
