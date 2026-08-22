@@ -39,18 +39,34 @@ module Teacher
     def process_school_class_request
       case school_class_request.action
       when 'creation'
-        ::Teacher::SchoolClassRequest::Creation.new(
-          school_class_request: school_class_request
-        ).call
+        create_school_class
       when 'modification'
-        ::Teacher::SchoolClassRequest::Modification.new(
-          school_class_request: school_class_request
-        ).call
+        update_school_class
       when 'deletion'
-        ::Teacher::SchoolClassRequest::Deletion.new(
-          school_class_request: school_class_request
-        ).call
+        destroy_school_class
       end
+    end
+
+    def create_school_class
+      ::SchoolClass.create!(
+        grade_id: school_class_request.grade_id,
+        name: school_class_request.name
+      )
+    end
+
+    def update_school_class
+      school_class.update!(
+        grade_id: school_class_request.grade_id,
+        name: school_class_request.name
+      )
+    end
+
+    def destroy_school_class
+      school_class.destroy!
+    end
+
+    def school_class
+      @school_class ||= school_class_request.school_class
     end
 
     def update_school_class_request

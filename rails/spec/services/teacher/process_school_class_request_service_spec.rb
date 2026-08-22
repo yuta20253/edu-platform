@@ -56,86 +56,58 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
         expect(school_class_request.reload.approved_at).to be_present
       end
 
-      it 'action=creationの場合、SchoolClassRequest::Creationが呼ばれる' do
-        creation = instance_double(Teacher::SchoolClassRequest::Creation, call: true)
+      it 'action=creationの場合、SchoolClassが作成される' do
+        expect { service.call }.to change(SchoolClass, :count).by(1)
 
-        allow(Teacher::SchoolClassRequest::Creation).to receive(:new).and_return(creation)
-
-        service.call
-
-        expect(Teacher::SchoolClassRequest::Creation)
-          .to have_received(:new)
-          .with(school_class_request: school_class_request)
-        expect(creation).to have_received(:call)
+        created = SchoolClass.last
+        expect(created.grade_id).to eq(school_class_request.grade_id)
+        expect(created.name).to eq(school_class_request.name)
       end
 
       context 'action=modificationの場合' do
+        let!(:target_school_class) { create(:school_class, grade: grade, name: '旧2組') }
+
         let!(:school_class_request) do
           create(
             :school_class_request,
             applicant: applicant,
             grade: grade,
-            school_class: create(:school_class, grade: grade),
+            school_class: target_school_class,
             action: :modification,
             status: :pending,
             name: '2組'
           )
         end
 
-        it 'SchoolClassRequest::Modificationが呼ばれる' do
-          modification = instance_double(Teacher::SchoolClassRequest::Modification, call: true)
-
-          allow(Teacher::SchoolClassRequest::Modification).to receive(:new).and_return(modification)
-
+        it 'SchoolClassのnameが更新される' do
           service.call
 
-          expect(Teacher::SchoolClassRequest::Modification)
-            .to have_received(:new)
-            .with(school_class_request: school_class_request)
-          expect(modification).to have_received(:call)
+          expect(target_school_class.reload.name).to eq('2組')
         end
 
-        it 'SchoolClassRequest::Creationは呼ばれない' do
-          allow(Teacher::SchoolClassRequest::Creation).to receive(:new)
-
-          service.call
-
-          expect(Teacher::SchoolClassRequest::Creation).not_to have_received(:new)
+        it 'SchoolClassが新規作成されない' do
+          expect { service.call }.not_to change(SchoolClass, :count)
         end
       end
 
       context 'action=deletionの場合' do
+        let!(:target_school_class) { create(:school_class, grade: grade) }
+
         let!(:school_class_request) do
           create(
             :school_class_request,
             applicant: applicant,
             grade: grade,
-            school_class: create(:school_class, grade: grade),
+            school_class: target_school_class,
             action: :deletion,
             status: :pending,
             name: nil
           )
         end
 
-        it 'SchoolClassRequest::Deletionが呼ばれる' do
-          deletion = instance_double(Teacher::SchoolClassRequest::Deletion, call: true)
-
-          allow(Teacher::SchoolClassRequest::Deletion).to receive(:new).and_return(deletion)
-
-          service.call
-
-          expect(Teacher::SchoolClassRequest::Deletion)
-            .to have_received(:new)
-            .with(school_class_request: school_class_request)
-          expect(deletion).to have_received(:call)
-        end
-
-        it 'SchoolClassRequest::Creationは呼ばれない' do
-          allow(Teacher::SchoolClassRequest::Creation).to receive(:new)
-
-          service.call
-
-          expect(Teacher::SchoolClassRequest::Creation).not_to have_received(:new)
+        it 'SchoolClassが削除される' do
+          expect { service.call }.to change(SchoolClass, :count).by(-1)
+          expect(SchoolClass.exists?(target_school_class.id)).to be false
         end
       end
     end
@@ -159,12 +131,8 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
         expect(school_class_request.reload.approved_at).to be_nil
       end
 
-      it 'SchoolClassRequest::Creationが呼ばれない' do
-        allow(Teacher::SchoolClassRequest::Creation).to receive(:new)
-
-        service.call
-
-        expect(Teacher::SchoolClassRequest::Creation).not_to have_received(:new)
+      it 'SchoolClassが作成されない' do
+        expect { service.call }.not_to change(SchoolClass, :count)
       end
     end
 
