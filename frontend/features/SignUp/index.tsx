@@ -188,6 +188,30 @@ export const SignUp = ({
                 <Typography sx={{ color: "red" }}>
                   都道府県を選択後、学校名を2文字以上入力すると候補が表示されます
                 </Typography>
+                {userRole === "student" && selectedHighSchool && (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography>
+                      生徒コード
+                      {selectedHighSchool.csv_managed && (
+                        <Typography component="span" sx={{ color: "red" }}>
+                          （必須）
+                        </Typography>
+                      )}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      placeholder="生徒コードを入力してください"
+                      {...register("user.student_number", {
+                        required: selectedHighSchool.csv_managed
+                          ? "生徒コードを入力してください"
+                          : false,
+                      })}
+                      error={!!errors.user?.student_number}
+                      helperText={errors.user?.student_number?.message}
+                    />
+                  </Box>
+                )}
                 <Box sx={{ mb: 2 }}>
                   <Typography>学年</Typography>
                   <Controller
