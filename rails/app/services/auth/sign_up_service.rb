@@ -58,6 +58,7 @@ module Auth
 
       user.assign_attributes(@form.to_attributes)
       user.password_reset_required = false
+      user.activated_at = Time.current
       user.save!
       user
     end

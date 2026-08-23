@@ -88,6 +88,7 @@ RSpec.describe Auth::SignUpService, type: :service do
         expect(user.id).to eq(pre_created_user.id)
         expect(user.email).to eq('test@example.com')
         expect(user.password_reset_required).to be false
+        expect(user.activated_at).to be_present
       end
     end
 
