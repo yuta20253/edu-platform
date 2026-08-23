@@ -99,6 +99,14 @@ RSpec.describe Auth::SignUpService, type: :service do
       end
     end
 
+    context '存在しない学校コードを含む生徒コードの場合' do
+      let(:student_number) { 'ZZZZZZ-NOTEXIST' }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '生徒コードが正しくありません')
+      end
+    end
+
     context 'コードが示す高校が選択した高校と異なる場合' do
       let(:other_high_school) { create(:high_school) }
       let!(:pre_created_user) do

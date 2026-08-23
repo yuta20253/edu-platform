@@ -37,6 +37,15 @@ RSpec.describe Auth::SignUpForm, type: :model do
       end
     end
 
+    context '生徒コードの形式' do
+      it 'ハイフンを含まない形式は無効' do
+        form = build_form(user_role_name: 'student', student_number: 'INVALIDCODE')
+
+        expect(form).to be_invalid
+        expect(form.errors[:student_number]).to include('生徒コードの形式が正しくありません')
+      end
+    end
+
     context 'csv_managedではない高校を選んだ生徒' do
       it '生徒コードが未入力でも有効' do
         form = build_form(user_role_name: 'student')

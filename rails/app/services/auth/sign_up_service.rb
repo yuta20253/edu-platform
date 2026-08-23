@@ -49,6 +49,8 @@ module Auth
     # 学校のCSVインポート等で事前作成された仮アカウントを、入力された生徒コードで検索し、
     # 見つかればそれを有効化する（新規Userは作らない）。同一生徒の重複登録を防ぐための経路。
     def claim_existing_student(high_school:)
+      verify_student_number_school!(high_school:)
+
       user = User.find_by(student_number: @form.student_number)
       raise SignUpError, '生徒コードが正しくありません' unless user
       raise SignUpError, '生徒コードが正しくありません' unless user.high_school_id == high_school.id
@@ -58,6 +60,15 @@ module Auth
       user.password_reset_required = false
       user.save!
       user
+    end
+
+    # student_number に含まれる学校コードを取り出し、他校で発行された生徒コードで
+    # 選択した高校のアカウントをclaimできないことを、既存User検索の前に確認する。
+    def verify_student_number_school!(high_school:)
+      school_code = @form.student_number.split('-', 2).first
+      code_high_school = HighSchool.find_by(school_code:)
+      raise SignUpError, '生徒コードが正しくありません' unless code_high_school
+      raise SignUpError, '生徒コードが正しくありません' unless code_high_school.id == high_school.id
     end
   end
 end

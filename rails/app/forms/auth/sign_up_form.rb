@@ -16,10 +16,13 @@ module Auth
     attribute :grade_id, :integer
     attribute :student_number, :string
 
+    STUDENT_NUMBER_FORMAT = /\A[A-Z0-9]+-[A-Z0-9]+\z/
+
     validates :user_role_name, presence: true
     validates :high_school_id, presence: true, if: :school_required?
     validates :grade_id, presence: true, if: :school_required?
     validate :student_number_required_for_csv_managed_school, if: :student?
+    validate :student_number_format, if: :student?
 
     def to_attributes
       attrs = {
@@ -52,6 +55,12 @@ module Auth
       return if high_school.nil?
 
       errors.add(:student_number, '生徒番号は必須です') if high_school.csv_managed? && student_number.blank?
+    end
+
+    def student_number_format
+      return if student_number.blank?
+
+      errors.add(:student_number, '生徒コードの形式が正しくありません') unless student_number.match?(STUDENT_NUMBER_FORMAT)
     end
   end
 end
