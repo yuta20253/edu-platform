@@ -158,8 +158,8 @@ export const useFetchHistories = () => {
     setPage(1);
   };
 
-  const handlePerPageChange = (nextPerPage: number) => {
-    setPerPage(nextPerPage);
+  const handlePerPageChange = (nextPerPage: string) => {
+    setPerPage(Number(nextPerPage));
     setPage(1);
   };
 

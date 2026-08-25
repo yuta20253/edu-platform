@@ -335,7 +335,7 @@ describe("AdminImportHistoryPresenter", () => {
     expect(screen.getByRole("option", { name: "50件" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "100件" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("option", { name: "50件" }));
-    expect(onPerPageChange).toHaveBeenCalledWith(50);
+    expect(onPerPageChange).toHaveBeenCalledWith("50");
   });
 
   it("ページネーションが表示される", () => {

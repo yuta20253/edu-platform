@@ -14,7 +14,6 @@ import {
   MenuItem,
   Pagination,
   Select,
-  type SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -62,7 +61,7 @@ type Props = {
   onToChange: (to: string) => void;
   onSortChange: (sort: ImportHistorySort) => void;
   onPageChange: (page: number) => void;
-  onPerPageChange: (perPage: number) => void;
+  onPerPageChange: (perPage: string) => void;
   onClearFilters: () => void;
   onRowClick: (id: number) => void;
 };
@@ -130,10 +129,6 @@ export const Presenter = ({
     !!filters.userId ||
     !!filters.from ||
     !!filters.to;
-
-  const handlePerPageChange = (e: SelectChangeEvent<string>) => {
-    onPerPageChange(Number(e.target.value));
-  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -391,7 +386,7 @@ export const Presenter = ({
             labelId="import-history-per-page-label"
             label="表示件数"
             value={String(perPage)}
-            onChange={handlePerPageChange}
+            onChange={(e) => onPerPageChange(e.target.value)}
           >
             {PER_PAGE_OPTIONS.map((option) => (
               <MenuItem key={option} value={String(option)}>
