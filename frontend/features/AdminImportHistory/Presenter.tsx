@@ -28,7 +28,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
-import { format, isValid, parseISO } from "date-fns";
 import {
   IMPORT_STATUS_COLOR,
   IMPORT_STATUS_LABEL,
@@ -39,6 +38,7 @@ import {
   type ImportHistorySort,
   type ImportHistoryStatus,
 } from "./types";
+import { dateToInput, dateToParam, formatDateTime } from "./dateUtils";
 
 type CourseOption = { id: number; level_name: string };
 type UnitOption = { id: number; unit_name: string };
@@ -74,10 +74,6 @@ const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
   { value: "failed", label: IMPORT_STATUS_LABEL.failed },
 ];
 
-const dateToInput = (value: string) => (value ? parseISO(value) : null);
-const dateToParam = (date: Date | null) =>
-  date ? format(date, "yyyy-MM-dd") : "";
-
 // Gentelella風のフラット・ミニマルなテイストを本画面ローカルで再現するトークン。
 // 角丸なし・影なし、薄いグレーのボーダーのみで区切る。
 const flat = {
@@ -98,11 +94,6 @@ const compactFieldSx = {
   "& .MuiInputLabel-root": {
     fontSize: "0.8125rem",
   },
-};
-
-const formatDateTime = (value: string) => {
-  const date = new Date(value);
-  return isValid(date) ? format(date, "yyyy/MM/dd HH:mm") : "-";
 };
 
 export const Presenter = ({
