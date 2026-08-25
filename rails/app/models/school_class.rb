@@ -15,6 +15,7 @@ class SchoolClass < ApplicationRecord
   has_many :users, dependent: :restrict_with_error
   has_many :teacher_school_classes, dependent: :destroy
   has_many :teachers, through: :teacher_school_classes, source: :user
+  has_many :school_class_requests, dependent: :nullify
 
-  validates :name, presence: true
+  validates :name, presence: true, length: { maximum: 255 }
 end

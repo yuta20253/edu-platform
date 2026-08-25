@@ -16,6 +16,7 @@ class Grade < ApplicationRecord
   has_many :teachers, through: :teacher_grades, source: :user
   has_many :students, class_name: 'User', dependent: :restrict_with_error
   has_many :school_classes, dependent: :restrict_with_error
+  has_many :school_class_requests, dependent: :restrict_with_error
 
   validates :year, presence: true
   validates :year, uniqueness: { scope: :high_school_id }

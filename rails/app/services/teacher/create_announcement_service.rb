@@ -2,20 +2,23 @@
 
 module Teacher
   class CreateAnnouncementService
-    def initialize(form)
-      @form = form
+    def initialize(publisher:, title:, content:, announcement_targets:)
+      @publisher = publisher
+      @title = title
+      @content = content
+      @announcement_targets = announcement_targets
     end
 
     def call
       ActiveRecord::Base.transaction do
         announcement = Announcement.create!(
-          title: @form.title,
-          content: @form.content,
-          status: :draft,
-          publisher_id: @form.current_user.id
+          title: @title,
+          content: @content,
+          status: initial_status,
+          publisher_id: @publisher.id
         )
 
-        @form.announcement_targets.each do |target|
+        @announcement_targets.each do |target|
           announcement.announcement_targets.create!(
             build_target_attributes(target)
           )
@@ -24,6 +27,10 @@ module Teacher
     end
 
     private
+
+    def initial_status
+      :draft
+    end
 
     def build_target_attributes(target)
       case target['target_type']
@@ -45,7 +52,7 @@ module Teacher
       when 'by_school'
         {
           target_type: :by_school,
-          high_school_id: @form.current_user.high_school_id
+          high_school_id: @publisher.high_school_id
         }
       when 'by_user'
         {

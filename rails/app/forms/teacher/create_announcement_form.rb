@@ -34,7 +34,12 @@ module Teacher
     def save
       return false unless valid?
 
-      ::Teacher::CreateAnnouncementService.new(self).call
+      ::Teacher::CreateAnnouncementService.new(
+        publisher: current_user,
+        title: title,
+        content: content,
+        announcement_targets: announcement_targets
+      ).call
       true
     end
 
