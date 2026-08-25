@@ -23,6 +23,7 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
+#  student_number          :string
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -58,6 +59,9 @@ class User < ApplicationRecord
                                         inverse_of: :sender_user, dependent: :destroy
   has_many :received_teacher_notifications, class_name: 'TeacherNotification', foreign_key: :receiver_user_id,
                                             inverse_of: :receiver_user, dependent: :destroy
+  has_many :school_class_requests, foreign_key: :applicant_id, inverse_of: :applicant
+  has_many :approved_school_class_requests, class_name: 'SchoolClassRequest', foreign_key: :approver_id,
+                                            inverse_of: :approver
 
   validates :name, presence: true, on: :update
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
@@ -66,6 +70,8 @@ class User < ApplicationRecord
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
+  validates :student_number, uniqueness: true, allow_nil: true
+  validates :student_number, absence: true, unless: :student?
 
   validate :school_class_belongs_to_grade
 
@@ -112,6 +118,15 @@ class User < ApplicationRecord
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
   scope :invitation_pending, -> { where(password_reset_required: true) }
   scope :active, -> { where(deleted_at: nil) }
+
+  def generate_student_number
+    raise "生徒以外(#{user_role&.name})にstudent_numberは発行できません" unless student?
+
+    self.student_number = loop do
+      code = "#{high_school.school_code}-#{SecureRandom.alphanumeric(8).upcase}"
+      break code unless User.exists?(student_number: code)
+    end
+  end
 
   private
 

@@ -4,6 +4,8 @@ module Api
   module V1
     module Student
       class AnnouncementsController < Api::V1::Student::BaseController
+        DEFAULT_PER_PAGE = 5
+
         def index
           announcements = announcement_scope
                           .order(published_at: :desc, id: :desc)

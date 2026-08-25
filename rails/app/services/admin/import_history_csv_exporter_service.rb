@@ -19,7 +19,7 @@ module Admin
       csv = CSV.generate do |c|
         c << %w[row_number status message]
 
-        @import_history.import_errors.sort_by(&:row_number).each do |import_error|
+        @import_history.import_errors.each do |import_error|
           c << [import_error.row_number, 'error', escape_formula(import_error.message)]
         end
       end

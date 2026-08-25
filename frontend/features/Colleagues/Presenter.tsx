@@ -97,7 +97,7 @@ export const Presenter = ({
           <Box sx={{ display: "flex", gap: 1.5, ml: "auto" }}>
             <Button
               component={Link}
-              href=""
+              href="/teacher/permissions"
               variant="outlined"
               size="small"
               sx={{

@@ -1,0 +1,87 @@
+# frozen_string_literal: true
+
+# == Schema Information
+#
+# Table name: school_class_requests
+#
+#  id              :bigint           not null, primary key
+#  school_class_id :bigint
+#  applicant_id    :bigint           not null
+#  approver_id     :bigint
+#  grade_id        :bigint           not null
+#  action          :integer          not null
+#  status          :integer          default("pending"), not null
+#  name            :string(255)
+#  approved_at     :datetime
+#  cancelled_at    :datetime
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  lock_version    :integer          default(0), not null
+#  reason          :text(65535)
+#
+class SchoolClassRequest < ApplicationRecord
+  belongs_to :school_class, optional: true
+  belongs_to :applicant, class_name: 'User'
+  belongs_to :approver, class_name: 'User', optional: true
+  belongs_to :grade
+
+  validate :validate_request_attributes
+  validate :no_duplicate_pending_request_for_school_class
+
+  enum action: {
+    creation: 0,
+    modification: 1,
+    deletion: 2
+  }
+
+  enum status: {
+    pending: 0,
+    approved: 1,
+    rejected: 2,
+    cancelled: 3
+  }
+
+  private
+
+  def validate_request_attributes
+    case action
+    when 'creation'
+      validate_create_request
+    when 'modification'
+      validate_update_request
+      school_class_belongs_to_grade
+    when 'deletion'
+      validate_delete_request
+      school_class_belongs_to_grade
+    end
+  end
+
+  def validate_create_request
+    errors.add(:name, 'を入力してください') if name.blank?
+  end
+
+  def validate_update_request
+    errors.add(:school_class, 'を指定してください') if school_class.blank?
+    errors.add(:name, 'を入力してください') if name.blank?
+  end
+
+  def validate_delete_request
+    errors.add(:school_class, 'を指定してください') if school_class.blank?
+  end
+
+  def school_class_belongs_to_grade
+    return if school_class.blank?
+
+    errors.add(:school_class, '学年が一致しません') if school_class.grade_id != grade_id
+  end
+
+  def no_duplicate_pending_request_for_school_class
+    return if school_class_id.blank?
+    return unless pending?
+
+    duplicates = self.class.where(school_class_id: school_class_id, status: :pending)
+    duplicates = duplicates.where.not(id: id) if persisted?
+
+    errors.add(:school_class_id, 'に対して承認待ちの申請が既に存在します') if duplicates.exists?
+  end
+end

@@ -6,22 +6,24 @@ module Admin
                :total_count, :success_count, :error_count, :created_at
 
     def course
-      unit = object.unit
-      return nil if unit&.course.nil?
+      course = object.unit&.course
+      return nil unless course
 
-      { id: unit.course.id, level_name: unit.course.level_name }
+      { id: course.id, level_name: course.level_name }
     end
 
     def unit
-      return nil if object.unit.nil?
+      unit = object.unit
+      return nil unless unit
 
-      { id: object.unit.id, unit_name: object.unit.unit_name }
+      { id: unit.id, unit_name: unit.unit_name }
     end
 
     def user
-      return nil if object.user.nil?
+      user = object.user
+      return nil unless user
 
-      { id: object.user.id, name: object.user.name }
+      { id: user.id, name: user.name }
     end
   end
 end

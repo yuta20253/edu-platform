@@ -32,7 +32,7 @@ RSpec.describe 'Api::V1::Student::Announcements', type: :request do
       let!(:other_student) { create(:user, :student) }
 
       let!(:announcements) do
-        create_list(:announcement, 3, :published, publisher: teacher).map do |a|
+        create_list(:announcement, 5, :published, publisher: teacher).map do |a|
           create(:announcement_target, :all_users, announcement: a)
           a
         end
@@ -90,13 +90,13 @@ RSpec.describe 'Api::V1::Student::Announcements', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it '最大20件取得できる' do
+      it '最大5件取得できる' do
         get '/api/v1/student/announcements',
             headers: headers.merge('Cookie' => cookie)
 
         json = response.parsed_body
 
-        expect(json['announcements'].size).to eq(3)
+        expect(json['announcements'].size).to eq(5)
       end
 
       it 'for_userの対象データが返る' do
@@ -162,8 +162,8 @@ RSpec.describe 'Api::V1::Student::Announcements', type: :request do
 
         expect(json['meta']['current_page']).to eq(1)
         expect(json['meta']['total_pages']).to eq(1)
-        expect(json['meta']['total_count']).to eq(3)
-        expect(json['meta']['per_page']).to eq(20)
+        expect(json['meta']['total_count']).to eq(5)
+        expect(json['meta']['per_page']).to eq(5)
       end
     end
   end
