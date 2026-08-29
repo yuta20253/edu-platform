@@ -76,13 +76,26 @@ export const useFetchHistories = () => {
       return;
     }
 
+    // コースを素早く切り替えた際、古いリクエストのレスポンスが新しい
+    // レスポンスを上書きしないよう、リクエストごとにキャンセルする
+    const controller = new AbortController();
+
     apiClient
-      .get<AdminCourseDetailData>(`/api/admin/courses/${filters.courseId}`)
+      .get<AdminCourseDetailData>(`/api/admin/courses/${filters.courseId}`, {
+        signal: controller.signal,
+      })
       .then((res) => {
         unitOptionsCache.current.set(filters.courseId, res.data.units);
         setUnitOptions(res.data.units);
       })
-      .catch(() => setUnitOptions([]));
+      .catch((err) => {
+        if (axios.isCancel(err)) return;
+        setUnitOptions([]);
+      });
+
+    return () => {
+      controller.abort();
+    };
   }, [filters.courseId]);
 
   useEffect(() => {
