@@ -43,23 +43,28 @@ export const useFetchHistories = () => {
   const router = useRouter();
 
   useEffect(() => {
-    Promise.all([
+    // 片方のAPIが失敗してももう片方の結果は反映されるよう、
+    // Promise.allSettledで独立して処理する
+    Promise.allSettled([
       apiClient.get<AdminCoursesData>("/api/admin/courses", {
         params: { per_page: 100 },
       }),
       apiClient.get<AdminAdminsData>("/api/admin/admins", {
         params: { per_page: 100 },
       }),
-    ])
-      .then(([coursesRes, adminsRes]) => {
-        setCourseOptions(coursesRes.data.courses);
-        setUserOptions(adminsRes.data.admins);
-      })
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-        }
-      });
+    ]).then(([coursesResult, adminsResult]) => {
+      if (coursesResult.status === "fulfilled") {
+        setCourseOptions(coursesResult.value.data.courses);
+      } else if (coursesResult.reason?.response?.status === 401) {
+        router.push("/login");
+      }
+
+      if (adminsResult.status === "fulfilled") {
+        setUserOptions(adminsResult.value.data.admins);
+      } else if (adminsResult.reason?.response?.status === 401) {
+        router.push("/login");
+      }
+    });
   }, [router]);
 
   const unitOptionsCache = useRef(new Map<string, UnitOption[]>());
