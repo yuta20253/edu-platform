@@ -51,6 +51,24 @@ describe("Step1FileSelect", () => {
     expect(screen.queryByLabelText("単元")).not.toBeInTheDocument();
   });
 
+  it("プリセットがある場合は生のIDではなく講座名・単元名が表示される", () => {
+    render(
+      <Step1FileSelect {...baseProps} isPreset courseId={1} unitId={11} />,
+    );
+    expect(screen.getByText("講座: 標準レベル1")).toBeInTheDocument();
+    expect(screen.getByText("単元: 二次関数")).toBeInTheDocument();
+    expect(screen.queryByText("講座: 1")).not.toBeInTheDocument();
+    expect(screen.queryByText("単元: 11")).not.toBeInTheDocument();
+  });
+
+  it("プリセットのcourseId/unitIdに一致するデータがない場合はIDにフォールバックする", () => {
+    render(
+      <Step1FileSelect {...baseProps} isPreset courseId={999} unitId={888} />,
+    );
+    expect(screen.getByText("講座: 講座 999")).toBeInTheDocument();
+    expect(screen.getByText("単元: 単元 888")).toBeInTheDocument();
+  });
+
   it("courseIdが未選択のとき単元Selectは無効", () => {
     render(<Step1FileSelect {...baseProps} />);
     expect(screen.getByLabelText("単元")).toHaveAttribute(

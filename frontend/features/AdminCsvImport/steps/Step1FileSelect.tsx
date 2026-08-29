@@ -75,6 +75,13 @@ export const Step1FileSelect = ({
     e.target.value = "";
   };
 
+  const presetCourse = courses.find((course) => course.id === courseId);
+  const presetUnit = units.find((unit) => unit.id === unitId);
+  const presetCourseLabel = presetCourse
+    ? buildCourseLabel(presetCourse)
+    : `講座 ${courseId}`;
+  const presetUnitLabel = presetUnit ? presetUnit.unit_name : `単元 ${unitId}`;
+
   return (
     <Stack spacing={3}>
       {isPreset ? (
@@ -83,8 +90,8 @@ export const Step1FileSelect = ({
             インポート対象
           </Typography>
           <Stack direction="row" spacing={1}>
-            <Chip label={`講座: ${courseId}`} />
-            <Chip label={`単元: ${unitId}`} />
+            <Chip label={`講座: ${presetCourseLabel}`} />
+            <Chip label={`単元: ${presetUnitLabel}`} />
           </Stack>
         </Box>
       ) : (
