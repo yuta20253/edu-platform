@@ -85,7 +85,14 @@ export const useCsvImport = ({
   };
 
   const runDryRun = async () => {
-    if (!state.courseId || !state.unitId || !state.file) return;
+    if (!state.courseId || !state.unitId || !state.file) {
+      setState((prev) => ({
+        ...prev,
+        fileError:
+          "講座・単元・CSVファイルを正しく選択してください。URLが不正な可能性があります",
+      }));
+      return;
+    }
     setState((prev) => ({ ...prev, dryRunLoading: true, dryRunError: null }));
 
     const formData = new FormData();
@@ -132,7 +139,14 @@ export const useCsvImport = ({
   };
 
   const submitImport = async () => {
-    if (!state.courseId || !state.unitId || !state.file) return;
+    if (!state.courseId || !state.unitId || !state.file) {
+      setState((prev) => ({
+        ...prev,
+        submitError:
+          "講座・単元・CSVファイルを正しく選択してください。URLが不正な可能性があります",
+      }));
+      return;
+    }
     setState((prev) => ({ ...prev, submitting: true, submitError: null }));
 
     const formData = new FormData();

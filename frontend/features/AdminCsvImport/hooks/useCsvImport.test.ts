@@ -176,6 +176,25 @@ describe("useCsvImport", () => {
       expect(result.current.state.dryRunResult?.rows).toHaveLength(1);
     });
 
+    it("courseId/unitIdが欠けている場合はAPIを呼ばずfileErrorにメッセージが入る（NaNプリセット等のガード）", async () => {
+      const { result } = renderHook(() =>
+        useCsvImport({ presetCourseId: null, presetUnitId: null }),
+      );
+      act(() => {
+        result.current.handleFileSelect(csvFile("questions.csv", 100));
+      });
+      await act(async () => {
+        await result.current.goNext();
+      });
+
+      expect(apiClient.post).not.toHaveBeenCalled();
+      expect(result.current.state.step).toBe(1);
+      expect(result.current.state.dryRunLoading).toBe(false);
+      expect(result.current.state.fileError).toBe(
+        "講座・単元・CSVファイルを正しく選択してください。URLが不正な可能性があります",
+      );
+    });
+
     it("422エラー時はstep2へ遷移しdryRunErrorにメッセージが入る", async () => {
       vi.mocked(apiClient.post).mockRejectedValue({
         response: {
