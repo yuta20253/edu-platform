@@ -15,6 +15,7 @@ require 'rails_helper'
 RSpec.describe SchoolClass, type: :model do
   describe 'バリデーション' do
     it { is_expected.to validate_presence_of(:name) }
+    it { is_expected.to validate_length_of(:name).is_at_most(255) }
   end
 
   describe '削除' do

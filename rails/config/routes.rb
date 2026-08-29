@@ -55,6 +55,8 @@ Rails.application.routes.draw do
         resources :teacher_notifications
         resources :teacher_notification_results
         resources :grades, only: :index
+        resources :school_classes, only: [:index, :show]
+        resources :school_class_requests, only: [:create, :update, :destroy]
         resource :dashboard, only: :show
         resource :import_students, only: :create do
           post :dry_run, on: :member
