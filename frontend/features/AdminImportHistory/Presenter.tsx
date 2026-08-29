@@ -32,17 +32,16 @@ import {
   IMPORT_STATUS_COLOR,
   IMPORT_STATUS_LABEL,
   PER_PAGE_OPTIONS,
+  type CourseOption,
   type ImportHistoriesData,
   type ImportHistoryFilters,
   type ImportHistoryOrder,
   type ImportHistorySort,
   type ImportHistoryStatus,
+  type UnitOption,
+  type UserOption,
 } from "./types";
 import { dateToInput, dateToParam, formatDateTime } from "./dateUtils";
-
-type CourseOption = { id: number; level_name: string };
-type UnitOption = { id: number; unit_name: string };
-type UserOption = { id: number; name: string };
 
 type Props = {
   data: ImportHistoriesData;

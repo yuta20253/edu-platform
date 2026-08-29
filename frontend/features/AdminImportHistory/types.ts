@@ -6,11 +6,15 @@ export type ImportHistoryStatus =
 
 export type ImportHistoryMode = "append" | "overwrite";
 
+export type CourseOption = { id: number; level_name: string };
+export type UnitOption = { id: number; unit_name: string };
+export type UserOption = { id: number; name: string };
+
 export type ImportHistoryRow = {
   id: number;
-  course: { id: number; level_name: string } | null;
-  unit: { id: number; unit_name: string } | null;
-  user: { id: number; name: string } | null;
+  course: CourseOption | null;
+  unit: UnitOption | null;
+  user: UserOption | null;
   file_name: string;
   status: ImportHistoryStatus;
   mode: ImportHistoryMode;

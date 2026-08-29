@@ -6,15 +6,14 @@ import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { useSortToggle } from "@/hooks/useSortToggle";
 import type {
+  CourseOption,
   ImportHistoriesData,
   ImportHistoryFilters,
   ImportHistorySort,
   ImportHistoryStatus,
+  UnitOption,
+  UserOption,
 } from "../types";
-
-type CourseOption = { id: number; level_name: string };
-type UnitOption = { id: number; unit_name: string };
-type UserOption = { id: number; name: string };
 
 type AdminCoursesData = { courses: CourseOption[] };
 type AdminCourseDetailData = { units: UnitOption[] };
