@@ -6,7 +6,6 @@ import type { CourseOption, UnitOption } from "../types";
 const courses: CourseOption[] = [
   {
     id: 1,
-    subject: { id: 1, name: "数学" },
     level_name: "標準",
     level_number: 1,
   },

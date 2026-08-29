@@ -1,12 +1,9 @@
-import type { Subject } from "@/types/common/subject";
-
 export type ImportMode = "append" | "overwrite";
 
 export type WizardStep = 1 | 2 | 3 | 4;
 
 export type CourseOption = {
   id: number;
-  subject: Subject | null;
   level_name: string;
   level_number: number;
 };
