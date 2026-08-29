@@ -69,7 +69,7 @@ module Auth
     # student_number に含まれる学校コードを取り出し、他校で発行された生徒コードで
     # 選択した高校のアカウントをclaimできないことを、既存User検索の前に確認する。
     def verify_student_number_school!(high_school:)
-      school_code = @form.student_number.split('-', 2).first
+      school_code = User.school_code_from_student_number(@form.student_number)
       code_high_school = HighSchool.find_by(school_code:)
       raise SignUpError, '生徒コードが正しくありません' unless code_high_school
       raise SignUpError, '生徒コードが正しくありません' unless code_high_school.id == high_school.id

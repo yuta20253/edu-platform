@@ -26,7 +26,7 @@ class AuthMailer < Devise::Mailer
       subject: '[edu platform] アカウントが有効化されました',
       body: "登録されていたアカウント(#{original_email})が、以下のメールアドレスで有効化されました。\n\n" \
             "有効化されたメールアドレス: #{user.email}\n\n" \
-            "この操作に心当たりがない場合は、学校または管理者にお問い合わせください。"
+            'この操作に心当たりがない場合は、学校または管理者にお問い合わせください。'
     )
   end
 end

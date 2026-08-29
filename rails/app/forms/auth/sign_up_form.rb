@@ -16,8 +16,6 @@ module Auth
     attribute :grade_id, :integer
     attribute :student_number, :string
 
-    STUDENT_NUMBER_FORMAT = /\A[A-Z0-9]+-[A-Z0-9]+\z/
-
     validates :user_role_name, presence: true
     validates :high_school_id, presence: true, if: :school_required?
     validates :grade_id, presence: true, if: :school_required?
@@ -60,7 +58,7 @@ module Auth
     def student_number_format
       return if student_number.blank?
 
-      errors.add(:student_number, '生徒コードの形式が正しくありません') unless student_number.match?(STUDENT_NUMBER_FORMAT)
+      errors.add(:student_number, '生徒コードの形式が正しくありません') unless User.student_number_format_valid?(student_number)
     end
   end
 end
