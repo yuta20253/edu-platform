@@ -26,6 +26,7 @@ import {
 import ClearIcon from "@mui/icons-material/Clear";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { jaJP } from "@mui/x-date-pickers/locales";
 import { ja } from "date-fns/locale";
 import {
   IMPORT_STATUS_COLOR,
@@ -300,7 +301,13 @@ export const Presenter = ({
           </Select>
         </FormControl>
 
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+        <LocalizationProvider
+          dateAdapter={AdapterDateFns}
+          adapterLocale={ja}
+          localeText={
+            jaJP.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+        >
           <DatePicker
             label="開始日"
             format="yyyy/MM/dd"
@@ -310,23 +317,9 @@ export const Presenter = ({
             slotProps={{
               textField: {
                 size: "small",
-                sx: { width: 140, ...compactFieldSx },
-                InputProps: filters.from
-                  ? {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="開始日をクリア"
-                            size="small"
-                            onClick={() => onFromChange("")}
-                          >
-                            <ClearIcon fontSize="inherit" />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }
-                  : undefined,
+                sx: { width: 170, ...compactFieldSx },
               },
+              field: { clearable: true },
             }}
           />
           <DatePicker
@@ -342,23 +335,9 @@ export const Presenter = ({
                 helperText: dateRangeInvalid
                   ? "終了日は開始日以降の日付を指定してください"
                   : undefined,
-                sx: { width: 140, ...compactFieldSx },
-                InputProps: filters.to
-                  ? {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="終了日をクリア"
-                            size="small"
-                            onClick={() => onToChange("")}
-                          >
-                            <ClearIcon fontSize="inherit" />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }
-                  : undefined,
+                sx: { width: 170, ...compactFieldSx },
               },
+              field: { clearable: true },
             }}
           />
         </LocalizationProvider>

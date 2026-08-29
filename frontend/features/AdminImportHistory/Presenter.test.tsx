@@ -228,7 +228,8 @@ describe("AdminImportHistoryPresenter", () => {
         onFromChange={onFromChange}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "開始日をクリア" }));
+    const clearButtons = screen.getAllByRole("button", { name: "クリア" });
+    fireEvent.click(clearButtons[0]);
     expect(onFromChange).toHaveBeenCalledWith("");
   });
 
@@ -241,7 +242,8 @@ describe("AdminImportHistoryPresenter", () => {
         onToChange={onToChange}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "終了日をクリア" }));
+    const clearButtons = screen.getAllByRole("button", { name: "クリア" });
+    fireEvent.click(clearButtons[0]);
     expect(onToChange).toHaveBeenCalledWith("");
   });
 
