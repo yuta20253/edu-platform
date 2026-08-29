@@ -10,7 +10,7 @@ type Props = {
   presetUnitId: number | null;
 };
 
-export const AdminCsvImport = ({ presetCourseId, presetUnitId }: Props) => {
+export const CsvImport = ({ presetCourseId, presetUnitId }: Props) => {
   const wizard = useCsvImport({ presetCourseId, presetUnitId });
   const { courses, coursesLoading } = useFetchCourseOptions();
   const { units, unitsLoading } = useFetchUnitOptions(wizard.state.courseId);

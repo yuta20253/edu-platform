@@ -1,14 +1,14 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { AdminCsvImport } from "@/features/AdminCsvImport";
-import { parsePresetId } from "@/features/AdminCsvImport/parsePresetId";
+import { CsvImport } from "@/features/admin/CsvImport";
+import { parsePresetId } from "@/features/admin/CsvImport/parsePresetId";
 
-export default function AdminCsvImportPage() {
+export default function CsvImportPage() {
   const searchParams = useSearchParams();
 
   return (
-    <AdminCsvImport
+    <CsvImport
       presetCourseId={parsePresetId(searchParams.get("courseId"))}
       presetUnitId={parsePresetId(searchParams.get("unitId"))}
     />
