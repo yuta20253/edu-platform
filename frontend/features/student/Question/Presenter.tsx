@@ -268,7 +268,7 @@ export const Presenter = ({
               </Link>
               {isAnswered ? (
                 <Box
-                  onClick={onNextQuestion}
+                  onClick={() => onNextQuestion()}
                   sx={{
                     px: 3,
                     py: 1.2,

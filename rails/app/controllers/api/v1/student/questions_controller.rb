@@ -13,7 +13,7 @@ module Api
 
           answered_ids = current_user
                          .question_histories
-                         .where(question_id: unit.question_ids)
+                         .where(task_id: task.id, unit_id: unit.id, question_id: unit.question_ids)
                          .pluck(:question_id).to_set
 
           render json: questions,
