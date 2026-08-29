@@ -99,6 +99,29 @@ RSpec.describe Auth::SignUpService, type: :service do
 
         expect(AuthMailer).to have_received(:account_claimed).with(an_instance_of(User), 'old@example.com')
       end
+
+      context 'フォームで異なる学年が選択された場合' do
+        let(:other_grade) { create(:grade, high_school: high_school, year: 2) }
+        let(:form) do
+          Auth::SignUpForm.new(
+            email: 'test@example.com',
+            name: '山田太郎',
+            name_kana: 'ヤマダタロウ',
+            password: 'password',
+            password_confirmation: 'password',
+            user_role_name: user_role_name,
+            high_school_id: high_school_id,
+            grade_id: other_grade.id,
+            student_number: student_number
+          )
+        end
+
+        it 'CSVインポート時に設定された学年が維持される' do
+          user = subject
+
+          expect(user.grade_id).to eq(pre_created_user.grade_id)
+        end
+      end
     end
 
     context '削除済みユーザーの生徒コードの場合' do

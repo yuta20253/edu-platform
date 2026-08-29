@@ -57,7 +57,8 @@ module Auth
       raise SignUpError, 'このアカウントは既に有効化されています' unless user.password_reset_required?
 
       original_email = user.email
-      user.assign_attributes(@form.to_attributes)
+      # grade_idはCSVインポート時に設定済みの値を維持する（high_school_idと同様、フォーム入力で上書きしない）
+      user.assign_attributes(@form.to_attributes.except(:grade_id))
       user.password_reset_required = false
       user.activated_at = Time.current
       user.save!
