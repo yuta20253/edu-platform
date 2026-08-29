@@ -56,10 +56,12 @@ module Auth
       raise SignUpError, '生徒コードが正しくありません' unless user.high_school_id == high_school.id
       raise SignUpError, 'このアカウントは既に有効化されています' unless user.password_reset_required?
 
+      original_email = user.email
       user.assign_attributes(@form.to_attributes)
       user.password_reset_required = false
       user.activated_at = Time.current
       user.save!
+      AuthMailer.account_claimed(user, original_email).deliver_later
       user
     end
 

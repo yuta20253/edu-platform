@@ -90,6 +90,15 @@ RSpec.describe Auth::SignUpService, type: :service do
         expect(user.password_reset_required).to be false
         expect(user.activated_at).to be_present
       end
+
+      it '有効化前の元のメールアドレス宛に通知メールが送信される' do
+        mail = instance_double(ActionMailer::MessageDelivery, deliver_later: true)
+        allow(AuthMailer).to receive(:account_claimed).and_return(mail)
+
+        subject
+
+        expect(AuthMailer).to have_received(:account_claimed).with(an_instance_of(User), 'old@example.com')
+      end
     end
 
     context '該当するUserが存在しないコードの場合' do
