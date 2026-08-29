@@ -73,6 +73,7 @@ export const Presenter = ({
           mode={state.mode}
           onModeChange={handleModeChange}
           onNext={goNext}
+          submitting={state.dryRunLoading}
           canProceed={
             state.courseId != null &&
             state.unitId != null &&

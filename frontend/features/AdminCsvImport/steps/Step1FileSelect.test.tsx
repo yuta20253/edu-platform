@@ -33,6 +33,7 @@ const baseProps = {
   onModeChange: vi.fn(),
   onNext: vi.fn(),
   canProceed: false,
+  submitting: false,
 };
 
 describe("Step1FileSelect", () => {
@@ -153,5 +154,16 @@ describe("Step1FileSelect", () => {
     expect(button).toBeEnabled();
     fireEvent.click(button);
     expect(onNext).toHaveBeenCalled();
+  });
+
+  it("submitting中はcanProceedがtrueでも次へボタンが無効になる", () => {
+    render(<Step1FileSelect {...baseProps} canProceed submitting />);
+    expect(screen.getByRole("button", { name: "次へ" })).toBeDisabled();
+  });
+
+  it("submitting中は次へボタンにローディング表示が出る", () => {
+    render(<Step1FileSelect {...baseProps} canProceed submitting />);
+    const button = screen.getByRole("button", { name: "次へ" });
+    expect(button.querySelector(".MuiCircularProgress-root")).not.toBeNull();
   });
 });

@@ -38,6 +38,7 @@ type Props = {
   onModeChange: (mode: ImportMode) => void;
   onNext: () => void;
   canProceed: boolean;
+  submitting: boolean;
 };
 
 export const Step1FileSelect = ({
@@ -58,6 +59,7 @@ export const Step1FileSelect = ({
   onModeChange,
   onNext,
   canProceed,
+  submitting,
 }: Props) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -212,7 +214,14 @@ export const Step1FileSelect = ({
       {coursesLoading && <CircularProgress size={20} />}
 
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button variant="contained" disabled={!canProceed} onClick={onNext}>
+        <Button
+          variant="contained"
+          disabled={!canProceed || submitting}
+          onClick={onNext}
+          startIcon={
+            submitting ? <CircularProgress size={16} color="inherit" /> : null
+          }
+        >
           次へ
         </Button>
       </Box>

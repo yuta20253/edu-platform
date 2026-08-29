@@ -124,6 +124,20 @@ describe("Presenter", () => {
     expect(goNext).toHaveBeenCalled();
   });
 
+  it("step1でdryRunLoading中は次へボタンが無効になる（連打によるレースコンディション防止）", () => {
+    render(
+      <Presenter
+        state={buildState({
+          step: 1,
+          file: csvFile(),
+          dryRunLoading: true,
+        })}
+        {...baseProps}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "次へ" })).toBeDisabled();
+  });
+
   it("step2で戻るをクリックするとgoBackが呼ばれる", () => {
     const goBack = vi.fn();
     render(
