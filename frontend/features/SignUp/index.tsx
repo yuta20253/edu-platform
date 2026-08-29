@@ -55,6 +55,8 @@ export const SignUp = ({
   } = useForm<User>();
 
   const password = watch("user.password");
+  const studentNumber = watch("user.student_number");
+  const isClaimingExistingAccount = Boolean(studentNumber?.trim());
 
   const { onSubmit } = useSubmit({ setErrorMessage, userRole });
 
@@ -237,6 +239,14 @@ export const SignUp = ({
                       </FormControl>
                     )}
                   />
+                  {isClaimingExistingAccount && (
+                    <Typography
+                      variant="caption"
+                      sx={{ color: colors.text.secondary, display: "block" }}
+                    >
+                      生徒コードを入力した場合、学年は学校に登録済みの情報が使用されます（ここでの選択は反映されません）
+                    </Typography>
+                  )}
                 </Box>
               </>
             )}
