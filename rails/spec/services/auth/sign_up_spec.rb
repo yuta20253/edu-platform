@@ -101,6 +101,19 @@ RSpec.describe Auth::SignUpService, type: :service do
       end
     end
 
+    context '削除済みユーザーの生徒コードの場合' do
+      let!(:pre_created_user) do
+        create(:user, user_role: user_role, high_school: high_school, grade: grade,
+                      student_number: "#{high_school.school_code}-AAAAAAAA",
+                      password_reset_required: true, deleted_at: Time.current)
+      end
+      let(:student_number) { pre_created_user.student_number }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '生徒コードが正しくありません')
+      end
+    end
+
     context '該当するUserが存在しないコードの場合' do
       let(:student_number) { "#{high_school.school_code}-NOTEXIST" }
 
