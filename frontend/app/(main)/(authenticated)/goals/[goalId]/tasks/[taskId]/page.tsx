@@ -1,4 +1,4 @@
-import { TaskDetail } from "@/features/TaskDetail";
+import { TaskDetail } from "@/features/student/TaskDetail";
 
 type Props = {
   params: Promise<{ goalId: string; taskId: string }>;
