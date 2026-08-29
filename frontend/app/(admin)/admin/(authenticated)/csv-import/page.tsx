@@ -2,12 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { AdminCsvImport } from "@/features/AdminCsvImport";
-
-const parsePresetId = (value: string | null): number | null => {
-  if (!value) return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-};
+import { parsePresetId } from "@/features/AdminCsvImport/parsePresetId";
 
 export default function AdminCsvImportPage() {
   const searchParams = useSearchParams();
