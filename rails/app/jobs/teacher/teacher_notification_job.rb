@@ -10,7 +10,7 @@ module Teacher
 
       target_teachers.each do |target_teacher|
         token = target_teacher.send(:set_reset_password_token)
-        AuthMailer.invite_teacher(target_teacher, token).deliver_now
+        AuthMailer.invite_user(target_teacher, token).deliver_now
 
         TeacherNotification.create!(
           sender_user: sender,

@@ -49,6 +49,16 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
 
         expect(user.password_reset_required).to be true
       end
+
+      it '招待メールが送信される' do
+        expect { described_class.new(form).call }.to have_enqueued_mail(AuthMailer, :invite_user)
+      end
+
+      it 'reset_password_tokenが発行される' do
+        user = described_class.new(form).call
+
+        expect(user.reset_password_token).to be_present
+      end
     end
 
     context '同じメールアドレスの自校Userが既に存在する場合' do
@@ -75,6 +85,10 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
 
         expect(existing_user.reload.encrypted_password).to eq(original_password)
         expect(existing_user.reload.password_reset_required).to be false
+      end
+
+      it '招待メールは送信されない' do
+        expect { described_class.new(form).call }.not_to have_enqueued_mail(AuthMailer, :invite_user)
       end
 
       context 'student_numberが未設定の場合' do

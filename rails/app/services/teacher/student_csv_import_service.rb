@@ -29,23 +29,14 @@ module Teacher
     end
 
     def create_new_user
-      password = SecureRandom.hex(16)
-
-      user = User.new(
+      Student::CreateAccountService.new(
         name: @form.name,
         name_kana: @form.name_kana,
         email: @form.email,
-        user_role: UserRole.find_by!(name: :student),
         high_school: @form.high_school,
         grade: @form.grade,
-        school_class: @form.school_class,
-        password: password,
-        password_confirmation: password,
-        password_reset_required: true
-      )
-      user.generate_student_number
-      user.save!
-      user
+        school_class: @form.school_class
+      ).call
     end
   end
 end
