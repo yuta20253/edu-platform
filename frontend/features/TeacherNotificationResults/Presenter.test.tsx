@@ -58,8 +58,6 @@ describe("TeacherNotificationResultsPresenter", () => {
 
   it("data が空のとき「送信された通知はありません」が表示される", () => {
     render(<Presenter data={[]} />);
-    expect(
-      screen.getByText("送信された通知はありません"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("送信された通知はありません")).toBeInTheDocument();
   });
 });

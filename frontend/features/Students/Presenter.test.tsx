@@ -100,7 +100,9 @@ describe("StudentsPresenter", () => {
   });
 
   it("students が空でもエラーにならずテーブルが表示される", () => {
-    render(<Presenter {...defaultProps} data={{ ...mockData, students: [] }} />);
+    render(
+      <Presenter {...defaultProps} data={{ ...mockData, students: [] }} />,
+    );
     expect(screen.getByText("氏名")).toBeInTheDocument();
     expect(screen.queryAllByRole("row")).toHaveLength(1);
   });

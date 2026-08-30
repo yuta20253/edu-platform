@@ -5,9 +5,13 @@ import { Presenter } from "./Presenter";
 import { EditGoalForm, Goal } from "./types";
 
 vi.mock("next/link", () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
 }));
 
 vi.mock("@mui/x-date-pickers", () => ({
@@ -100,7 +104,9 @@ describe("EditGoalPresenter", () => {
   it("見出しと目標の初期値が入力欄に表示される", () => {
     render(<Wrapper />);
     expect(screen.getByText("目標編集")).toBeInTheDocument();
-    expect(screen.getAllByText("英単語1000語を覚える").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("英単語1000語を覚える").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getByDisplayValue("毎日30分学習する")).toBeInTheDocument();
     expect(screen.getByLabelText("期限")).toHaveValue("2026-09-30");
   });

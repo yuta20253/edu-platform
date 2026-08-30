@@ -4,9 +4,13 @@ import { Presenter } from "./Presenter";
 import type { GoalsData } from "./types";
 
 vi.mock("next/link", () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
 }));
 
 const mockData: GoalsData = {
@@ -17,8 +21,24 @@ const mockData: GoalsData = {
       status: "in_progress",
       due_date: "2026-09-30",
       tasks: [
-        { goal_id: 1, title: "task1", content: "", status: "completed", priority: 1, due_date: null, unit_ids: null },
-        { goal_id: 1, title: "task2", content: "", status: "not_started", priority: 1, due_date: null, unit_ids: null },
+        {
+          goal_id: 1,
+          title: "task1",
+          content: "",
+          status: "completed",
+          priority: 1,
+          due_date: null,
+          unit_ids: null,
+        },
+        {
+          goal_id: 1,
+          title: "task2",
+          content: "",
+          status: "not_started",
+          priority: 1,
+          due_date: null,
+          unit_ids: null,
+        },
       ],
     },
     {

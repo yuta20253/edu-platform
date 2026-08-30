@@ -79,13 +79,10 @@ const Wrapper = ({
   router = { push: vi.fn() } as unknown as AppRouterInstance,
   formValues = {},
 }: WrapperProps) => {
-  const {
-    control,
-    register,
-    watch,
-    setValue,
-    handleSubmit,
-  } = useForm<ProfileForm>({ defaultValues: { ...defaultValues, ...formValues } });
+  const { control, register, watch, setValue, handleSubmit } =
+    useForm<ProfileForm>({
+      defaultValues: { ...defaultValues, ...formValues },
+    });
 
   const prefectureId = watch("prefecture_id");
   const city = watch("city");
@@ -133,7 +130,9 @@ describe("EditUserProfilePresenter", () => {
 
   it("在籍高校・学年が未設定なら「未設定」と表示される", () => {
     render(
-      <Wrapper user={{ ...mockUser, high_school: undefined, grade: undefined }} />,
+      <Wrapper
+        user={{ ...mockUser, high_school: undefined, grade: undefined }}
+      />,
     );
     expect(screen.getAllByText("未設定").length).toBe(2);
   });
@@ -157,9 +156,7 @@ describe("EditUserProfilePresenter", () => {
 
   it("エラーメッセージが helperText として表示される", () => {
     render(
-      <Wrapper
-        errors={{ name: { message: "氏名を入力してください" } }}
-      />,
+      <Wrapper errors={{ name: { message: "氏名を入力してください" } }} />,
     );
     expect(screen.getByText("氏名を入力してください")).toBeInTheDocument();
   });
@@ -176,9 +173,7 @@ describe("EditUserProfilePresenter", () => {
   });
 
   it("市区町村未入力のとき町名・丁目の入力欄が disabled になる", () => {
-    render(
-      <Wrapper formValues={{ city: "", town: "" }} townOptions={[]} />,
-    );
+    render(<Wrapper formValues={{ city: "", town: "" }} townOptions={[]} />);
     expect(screen.getByPlaceholderText("町名・丁目")).toBeDisabled();
   });
 
@@ -199,10 +194,7 @@ describe("EditUserProfilePresenter", () => {
   it("確認ダイアログの「OK」で router.push が呼ばれる", () => {
     const push = vi.fn();
     render(
-      <Wrapper
-        openConfirm
-        router={{ push } as unknown as AppRouterInstance}
-      />,
+      <Wrapper openConfirm router={{ push } as unknown as AppRouterInstance} />,
     );
     fireEvent.click(screen.getByRole("button", { name: "OK" }));
     expect(push).toHaveBeenCalledWith("/profile");
@@ -218,8 +210,6 @@ describe("EditUserProfilePresenter", () => {
         }}
       />,
     );
-    expect(
-      screen.getByText("プロフィールを更新しました"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("プロフィールを更新しました")).toBeInTheDocument();
   });
 });

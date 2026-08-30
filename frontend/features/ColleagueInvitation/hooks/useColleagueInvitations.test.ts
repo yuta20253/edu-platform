@@ -20,7 +20,12 @@ describe("useColleagueInvitations", () => {
 
   it("未招待教員一覧を取得しdataにセットする", async () => {
     const teachers = [
-      { id: 1, name: "山田太郎", name_kana: "ヤマダタロウ", email: "yamada@example.com" },
+      {
+        id: 1,
+        name: "山田太郎",
+        name_kana: "ヤマダタロウ",
+        email: "yamada@example.com",
+      },
     ];
     vi.mocked(apiClient.get).mockResolvedValue({ data: teachers });
 

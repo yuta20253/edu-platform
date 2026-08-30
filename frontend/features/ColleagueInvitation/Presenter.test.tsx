@@ -4,8 +4,18 @@ import { Presenter } from "./Presenter";
 import type { UnsentTeacher } from "./types";
 
 const mockTeachers: UnsentTeacher[] = [
-  { id: 1, name: "山田太郎", name_kana: "ヤマダタロウ", email: "yamada@example.com" },
-  { id: 2, name: "鈴木花子", name_kana: "スズキハナコ", email: "suzuki@example.com" },
+  {
+    id: 1,
+    name: "山田太郎",
+    name_kana: "ヤマダタロウ",
+    email: "yamada@example.com",
+  },
+  {
+    id: 2,
+    name: "鈴木花子",
+    name_kana: "スズキハナコ",
+    email: "suzuki@example.com",
+  },
 ];
 
 const defaultProps = {
@@ -70,9 +80,7 @@ describe("ColleagueInvitationPresenter", () => {
 
   it("行のチェックボックスをクリックすると onToggleTeacher が呼ばれる", () => {
     const onToggleTeacher = vi.fn();
-    render(
-      <Presenter {...defaultProps} onToggleTeacher={onToggleTeacher} />,
-    );
+    render(<Presenter {...defaultProps} onToggleTeacher={onToggleTeacher} />);
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[1]);
     expect(onToggleTeacher).toHaveBeenCalledWith(1);
@@ -124,12 +132,8 @@ describe("ColleagueInvitationPresenter", () => {
   });
 
   it("submitting 中はボタンが「送信中...」表示になり無効化される", () => {
-    render(
-      <Presenter {...defaultProps} selectedTeacherIds={[1]} submitting />,
-    );
-    expect(
-      screen.getByRole("button", { name: "送信中..." }),
-    ).toBeDisabled();
+    render(<Presenter {...defaultProps} selectedTeacherIds={[1]} submitting />);
+    expect(screen.getByRole("button", { name: "送信中..." })).toBeDisabled();
   });
 
   it("submitError が表示される", () => {
@@ -146,10 +150,11 @@ describe("ColleagueInvitationPresenter", () => {
 
   it("successMessage が表示される", () => {
     render(
-      <Presenter {...defaultProps} successMessage="招待の送信を開始しました。" />,
+      <Presenter
+        {...defaultProps}
+        successMessage="招待の送信を開始しました。"
+      />,
     );
-    expect(
-      screen.getByText("招待の送信を開始しました。"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("招待の送信を開始しました。")).toBeInTheDocument();
   });
 });

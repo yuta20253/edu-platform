@@ -103,8 +103,6 @@ describe("CreateTaskConfirm", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "キャンセル" }));
 
-    expect(pushMock).toHaveBeenCalledWith(
-      "/goals/9/tasks/new?draftTaskId=1",
-    );
+    expect(pushMock).toHaveBeenCalledWith("/goals/9/tasks/new?draftTaskId=1");
   });
 });

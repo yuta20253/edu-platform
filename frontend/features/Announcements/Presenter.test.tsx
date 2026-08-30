@@ -26,7 +26,11 @@ const mockData: AnnouncementsData = {
       id: 2,
       title: "メンテナンスのお知らせ",
       content: "システムメンテナンスを行います。",
-      publisher: { id: 2, name: "システム管理者", name_kana: "システムカンリシャ" },
+      publisher: {
+        id: 2,
+        name: "システム管理者",
+        name_kana: "システムカンリシャ",
+      },
       published_at: "2025-06-05T12:00:00.000Z",
     },
   ],

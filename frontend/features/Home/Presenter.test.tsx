@@ -86,10 +86,9 @@ describe("HomePresenter", () => {
 
   it("定期テスト管理・志望校管理・受験校管理へのリンクが表示される", () => {
     render(<Presenter initialGoals={mockGoals} />);
-    expect(screen.getByRole("link", { name: "定期テスト管理" })).toHaveAttribute(
-      "href",
-      "/exams",
-    );
+    expect(
+      screen.getByRole("link", { name: "定期テスト管理" }),
+    ).toHaveAttribute("href", "/exams");
     expect(screen.getByRole("link", { name: "志望校管理" })).toHaveAttribute(
       "href",
       "/desired-schools",

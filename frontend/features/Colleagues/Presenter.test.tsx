@@ -108,9 +108,7 @@ describe("ColleaguesPresenter", () => {
 
   it("manage_other_teachers が true のとき操作ボタンが表示される", () => {
     render(<TestWrapper />);
-    expect(
-      screen.getByRole("link", { name: "権限管理" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "権限管理" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "未招待者一覧" }),
     ).toBeInTheDocument();
@@ -218,9 +216,7 @@ describe("ColleaguesPresenter", () => {
   it("drawerOpen のとき教員追加フォームが表示される", () => {
     render(<TestWrapper drawerOpen />);
     expect(screen.getByText("教員を追加")).toBeInTheDocument();
-    expect(
-      screen.getByRole("textbox", { name: "氏名" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "氏名" })).toBeInTheDocument();
   });
 
   it("フォームに入力して送信すると onCreate が正しい値で呼ばれる", async () => {
@@ -281,9 +277,7 @@ describe("ColleaguesPresenter", () => {
   it("creating 中は追加ボタンとキャンセルボタンが無効", () => {
     render(<TestWrapper drawerOpen creating />);
     expect(screen.getByRole("button", { name: "追加" })).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "キャンセル" }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "キャンセル" })).toBeDisabled();
   });
 
   it("「キャンセル」ボタンで onDrawerClose が呼ばれる", () => {

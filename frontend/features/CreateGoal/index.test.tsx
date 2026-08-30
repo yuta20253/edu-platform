@@ -82,7 +82,9 @@ describe("CreateGoal", () => {
     render(<CreateGoal />);
     const [titleInput, descriptionInput] = screen.getAllByRole("textbox");
     fireEvent.change(titleInput, { target: { value: "英単語1000語を覚える" } });
-    fireEvent.change(descriptionInput, { target: { value: "毎日30分学習する" } });
+    fireEvent.change(descriptionInput, {
+      target: { value: "毎日30分学習する" },
+    });
     fireEvent.change(screen.getByLabelText("期限"), {
       target: { value: "2026-09-15" },
     });

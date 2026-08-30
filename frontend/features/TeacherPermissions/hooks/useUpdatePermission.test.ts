@@ -69,15 +69,12 @@ describe("useUpdatePermission", () => {
       });
     });
 
-    expect(apiClient.patch).toHaveBeenCalledWith(
-      "/api/teacher/permissions/2",
-      {
-        teacher_permission: {
-          grade_scope: "all_grades",
-          manage_other_teachers: true,
-        },
+    expect(apiClient.patch).toHaveBeenCalledWith("/api/teacher/permissions/2", {
+      teacher_permission: {
+        grade_scope: "all_grades",
+        manage_other_teachers: true,
       },
-    );
+    });
     expect(result.current.editingTeacher).toBeNull();
     expect(result.current.snackbar).toEqual({
       open: true,

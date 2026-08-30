@@ -193,14 +193,16 @@ describe("EditTaskPresenter", () => {
 
   it("選択中講座の単元一覧が表示され、学習開始済みの単元はチェックボックスが無効で表示名にサフィックスが付く", () => {
     render(
-      <Wrapper selectedCourseId={1} selectedCourse={mockCourse} task={mockTask} />,
+      <Wrapper
+        selectedCourseId={1}
+        selectedCourse={mockCourse}
+        task={mockTask}
+      />,
     );
 
     expect(screen.getByText("単元一覧")).toBeInTheDocument();
     expect(screen.getByLabelText("be動詞")).not.toBeDisabled();
-    expect(
-      screen.getByLabelText("一般動詞（学習開始済み）"),
-    ).toBeDisabled();
+    expect(screen.getByLabelText("一般動詞（学習開始済み）")).toBeDisabled();
   });
 
   it("未着手の単元チェックボックスをクリックすると handleToggleUnit が呼ばれる", () => {

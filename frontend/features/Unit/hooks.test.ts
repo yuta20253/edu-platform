@@ -33,9 +33,7 @@ describe("useGetUnit", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBe(false);
     expect(result.current.unit?.unit_name).toBe("二次関数");
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/api/student/tasks/5/units/11",
-    );
+    expect(apiClient.get).toHaveBeenCalledWith("/api/student/tasks/5/units/11");
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {

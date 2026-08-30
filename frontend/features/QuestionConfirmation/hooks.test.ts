@@ -54,9 +54,7 @@ describe("useGetQuestionConfirmation", () => {
       response: { status: 401 },
     });
 
-    renderHook(() =>
-      useGetQuestionConfirmation({ taskId: 5, unitId: 11 }),
-    );
+    renderHook(() => useGetQuestionConfirmation({ taskId: 5, unitId: 11 }));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });

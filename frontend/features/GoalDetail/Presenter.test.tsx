@@ -4,9 +4,13 @@ import { Presenter } from "./Presenter";
 import type { Goal } from "./types";
 
 vi.mock("next/link", () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
 }));
 
 const mockGoal: Goal = {
@@ -86,11 +90,13 @@ describe("GoalDetailPresenter", () => {
 
   it("各タスクのリンクが /goals/[id]/tasks/[taskId] を指している", () => {
     render(<Presenter goal={mockGoal} />);
-    expect(
-      screen.getByText("単語帳を1周する").closest("a"),
-    ).toHaveAttribute("href", "/goals/1/tasks/10");
-    expect(
-      screen.getByText("確認テストを受ける").closest("a"),
-    ).toHaveAttribute("href", "/goals/1/tasks/11");
+    expect(screen.getByText("単語帳を1周する").closest("a")).toHaveAttribute(
+      "href",
+      "/goals/1/tasks/10",
+    );
+    expect(screen.getByText("確認テストを受ける").closest("a")).toHaveAttribute(
+      "href",
+      "/goals/1/tasks/11",
+    );
   });
 });

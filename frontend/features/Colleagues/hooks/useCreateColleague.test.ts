@@ -70,7 +70,10 @@ describe("useCreateColleague", () => {
 
   it("handleCreate が失敗するとcreateErrorsをセットする", async () => {
     vi.mocked(apiClient.post).mockRejectedValue({
-      response: { status: 422, data: { errors: ["メールアドレスは既に使用されています"] } },
+      response: {
+        status: 422,
+        data: { errors: ["メールアドレスは既に使用されています"] },
+      },
     });
     const onCreated = vi.fn();
     const { result } = renderHook(() =>

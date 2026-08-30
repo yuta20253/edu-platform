@@ -133,13 +133,13 @@ describe("TeacherPermissionsPresenter", () => {
   it("manage_other_teachers が true のとき警告が表示されず、自分以外の編集ボタンが有効", () => {
     render(<TestPresenter />);
     expect(
-      screen.queryByText(
-        "権限を編集するには「他の教員操作権限」が必要です。",
-      ),
+      screen.queryByText("権限を編集するには「他の教員操作権限」が必要です。"),
     ).not.toBeInTheDocument();
 
     const suzukiRow = screen.getByText("鈴木花子").closest("tr")!;
-    expect(within(suzukiRow).getByRole("button", { name: "編集" })).toBeEnabled();
+    expect(
+      within(suzukiRow).getByRole("button", { name: "編集" }),
+    ).toBeEnabled();
   });
 
   it("自分自身の行の編集ボタンは常に無効", () => {

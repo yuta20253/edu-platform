@@ -21,9 +21,7 @@ describe("useSubmit", () => {
   it("selectedUnitIdsを含めてdraft-tasksを作成し、確認画面へ遷移する", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: "42" });
 
-    const { result } = renderHook(() =>
-      useSubmit({ selectedUnitIds: [1, 2] }),
-    );
+    const { result } = renderHook(() => useSubmit({ selectedUnitIds: [1, 2] }));
 
     const formData: CreateTaskForm = {
       goal_id: 9,

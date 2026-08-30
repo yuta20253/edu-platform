@@ -15,8 +15,18 @@ vi.mock("@/libs/http/apiClient", () => ({
 }));
 
 const teachers: UnsentTeacher[] = [
-  { id: 1, name: "山田太郎", name_kana: "ヤマダタロウ", email: "yamada@example.com" },
-  { id: 2, name: "鈴木花子", name_kana: "スズキハナコ", email: "suzuki@example.com" },
+  {
+    id: 1,
+    name: "山田太郎",
+    name_kana: "ヤマダタロウ",
+    email: "yamada@example.com",
+  },
+  {
+    id: 2,
+    name: "鈴木花子",
+    name_kana: "スズキハナコ",
+    email: "suzuki@example.com",
+  },
 ];
 
 describe("useSendInvites", () => {

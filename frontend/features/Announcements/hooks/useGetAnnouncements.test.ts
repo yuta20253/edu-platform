@@ -44,10 +44,9 @@ describe("useGetAnnouncements", () => {
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data?.announcements).toHaveLength(1);
     expect(result.current.error).toBeNull();
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/api/student/announcements",
-      { params: { page: "1" } },
-    );
+    expect(apiClient.get).toHaveBeenCalledWith("/api/student/announcements", {
+      params: { page: "1" },
+    });
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {

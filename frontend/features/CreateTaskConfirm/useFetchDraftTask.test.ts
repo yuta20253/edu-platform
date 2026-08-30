@@ -36,9 +36,7 @@ describe("useFetchDraftTask", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.draftTask?.title).toBe("英単語100個を覚える");
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/api/student/draft-tasks/1",
-    );
+    expect(apiClient.get).toHaveBeenCalledWith("/api/student/draft-tasks/1");
   });
 
   it("取得に失敗してもisLoadingはfalseに戻り、draftTaskはnullのまま", async () => {

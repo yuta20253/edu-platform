@@ -34,9 +34,7 @@ describe("useGetAnnouncement", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.announcement?.title).toBe("お知らせ");
     expect(result.current.error).toBe(false);
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/api/student/announcements/1",
-    );
+    expect(apiClient.get).toHaveBeenCalledWith("/api/student/announcements/1");
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {

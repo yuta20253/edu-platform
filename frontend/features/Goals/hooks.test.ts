@@ -67,7 +67,10 @@ describe("useGetGoals", () => {
 
   it("setPageでpageを更新すると再取得される", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
-      data: { goals: [], meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 10 } },
+      data: {
+        goals: [],
+        meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 10 },
+      },
     });
 
     const { result } = renderHook(() => useGetGoals());
