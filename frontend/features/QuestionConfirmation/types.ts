@@ -5,6 +5,7 @@ export type QuestionHistory = {
   is_correct: boolean;
   selected_choice_number: number;
   status: AnswerStatus;
+  time_spent_sec: number | null;
 };
 
 type AnswerStatus = "answered" | "unanswered";

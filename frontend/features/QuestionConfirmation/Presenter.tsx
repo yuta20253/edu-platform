@@ -216,6 +216,29 @@ export const Presenter = ({
                     {history.correct_answer}
                   </Typography>
                 </Box>
+
+                {history.time_spent_sec !== null && (
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        color: "text.secondary",
+                        mb: 0.5,
+                      }}
+                    >
+                      解答時間
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: 16,
+                      }}
+                    >
+                      {history.time_spent_sec}秒
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </Box>
           );

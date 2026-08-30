@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useGetUnit } from "./hooks";
+import { useGetUnit, useStartStudyLog } from "./hooks";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
 
 export const Unit = ({ goalId, taskId, unitId }: Props) => {
   const { unit, loading, error } = useGetUnit({ taskId, unitId });
+  const { handleStart } = useStartStudyLog({ taskId, unitId, goalId });
 
   if (loading) {
     return (
@@ -46,6 +47,12 @@ export const Unit = ({ goalId, taskId, unitId }: Props) => {
   }
 
   return (
-    <Presenter goalId={goalId} taskId={taskId} unitId={unitId} unit={unit} />
+    <Presenter
+      goalId={goalId}
+      taskId={taskId}
+      unitId={unitId}
+      unit={unit}
+      onStart={handleStart}
+    />
   );
 };

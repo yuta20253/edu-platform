@@ -132,6 +132,19 @@ RSpec.describe Student::UpdateQuestionHistoryForm, type: :model do
       end
     end
 
+    context '異常系 - time_spent_secが負数' do
+      let(:params) { super().merge(time_spent_sec: -1) }
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:time_spent_sec]).to be_present
+      end
+    end
+
     context '異常系 - 解答履歴が存在しない' do
       before do
         question_history.destroy

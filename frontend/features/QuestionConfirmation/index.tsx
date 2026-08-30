@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useGetQuestionConfirmation } from "./hooks";
+import { useCompleteStudyLog, useGetQuestionConfirmation } from "./hooks";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -9,6 +9,7 @@ type Props = {
   taskId: number;
   unitId: number;
   answeredQuestionIds?: number[];
+  studyLogId?: number;
 };
 
 export const QuestionConfirmation = ({
@@ -16,12 +17,15 @@ export const QuestionConfirmation = ({
   taskId,
   unitId,
   answeredQuestionIds,
+  studyLogId,
 }: Props) => {
   const { questionHistories, loading, error } = useGetQuestionConfirmation({
     taskId,
     unitId,
     answeredQuestionIds,
   });
+
+  useCompleteStudyLog({ taskId, unitId, studyLogId });
 
   if (loading) {
     return (

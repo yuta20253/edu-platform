@@ -2,16 +2,19 @@ import { Question } from "@/features/Question";
 
 type Props = {
   params: Promise<{ goalId: string; taskId: string; unitId: string }>;
+  searchParams: Promise<{ study_log_id?: string }>;
 };
 
-export default async function QuestionPage({ params }: Props) {
+export default async function QuestionPage({ params, searchParams }: Props) {
   const { goalId, taskId, unitId } = await params;
+  const { study_log_id } = await searchParams;
 
   return (
     <Question
       goalId={Number(goalId)}
       taskId={Number(taskId)}
       unitId={Number(unitId)}
+      studyLogId={study_log_id ? Number(study_log_id) : undefined}
     />
   );
 }

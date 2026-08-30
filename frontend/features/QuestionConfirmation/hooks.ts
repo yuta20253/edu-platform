@@ -2,7 +2,7 @@
 
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QuestionHistory } from "./types";
 
 type Props = {
@@ -49,4 +49,32 @@ export const useGetQuestionConfirmation = ({
   }, [router, taskId, unitId, answeredQuestionIds]);
 
   return { questionHistories, loading, error };
+};
+
+type CompleteStudyLogProps = {
+  taskId: number;
+  unitId: number;
+  studyLogId?: number;
+};
+
+export const useCompleteStudyLog = ({
+  taskId,
+  unitId,
+  studyLogId,
+}: CompleteStudyLogProps) => {
+  const completedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (!studyLogId || completedRef.current) return;
+
+    completedRef.current = true;
+
+    apiClient
+      .patch(
+        `/api/student/tasks/${taskId}/units/${unitId}/study_logs/${studyLogId}`,
+      )
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [taskId, unitId, studyLogId]);
 };
