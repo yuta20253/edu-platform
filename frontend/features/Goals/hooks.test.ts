@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useGetGoals } from "./hools";
+import { useGetGoals } from "./hooks";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
