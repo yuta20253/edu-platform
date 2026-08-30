@@ -15,12 +15,13 @@ module Student
 
     def call
       password = SecureRandom.hex(16)
+      role = UserRole.find_by!(name: :student)
 
       user = User.new(
         name: @name,
         name_kana: @name_kana,
         email: @email,
-        user_role: UserRole.find_by!(name: :student),
+        user_role: role,
         high_school: @high_school,
         grade: @grade,
         school_class: @school_class,
