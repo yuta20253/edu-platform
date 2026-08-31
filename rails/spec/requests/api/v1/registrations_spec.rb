@@ -91,5 +91,42 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
         end
       end
     end
+
+    context '生徒コードによるclaim' do
+      before { high_school.update!(csv_managed: true) }
+
+      let!(:pre_created_user) do
+        create(:user, user_role: student_role, high_school: high_school, grade: grade,
+                      student_number: "#{high_school.school_code}-AAAAAAAA",
+                      password_reset_required: true, email: 'old@example.com')
+      end
+
+      it '有効な生徒コードなら新規作成せず既存アカウントを有効化する' do
+        params = valid_params.deep_merge(user: { student_number: pre_created_user.student_number })
+
+        expect do
+          post '/api/v1/student/signup', params: params.to_json, headers: headers
+        end.not_to change(User, :count)
+
+        expect(response).to have_http_status(:created)
+
+        pre_created_user.reload
+        expect(pre_created_user.email).to eq('student@example.com')
+        expect(pre_created_user.password_reset_required).to be false
+      end
+
+      it 'csv_managedな高校で生徒コードが未入力だと422を返す' do
+        post '/api/v1/student/signup', params: valid_params.to_json, headers: headers
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it '存在しない生徒コードだと422を返す' do
+        params = valid_params.deep_merge(user: { student_number: "#{high_school.school_code}-NOTEXIST" })
+        post '/api/v1/student/signup', params: params.to_json, headers: headers
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
   end
 end

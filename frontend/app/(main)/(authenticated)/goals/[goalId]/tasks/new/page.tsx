@@ -1,4 +1,4 @@
-import { CreateTask } from "@/features/CreateTask";
+import { CreateTask } from "@/features/student/CreateTask";
 
 type CreateTaskPageProps = {
   params: Promise<{ goalId: string }>;

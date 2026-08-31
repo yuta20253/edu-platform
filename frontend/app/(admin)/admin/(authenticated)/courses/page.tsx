@@ -1,5 +1,5 @@
-import { AdminCourses } from "@/features/AdminCourses";
+import { Courses } from "@/features/admin/Courses";
 
 export default function AdminCoursesPage() {
-  return <AdminCourses />;
+  return <Courses />;
 }
