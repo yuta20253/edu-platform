@@ -105,6 +105,15 @@ RSpec.describe Teacher::StudentImportForm, type: :model do
       expect(build_form).to be_valid
     end
 
+    it '生徒以外(教員)のメールアドレスと同じ場合は無効' do
+      create(:user, :teacher, email: 'taro@example.com', high_school: high_school)
+
+      form = build_form
+
+      expect(form).to be_invalid
+      expect(form.errors[:email]).to include('は生徒以外のアカウントで使用されています')
+    end
+
     context '教員の権限がown_grade（自分の担当学年のみ）の場合' do
       let(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade) }
 

@@ -36,6 +36,7 @@ module Teacher
     validate :grade_must_be_within_teacher_scope
     validate :email_not_duplicated_in_csv
     validate :email_not_used_by_other_high_school
+    validate :email_not_used_by_non_student
 
     def self.from_csv_row(row, high_school:, duplicate_emails: [], current_user: nil)
       new(
@@ -127,6 +128,14 @@ module Teacher
       return if email.blank? || high_school.blank? || existing_user.blank?
 
       errors.add(:email, 'は他の高校のアカウントで使用されています') if existing_user.high_school_id != high_school.id
+    end
+
+    # 生徒以外(教員・保護者・管理者等)のメールアドレスと一致する場合、生徒として
+    # 上書き(氏名・学年・学級の書き換えや生徒番号の付与)されないようエラーにする。
+    def email_not_used_by_non_student
+      return if email.blank? || existing_user.blank?
+
+      errors.add(:email, 'は生徒以外のアカウントで使用されています') unless existing_user.student?
     end
   end
 end
