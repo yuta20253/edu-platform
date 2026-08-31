@@ -10,6 +10,10 @@ module Api
           render json: { errors: [e.message] }, status: :unprocessable_content
         end
 
+        rescue_from Csv::Errors::InvalidHeader do |e|
+          render json: { errors: [e.message] }, status: :unprocessable_content
+        end
+
         private
 
         def authorize_admin_service

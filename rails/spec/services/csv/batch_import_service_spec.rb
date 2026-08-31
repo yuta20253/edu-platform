@@ -11,6 +11,9 @@ class BatchImportServiceSpecFakeForm
   attribute :name, :string
   validates :name, presence: true
 
+  # ageはform_class::HEADERSに含まれるが、実際のCSVには無くても良い任意項目を表す。
+  HEADERS = %w[name age].freeze
+
   def self.from_csv_row(row)
     new(name: row['name'])
   end
@@ -93,6 +96,29 @@ RSpec.describe Csv::BatchImportService, type: :service do
         import_history.reload
         expect(import_history.status).to eq('failed')
         expect(import_history.finished_at).to be_present
+      end
+    end
+
+    context 'ヘッダーがform_class::HEADERSの範囲外の列を含む場合' do
+      let(:csv_content) { "name,unknown\nAlice,x\n" }
+
+      it '行の処理・before_rowsを行わずImportErrorを1件記録しfailedになる' do
+        calls = []
+        row_importer = ->(form) { calls << form.name }
+        before_rows = -> { calls << :before }
+
+        expect { runner(row_importer: row_importer, before_rows: before_rows).call }
+          .to change(ImportError, :count).by(1)
+
+        expect(calls).to eq([])
+        import_history.reload
+        expect(import_history.status).to eq('failed')
+        expect(import_history.total_count).to eq(0)
+        expect(import_history.error_count).to eq(1)
+
+        error = import_history.import_errors.first
+        expect(error.row_number).to eq(1)
+        expect(error.message).to eq('CSVのフォーマットが不正です')
       end
     end
 

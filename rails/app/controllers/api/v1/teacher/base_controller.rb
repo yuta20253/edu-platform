@@ -10,6 +10,10 @@ module Api
           render json: { errors: [e.message] }, status: :unprocessable_content
         end
 
+        rescue_from Csv::Errors::InvalidHeader do |e|
+          render json: { errors: [e.message] }, status: :unprocessable_content
+        end
+
         rescue_from ActiveRecord::StaleObjectError, with: :stale_object
         rescue_from ::Teacher::ProcessSchoolClassRequestService::ApplicantCannotProcessOwnRequestError,
                     with: :applicant_cannot_process_own_request
