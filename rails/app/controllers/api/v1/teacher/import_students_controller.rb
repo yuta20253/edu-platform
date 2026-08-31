@@ -34,7 +34,11 @@ module Api
 
           Csv::File::FileValidator.new(file).call
 
-          result = ::Teacher::StudentCsvDryRunService.new(file, high_school: current_user.high_school).call
+          result = ::Teacher::StudentCsvDryRunService.new(
+            file,
+            high_school: current_user.high_school,
+            current_user: current_user
+          ).call
 
           render json: result, status: :ok
         end

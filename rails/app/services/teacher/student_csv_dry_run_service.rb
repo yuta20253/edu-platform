@@ -2,9 +2,10 @@
 
 module Teacher
   class StudentCsvDryRunService
-    def initialize(file, high_school:)
+    def initialize(file, high_school:, current_user: nil)
       @file = file
       @high_school = high_school
+      @current_user = current_user
     end
 
     def call
@@ -13,7 +14,8 @@ module Teacher
         form_class: Teacher::StudentImportForm,
         form_context: {
           high_school: @high_school,
-          duplicate_emails: Teacher::StudentImportForm.duplicate_emails(@file.path)
+          duplicate_emails: Teacher::StudentImportForm.duplicate_emails(@file.path),
+          current_user: @current_user
         }
       ).call
     end

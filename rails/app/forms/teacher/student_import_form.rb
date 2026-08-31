@@ -21,7 +21,7 @@ module Teacher
     attribute :grade_name, :string
     attribute :school_class_name, :string
 
-    attr_accessor :high_school, :duplicate_emails
+    attr_accessor :high_school, :duplicate_emails, :current_user
 
     validates :name, presence: true
     validates :name_kana, presence: true, format: {
@@ -33,10 +33,11 @@ module Teacher
     validates :school_class_name, presence: true
     validate :grade_must_exist
     validate :school_class_must_exist
+    validate :grade_must_be_within_teacher_scope
     validate :email_not_duplicated_in_csv
     validate :email_not_used_by_other_high_school
 
-    def self.from_csv_row(row, high_school:, duplicate_emails: [])
+    def self.from_csv_row(row, high_school:, duplicate_emails: [], current_user: nil)
       new(
         name: row['氏名'],
         name_kana: row['氏名カナ'],
@@ -44,7 +45,8 @@ module Teacher
         grade_name: row['学年'],
         school_class_name: row['学級'],
         high_school: high_school,
-        duplicate_emails: duplicate_emails
+        duplicate_emails: duplicate_emails,
+        current_user: current_user
       )
     end
 
@@ -102,6 +104,15 @@ module Teacher
       return if grade.nil? # grade自体が見つからない場合はgrade_must_existのエラーに任せる
 
       errors.add(:school_class_name, 'に該当する学級が見つかりません') if school_class.nil?
+    end
+
+    # own_grade権限の教員は、自分の担当学年以外の生徒をインポートできない。
+    def grade_must_be_within_teacher_scope
+      # gradeが見つからない場合はgrade_must_existのエラーに任せる
+      return if grade.nil? || current_user.blank?
+      return unless current_user.teacher_permission&.own_grade?
+
+      errors.add(:grade_name, 'は担当学年ではないため登録できません') if grade.id != current_user.grade_id
     end
 
     def email_not_duplicated_in_csv
