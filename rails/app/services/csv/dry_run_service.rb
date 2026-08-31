@@ -12,7 +12,7 @@ module Csv
 
     # form_context: form_class.from_csv_row(row, **form_context) にそのまま渡すキーワード引数。
     # 行単体では判断できない検証(例: 所属高校スコープでの学年・学級の存在確認)に使う。
-    # form_classは `.from_csv_row(row)` に加え、期待するCSVヘッダー配列を定数 `HEADERS` として持つ必要がある。
+    # form_classは `.from_csv_row(row)` に加え、必須のCSVヘッダー配列を定数 `REQUIRED_HEADERS` として持つ必要がある。
     def initialize(file, form_class:, form_context: {})
       @file = file
       @form_class = form_class

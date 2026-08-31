@@ -15,6 +15,10 @@ module Teacher
     # dry_run検証・実インポートはすべてこの定数を参照すること。
     HEADERS = %w[氏名 氏名カナ メール 学年 学級].freeze
 
+    # HEADERSのうちCSVに必須の列。このフォームでは全項目が必須のためHEADERSと同じ。
+    # ヘッダー行の妥当性チェック(Csv::HeaderValidator)で使う。
+    REQUIRED_HEADERS = HEADERS
+
     attribute :name, :string
     attribute :name_kana, :string
     attribute :email, :string

@@ -10,7 +10,7 @@ module Csv
     # before_rows: トランザクション内・CSV行処理の前に一度だけ呼ぶフック(overwriteモードの事前削除等)
     # row_importer: 有効な行1件ごとに form を渡して呼ぶ callable。実際のUpsert処理を担う
     # form_context: form_class.from_csv_row(row, **form_context) にそのまま渡すキーワード引数
-    # form_classは `.from_csv_row(row)` に加え、期待するCSVヘッダー配列を定数 `HEADERS` として持つ必要がある。
+    # form_classは `.from_csv_row(row)` に加え、必須のCSVヘッダー配列を定数 `REQUIRED_HEADERS` として持つ必要がある。
     def initialize(import_history, form_class:, row_importer:, before_rows: nil, form_context: {})
       @import_history = import_history
       @file = import_history.file
