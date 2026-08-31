@@ -1,5 +1,5 @@
-import { TeacherDashboard } from "@/features/TeacherDashboard";
+import { Dashboard } from "@/features/teacher/Dashboard";
 
 export default function DashboardPage() {
-  return <TeacherDashboard />;
+  return <Dashboard />;
 }

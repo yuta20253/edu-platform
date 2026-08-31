@@ -1,5 +1,5 @@
-import { AdminSchools } from "@/features/AdminSchools";
+import { Schools } from "@/features/admin/Schools";
 
 export default function AdminSchoolsPage() {
-  return <AdminSchools />;
+  return <Schools />;
 }

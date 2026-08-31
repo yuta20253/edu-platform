@@ -1,5 +1,5 @@
-import { TeacherPermissions } from "@/features/TeacherPermissions";
+import { Permissions } from "@/features/teacher/Permissions";
 
 export default function TeacherPermissionsPage() {
-  return <TeacherPermissions />;
+  return <Permissions />;
 }
