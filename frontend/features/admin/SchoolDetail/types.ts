@@ -78,11 +78,11 @@ export type AnnouncementsData = {
 };
 
 // 教師追加ドロワーの入力（姓/名は結合してAPIへ渡す）。
+// パスワードは指定せず、Rails側が招待メールを送信して本人に設定させる。
 export type CreateTeacherInput = {
   lastName: string;
   firstName: string;
   email: string;
-  password: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
   gradeIds: number[];

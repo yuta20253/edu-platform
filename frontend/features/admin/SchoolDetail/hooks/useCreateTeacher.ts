@@ -29,7 +29,6 @@ export const useCreateTeacher = ({
       await apiClient.post(`/api/admin/schools/${schoolId}/teachers`, {
         name: `${input.lastName} ${input.firstName}`,
         email: input.email,
-        password: input.password,
         grade_scope: input.gradeScope,
         manage_other_teachers: input.manageOtherTeachers,
         grade_ids: input.gradeIds,

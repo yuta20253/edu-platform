@@ -19,14 +19,12 @@ import {
 } from "@mui/material";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { generateInitialPassword } from "../hooks/generateInitialPassword";
 import type { Grade, GradeScope, Teacher } from "../types";
 
 export type TeacherFormValues = {
   lastName: string;
   firstName: string;
   email: string;
-  password: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
   gradeIds: number[];
@@ -59,7 +57,6 @@ const buildDefaultValues = (
       lastName,
       firstName,
       email: teacher.email,
-      password: "",
       gradeScope: teacher.grade_scope,
       manageOtherTeachers: teacher.manage_other_teachers,
       gradeIds: teacher.grades.map((grade) => grade.id),
@@ -70,7 +67,6 @@ const buildDefaultValues = (
     lastName: "",
     firstName: "",
     email: "",
-    password: "",
     gradeScope: "own_grade",
     manageOtherTeachers: false,
     gradeIds: [],
@@ -133,6 +129,14 @@ export const TeacherDrawer = ({
           <Typography variant="h6" fontWeight={700}>
             {mode === "create" ? "教師を追加" : "教師を編集"}
           </Typography>
+          {mode === "create" && (
+            <Typography
+              variant="body2"
+              sx={{ color: colors.text.muted, mt: 0.5 }}
+            >
+              招待メールが送信され、本人がパスワードを設定します。
+            </Typography>
+          )}
         </Box>
 
         <Box sx={{ p: 3, flex: 1, overflowY: "auto" }}>
@@ -185,36 +189,6 @@ export const TeacherDrawer = ({
               error={!!errors.email}
               helperText={errors.email?.message}
             />
-
-            {mode === "create" && (
-              <Stack direction="row" spacing={1} alignItems="flex-start">
-                <TextField
-                  label="初期パスワード"
-                  fullWidth
-                  required
-                  {...register("password", {
-                    required: "初期パスワードを入力してください",
-                    minLength: {
-                      value: 6,
-                      message: "6文字以上で入力してください",
-                    },
-                  })}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                />
-                <Button
-                  variant="outlined"
-                  sx={{ whiteSpace: "nowrap", mt: 1 }}
-                  onClick={() =>
-                    setValue("password", generateInitialPassword(), {
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  自動生成
-                </Button>
-              </Stack>
-            )}
 
             <Controller
               name="gradeScope"
