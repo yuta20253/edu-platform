@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_22_154855) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_23_061756) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -173,7 +173,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_22_154855) do
 
   create_table "import_histories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "unit_id", null: false
+    t.bigint "unit_id"
     t.string "file_name", null: false
     t.bigint "file_size"
     t.string "content_type"
@@ -187,6 +187,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_22_154855) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "mode", default: 0, null: false
+    t.integer "import_type", default: 0, null: false
     t.index ["unit_id"], name: "index_import_histories_on_unit_id"
     t.index ["user_id"], name: "index_import_histories_on_user_id"
   end

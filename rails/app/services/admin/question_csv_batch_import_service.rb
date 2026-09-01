@@ -2,40 +2,18 @@
 
 module Admin
   class QuestionCsvBatchImportService
-    require 'csv'
     def initialize(import_history)
       @import_history = import_history
       @unit_id = import_history.unit_id
-      @file = import_history.file
-      @errors = []
-      @total_count = 0
     end
 
     def call
-      start_import!
-
-      begin
-        ActiveRecord::Base.transaction do
-          overwrite_existing_questions! if @import_history.overwrite?
-
-          @file.open do |template|
-            CSV.foreach(template.path, headers: true, encoding: 'bom|utf-8').with_index(2) do |row, line_number|
-              @total_count += 1
-              process_row(row, line_number)
-            end
-          end
-
-          raise CsvImportError if @errors.any?
-        end
-
-        complete_import!
-      rescue CsvImportError
-        save_errors
-        fail_import!
-      rescue StandardError => e
-        fail_import!
-        raise e
-      end
+      Csv::BatchImportService.new(
+        @import_history,
+        form_class: Admin::QuestionImportForm,
+        before_rows: @import_history.overwrite? ? method(:overwrite_existing_questions!) : nil,
+        row_importer: ->(form) { Admin::QuestionCsvImportService.new(form, @unit_id).call }
+      ).call
     end
 
     private
@@ -51,54 +29,6 @@ module Admin
       QuestionHint.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
       QuestionExplanation.active.where(child_scope).update_all(deleted_at: now, updated_at: now)
       question_scope.update_all(deleted_at: now, updated_at: now)
-    end
-
-    def process_row(row, line_number)
-      form = Admin::QuestionImportForm.from_csv_row(row)
-
-      unless form.valid?
-        @errors << {
-          import_history_id: @import_history.id,
-          row_number: line_number,
-          message: form.errors.full_messages.join(', '),
-          created_at: Time.current,
-          updated_at: Time.current
-        }
-        return
-      end
-
-      Admin::QuestionCsvImportService.new(form, @unit_id).call
-    end
-
-    def start_import!
-      @import_history.update!(
-        status: :processing,
-        started_at: Time.current
-      )
-    end
-
-    def complete_import!
-      @import_history.update!(
-        status: :completed,
-        finished_at: Time.current,
-        success_count: @total_count,
-        total_count: @total_count
-      )
-    end
-
-    def save_errors
-      return if @errors.empty?
-
-      ImportError.insert_all(@errors)
-    end
-
-    def fail_import!
-      @import_history.update!(
-        status: :failed,
-        finished_at: Time.current,
-        error_count: @errors.size,
-        total_count: @total_count
-      )
     end
   end
 end

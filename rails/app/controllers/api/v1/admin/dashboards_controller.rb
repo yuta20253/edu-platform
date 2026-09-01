@@ -6,7 +6,7 @@ module Api
       class DashboardsController < BaseController
         def show
           role_counts = User.joins(:user_role).group('user_roles.name').count
-          recent_imports = ImportHistory.order(created_at: :desc).limit(5)
+          recent_imports = ImportHistory.question.order(created_at: :desc).limit(5)
 
           render json: {
             stats: {
