@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import type { CourseOption } from "../types";
 
 type CoursesResponse = {
@@ -24,7 +25,7 @@ export const useFetchCourseOptions = () => {
       })
       .then((res) => setCourseOptions(res.data.courses))
       .catch((err) => {
-        if (err.response?.status === 401) {
+        if (extractApiError(err).status === 401) {
           router.push("/login");
         }
       })

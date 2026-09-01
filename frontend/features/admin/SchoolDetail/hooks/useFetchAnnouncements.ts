@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import type {
   Announcement,
   AnnouncementsData,
@@ -29,7 +30,7 @@ export const useFetchAnnouncements = (schoolId: number) => {
         setMeta(res.data.meta);
       })
       .catch((err) => {
-        if (err.response?.status === 401) {
+        if (extractApiError(err).status === 401) {
           router.push("/login");
         }
       })
