@@ -39,9 +39,7 @@ describe("useFetchTeachers", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.teachers).toHaveLength(1);
     expect(result.current.teachers[0].name).toBe("田中太郎");
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/api/admin/schools/1/teachers",
-    );
+    expect(apiClient.get).toHaveBeenCalledWith("/api/admin/schools/1/teachers");
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {

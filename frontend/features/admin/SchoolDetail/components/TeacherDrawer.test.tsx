@@ -23,7 +23,9 @@ describe("TeacherDrawer", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
       expect(screen.getByRole("textbox", { name: "姓" })).toBeInTheDocument();
       expect(screen.getByRole("textbox", { name: "名" })).toBeInTheDocument();
-      expect(screen.getByRole("textbox", { name: "メールアドレス" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+      ).toBeInTheDocument();
       expect(
         screen.getByRole("textbox", { name: "初期パスワード" }),
       ).toBeInTheDocument();
@@ -45,21 +47,19 @@ describe("TeacherDrawer", () => {
     it("担当学年権限が「全学年」のとき担当学年チェックボックスは無効化される", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
       fireEvent.click(screen.getByRole("radio", { name: "全学年" }));
-      expect(
-        screen.getByRole("checkbox", { name: "高１生" }),
-      ).toBeDisabled();
+      expect(screen.getByRole("checkbox", { name: "高１生" })).toBeDisabled();
     });
 
     it("担当学年権限が「自学年」のとき担当学年チェックボックスは有効", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
-      expect(
-        screen.getByRole("checkbox", { name: "高１生" }),
-      ).toBeEnabled();
+      expect(screen.getByRole("checkbox", { name: "高１生" })).toBeEnabled();
     });
 
     it("必須項目を入力して送信するとonSubmitへ結合前の値が渡される", async () => {
       const onSubmit = vi.fn();
-      render(<TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />);
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
 
       fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
         target: { value: "田中" },
@@ -67,9 +67,12 @@ describe("TeacherDrawer", () => {
       fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
         target: { value: "太郎" },
       });
-      fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
-        target: { value: "tanaka@example.com" },
-      });
+      fireEvent.change(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+        {
+          target: { value: "tanaka@example.com" },
+        },
+      );
       fireEvent.change(
         screen.getByRole("textbox", { name: "初期パスワード" }),
         {
@@ -97,7 +100,9 @@ describe("TeacherDrawer", () => {
 
     it("必須項目が未入力だとonSubmitが呼ばれずエラーが表示される", async () => {
       const onSubmit = vi.fn();
-      render(<TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />);
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
 
       fireEvent.click(screen.getByRole("button", { name: "追加" }));
 
@@ -120,11 +125,7 @@ describe("TeacherDrawer", () => {
 
     it("初期パスワード欄は表示されない", () => {
       render(
-        <TeacherDrawer
-          {...baseProps}
-          mode="edit"
-          initialTeacher={teacher}
-        />,
+        <TeacherDrawer {...baseProps} mode="edit" initialTeacher={teacher} />,
       );
       expect(
         screen.queryByRole("textbox", { name: "初期パスワード" }),
@@ -133,17 +134,13 @@ describe("TeacherDrawer", () => {
 
     it("既存の値がフォームにプリフィルされる", () => {
       render(
-        <TeacherDrawer
-          {...baseProps}
-          mode="edit"
-          initialTeacher={teacher}
-        />,
+        <TeacherDrawer {...baseProps} mode="edit" initialTeacher={teacher} />,
       );
       expect(screen.getByRole("textbox", { name: "姓" })).toHaveValue("田中");
       expect(screen.getByRole("textbox", { name: "名" })).toHaveValue("花子");
-      expect(screen.getByRole("textbox", { name: "メールアドレス" })).toHaveValue(
-        "hanako@example.com",
-      );
+      expect(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+      ).toHaveValue("hanako@example.com");
       expect(screen.getByRole("radio", { name: "全学年" })).toBeChecked();
       expect(screen.getByRole("button", { name: "保存" })).toBeInTheDocument();
     });

@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import type { Announcement, AnnouncementsData, AnnouncementsMeta } from "../types";
+import type {
+  Announcement,
+  AnnouncementsData,
+  AnnouncementsMeta,
+} from "../types";
 
 // お知らせ一覧をページネーション付きで取得するフック。
 export const useFetchAnnouncements = (schoolId: number) => {

@@ -50,9 +50,7 @@ describe("AnnouncementsTab", () => {
 
     render(<AnnouncementsTab schoolId={1} />);
 
-    expect(
-      await screen.findByText("お知らせがありません"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("お知らせがありません")).toBeInTheDocument();
   });
 
   it("ページネーションで次のページを取得できる", async () => {
@@ -68,7 +66,12 @@ describe("AnnouncementsTab", () => {
             created_at: "2026-01-01T00:00:00.000Z",
           },
         ],
-        meta: { current_page: 1, total_pages: 2, total_count: 21, per_page: 20 },
+        meta: {
+          current_page: 1,
+          total_pages: 2,
+          total_count: 21,
+          per_page: 20,
+        },
       },
     });
 

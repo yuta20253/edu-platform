@@ -72,7 +72,10 @@ describe("useCreateTeacher", () => {
 
   it("422エラー時はcreateErrorsにセットされる", async () => {
     vi.mocked(apiClient.post).mockRejectedValue({
-      response: { status: 422, data: { errors: ["メールアドレスは既に使用されています"] } },
+      response: {
+        status: 422,
+        data: { errors: ["メールアドレスは既に使用されています"] },
+      },
     });
     const onCreated = vi.fn();
 

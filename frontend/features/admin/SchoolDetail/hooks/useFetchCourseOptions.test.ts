@@ -29,7 +29,12 @@ describe("useFetchCourseOptions", () => {
             subject: { id: 2, name: "数学" },
           },
         ],
-        meta: { current_page: 1, total_pages: 1, total_count: 1, per_page: 100 },
+        meta: {
+          current_page: 1,
+          total_pages: 1,
+          total_count: 1,
+          per_page: 100,
+        },
       },
     });
 

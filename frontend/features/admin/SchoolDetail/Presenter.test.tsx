@@ -40,17 +40,35 @@ describe("SchoolDetailPresenter", () => {
     vi.clearAllMocks();
     // 各タブが叩くエンドポイントは空データを返す既定値にしておく
     vi.mocked(apiClient.get).mockImplementation((url: string) => {
-      if (url.includes("/teachers")) return Promise.resolve({ data: { teachers: [] } });
-      if (url.includes("/grades")) return Promise.resolve({ data: { grades: [] } });
+      if (url.includes("/teachers"))
+        return Promise.resolve({ data: { teachers: [] } });
+      if (url.includes("/grades"))
+        return Promise.resolve({ data: { grades: [] } });
       if (url.includes("/course_assignments"))
         return Promise.resolve({ data: { course_assignments: [] } });
       if (url.includes("/announcements"))
         return Promise.resolve({
-          data: { announcements: [], meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 20 } },
+          data: {
+            announcements: [],
+            meta: {
+              current_page: 1,
+              total_pages: 1,
+              total_count: 0,
+              per_page: 20,
+            },
+          },
         });
       if (url.includes("/api/admin/courses"))
         return Promise.resolve({
-          data: { courses: [], meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 100 } },
+          data: {
+            courses: [],
+            meta: {
+              current_page: 1,
+              total_pages: 1,
+              total_count: 0,
+              per_page: 100,
+            },
+          },
         });
       return Promise.resolve({ data: {} });
     });

@@ -49,7 +49,12 @@ describe("useFetchAnnouncements", () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {
         announcements: [],
-        meta: { current_page: 1, total_pages: 2, total_count: 30, per_page: 20 },
+        meta: {
+          current_page: 1,
+          total_pages: 2,
+          total_count: 30,
+          per_page: 20,
+        },
       },
     });
 

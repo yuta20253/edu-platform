@@ -18,7 +18,10 @@ import {
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import { useState } from "react";
-import { TeacherDrawer, type TeacherFormValues } from "../components/TeacherDrawer";
+import {
+  TeacherDrawer,
+  type TeacherFormValues,
+} from "../components/TeacherDrawer";
 import { useCreateTeacher } from "../hooks/useCreateTeacher";
 import { useFetchGrades } from "../hooks/useFetchGrades";
 import { useFetchTeachers } from "../hooks/useFetchTeachers";
@@ -143,7 +146,10 @@ export const TeachersTab = ({ schoolId }: Props) => {
                     </Stack>
                   </TableCell>
                   <TableCell align="right">
-                    <Button size="small" onClick={() => openEditDrawer(teacher)}>
+                    <Button
+                      size="small"
+                      onClick={() => openEditDrawer(teacher)}
+                    >
                       編集
                     </Button>
                   </TableCell>

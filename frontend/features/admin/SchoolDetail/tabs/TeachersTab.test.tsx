@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { TeachersTab } from "./TeachersTab";
@@ -88,10 +94,9 @@ describe("TeachersTab", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
       target: { value: "tanaka@example.com" },
     });
-    fireEvent.change(
-      screen.getByRole("textbox", { name: "初期パスワード" }),
-      { target: { value: "abc123xyz" } },
-    );
+    fireEvent.change(screen.getByRole("textbox", { name: "初期パスワード" }), {
+      target: { value: "abc123xyz" },
+    });
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "追加" }));

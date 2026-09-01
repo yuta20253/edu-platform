@@ -69,7 +69,10 @@ describe("useUpdateTeacher", () => {
 
   it("422エラー時はupdateErrorsにセットされる", async () => {
     vi.mocked(apiClient.patch).mockRejectedValue({
-      response: { status: 422, data: { errors: ["メールアドレスは既に使用されています"] } },
+      response: {
+        status: 422,
+        data: { errors: ["メールアドレスは既に使用されています"] },
+      },
     });
     const onUpdated = vi.fn();
 

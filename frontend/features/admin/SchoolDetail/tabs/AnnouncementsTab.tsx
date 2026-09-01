@@ -1,6 +1,13 @@
 "use client";
 
-import { Box, Chip, ChipProps, Pagination, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  ChipProps,
+  Pagination,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { colors } from "@/app/theme/colors";
 import { useFetchAnnouncements } from "../hooks/useFetchAnnouncements";
 import type { AnnouncementStatus } from "../types";
@@ -10,7 +17,10 @@ type Props = {
 };
 
 // issue #49の共通コンポーネント仕様（ステータスバッジ）に合わせる。
-const statusConfig: Record<AnnouncementStatus, { label: string; color: ChipProps["color"] }> = {
+const statusConfig: Record<
+  AnnouncementStatus,
+  { label: string; color: ChipProps["color"] }
+> = {
   published: { label: "配信済み", color: "success" },
   draft: { label: "下書き", color: "default" },
   scheduled: { label: "予約配信", color: "info" },

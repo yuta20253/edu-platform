@@ -112,9 +112,7 @@ export const TeacherDrawer = ({
     const current = gradeIds ?? [];
     setValue(
       "gradeIds",
-      checked
-        ? [...current, gradeId]
-        : current.filter((id) => id !== gradeId),
+      checked ? [...current, gradeId] : current.filter((id) => id !== gradeId),
     );
   };
 
@@ -273,9 +271,7 @@ export const TeacherDrawer = ({
                   control={
                     <Switch
                       checked={field.value}
-                      onChange={(event) =>
-                        field.onChange(event.target.checked)
-                      }
+                      onChange={(event) => field.onChange(event.target.checked)}
                     />
                   }
                   label="他教師管理"

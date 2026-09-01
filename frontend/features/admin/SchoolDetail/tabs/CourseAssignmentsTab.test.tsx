@@ -26,8 +26,18 @@ const assignment = {
 const courseOptionsResponse = {
   data: {
     courses: [
-      { id: 10, level_number: 1, level_name: "基礎", subject: { id: 2, name: "数学" } },
-      { id: 20, level_number: 2, level_name: "応用", subject: { id: 3, name: "英語" } },
+      {
+        id: 10,
+        level_number: 1,
+        level_name: "基礎",
+        subject: { id: 2, name: "数学" },
+      },
+      {
+        id: 20,
+        level_number: 2,
+        level_name: "応用",
+        subject: { id: 3, name: "英語" },
+      },
     ],
     meta: { current_page: 1, total_pages: 1, total_count: 2, per_page: 100 },
   },
