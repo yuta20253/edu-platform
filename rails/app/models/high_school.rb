@@ -18,6 +18,8 @@ class HighSchool < ApplicationRecord
   belongs_to :prefecture
   has_many :users
   has_many :grades
+  has_many :course_assignments, dependent: :destroy
+  has_many :courses, through: :course_assignments
 
   scope :by_prefecture, ->(prefecture_id) { prefecture_id.present? ? where(prefecture_id: prefecture_id) : all }
 
