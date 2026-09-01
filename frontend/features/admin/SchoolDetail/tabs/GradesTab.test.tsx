@@ -21,8 +21,8 @@ describe("GradesTab", () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {
         grades: [
-          { id: 1, name: "高１生" },
-          { id: 2, name: "高２生" },
+          { id: 1, year: 1, display_name: "高１生" },
+          { id: 2, year: 2, display_name: "高２生" },
         ],
       },
     });

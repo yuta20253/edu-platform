@@ -19,7 +19,7 @@ vi.mock("@/libs/http/apiClient", () => ({
 }));
 
 const gradesResponse = {
-  data: { grades: [{ id: 1, name: "高１生" }] },
+  data: { grades: [{ id: 1, year: 1, display_name: "高１生" }] },
 };
 
 describe("TeachersTab", () => {

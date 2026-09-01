@@ -8,7 +8,16 @@ export type SchoolDetail = {
 
 export type GradeScope = "own_grade" | "all_grades";
 
+// GET /high_schools/:id/grades（学年一覧、Admin::GradeSerializer）のレスポンス形状。
 export type Grade = {
+  id: number;
+  year: number;
+  display_name: string;
+};
+
+// 教師に紐づく担当学年（Admin::TeacherSerializer#grades）。
+// 上記Gradeとは異なりnameキーで返る点に注意。
+export type TeacherGrade = {
   id: number;
   name: string;
 };
@@ -19,7 +28,7 @@ export type Teacher = {
   email: string;
   grade_scope: GradeScope;
   manage_other_teachers: boolean;
-  grades: Grade[];
+  grades: TeacherGrade[];
 };
 
 export type TeachersData = {

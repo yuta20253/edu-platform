@@ -4,8 +4,8 @@ import { TeacherDrawer } from "./TeacherDrawer";
 import type { Grade, Teacher } from "../types";
 
 const grades: Grade[] = [
-  { id: 1, name: "高１生" },
-  { id: 2, name: "高２生" },
+  { id: 1, year: 1, display_name: "高１生" },
+  { id: 2, year: 2, display_name: "高２生" },
 ];
 
 const baseProps = {

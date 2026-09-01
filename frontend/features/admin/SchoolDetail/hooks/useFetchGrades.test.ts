@@ -20,13 +20,15 @@ describe("useFetchGrades", () => {
 
   it("学年一覧を取得しgradesにセットする", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
-      data: { grades: [{ id: 1, name: "高１生" }] },
+      data: { grades: [{ id: 1, year: 1, display_name: "高１生" }] },
     });
 
     const { result } = renderHook(() => useFetchGrades(1));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.grades).toEqual([{ id: 1, name: "高１生" }]);
+    expect(result.current.grades).toEqual([
+      { id: 1, year: 1, display_name: "高１生" },
+    ]);
     expect(apiClient.get).toHaveBeenCalledWith("/api/admin/schools/1/grades");
   });
 
