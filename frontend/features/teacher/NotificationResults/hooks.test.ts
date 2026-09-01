@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useTeacherNotificationResults } from "./hooks";
+import { useNotificationResults } from "./hooks";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -13,7 +13,7 @@ vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn() },
 }));
 
-describe("useTeacherNotificationResults", () => {
+describe("useNotificationResults", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -32,7 +32,7 @@ describe("useTeacherNotificationResults", () => {
       ],
     });
 
-    const { result } = renderHook(() => useTeacherNotificationResults());
+    const { result } = renderHook(() => useNotificationResults());
 
     expect(result.current.loading).toBe(true);
 
@@ -49,7 +49,7 @@ describe("useTeacherNotificationResults", () => {
       response: { status: 401 },
     });
 
-    const { result } = renderHook(() => useTeacherNotificationResults());
+    const { result } = renderHook(() => useNotificationResults());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
     expect(result.current.loading).toBe(false);
@@ -61,7 +61,7 @@ describe("useTeacherNotificationResults", () => {
       response: { status: 500 },
     });
 
-    const { result } = renderHook(() => useTeacherNotificationResults());
+    const { result } = renderHook(() => useNotificationResults());
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(pushMock).not.toHaveBeenCalled();

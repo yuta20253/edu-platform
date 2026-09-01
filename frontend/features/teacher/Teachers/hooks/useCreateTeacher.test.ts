@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useCreateColleague } from "./useCreateColleague";
+import { useCreateTeacher } from "./useCreateTeacher";
 import type { CreateTeacherInput } from "../types";
 
 const pushMock = vi.fn();
@@ -25,9 +25,9 @@ const input: CreateTeacherInput = {
 
 const formMock = {
   reset: vi.fn(),
-} as unknown as Parameters<typeof useCreateColleague>[0]["form"];
+} as unknown as Parameters<typeof useCreateTeacher>[0]["form"];
 
-describe("useCreateColleague", () => {
+describe("useCreateTeacher", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -35,7 +35,7 @@ describe("useCreateColleague", () => {
   it("handleAddClick でフォームをリセットしdrawerを開く", () => {
     const onCreated = vi.fn();
     const { result } = renderHook(() =>
-      useCreateColleague({ onCreated, form: formMock }),
+      useCreateTeacher({ onCreated, form: formMock }),
     );
 
     act(() => result.current.handleAddClick());
@@ -48,7 +48,7 @@ describe("useCreateColleague", () => {
     vi.mocked(apiClient.post).mockResolvedValue({});
     const onCreated = vi.fn();
     const { result } = renderHook(() =>
-      useCreateColleague({ onCreated, form: formMock }),
+      useCreateTeacher({ onCreated, form: formMock }),
     );
 
     await act(async () => {
@@ -56,7 +56,7 @@ describe("useCreateColleague", () => {
     });
 
     expect(apiClient.post).toHaveBeenCalledWith(
-      "/api/teacher/colleagues",
+      "/api/teacher/teachers",
       input,
     );
     expect(result.current.drawerOpen).toBe(false);
@@ -77,7 +77,7 @@ describe("useCreateColleague", () => {
     });
     const onCreated = vi.fn();
     const { result } = renderHook(() =>
-      useCreateColleague({ onCreated, form: formMock }),
+      useCreateTeacher({ onCreated, form: formMock }),
     );
 
     await act(async () => {
@@ -95,7 +95,7 @@ describe("useCreateColleague", () => {
       response: { status: 401 },
     });
     const { result } = renderHook(() =>
-      useCreateColleague({ onCreated: vi.fn(), form: formMock }),
+      useCreateTeacher({ onCreated: vi.fn(), form: formMock }),
     );
 
     await act(async () => {
@@ -107,7 +107,7 @@ describe("useCreateColleague", () => {
 
   it("handleDrawerClose でフォームをリセットしdrawerを閉じる", () => {
     const { result } = renderHook(() =>
-      useCreateColleague({ onCreated: vi.fn(), form: formMock }),
+      useCreateTeacher({ onCreated: vi.fn(), form: formMock }),
     );
 
     act(() => result.current.handleAddClick());
@@ -119,7 +119,7 @@ describe("useCreateColleague", () => {
   it("handleSnackbarClose でsnackbarを閉じる", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({});
     const { result } = renderHook(() =>
-      useCreateColleague({ onCreated: vi.fn(), form: formMock }),
+      useCreateTeacher({ onCreated: vi.fn(), form: formMock }),
     );
 
     await act(async () => {

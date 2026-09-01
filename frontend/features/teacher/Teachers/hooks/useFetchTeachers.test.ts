@@ -1,7 +1,7 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useFetchColleagues } from "./useFetchColleagues";
+import { useFetchTeachers } from "./useFetchTeachers";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -13,7 +13,7 @@ vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn() },
 }));
 
-describe("useFetchColleagues", () => {
+describe("useFetchTeachers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -26,11 +26,11 @@ describe("useFetchColleagues", () => {
     };
     vi.mocked(apiClient.get).mockResolvedValue({ data: teachersData });
 
-    const { result } = renderHook(() => useFetchColleagues());
+    const { result } = renderHook(() => useFetchTeachers());
 
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data).toEqual(teachersData);
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/colleagues", {
+    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/teachers", {
       params: { page: "1" },
     });
   });
@@ -44,13 +44,15 @@ describe("useFetchColleagues", () => {
       },
     });
 
-    const { result } = renderHook(() => useFetchColleagues());
+    const { result } = renderHook(() => useFetchTeachers());
     await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(1));
 
-    result.current.setPage(2);
+    act(() => {
+      result.current.setPage(2);
+    });
 
     await waitFor(() =>
-      expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/colleagues", {
+      expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/teachers", {
         params: { page: "2" },
       }),
     );
@@ -61,7 +63,7 @@ describe("useFetchColleagues", () => {
       response: { status: 401 },
     });
 
-    renderHook(() => useFetchColleagues());
+    renderHook(() => useFetchTeachers());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });

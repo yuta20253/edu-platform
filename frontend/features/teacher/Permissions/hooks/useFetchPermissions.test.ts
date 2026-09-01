@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useFetchTeacherPermissions } from "./useFetchTeacherPermissions";
+import { useFetchPermissions } from "./useFetchPermissions";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -30,7 +30,7 @@ const mockData = {
   meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 20 },
 };
 
-describe("useFetchTeacherPermissions", () => {
+describe("useFetchPermissions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -38,7 +38,7 @@ describe("useFetchTeacherPermissions", () => {
   it("教員権限一覧を取得しdataにセットする", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useFetchTeacherPermissions());
+    const { result } = renderHook(() => useFetchPermissions());
 
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data).toEqual(mockData);
@@ -51,7 +51,7 @@ describe("useFetchTeacherPermissions", () => {
   it("setPage を呼ぶと更新後のページで再取得する", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useFetchTeacherPermissions());
+    const { result } = renderHook(() => useFetchPermissions());
     await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
@@ -71,7 +71,7 @@ describe("useFetchTeacherPermissions", () => {
       response: { status: 401 },
     });
 
-    const { result } = renderHook(() => useFetchTeacherPermissions());
+    const { result } = renderHook(() => useFetchPermissions());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
     expect(result.current.error).toBeNull();
@@ -82,7 +82,7 @@ describe("useFetchTeacherPermissions", () => {
     const apiError = { response: { status: 500 } };
     vi.mocked(apiClient.get).mockRejectedValue(apiError);
 
-    const { result } = renderHook(() => useFetchTeacherPermissions());
+    const { result } = renderHook(() => useFetchPermissions());
 
     await waitFor(() => expect(result.current.error).not.toBeNull());
     expect(pushMock).not.toHaveBeenCalled();
@@ -92,7 +92,7 @@ describe("useFetchTeacherPermissions", () => {
   it("refetch を呼ぶと再取得する", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() => useFetchTeacherPermissions());
+    const { result } = renderHook(() => useFetchPermissions());
     await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {

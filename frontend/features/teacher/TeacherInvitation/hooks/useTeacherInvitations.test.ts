@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useColleagueInvitations } from "./useColleagueInvitations";
+import { useTeacherInvitations } from "./useTeacherInvitations";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -13,7 +13,7 @@ vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn() },
 }));
 
-describe("useColleagueInvitations", () => {
+describe("useTeacherInvitations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -29,7 +29,7 @@ describe("useColleagueInvitations", () => {
     ];
     vi.mocked(apiClient.get).mockResolvedValue({ data: teachers });
 
-    const { result } = renderHook(() => useColleagueInvitations());
+    const { result } = renderHook(() => useTeacherInvitations());
 
     expect(result.current.loading).toBe(true);
 
@@ -46,7 +46,7 @@ describe("useColleagueInvitations", () => {
       response: { status: 500 },
     });
 
-    const { result } = renderHook(() => useColleagueInvitations());
+    const { result } = renderHook(() => useTeacherInvitations());
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBe(
@@ -59,14 +59,14 @@ describe("useColleagueInvitations", () => {
       response: { status: 401 },
     });
 
-    renderHook(() => useColleagueInvitations());
+    renderHook(() => useTeacherInvitations());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
 
   it("refetch を呼ぶと再取得する", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: [] });
-    const { result } = renderHook(() => useColleagueInvitations());
+    const { result } = renderHook(() => useTeacherInvitations());
     await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(1));
 
     await act(async () => {
