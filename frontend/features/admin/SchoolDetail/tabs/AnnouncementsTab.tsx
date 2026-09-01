@@ -26,6 +26,9 @@ const statusConfig: Record<
   scheduled: { label: "予約配信", color: "info" },
 };
 
+// バックエンドが将来追加する未知のstatus値でも一覧全体がクラッシュしないようにする
+const unknownStatusConfig = { label: "不明", color: "default" as const };
+
 export const AnnouncementsTab = ({ schoolId }: Props) => {
   const { announcements, meta, page, setPage, loading } =
     useFetchAnnouncements(schoolId);
@@ -48,7 +51,7 @@ export const AnnouncementsTab = ({ schoolId }: Props) => {
     <Box>
       <Stack spacing={1}>
         {announcements.map((announcement) => {
-          const config = statusConfig[announcement.status];
+          const config = statusConfig[announcement.status] ?? unknownStatusConfig;
           return (
             <Box
               key={announcement.id}
