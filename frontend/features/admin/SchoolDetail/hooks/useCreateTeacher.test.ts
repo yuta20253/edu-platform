@@ -18,7 +18,6 @@ const validInput: CreateTeacherInput = {
   lastName: "田中",
   firstName: "太郎",
   email: "tanaka@example.com",
-  password: "abc123xyz",
   gradeScope: "own_grade",
   manageOtherTeachers: false,
   gradeIds: [1],
@@ -46,7 +45,6 @@ describe("useCreateTeacher", () => {
       {
         name: "田中 太郎",
         email: "tanaka@example.com",
-        password: "abc123xyz",
         grade_scope: "own_grade",
         manage_other_teachers: false,
         grade_ids: [1],

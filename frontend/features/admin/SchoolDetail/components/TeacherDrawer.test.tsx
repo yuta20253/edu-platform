@@ -19,29 +19,25 @@ const baseProps = {
 
 describe("TeacherDrawer", () => {
   describe("新規追加モード", () => {
-    it("姓/名・メール・初期パスワードの入力欄が表示される", () => {
+    it("姓/名・メールの入力欄が表示される", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
       expect(screen.getByRole("textbox", { name: "姓" })).toBeInTheDocument();
       expect(screen.getByRole("textbox", { name: "名" })).toBeInTheDocument();
       expect(
         screen.getByRole("textbox", { name: "メールアドレス" }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole("textbox", { name: "初期パスワード" }),
-      ).toBeInTheDocument();
     });
 
-    it("「自動生成」ボタンをクリックするとパスワード欄が埋まる", () => {
+    it("初期パスワード欄は表示されず招待メール送信の案内が表示される", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
-      const passwordInput = screen.getByRole("textbox", {
-        name: "初期パスワード",
-      }) as HTMLInputElement;
-      expect(passwordInput.value).toBe("");
-
-      fireEvent.click(screen.getByRole("button", { name: "自動生成" }));
-
-      expect(passwordInput.value).not.toBe("");
-      expect(passwordInput.value.length).toBeGreaterThanOrEqual(8);
+      expect(
+        screen.queryByRole("textbox", { name: "初期パスワード" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "招待メールが送信され、本人がパスワードを設定します。",
+        ),
+      ).toBeInTheDocument();
     });
 
     it("担当学年権限が「全学年」のとき担当学年チェックボックスは無効化される", () => {
@@ -73,12 +69,6 @@ describe("TeacherDrawer", () => {
           target: { value: "tanaka@example.com" },
         },
       );
-      fireEvent.change(
-        screen.getByRole("textbox", { name: "初期パスワード" }),
-        {
-          target: { value: "abc123xyz" },
-        },
-      );
       fireEvent.click(screen.getByRole("checkbox", { name: "高１生" }));
 
       fireEvent.click(screen.getByRole("button", { name: "追加" }));
@@ -89,7 +79,6 @@ describe("TeacherDrawer", () => {
           lastName: "田中",
           firstName: "太郎",
           email: "tanaka@example.com",
-          password: "abc123xyz",
           gradeScope: "own_grade",
           manageOtherTeachers: false,
           gradeIds: [1],
