@@ -40,6 +40,29 @@ describe("AnnouncementsTab", () => {
     expect(screen.getByText("配信済み")).toBeInTheDocument();
   });
 
+  it("未知のstatus値でも例外にならずタイトルが表示される", async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        announcements: [
+          {
+            id: 1,
+            title: "テストお知らせ",
+            // バックエンドが将来追加する未知のステータス値を想定
+            status: "archived",
+            published_at: null,
+            scheduled_at: null,
+            created_at: "2026-01-01T00:00:00.000Z",
+          },
+        ],
+        meta: { current_page: 1, total_pages: 1, total_count: 1, per_page: 20 },
+      },
+    });
+
+    render(<AnnouncementsTab schoolId={1} />);
+
+    expect(await screen.findByText("テストお知らせ")).toBeInTheDocument();
+  });
+
   it("お知らせが0件のとき空状態メッセージが表示される", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {
