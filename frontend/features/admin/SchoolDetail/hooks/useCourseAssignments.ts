@@ -33,7 +33,7 @@ export const useCourseAssignments = (schoolId: number) => {
     fetchAssignments();
   }, [fetchAssignments]);
 
-  const handleAssign = async (courseId: number) => {
+  const handleAssign = async (courseId: number): Promise<boolean> => {
     setMutationErrors([]);
 
     try {
@@ -42,15 +42,17 @@ export const useCourseAssignments = (schoolId: number) => {
         { course_id: courseId },
       );
       await fetchAssignments();
+      return true;
     } catch (err) {
       const { status, errors } = extractApiError(err);
 
       if (status === 401) {
         router.push("/login");
-        return;
+        return false;
       }
 
       setMutationErrors(errors ?? ["コースの割当に失敗しました"]);
+      return false;
     }
   };
 

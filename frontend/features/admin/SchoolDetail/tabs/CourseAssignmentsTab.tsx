@@ -32,7 +32,9 @@ export const CourseAssignmentsTab = ({ schoolId }: Props) => {
 
   const handleAssignSubmit = async () => {
     if (selectedCourseId === "") return;
-    await handleAssign(selectedCourseId);
+    const succeeded = await handleAssign(selectedCourseId);
+    if (!succeeded) return;
+
     setSelectedCourseId("");
     setAssigning(false);
   };
