@@ -66,6 +66,19 @@ RSpec.describe 'Api::V1::Admin::Dashboards', type: :request do
         expect(import.keys).to include('id', 'file_name', 'status', 'success_count', 'error_count', 'total_count',
                                        'created_at')
       end
+
+      context '教員による生徒CSVインポート履歴が含まれる場合' do
+        let!(:teacher) { create(:user, :teacher, high_school: create(:high_school)) }
+        let!(:student_import) do
+          create(:import_history, user: teacher, unit: nil, import_type: :student)
+        end
+
+        it 'recent_imports から生徒CSVインポート履歴が除外される' do
+          subject
+          ids = response.parsed_body['recent_imports'].pluck('id')
+          expect(ids).not_to include(student_import.id)
+        end
+      end
     end
 
     context '異常系 - 未認証アクセス' do

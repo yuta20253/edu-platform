@@ -1,4 +1,4 @@
-import { Tasks } from "@/features/Tasks";
+import { Tasks } from "@/features/student/Tasks";
 
 export default function TasksPage() {
   return <Tasks />;

@@ -24,6 +24,10 @@ module Admin
     # テンプレート生成・dry_run検証・実インポートはすべてこの定数を参照すること。
     HEADERS = %w[問題文 正解番号 解説 選択肢1 選択肢2 選択肢3 選択肢4 ヒント1 ヒント2].freeze
 
+    # HEADERSのうちCSVに必須の列(ヒントは任意項目のため含めない)。
+    # ヘッダー行の妥当性チェック(Csv::HeaderValidator)で使う。
+    REQUIRED_HEADERS = %w[問題文 正解番号 解説 選択肢1 選択肢2 選択肢3 選択肢4].freeze
+
     def self.from_csv_row(row)
       new(
         question_text: row['問題文'],

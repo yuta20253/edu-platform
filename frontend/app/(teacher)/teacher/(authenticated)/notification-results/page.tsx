@@ -1,5 +1,5 @@
-import { TeacherNotificationResults } from "@/features/TeacherNotificationResults";
+import { NotificationResults } from "@/features/teacher/NotificationResults";
 
 export default function TeacherNotificationResultsPage() {
-  return <TeacherNotificationResults />;
+  return <NotificationResults />;
 }

@@ -55,4 +55,130 @@ RSpec.describe Auth::SignUpService, type: :service do
       end
     end
   end
+
+  context '生徒コードによるclaim' do
+    let(:user_role_name) { 'student' }
+
+    let(:form) do
+      Auth::SignUpForm.new(
+        email: 'test@example.com',
+        name: '山田太郎',
+        name_kana: 'ヤマダタロウ',
+        password: 'password',
+        password_confirmation: 'password',
+        user_role_name: user_role_name,
+        high_school_id: high_school_id,
+        grade_id: grade.id,
+        student_number: student_number
+      )
+    end
+
+    context '有効な生徒コードが入力された場合' do
+      let!(:pre_created_user) do
+        create(:user, user_role: user_role, high_school: high_school, grade: grade,
+                      student_number: "#{high_school.school_code}-AAAAAAAA",
+                      password_reset_required: true, email: 'old@example.com')
+      end
+      let(:student_number) { pre_created_user.student_number }
+
+      it '新規Userを作らず既存Userを更新する' do
+        expect { subject }.not_to change(User, :count)
+
+        user = subject
+        expect(user.id).to eq(pre_created_user.id)
+        expect(user.email).to eq('test@example.com')
+        expect(user.password_reset_required).to be false
+        expect(user.activated_at).to be_present
+      end
+
+      it '有効化前の元のメールアドレス宛に通知メールが送信される' do
+        mail = instance_double(ActionMailer::MessageDelivery, deliver_later: true)
+        allow(AuthMailer).to receive(:account_claimed).and_return(mail)
+
+        subject
+
+        expect(AuthMailer).to have_received(:account_claimed).with(an_instance_of(User), 'old@example.com')
+      end
+
+      context 'フォームで異なる学年が選択された場合' do
+        let(:other_grade) { create(:grade, high_school: high_school, year: 2) }
+        let(:form) do
+          Auth::SignUpForm.new(
+            email: 'test@example.com',
+            name: '山田太郎',
+            name_kana: 'ヤマダタロウ',
+            password: 'password',
+            password_confirmation: 'password',
+            user_role_name: user_role_name,
+            high_school_id: high_school_id,
+            grade_id: other_grade.id,
+            student_number: student_number
+          )
+        end
+
+        it 'CSVインポート時に設定された学年が維持される' do
+          user = subject
+
+          expect(user.grade_id).to eq(pre_created_user.grade_id)
+        end
+      end
+    end
+
+    context '削除済みユーザーの生徒コードの場合' do
+      let!(:pre_created_user) do
+        create(:user, user_role: user_role, high_school: high_school, grade: grade,
+                      student_number: "#{high_school.school_code}-AAAAAAAA",
+                      password_reset_required: true, deleted_at: Time.current)
+      end
+      let(:student_number) { pre_created_user.student_number }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '生徒コードが正しくありません')
+      end
+    end
+
+    context '該当するUserが存在しないコードの場合' do
+      let(:student_number) { "#{high_school.school_code}-NOTEXIST" }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '生徒コードが正しくありません')
+      end
+    end
+
+    context '存在しない学校コードを含む生徒コードの場合' do
+      let(:student_number) { 'ZZZZZZ-NOTEXIST' }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '生徒コードが正しくありません')
+      end
+    end
+
+    context 'コードが示す高校が選択した高校と異なる場合' do
+      let(:other_high_school) { create(:high_school) }
+      let!(:pre_created_user) do
+        create(:user, user_role: user_role, high_school: other_high_school,
+                      grade: create(:grade, high_school: other_high_school),
+                      student_number: "#{other_high_school.school_code}-AAAAAAAA",
+                      password_reset_required: true)
+      end
+      let(:student_number) { pre_created_user.student_number }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, '生徒コードが正しくありません')
+      end
+    end
+
+    context '既に有効化済みのアカウントの場合' do
+      let!(:pre_created_user) do
+        create(:user, user_role: user_role, high_school: high_school, grade: grade,
+                      student_number: "#{high_school.school_code}-AAAAAAAA",
+                      password_reset_required: false)
+      end
+      let(:student_number) { pre_created_user.student_number }
+
+      it 'SignUpErrorをraiseする' do
+        expect { subject }.to raise_error(Auth::SignUpService::SignUpError, 'このアカウントは既に有効化されています')
+      end
+    end
+  end
 end

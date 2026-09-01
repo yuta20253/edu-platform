@@ -10,5 +10,6 @@ export type User = {
     user_role_name: UserRole;
     high_school_id?: number;
     grade_id?: number | "";
+    student_number?: string;
   };
 };

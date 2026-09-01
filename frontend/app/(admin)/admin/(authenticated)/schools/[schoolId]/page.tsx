@@ -1,4 +1,4 @@
-import { AdminSchoolDetail } from "@/features/AdminSchoolDetail";
+import { SchoolDetail } from "@/features/admin/SchoolDetail";
 
 type Props = {
   params: Promise<{ schoolId: string }>;
@@ -6,7 +6,7 @@ type Props = {
 
 const AdminSchoolDetailPage = async ({ params }: Props) => {
   const { schoolId } = await params;
-  return <AdminSchoolDetail schoolId={Number(schoolId)} />;
+  return <SchoolDetail schoolId={Number(schoolId)} />;
 };
 
 export default AdminSchoolDetailPage;

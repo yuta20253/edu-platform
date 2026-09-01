@@ -1,4 +1,4 @@
-import { EditGoal } from "@/features/EditGoal";
+import { EditGoal } from "@/features/student/EditGoal";
 
 type Props = {
   params: Promise<{ goalId: string }>;
