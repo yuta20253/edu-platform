@@ -55,10 +55,7 @@ describe("useCreateTeacher", () => {
       await result.current.handleCreate(input);
     });
 
-    expect(apiClient.post).toHaveBeenCalledWith(
-      "/api/teacher/teachers",
-      input,
-    );
+    expect(apiClient.post).toHaveBeenCalledWith("/api/teacher/teachers", input);
     expect(result.current.drawerOpen).toBe(false);
     expect(result.current.snackbar).toEqual({
       open: true,
