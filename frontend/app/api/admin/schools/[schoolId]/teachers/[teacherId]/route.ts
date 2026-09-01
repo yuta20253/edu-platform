@@ -7,9 +7,9 @@ type Params = { params: Promise<{ schoolId: string; teacherId: string }> };
 // 教師の更新
 export async function PATCH(request: NextRequest, { params }: Params) {
   const { schoolId, teacherId } = await params;
-  const body = await request.json();
 
   try {
+    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       `/api/v1/admin/high_schools/${schoolId}/teachers/${teacherId}`,
       { method: "PATCH", body },

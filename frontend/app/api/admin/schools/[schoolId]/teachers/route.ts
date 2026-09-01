@@ -24,9 +24,9 @@ export async function GET(_: NextRequest, { params }: Params) {
 // 教師の新規追加
 export async function POST(request: NextRequest, { params }: Params) {
   const { schoolId } = await params;
-  const body = await request.json();
 
   try {
+    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       `/api/v1/admin/high_schools/${schoolId}/teachers`,
       { method: "POST", body },
