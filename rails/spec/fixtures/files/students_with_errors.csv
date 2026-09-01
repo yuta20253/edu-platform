@@ -1,0 +1,4 @@
+氏名,氏名カナ,メール,学年,学級
+山田太郎,ヤマダタロウ,taro@example.com,高１生,A組
+,スズキハナコ,suzuki@example.com,高１生,A組
+佐藤三郎,サトウサブロウ,invalid-email,高１生,A組

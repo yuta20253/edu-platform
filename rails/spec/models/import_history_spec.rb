@@ -51,4 +51,37 @@ RSpec.describe ImportHistory, type: :model do
       expect(history.errors[:mode]).to be_present
     end
   end
+
+  describe 'import_type enum' do
+    it 'question / student を持つ' do
+      expect(described_class.import_types.keys).to contain_exactly('question', 'student')
+    end
+
+    it 'デフォルトは question' do
+      expect(build(:import_history).import_type).to eq('question')
+    end
+
+    it '不正な import_type は validation で弾かれる' do
+      history = build(:import_history)
+      history.import_type = 'invalid_type'
+
+      expect(history).not_to be_valid
+      expect(history.errors[:import_type]).to be_present
+    end
+  end
+
+  describe 'unit の必須性' do
+    it 'question の場合は unit が必須' do
+      history = build(:import_history, unit: nil, import_type: :question)
+
+      expect(history).not_to be_valid
+      expect(history.errors[:unit]).to be_present
+    end
+
+    it 'student の場合は unit がなくても有効' do
+      history = build(:import_history, unit: nil, import_type: :student)
+
+      expect(history).to be_valid
+    end
+  end
 end

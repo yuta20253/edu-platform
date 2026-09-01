@@ -8,7 +8,7 @@ module Admin
     DEFAULT_ORDER = 'desc'
 
     def initialize(scope = ImportHistory.all)
-      @scope = scope.includes(:user, unit: :course)
+      @scope = scope.question.includes(:user, unit: :course)
     end
 
     def call(filters = {})
