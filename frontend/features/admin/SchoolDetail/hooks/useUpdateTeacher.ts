@@ -31,7 +31,7 @@ export const useUpdateTeacher = ({
       await apiClient.patch(
         `/api/admin/schools/${schoolId}/teachers/${teacherId}`,
         {
-          name: `${input.lastName} ${input.firstName}`,
+          name: `${input.lastName.trim()} ${input.firstName.trim()}`,
           email: input.email,
           grade_scope: input.gradeScope,
           manage_other_teachers: input.manageOtherTeachers,

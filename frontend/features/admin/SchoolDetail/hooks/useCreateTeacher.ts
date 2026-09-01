@@ -27,7 +27,7 @@ export const useCreateTeacher = ({
 
     try {
       await apiClient.post(`/api/admin/schools/${schoolId}/teachers`, {
-        name: `${input.lastName} ${input.firstName}`,
+        name: `${input.lastName.trim()} ${input.firstName.trim()}`,
         email: input.email,
         grade_scope: input.gradeScope,
         manage_other_teachers: input.manageOtherTeachers,
