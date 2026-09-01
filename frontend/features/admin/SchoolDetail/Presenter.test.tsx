@@ -44,8 +44,6 @@ describe("SchoolDetailPresenter", () => {
         return Promise.resolve({ data: { teachers: [] } });
       if (url.includes("/grades"))
         return Promise.resolve({ data: { grades: [] } });
-      if (url.includes("/course_assignments"))
-        return Promise.resolve({ data: { course_assignments: [] } });
       if (url.includes("/announcements"))
         return Promise.resolve({
           data: {
@@ -55,18 +53,6 @@ describe("SchoolDetailPresenter", () => {
               total_pages: 1,
               total_count: 0,
               per_page: 20,
-            },
-          },
-        });
-      if (url.includes("/api/admin/courses"))
-        return Promise.resolve({
-          data: {
-            courses: [],
-            meta: {
-              current_page: 1,
-              total_pages: 1,
-              total_count: 0,
-              per_page: 100,
             },
           },
         });
@@ -98,15 +84,12 @@ describe("SchoolDetailPresenter", () => {
   });
 
   describe("タブ", () => {
-    it("5つのタブが表示される", () => {
+    it("4つのタブが表示される", () => {
       render(<Presenter {...defaultProps} />);
       expect(screen.getByRole("tab", { name: "概要" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "教師管理" })).toBeInTheDocument();
       expect(
         screen.getByRole("tab", { name: "学年・クラス" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("tab", { name: "コース割当" }),
       ).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "お知らせ" })).toBeInTheDocument();
     });
@@ -129,13 +112,6 @@ describe("SchoolDetailPresenter", () => {
       const gradesTab = screen.getByRole("tab", { name: "学年・クラス" });
       fireEvent.click(gradesTab);
       expect(gradesTab).toHaveAttribute("aria-selected", "true");
-    });
-
-    it("「コース割当」タブをクリックすると選択状態が切り替わる", () => {
-      render(<Presenter {...defaultProps} />);
-      const courseTab = screen.getByRole("tab", { name: "コース割当" });
-      fireEvent.click(courseTab);
-      expect(courseTab).toHaveAttribute("aria-selected", "true");
     });
 
     it("「お知らせ」タブをクリックすると選択状態が切り替わる", () => {
@@ -179,16 +155,6 @@ describe("SchoolDetailPresenter", () => {
       fireEvent.click(screen.getByRole("tab", { name: "学年・クラス" }));
       expect(
         await screen.findByText("学年が登録されていません"),
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe("コース割当タブ", () => {
-    it("タブ切り替え後に空状態メッセージが表示される", async () => {
-      render(<Presenter {...defaultProps} />);
-      fireEvent.click(screen.getByRole("tab", { name: "コース割当" }));
-      expect(
-        await screen.findByText("コースが割り当てられていません"),
       ).toBeInTheDocument();
     });
   });

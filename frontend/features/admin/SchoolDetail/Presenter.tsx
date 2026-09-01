@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Box, Breadcrumbs, Tab, Tabs, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
 import { AnnouncementsTab } from "./tabs/AnnouncementsTab";
-import { CourseAssignmentsTab } from "./tabs/CourseAssignmentsTab";
 import { GradesTab } from "./tabs/GradesTab";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { TeachersTab } from "./tabs/TeachersTab";
@@ -15,12 +14,7 @@ type Props = {
   school: SchoolDetail;
 };
 
-type TabValue =
-  | "overview"
-  | "teachers"
-  | "grades"
-  | "course_assignments"
-  | "announcements";
+type TabValue = "overview" | "teachers" | "grades" | "announcements";
 
 export const Presenter = ({ school }: Props) => {
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
@@ -57,7 +51,6 @@ export const Presenter = ({ school }: Props) => {
           <Tab label="概要" value="overview" />
           <Tab label="教師管理" value="teachers" />
           <Tab label="学年・クラス" value="grades" />
-          <Tab label="コース割当" value="course_assignments" />
           <Tab label="お知らせ" value="announcements" />
         </Tabs>
       </Box>
@@ -65,9 +58,6 @@ export const Presenter = ({ school }: Props) => {
       {activeTab === "overview" && <OverviewTab school={school} />}
       {activeTab === "teachers" && <TeachersTab schoolId={school.id} />}
       {activeTab === "grades" && <GradesTab schoolId={school.id} />}
-      {activeTab === "course_assignments" && (
-        <CourseAssignmentsTab schoolId={school.id} />
-      )}
       {activeTab === "announcements" && (
         <AnnouncementsTab schoolId={school.id} />
       )}

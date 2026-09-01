@@ -39,30 +39,6 @@ export type GradesData = {
   grades: Grade[];
 };
 
-// コース割当タブ用: 割当済みコース1件分。
-export type CourseAssignment = {
-  id: number;
-  assigned_at: string;
-  course: {
-    id: number;
-    level_number: number;
-    level_name: string;
-    subject: { id: number; name: string } | null;
-  };
-};
-
-export type CourseAssignmentsData = {
-  course_assignments: CourseAssignment[];
-};
-
-// コース割当のプルダウン用に一覧取得するコース候補。
-export type CourseOption = {
-  id: number;
-  level_name: string;
-  level_number: number;
-  subject: { id: number; name: string } | null;
-};
-
 export type AnnouncementStatus = "draft" | "scheduled" | "published";
 
 export type Announcement = {
