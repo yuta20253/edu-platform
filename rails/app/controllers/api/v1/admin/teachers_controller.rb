@@ -18,7 +18,7 @@ module Api
 
         def create
           school = HighSchool.find(params[:high_school_id])
-          user = ::Admin::CreateTeacherService.new(school: school, **create_params).call
+          user = ::Admin::CreateTeacherService.new(school: school, attributes: create_params).call
 
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :created
         rescue ActiveRecord::RecordInvalid => e

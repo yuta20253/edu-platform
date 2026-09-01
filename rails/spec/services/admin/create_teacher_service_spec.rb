@@ -6,12 +6,14 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
   subject(:service) do
     described_class.new(
       school: school,
-      name: name,
-      email: email,
-      password: password,
-      grade_scope: grade_scope,
-      manage_other_teachers: manage_other_teachers,
-      grade_ids: grade_ids
+      attributes: {
+        name: name,
+        email: email,
+        password: password,
+        grade_scope: grade_scope,
+        manage_other_teachers: manage_other_teachers,
+        grade_ids: grade_ids
+      }
     )
   end
 
@@ -54,8 +56,9 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
     end
 
     it '招待メールを送信しない' do
-      expect(AuthMailer).not_to receive(:invite_teacher)
+      allow(AuthMailer).to receive(:invite_teacher)
       service.call
+      expect(AuthMailer).not_to have_received(:invite_teacher)
     end
   end
 
