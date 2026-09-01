@@ -52,6 +52,28 @@ describe("useCreateTeacher", () => {
     );
   });
 
+  it("姓名の前後の空白を除去してAPIへ送信する", async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: { teacher: {} } });
+    const onCreated = vi.fn();
+
+    const { result } = renderHook(() =>
+      useCreateTeacher({ schoolId: 1, onCreated }),
+    );
+
+    await act(async () => {
+      await result.current.handleCreate({
+        ...validInput,
+        lastName: " 田中 ",
+        firstName: " 太郎 ",
+      });
+    });
+
+    expect(apiClient.post).toHaveBeenCalledWith(
+      "/api/admin/schools/1/teachers",
+      expect.objectContaining({ name: "田中 太郎" }),
+    );
+  });
+
   it("成功時にonCreatedが呼ばれる", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: { teacher: {} } });
     const onCreated = vi.fn();

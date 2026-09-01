@@ -67,6 +67,28 @@ describe("useUpdateTeacher", () => {
     expect(onUpdated).toHaveBeenCalled();
   });
 
+  it("姓名の前後の空白を除去してPATCHで送信する", async () => {
+    vi.mocked(apiClient.patch).mockResolvedValue({ data: { teacher: {} } });
+    const onUpdated = vi.fn();
+
+    const { result } = renderHook(() =>
+      useUpdateTeacher({ schoolId: 1, teacherId: 5, onUpdated }),
+    );
+
+    await act(async () => {
+      await result.current.handleUpdate({
+        ...validInput,
+        lastName: " 田中 ",
+        firstName: " 花子 ",
+      });
+    });
+
+    expect(apiClient.patch).toHaveBeenCalledWith(
+      "/api/admin/schools/1/teachers/5",
+      expect.objectContaining({ name: "田中 花子" }),
+    );
+  });
+
   it("422エラー時はupdateErrorsにセットされる", async () => {
     vi.mocked(apiClient.patch).mockRejectedValue({
       response: {
