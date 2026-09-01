@@ -34,7 +34,9 @@ module Admin
           manage_other_teachers: @attributes[:manage_other_teachers]
         )
 
-        Array(@attributes[:grade_ids]).each { |grade_id| user.teacher_grades.create!(grade_id: grade_id) }
+        # 対象校に属さない学年IDが紛れ込んでも無視する(他校の学年に紐付けられないようにする)
+        valid_grade_ids = @school.grades.where(id: Array(@attributes[:grade_ids])).pluck(:id)
+        valid_grade_ids.each { |grade_id| user.teacher_grades.create!(grade_id: grade_id) }
 
         token = user.send(:set_reset_password_token)
         AuthMailer.invite_teacher(user, token).deliver_later

@@ -24,6 +24,17 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
+  context '正常系 - grade_ids に他校の学年IDが含まれる場合' do
+    let(:other_school) { create(:high_school) }
+    let(:other_grade) { create(:grade, high_school: other_school, year: 1) }
+    let(:params) { { grade_ids: [grade2.id, other_grade.id] } }
+
+    it '対象教師の所属校に属する学年のみ TeacherGrade が更新される' do
+      service.call
+      expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade2.id)
+    end
+  end
+
   context '正常系 - grade_ids を省略した場合' do
     let(:params) { { name: '更新太郎' } }
 

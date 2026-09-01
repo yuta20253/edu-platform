@@ -47,6 +47,18 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       expect(user.grades).to contain_exactly(grade)
     end
 
+    context 'grade_ids に他校の学年IDが含まれる場合' do
+      let(:other_school) { create(:high_school) }
+      let(:other_grade) { create(:grade, high_school: other_school, year: 1) }
+      let(:grade_ids) { [grade.id, other_grade.id] }
+
+      it '対象校に属する学年のみ TeacherGrade が作成される' do
+        service.call
+        user = User.find_by(email: email)
+        expect(user.grades).to contain_exactly(grade)
+      end
+    end
+
     it '招待メールを送信する' do
       allow(AuthMailer).to receive(:invite_teacher).and_call_original
       service.call

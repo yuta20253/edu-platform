@@ -32,8 +32,11 @@ module Admin
     def update_teacher_grades
       return unless @params.key?(:grade_ids)
 
+      # 対象教師の所属校に属さない学年IDが紛れ込んでも無視する
+      valid_grade_ids = @user.high_school.grades.where(id: Array(@params[:grade_ids])).pluck(:id)
+
       @user.teacher_grades.destroy_all
-      @params[:grade_ids].each { |grade_id| @user.teacher_grades.create!(grade_id: grade_id) }
+      valid_grade_ids.each { |grade_id| @user.teacher_grades.create!(grade_id: grade_id) }
     end
   end
 end
