@@ -231,7 +231,7 @@ export const TeacherDrawer = ({
                         }
                       />
                     }
-                    label={grade.name}
+                    label={grade.display_name}
                   />
                 ))}
               </FormGroup>

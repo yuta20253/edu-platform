@@ -28,7 +28,7 @@ export const GradesTab = ({ schoolId }: Props) => {
   return (
     <Stack direction="row" spacing={1} flexWrap="wrap">
       {grades.map((grade) => (
-        <Chip key={grade.id} label={grade.name} />
+        <Chip key={grade.id} label={grade.display_name} />
       ))}
     </Stack>
   );
