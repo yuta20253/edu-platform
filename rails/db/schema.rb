@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_01_063000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_23_061756) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -77,16 +77,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_01_063000) do
     t.datetime "updated_at", null: false
     t.datetime "scheduled_at"
     t.index ["publisher_id"], name: "index_announcements_on_publisher_id"
-  end
-
-  create_table "course_assignments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "high_school_id", null: false
-    t.bigint "course_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["course_id"], name: "index_course_assignments_on_course_id"
-    t.index ["high_school_id", "course_id"], name: "index_course_assignments_on_high_school_id_and_course_id", unique: true
-    t.index ["high_school_id"], name: "index_course_assignments_on_high_school_id"
   end
 
   create_table "courses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -563,8 +553,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_01_063000) do
   add_foreign_key "announcement_targets", "user_roles"
   add_foreign_key "announcement_targets", "users"
   add_foreign_key "announcements", "users", column: "publisher_id"
-  add_foreign_key "course_assignments", "courses"
-  add_foreign_key "course_assignments", "high_schools"
   add_foreign_key "draft_task_courses", "courses"
   add_foreign_key "draft_task_courses", "draft_tasks"
   add_foreign_key "draft_task_units", "draft_tasks"

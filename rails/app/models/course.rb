@@ -22,8 +22,6 @@ class Course < ApplicationRecord
   has_many :task_courses, dependent: :destroy
   has_many :tasks, through: :task_courses
   has_many :user_unit_question_stats, dependent: :destroy
-  has_many :course_assignments, dependent: :destroy
-  has_many :high_schools, through: :course_assignments
 
   scope :active, -> { where(deleted_at: nil) }
 end

@@ -71,7 +71,6 @@ Rails.application.routes.draw do
           resources :teachers, only: [:index, :create, :update]
           resources :grades, only: :index
           resources :announcements, only: :index
-          resources :course_assignments, only: [:index, :create, :destroy]
         end
 
         get 'csv_template/questions', to: 'csv_templates#questions'
