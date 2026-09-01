@@ -80,7 +80,7 @@ const defaultProps = {
   onRowClick: vi.fn(),
 };
 
-describe("AdminImportHistoryPresenter", () => {
+describe("ImportHistoryPresenter", () => {
   it("テーブルヘッダーに指定された列が表示される", () => {
     render(<Presenter {...defaultProps} />);
     const headers = screen

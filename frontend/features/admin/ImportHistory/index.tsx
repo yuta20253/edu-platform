@@ -4,7 +4,7 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { Presenter } from "./Presenter";
 import { useFetchHistories } from "./hooks/useFetchHistories";
 
-export const AdminImportHistory = () => {
+export const ImportHistory = () => {
   const { data, error, ...handlers } = useFetchHistories();
 
   if (error) {

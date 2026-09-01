@@ -1,5 +1,5 @@
-import { AdminImportHistory } from "@/features/AdminImportHistory";
+import { ImportHistory } from "@/features/admin/ImportHistory";
 
-export default function AdminImportHistoryPage() {
-  return <AdminImportHistory />;
+export default function ImportHistoryPage() {
+  return <ImportHistory />;
 }

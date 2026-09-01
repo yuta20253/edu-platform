@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 // 同じ列を再クリックしたらasc/descをトグルし、別の列ならascから開始する
-// ソート状態管理。AdminCourses/AdminImportHistoryのソート可能な一覧で共通利用する。
+// ソート状態管理。Courses/ImportHistoryのソート可能な一覧と同型のロジックを共通化する。
 export const useSortToggle = <TSort extends string>(
   initialSort: TSort,
   initialOrder: "asc" | "desc" = "desc",
