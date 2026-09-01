@@ -27,6 +27,14 @@ describe("TeachersTab", () => {
     vi.clearAllMocks();
   });
 
+  it("データ取得中はローディングスピナーが表示される", () => {
+    vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
+
+    render(<TeachersTab schoolId={1} />);
+
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
+
   it("教師が0人のとき空状態UIが表示される", async () => {
     vi.mocked(apiClient.get).mockImplementation((url: string) => {
       if (url.includes("/grades")) return Promise.resolve(gradesResponse);

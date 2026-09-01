@@ -17,6 +17,14 @@ describe("AnnouncementsTab", () => {
     vi.clearAllMocks();
   });
 
+  it("データ取得中はローディングスピナーが表示される", () => {
+    vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
+
+    render(<AnnouncementsTab schoolId={1} />);
+
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
+
   it("お知らせ一覧が表示される", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {

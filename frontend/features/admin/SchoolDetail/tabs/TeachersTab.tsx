@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Snackbar,
   Alert as MuiAlert,
   Stack,
@@ -87,7 +88,11 @@ export const TeachersTab = ({ schoolId }: Props) => {
   };
 
   if (loading) {
-    return null;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (

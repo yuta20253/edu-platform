@@ -4,6 +4,7 @@ import {
   Box,
   Chip,
   ChipProps,
+  CircularProgress,
   Pagination,
   Stack,
   Typography,
@@ -34,7 +35,11 @@ export const AnnouncementsTab = ({ schoolId }: Props) => {
     useFetchAnnouncements(schoolId);
 
   if (loading) {
-    return null;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (announcements.length === 0) {

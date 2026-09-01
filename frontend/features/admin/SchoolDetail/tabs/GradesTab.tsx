@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Stack, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
 import { useFetchGrades } from "../hooks/useFetchGrades";
 
@@ -12,7 +12,11 @@ export const GradesTab = ({ schoolId }: Props) => {
   const { grades, loading } = useFetchGrades(schoolId);
 
   if (loading) {
-    return null;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (grades.length === 0) {

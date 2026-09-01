@@ -17,6 +17,14 @@ describe("GradesTab", () => {
     vi.clearAllMocks();
   });
 
+  it("データ取得中はローディングスピナーが表示される", () => {
+    vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
+
+    render(<GradesTab schoolId={1} />);
+
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
+
   it("学年一覧が表示される", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {
