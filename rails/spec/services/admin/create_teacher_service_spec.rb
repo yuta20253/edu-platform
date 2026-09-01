@@ -61,4 +61,16 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
+
+  context '異常系 - name が空' do
+    let(:name) { '' }
+
+    it 'ActiveRecord::RecordInvalid を raise する' do
+      expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'User を作成しない' do
+      expect { suppress(ActiveRecord::RecordInvalid) { service.call } }.not_to change(User, :count)
+    end
+  end
 end
