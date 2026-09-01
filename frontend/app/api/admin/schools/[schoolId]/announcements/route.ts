@@ -11,8 +11,9 @@ export async function GET(request: NextRequest, { params }: Params) {
   const page = searchParams.get("page") ?? "1";
 
   try {
+    const query = new URLSearchParams({ page });
     const { status, data, setCookie } = await railsFetch(
-      `/api/v1/admin/high_schools/${schoolId}/announcements?page=${page}`,
+      `/api/v1/admin/high_schools/${schoolId}/announcements?${query.toString()}`,
     );
 
     const res = NextResponse.json(data, { status });
