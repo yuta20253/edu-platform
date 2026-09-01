@@ -116,7 +116,6 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       {
         name: '田中太郎',
         email: 'tanaka@example.com',
-        password: 'abc123xyz',
         grade_scope: 'own_grade',
         manage_other_teachers: false,
         grade_ids: [grade.id]
@@ -145,10 +144,10 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['manage_other_teachers']).to be(false)
       end
 
-      it '指定した password でログインできる' do
+      it '招待メールが送信される' do
+        allow(AuthMailer).to receive(:invite_teacher).and_call_original
         subject
-        user = User.find_by(email: 'tanaka@example.com')
-        expect(user.valid_password?('abc123xyz')).to be(true)
+        expect(AuthMailer).to have_received(:invite_teacher)
       end
     end
 
@@ -167,26 +166,6 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
              params: valid_params,
              headers: headers.merge('Cookie' => cookie)
         expect(response.parsed_body).to have_key('errors')
-      end
-    end
-
-    context '異常系 - パスワードが短すぎる' do
-      let(:invalid_params) do
-        {
-          name: '田中太郎',
-          email: 'tanaka@example.com',
-          password: 'abc12',
-          grade_scope: 'own_grade',
-          manage_other_teachers: false,
-          grade_ids: [grade.id]
-        }.to_json
-      end
-
-      it '422が返される' do
-        post "/api/v1/admin/high_schools/#{school.id}/teachers",
-             params: invalid_params,
-             headers: headers.merge('Cookie' => cookie)
-        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 

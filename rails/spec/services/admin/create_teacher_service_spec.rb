@@ -9,7 +9,6 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       attributes: {
         name: name,
         email: email,
-        password: password,
         grade_scope: grade_scope,
         manage_other_teachers: manage_other_teachers,
         grade_ids: grade_ids
@@ -21,7 +20,6 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
   let!(:grade) { create(:grade, high_school: school, year: 1) }
   let(:name) { '田中太郎' }
   let(:email) { 'tanaka@example.com' }
-  let(:password) { 'abc123xyz' }
   let(:grade_scope) { 'own_grade' }
   let(:manage_other_teachers) { true }
   let(:grade_ids) { [grade.id] }
@@ -34,12 +32,6 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
     it '指定した name が設定される' do
       service.call
       expect(User.find_by(email: email).name).to eq('田中太郎')
-    end
-
-    it '指定した password でログインできる' do
-      service.call
-      user = User.find_by(email: email)
-      expect(user.valid_password?(password)).to be(true)
     end
 
     it '指定した grade_scope / manage_other_teachers で TeacherPermission が作成される' do
@@ -55,10 +47,10 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       expect(user.grades).to contain_exactly(grade)
     end
 
-    it '招待メールを送信しない' do
-      allow(AuthMailer).to receive(:invite_teacher)
+    it '招待メールを送信する' do
+      allow(AuthMailer).to receive(:invite_teacher).and_call_original
       service.call
-      expect(AuthMailer).not_to have_received(:invite_teacher)
+      expect(AuthMailer).to have_received(:invite_teacher)
     end
   end
 
