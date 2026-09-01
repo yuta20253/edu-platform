@@ -51,7 +51,8 @@ export const AnnouncementsTab = ({ schoolId }: Props) => {
     <Box>
       <Stack spacing={1}>
         {announcements.map((announcement) => {
-          const config = statusConfig[announcement.status] ?? unknownStatusConfig;
+          const config =
+            statusConfig[announcement.status] ?? unknownStatusConfig;
           return (
             <Box
               key={announcement.id}
