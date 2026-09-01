@@ -1,4 +1,4 @@
-import { AdminUnitDetail } from "@/features/AdminUnitDetail";
+import { UnitDetail } from "@/features/admin/UnitDetail";
 
 type Props = {
   params: Promise<{ courseId: string; unitId: string }>;
@@ -7,7 +7,5 @@ type Props = {
 export default async function AdminUnitDetailPage({ params }: Props) {
   const { courseId, unitId } = await params;
 
-  return (
-    <AdminUnitDetail courseId={Number(courseId)} unitId={Number(unitId)} />
-  );
+  return <UnitDetail courseId={Number(courseId)} unitId={Number(unitId)} />;
 }

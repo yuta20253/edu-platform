@@ -104,6 +104,50 @@ RSpec.describe Teacher::StudentImportForm, type: :model do
 
       expect(build_form).to be_valid
     end
+
+    it '生徒以外(教員)のメールアドレスと同じ場合は無効' do
+      create(:user, :teacher, email: 'taro@example.com', high_school: high_school)
+
+      form = build_form
+
+      expect(form).to be_invalid
+      expect(form.errors[:email]).to include('は生徒以外のアカウントで使用されています')
+    end
+
+    context '教員の権限がown_grade（自分の担当学年のみ）の場合' do
+      let(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade) }
+
+      before { create(:teacher_permission, user: teacher, grade_scope: :own_grade) }
+
+      it '担当学年の生徒は有効' do
+        expect(build_form(current_user: teacher)).to be_valid
+      end
+
+      it '他学年の生徒は無効' do
+        other_grade = create(:grade, high_school: high_school, year: 2)
+        create(:school_class, grade: other_grade, name: 'B組')
+
+        form = build_form(current_user: teacher, grade_name: Grade::DISPLAY_NAMES[2], school_class_name: 'B組')
+
+        expect(form).to be_invalid
+        expect(form.errors[:grade_name]).to include('は担当学年ではないため登録できません')
+      end
+    end
+
+    context '教員の権限がall_grades（全学年）の場合' do
+      let(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade) }
+
+      before { create(:teacher_permission, user: teacher, grade_scope: :all_grades) }
+
+      it '他学年の生徒でも有効' do
+        other_grade = create(:grade, high_school: high_school, year: 2)
+        create(:school_class, grade: other_grade, name: 'B組')
+
+        form = build_form(current_user: teacher, grade_name: Grade::DISPLAY_NAMES[2], school_class_name: 'B組')
+
+        expect(form).to be_valid
+      end
+    end
   end
 
   describe '#grade / #school_class' do

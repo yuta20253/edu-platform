@@ -15,13 +15,17 @@ module Teacher
     # dry_run検証・実インポートはすべてこの定数を参照すること。
     HEADERS = %w[氏名 氏名カナ メール 学年 学級].freeze
 
+    # HEADERSのうちCSVに必須の列。このフォームでは全項目が必須のためHEADERSと同じ。
+    # ヘッダー行の妥当性チェック(Csv::HeaderValidator)で使う。
+    REQUIRED_HEADERS = HEADERS
+
     attribute :name, :string
     attribute :name_kana, :string
     attribute :email, :string
     attribute :grade_name, :string
     attribute :school_class_name, :string
 
-    attr_accessor :high_school, :duplicate_emails
+    attr_accessor :high_school, :duplicate_emails, :current_user
 
     validates :name, presence: true
     validates :name_kana, presence: true, format: {
@@ -33,10 +37,12 @@ module Teacher
     validates :school_class_name, presence: true
     validate :grade_must_exist
     validate :school_class_must_exist
+    validate :grade_must_be_within_teacher_scope
     validate :email_not_duplicated_in_csv
     validate :email_not_used_by_other_high_school
+    validate :email_not_used_by_non_student
 
-    def self.from_csv_row(row, high_school:, duplicate_emails: [])
+    def self.from_csv_row(row, high_school:, duplicate_emails: [], current_user: nil)
       new(
         name: row['氏名'],
         name_kana: row['氏名カナ'],
@@ -44,7 +50,8 @@ module Teacher
         grade_name: row['学年'],
         school_class_name: row['学級'],
         high_school: high_school,
-        duplicate_emails: duplicate_emails
+        duplicate_emails: duplicate_emails,
+        current_user: current_user
       )
     end
 
@@ -104,6 +111,15 @@ module Teacher
       errors.add(:school_class_name, 'に該当する学級が見つかりません') if school_class.nil?
     end
 
+    # own_grade権限の教員は、自分の担当学年以外の生徒をインポートできない。
+    def grade_must_be_within_teacher_scope
+      # gradeが見つからない場合はgrade_must_existのエラーに任せる
+      return if grade.nil? || current_user.blank?
+      return unless current_user.teacher_permission&.own_grade?
+
+      errors.add(:grade_name, 'は担当学年ではないため登録できません') if grade.id != current_user.grade_id
+    end
+
     def email_not_duplicated_in_csv
       return if email.blank? || duplicate_emails.blank?
 
@@ -116,6 +132,14 @@ module Teacher
       return if email.blank? || high_school.blank? || existing_user.blank?
 
       errors.add(:email, 'は他の高校のアカウントで使用されています') if existing_user.high_school_id != high_school.id
+    end
+
+    # 生徒以外(教員・保護者・管理者等)のメールアドレスと一致する場合、生徒として
+    # 上書き(氏名・学年・学級の書き換えや生徒番号の付与)されないようエラーにする。
+    def email_not_used_by_non_student
+      return if email.blank? || existing_user.blank?
+
+      errors.add(:email, 'は生徒以外のアカウントで使用されています') unless existing_user.student?
     end
   end
 end

@@ -11,7 +11,11 @@ module Teacher
       Csv::BatchImportService.new(
         @import_history,
         form_class: Teacher::StudentImportForm,
-        form_context: { high_school: @high_school, duplicate_emails: duplicate_emails },
+        form_context: {
+          high_school: @high_school,
+          duplicate_emails: duplicate_emails,
+          current_user: @import_history.user
+        },
         row_importer: ->(form) { Teacher::StudentCsvImportService.new(form).call }
       ).call
     end

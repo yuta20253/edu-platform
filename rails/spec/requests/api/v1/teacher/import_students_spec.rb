@@ -78,6 +78,23 @@ RSpec.describe 'Api::V1::Teacher::ImportStudents', type: :request do
       end
     end
 
+    context 'ヘッダーが不正なCSVの場合' do
+      let(:file) { fixture_file_upload('students_wrong_headers.csv', 'text/csv') }
+
+      it 'ステータス202が返るが、ジョブ実行後にImportHistoryがfailedになりエラーが記録される' do
+        perform_enqueued_jobs { post_import }
+
+        expect(response).to have_http_status(:accepted)
+        import_history = ImportHistory.last
+        expect(import_history.status).to eq('failed')
+        expect(import_history.import_errors.pluck(:message)).to include('CSVのフォーマットが不正です')
+      end
+
+      it 'Userが作成されない' do
+        expect { perform_enqueued_jobs { post_import } }.not_to change(User, :count)
+      end
+    end
+
     context '未認証の場合' do
       it 'ステータス401が返る' do
         post '/api/v1/teacher/import_students', params: params, headers: { 'Accept' => 'application/json' }
@@ -185,6 +202,16 @@ RSpec.describe 'Api::V1::Teacher::ImportStudents', type: :request do
       it 'ステータス422が返る' do
         post_dry_run
         expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context 'ヘッダーが不正なCSVの場合' do
+      let(:file) { fixture_file_upload('students_wrong_headers.csv', 'text/csv') }
+
+      it 'ステータス422が返り明確なエラーメッセージが返る' do
+        post_dry_run
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body['errors']).to include('CSVのフォーマットが不正です')
       end
     end
 

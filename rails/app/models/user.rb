@@ -28,6 +28,9 @@
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
 
+  STUDENT_NUMBER_DELIMITER = '-'
+  STUDENT_NUMBER_FORMAT = /\A[A-Z0-9]+#{STUDENT_NUMBER_DELIMITER}[A-Z0-9]+\z/
+
   before_validation :set_jti, on: :create
 
   belongs_to :user_role, optional: true
@@ -123,9 +126,17 @@ class User < ApplicationRecord
     raise "生徒以外(#{user_role&.name})にstudent_numberは発行できません" unless student?
 
     self.student_number = loop do
-      code = "#{high_school.school_code}-#{SecureRandom.alphanumeric(8).upcase}"
+      code = "#{high_school.school_code}#{STUDENT_NUMBER_DELIMITER}#{SecureRandom.alphanumeric(8).upcase}"
       break code unless User.exists?(student_number: code)
     end
+  end
+
+  def self.student_number_format_valid?(value)
+    value.present? && value.match?(STUDENT_NUMBER_FORMAT)
+  end
+
+  def self.school_code_from_student_number(value)
+    value.to_s.split(STUDENT_NUMBER_DELIMITER, 2).first
   end
 
   private

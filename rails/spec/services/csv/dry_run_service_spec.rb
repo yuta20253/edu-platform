@@ -11,6 +11,9 @@ class DryRunServiceSpecFakeForm
   attribute :name, :string
   validates :name, presence: true
 
+  # nameのみ必須。ageのような任意項目や、想定外の余分な列があってもよいことを表す。
+  REQUIRED_HEADERS = %w[name].freeze
+
   def self.from_csv_row(row)
     new(name: row['name'])
   end
@@ -70,6 +73,25 @@ RSpec.describe Csv::DryRunService, type: :service do
         expect(result[:total_count]).to eq(row_count)
         expect(result[:valid_count]).to eq(0)
         expect(result[:rows].size).to eq(described_class::MAX_ERROR_ROWS)
+      end
+    end
+
+    context 'ヘッダーに必須列(name)が含まれない場合' do
+      let(:csv_content) { "other\nAlice\n" }
+
+      it 'Csv::Errors::InvalidHeaderを投げる' do
+        expect { described_class.new(file, form_class: fake_form_class).call }
+          .to raise_error(Csv::Errors::InvalidHeader, 'CSVのフォーマットが不正です')
+      end
+    end
+
+    context 'ヘッダーに必須列(name)が含まれ、想定外の列も含む場合' do
+      let(:csv_content) { "name,unknown\nAlice,x\n" }
+
+      it '正常に処理される（想定外の列は無視される）' do
+        result = described_class.new(file, form_class: fake_form_class).call
+
+        expect(result[:total_count]).to eq(1)
       end
     end
   end

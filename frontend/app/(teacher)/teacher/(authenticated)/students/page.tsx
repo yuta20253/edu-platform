@@ -1,4 +1,4 @@
-import { Students } from "@/features/Students";
+import { Students } from "@/features/teacher/Students";
 
 export default function StudentsPage() {
   return <Students />;

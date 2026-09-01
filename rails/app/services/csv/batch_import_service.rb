@@ -10,6 +10,7 @@ module Csv
     # before_rows: トランザクション内・CSV行処理の前に一度だけ呼ぶフック(overwriteモードの事前削除等)
     # row_importer: 有効な行1件ごとに form を渡して呼ぶ callable。実際のUpsert処理を担う
     # form_context: form_class.from_csv_row(row, **form_context) にそのまま渡すキーワード引数
+    # form_classは `.from_csv_row(row)` に加え、必須のCSVヘッダー配列を定数 `REQUIRED_HEADERS` として持つ必要がある。
     def initialize(import_history, form_class:, row_importer:, before_rows: nil, form_context: {})
       @import_history = import_history
       @file = import_history.file
@@ -26,9 +27,10 @@ module Csv
 
       begin
         ActiveRecord::Base.transaction do
-          @before_rows&.call
-
           @file.open do |template|
+            validate_headers!(template.path)
+            @before_rows&.call
+
             CSV.foreach(template.path, headers: true, encoding: 'bom|utf-8').with_index(2) do |row, line_number|
               @total_count += 1
               process_row(row, line_number)
@@ -49,6 +51,21 @@ module Csv
     end
 
     private
+
+    # ヘッダーが不正な場合、行の処理に入る前に通常の行エラーと同じ経路(CsvImportError)でfailedにする。
+    # row_number: 1はヘッダー行(1行目)を指す。
+    def validate_headers!(path)
+      Csv::HeaderValidator.new(path, @form_class).call
+    rescue Csv::Errors::InvalidHeader => e
+      @errors << {
+        import_history_id: @import_history.id,
+        row_number: 1,
+        message: e.message,
+        created_at: Time.current,
+        updated_at: Time.current
+      }
+      raise CsvImportError
+    end
 
     def process_row(row, line_number)
       form = @form_class.from_csv_row(row, **@form_context)

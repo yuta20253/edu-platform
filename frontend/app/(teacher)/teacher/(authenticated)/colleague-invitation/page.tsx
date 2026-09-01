@@ -1,5 +1,5 @@
-import { ColleagueInvitation } from "@/features/ColleagueInvitation";
+import { TeacherInvitation } from "@/features/teacher/TeacherInvitation";
 
 export default function ColleagueInvitationPage() {
-  return <ColleagueInvitation />;
+  return <TeacherInvitation />;
 }

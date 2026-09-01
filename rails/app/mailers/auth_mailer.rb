@@ -19,4 +19,14 @@ class AuthMailer < Devise::Mailer
       body: "edu platform に招待されました。\n以下のリンクからパスワードを設定してください。\n\n#{url}"
     )
   end
+
+  def account_claimed(user, original_email)
+    mail(
+      to: original_email,
+      subject: '[edu platform] アカウントが有効化されました',
+      body: "登録されていたアカウント(#{original_email})が、以下のメールアドレスで有効化されました。\n\n" \
+            "有効化されたメールアドレス: #{user.email}\n\n" \
+            'この操作に心当たりがない場合は、学校または管理者にお問い合わせください。'
+    )
+  end
 end

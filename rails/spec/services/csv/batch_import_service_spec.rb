@@ -11,6 +11,9 @@ class BatchImportServiceSpecFakeForm
   attribute :name, :string
   validates :name, presence: true
 
+  # nameのみ必須。ageのような任意項目や、想定外の余分な列があってもよいことを表す。
+  REQUIRED_HEADERS = %w[name].freeze
+
   def self.from_csv_row(row)
     new(name: row['name'])
   end
@@ -93,6 +96,42 @@ RSpec.describe Csv::BatchImportService, type: :service do
         import_history.reload
         expect(import_history.status).to eq('failed')
         expect(import_history.finished_at).to be_present
+      end
+    end
+
+    context 'ヘッダーに必須列(name)が含まれない場合' do
+      let(:csv_content) { "other\nAlice\n" }
+
+      it '行の処理・before_rowsを行わずImportErrorを1件記録しfailedになる' do
+        calls = []
+        row_importer = ->(form) { calls << form.name }
+        before_rows = -> { calls << :before }
+
+        expect { runner(row_importer: row_importer, before_rows: before_rows).call }
+          .to change(ImportError, :count).by(1)
+
+        expect(calls).to eq([])
+        import_history.reload
+        expect(import_history.status).to eq('failed')
+        expect(import_history.total_count).to eq(0)
+        expect(import_history.error_count).to eq(1)
+
+        error = import_history.import_errors.first
+        expect(error.row_number).to eq(1)
+        expect(error.message).to eq('CSVのフォーマットが不正です')
+      end
+    end
+
+    context 'ヘッダーに必須列(name)が含まれ、想定外の列も含む場合' do
+      let(:csv_content) { "name,unknown\nAlice,x\n" }
+
+      it '想定外の列は無視され正常に処理される' do
+        row_importer = ->(form) { HighSchool.create!(name: form.name, prefecture: prefecture) }
+
+        expect { runner(row_importer: row_importer).call }.to change(HighSchool, :count).by(1)
+
+        import_history.reload
+        expect(import_history.status).to eq('completed')
       end
     end
 
