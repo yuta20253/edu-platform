@@ -54,15 +54,38 @@ describe("useCourseAssignments", () => {
     const { result } = renderHook(() => useCourseAssignments(1));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
+    let succeeded: boolean | undefined;
     await act(async () => {
-      await result.current.handleAssign(10);
+      succeeded = await result.current.handleAssign(10);
     });
 
+    expect(succeeded).toBe(true);
     expect(apiClient.post).toHaveBeenCalledWith(
       "/api/admin/schools/1/course_assignments",
       { course_id: 10 },
     );
     expect(apiClient.get).toHaveBeenCalledTimes(2);
+  });
+
+  it("コース割当が失敗した場合はfalseを返しエラーをセットする", async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: { course_assignments: [] },
+    });
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 422, data: { errors: ["既に割り当てられています"] } },
+    });
+
+    const { result } = renderHook(() => useCourseAssignments(1));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let succeeded: boolean | undefined;
+    await act(async () => {
+      succeeded = await result.current.handleAssign(10);
+    });
+
+    expect(succeeded).toBe(false);
+    expect(result.current.mutationErrors).toEqual(["既に割り当てられています"]);
+    expect(apiClient.get).toHaveBeenCalledTimes(1);
   });
 
   it("割当を解除すると一覧が再取得される", async () => {

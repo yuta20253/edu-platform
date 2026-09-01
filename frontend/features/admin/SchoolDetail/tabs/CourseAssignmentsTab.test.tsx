@@ -101,6 +101,33 @@ describe("CourseAssignmentsTab", () => {
     );
   });
 
+  it("割当に失敗した場合は選択UIを閉じずエラーを表示する", async () => {
+    vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.includes("/course_assignments"))
+        return Promise.resolve({ data: { course_assignments: [] } });
+      return Promise.resolve(courseOptionsResponse);
+    });
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 422, data: { errors: ["既に割り当てられています"] } },
+    });
+
+    render(<CourseAssignmentsTab schoolId={1} />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "コースを割り当てる" }),
+    );
+    fireEvent.mouseDown(screen.getByRole("combobox"));
+    fireEvent.click(screen.getByRole("option", { name: "数学 基礎" }));
+    fireEvent.click(screen.getByRole("button", { name: "割り当てる" }));
+
+    expect(
+      await screen.findByText("既に割り当てられています"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "割り当てる" }),
+    ).toBeInTheDocument();
+  });
+
   it("解除ボタンでAPIが呼ばれる", async () => {
     vi.mocked(apiClient.get).mockImplementation((url: string) => {
       if (url.includes("/course_assignments"))
