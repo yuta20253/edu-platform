@@ -109,10 +109,18 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
   describe 'POST /api/v1/admin/high_schools/:high_school_id/teachers' do
     let!(:admin_user) { create(:user, :admin, high_school: nil) }
     let!(:school)     { create(:high_school) }
+    let!(:grade)      { create(:grade, high_school: school, year: 1) }
     let(:cookie)      { login_and_get_cookie(admin_user) }
 
     let(:valid_params) do
-      { email: 'tanaka@example.com' }.to_json
+      {
+        name: '田中太郎',
+        email: 'tanaka@example.com',
+        password: 'abc123xyz',
+        grade_scope: 'own_grade',
+        manage_other_teachers: false,
+        grade_ids: [grade.id]
+      }.to_json
     end
 
     context '正常系' do
@@ -127,12 +135,20 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(response).to have_http_status(:created)
       end
 
-      it '作成した teacher オブジェクトが返される' do
+      it '作成した teacher オブジェクトが指定した項目で返される' do
         subject
         teacher_data = response.parsed_body['teacher']
         expect(teacher_data.keys).to include('id', 'name', 'email', 'grade_scope', 'manage_other_teachers', 'grades')
-        expect(teacher_data['name']).to eq('tanaka')
+        expect(teacher_data['name']).to eq('田中太郎')
         expect(teacher_data['email']).to eq('tanaka@example.com')
+        expect(teacher_data['grade_scope']).to eq('own_grade')
+        expect(teacher_data['manage_other_teachers']).to be(false)
+      end
+
+      it '指定した password でログインできる' do
+        subject
+        user = User.find_by(email: 'tanaka@example.com')
+        expect(user.valid_password?('abc123xyz')).to be(true)
       end
     end
 
@@ -151,6 +167,26 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
              params: valid_params,
              headers: headers.merge('Cookie' => cookie)
         expect(response.parsed_body).to have_key('errors')
+      end
+    end
+
+    context '異常系 - パスワードが短すぎる' do
+      let(:invalid_params) do
+        {
+          name: '田中太郎',
+          email: 'tanaka@example.com',
+          password: 'abc12',
+          grade_scope: 'own_grade',
+          manage_other_teachers: false,
+          grade_ids: [grade.id]
+        }.to_json
+      end
+
+      it '422が返される' do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: invalid_params,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
