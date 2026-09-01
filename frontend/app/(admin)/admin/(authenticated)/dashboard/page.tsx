@@ -1,5 +1,5 @@
-import { AdminDashboard } from "@/features/AdminDashboard";
+import { Dashboard } from "@/features/admin/Dashboard";
 
-const DashboardPage = () => <AdminDashboard />;
+const DashboardPage = () => <Dashboard />;
 
 export default DashboardPage;

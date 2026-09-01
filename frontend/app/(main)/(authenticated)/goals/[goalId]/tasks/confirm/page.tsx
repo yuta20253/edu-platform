@@ -1,4 +1,4 @@
-import { CreateTaskConfirm } from "@features/CreateTaskConfirm";
+import { CreateTaskConfirm } from "@features/student/CreateTaskConfirm";
 
 type CreateTaskConfirmPageProps = {
   params: Promise<{ goalId: string }>;

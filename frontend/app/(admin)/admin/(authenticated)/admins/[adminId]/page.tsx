@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { getMeFromRails } from "@/libs/server/me";
 import { getPrefectures } from "@/libs/server/prefectures";
-import { AdminAdminDetail } from "@/features/AdminAdminDetail";
+import { AdminDetail } from "@/features/admin/AdminDetail";
 
 type Props = {
   params: Promise<{ adminId: string }>;
@@ -22,7 +22,7 @@ const AdminAdminDetailPage = async ({ params }: Props) => {
   const prefectures = await getPrefectures(cookieHeader);
 
   return (
-    <AdminAdminDetail
+    <AdminDetail
       adminId={Number(adminId)}
       currentAdminId={me?.id ?? null}
       prefectures={prefectures}

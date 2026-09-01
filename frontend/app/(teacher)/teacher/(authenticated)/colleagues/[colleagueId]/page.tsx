@@ -1,4 +1,4 @@
-import { ColleagueDetail } from "@/features/ColleagueDetail";
+import { TeacherDetail } from "@/features/teacher/TeacherDetail";
 
 type Props = {
   params: Promise<{ colleagueId: string }>;
@@ -6,5 +6,5 @@ type Props = {
 
 export default async function ColleaguePage({ params }: Props) {
   const { colleagueId } = await params;
-  return <ColleagueDetail colleagueId={Number(colleagueId)} />;
+  return <TeacherDetail teacherId={Number(colleagueId)} />;
 }

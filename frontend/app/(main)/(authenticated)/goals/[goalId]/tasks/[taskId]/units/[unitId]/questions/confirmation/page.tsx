@@ -1,4 +1,4 @@
-import { QuestionConfirmation } from "@/features/QuestionConfirmation";
+import { QuestionConfirmation } from "@/features/student/QuestionConfirmation";
 
 type Props = {
   params: Promise<{ goalId: string; taskId: string; unitId: string }>;
