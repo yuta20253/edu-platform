@@ -20,6 +20,12 @@ describe("dateToParam", () => {
   it("nullの場合は空文字を返す", () => {
     expect(dateToParam(null)).toBe("");
   });
+
+  it("Invalid Dateの場合は空文字を返す", () => {
+    // DatePickerで日付を入力中、桁が揃うまでの間はInvalid Dateが
+    // 渡ってくることがある（例: "01"を入力しようとして"0"だけ打った瞬間）。
+    expect(dateToParam(new Date(NaN))).toBe("");
+  });
 });
 
 describe("formatDateTime", () => {

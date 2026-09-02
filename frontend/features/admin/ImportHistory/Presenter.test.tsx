@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
 import type { ImportHistoriesData } from "./types";
@@ -394,5 +395,24 @@ describe("ImportHistoryPresenter", () => {
     expect(
       screen.getByText("インポート履歴が見つかりません"),
     ).toBeInTheDocument();
+  });
+
+  it("開始日欄に1文字ずつ日付を入力しても例外にならず、確定した日付のみでonFromChangeが呼ばれる", async () => {
+    // "1111/11/01"の"日"を1桁目("0")まで入力した時点では、DatePickerの
+    // 内部状態がInvalid Dateになりonchangeへ渡ってくる。以前はこれを
+    // そのままdateToParamに渡していたため、途中でRangeErrorが発生し
+    // 日付欄の表示が崩れていた（テストされていなかった不具合）。
+    const onFromChange = vi.fn();
+    const user = userEvent.setup();
+    render(<Presenter {...defaultProps} onFromChange={onFromChange} />);
+
+    const field = screen.getByRole("group", { name: /開始日/ });
+    await user.click(field);
+    for (const digit of "11111101") {
+      await user.keyboard(digit);
+    }
+
+    expect(onFromChange).toHaveBeenCalledTimes(1);
+    expect(onFromChange).toHaveBeenCalledWith("1111-11-01");
   });
 });

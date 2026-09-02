@@ -41,7 +41,15 @@ import {
   type UnitOption,
   type UserOption,
 } from "./types";
+import { isValid } from "date-fns";
 import { dateToInput, dateToParam, formatDateTime } from "./dateUtils";
+
+// DatePickerは日付欄が入力途中の間、"01"を入力しようとして"0"だけ打った瞬間
+// のように、まだ確定していないInvalid Dateをonchangeへ渡してくることがある。
+// これをそのままフィルタへ反映すると、入力中に無効な状態が確定してしまい
+// 検索が実行された上に日付欄の表示も乱れるため、確定した値(null または
+// 有効なDate)のときだけ反映する。
+const isCommittedDate = (date: Date | null) => !date || isValid(date);
 
 type Props = {
   data: ImportHistoriesData;
@@ -312,7 +320,9 @@ export const Presenter = ({
             format="yyyy/MM/dd"
             value={fromDate}
             maxDate={toDate ?? undefined}
-            onChange={(date) => onFromChange(dateToParam(date))}
+            onChange={(date) => {
+              if (isCommittedDate(date)) onFromChange(dateToParam(date));
+            }}
             slotProps={{
               textField: {
                 size: "small",
@@ -326,7 +336,9 @@ export const Presenter = ({
             format="yyyy/MM/dd"
             value={toDate}
             minDate={fromDate ?? undefined}
-            onChange={(date) => onToChange(dateToParam(date))}
+            onChange={(date) => {
+              if (isCommittedDate(date)) onToChange(dateToParam(date));
+            }}
             slotProps={{
               textField: {
                 size: "small",
