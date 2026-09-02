@@ -17,24 +17,26 @@ module Student
       password = SecureRandom.hex(16)
       role = UserRole.find_by!(name: :student)
 
-      user = User.new(
-        name: @name,
-        name_kana: @name_kana,
-        email: @email,
-        user_role: role,
-        high_school: @high_school,
-        grade: @grade,
-        school_class: @school_class,
-        password: password,
-        password_confirmation: password,
-        password_reset_required: true
-      )
-      user.generate_student_number
-      user.save!
+      ActiveRecord::Base.transaction do
+        user = User.new(
+          name: @name,
+          name_kana: @name_kana,
+          email: @email,
+          user_role: role,
+          high_school: @high_school,
+          grade: @grade,
+          school_class: @school_class,
+          password: password,
+          password_confirmation: password,
+          password_reset_required: true
+        )
+        user.generate_student_number
+        user.save!
 
-      invite(user)
+        invite(user)
 
-      user
+        user
+      end
     end
 
     private

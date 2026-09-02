@@ -55,5 +55,20 @@ RSpec.describe Student::CreateAccountService, type: :service do
     it '招待メールが送信される' do
       expect { service.call }.to have_enqueued_mail(AuthMailer, :invite_user)
     end
+
+    context '招待メール送信で例外が発生した場合' do
+      before do
+        allow(AuthMailer).to receive(:invite_user).and_raise(StandardError, 'メール失敗')
+      end
+
+      it 'Userの作成もロールバックされる' do
+        expect { service.call }.to raise_error(StandardError)
+        expect(User.count).to eq(0)
+      end
+
+      it '例外がそのまま呼び出し元に伝播する' do
+        expect { service.call }.to raise_error(StandardError, 'メール失敗')
+      end
+    end
   end
 end
