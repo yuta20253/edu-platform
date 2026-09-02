@@ -273,6 +273,32 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
 
+    context '異常系 - grade_scope が不正な値' do
+      let(:invalid_params) do
+        {
+          name: '更新太郎',
+          email: 'updated@example.com',
+          grade_scope: 'invalid_scope',
+          manage_other_teachers: true,
+          grade_ids: [grade1.id, grade2.id]
+        }.to_json
+      end
+
+      it '500ではなく422が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: invalid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'errors キーが含まれる' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: invalid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body).to have_key('errors')
+      end
+    end
+
     context '異常系 - 対象教師が存在しない' do
       it '404が返される' do
         patch "/api/v1/admin/high_schools/#{school.id}/teachers/0",
