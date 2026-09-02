@@ -29,7 +29,7 @@ module Teacher
     end
 
     def create_new_user
-      Student::CreateAccountService.new(
+      Student::CreateStudentService.new(
         name: @form.name,
         name_kana: @form.name_kana,
         email: @form.email,

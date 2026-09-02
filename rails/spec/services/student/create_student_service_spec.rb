@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Student::CreateAccountService, type: :service do
+RSpec.describe Student::CreateStudentService, type: :service do
   subject(:service) do
     described_class.new(
       name: '山田太郎',

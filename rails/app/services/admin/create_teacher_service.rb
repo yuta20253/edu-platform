@@ -1,32 +1,32 @@
 # frozen_string_literal: true
 
 module Admin
-  class CreateTeacherService
+  class CreateTeacherService < Common::CreateUserService
     def initialize(school:, email:)
+      super()
       @school = school
       @email = email
     end
 
-    def call
-      ActiveRecord::Base.transaction do
-        teacher_role = UserRole.find_or_create_by!(name: :teacher)
-        password = SecureRandom.hex(16)
-        user = User.create!(
-          name: @email.split('@').first,
-          email: @email,
-          password: password,
-          password_confirmation: password,
-          user_role: teacher_role,
-          high_school: @school
-        )
+    private
 
-        user.create_teacher_permission!(grade_scope: :own_grade, manage_other_teachers: true)
+    def role_name
+      :teacher
+    end
 
-        token = user.send(:set_reset_password_token)
-        AuthMailer.invite_user(user, token).deliver_later
+    def build_user(role, password)
+      User.new(
+        name: @email.split('@').first,
+        email: @email,
+        user_role: role,
+        high_school: @school,
+        password: password,
+        password_confirmation: password
+      )
+    end
 
-        user.reload
-      end
+    def after_create(user)
+      user.create_teacher_permission!(grade_scope: :own_grade, manage_other_teachers: true)
     end
   end
 end
