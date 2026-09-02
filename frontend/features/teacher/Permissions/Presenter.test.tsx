@@ -11,7 +11,7 @@ import { usePermissionForm } from "./hooks/usePermissionForm";
 import type {
   PermissionTeacher,
   SnackbarState,
-  TeacherPermissionsData,
+  PermissionsData,
 } from "./types";
 
 vi.mock("next/link", () => ({
@@ -24,7 +24,7 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-const currentUser: TeacherPermissionsData["current_user"] = {
+const currentUser: PermissionsData["current_user"] = {
   id: 1,
   name: "山田太郎",
   name_kana: "ヤマダタロウ",
@@ -58,7 +58,7 @@ const teachers: PermissionTeacher[] = [
   },
 ];
 
-const mockData: TeacherPermissionsData = {
+const mockData: PermissionsData = {
   current_user: currentUser,
   teachers,
   meta: { current_page: 1, total_pages: 1, total_count: 2, per_page: 20 },

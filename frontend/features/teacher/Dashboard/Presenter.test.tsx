@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
-import type { TeacherDashboardData } from "./types";
+import type { DashboardData } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -13,7 +13,7 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-const mockData: TeacherDashboardData = {
+const mockData: DashboardData = {
   stats: {
     grade_one_students_count: 10,
     grade_two_students_count: 8,

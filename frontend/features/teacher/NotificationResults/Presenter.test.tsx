@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { Presenter } from "./Presenter";
-import type { TeacherNotificationResultsData } from "./types";
+import type { NotificationResultsData } from "./types";
 
-const mockData: TeacherNotificationResultsData = [
+const mockData: NotificationResultsData = [
   {
     id: 1,
     email: "sato@example.com",
