@@ -1,30 +1,28 @@
 # frozen_string_literal: true
 
 module Admin
-  class CreateAdminService
+  class CreateAdminService < Common::CreateUserService
     def initialize(name:, email:)
+      super()
       @name = name
       @email = email
     end
 
-    def call
-      ActiveRecord::Base.transaction do
-        role = UserRole.find_or_create_by!(name: :admin)
-        password = SecureRandom.hex(16)
-        user = User.create!(
-          name: @name.presence || @email.to_s.split('@').first,
-          email: @email,
-          password: password,
-          password_confirmation: password,
-          user_role: role,
-          password_reset_required: true
-        )
+    private
 
-        token = user.send(:set_reset_password_token)
-        AuthMailer.invite_teacher(user, token).deliver_later
+    def role_name
+      :admin
+    end
 
-        user
-      end
+    def build_user(role, password)
+      User.new(
+        name: @name.presence || @email.to_s.split('@').first,
+        email: @email,
+        user_role: role,
+        password: password,
+        password_confirmation: password,
+        password_reset_required: true
+      )
     end
   end
 end

@@ -47,6 +47,10 @@ module RailsApp
     config.time_zone = "Asia/Tokyo"
     config.active_record.default_timezone = :utc
 
+    # DBトランザクション内でenqueueされたジョブ(招待メール送信など)を、
+    # コミット後まで遅延させる。ロールバック時は送信自体が行われなくなる。
+    config.active_job.enqueue_after_transaction_commit = :always
+
     # Cookie を使う
     config.middleware.use ActionDispatch::Cookies
 
