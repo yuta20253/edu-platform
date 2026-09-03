@@ -18,11 +18,13 @@ module Api
 
         def create
           school = HighSchool.find(params[:high_school_id])
-          user = ::Admin::CreateTeacherService.new(school: school, email: create_params[:email]).call
+          user = ::Admin::CreateTeacherService.new(school: school, attributes: create_params).call
 
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :created
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+        rescue ArgumentError => e
+          render json: { errors: [e.message] }, status: :unprocessable_content
         end
 
         def update
@@ -33,12 +35,15 @@ module Api
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+        rescue ArgumentError => e
+          render json: { errors: [e.message] }, status: :unprocessable_content
         end
 
         private
 
         def create_params
-          params.permit(:email)
+          params.permit(:name, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
+                .to_h.symbolize_keys
         end
 
         def update_params

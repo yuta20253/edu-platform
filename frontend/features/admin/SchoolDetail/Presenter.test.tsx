@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { apiClient } from "@/libs/http/apiClient";
 import { Presenter } from "./Presenter";
 import type { SchoolDetail } from "./types";
 
@@ -11,6 +12,15 @@ vi.mock("next/link", () => ({
     children: React.ReactNode;
     href: string;
   }) => <a href={href}>{children}</a>,
+}));
+
+const routerMock = { push: vi.fn() };
+vi.mock("next/navigation", () => ({
+  useRouter: () => routerMock,
+}));
+
+vi.mock("@/libs/http/apiClient", () => ({
+  apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
 const mockSchool: SchoolDetail = {
@@ -26,6 +36,30 @@ const defaultProps = {
 };
 
 describe("SchoolDetailPresenter", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // 各タブが叩くエンドポイントは空データを返す既定値にしておく
+    vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.includes("/teachers"))
+        return Promise.resolve({ data: { teachers: [] } });
+      if (url.includes("/grades"))
+        return Promise.resolve({ data: { grades: [] } });
+      if (url.includes("/announcements"))
+        return Promise.resolve({
+          data: {
+            announcements: [],
+            meta: {
+              current_page: 1,
+              total_pages: 1,
+              total_count: 0,
+              per_page: 20,
+            },
+          },
+        });
+      return Promise.resolve({ data: {} });
+    });
+  });
+
   describe("パンくずナビ", () => {
     it("「高校一覧」リンクが /admin/schools を指している", () => {
       render(<Presenter {...defaultProps} />);
@@ -35,7 +69,6 @@ describe("SchoolDetailPresenter", () => {
 
     it("パンくずに高校名が表示される", () => {
       render(<Presenter {...defaultProps} />);
-      // パンくずの高校名（現在地）はリンクなしのテキストとして存在する
       const breadcrumbItems = screen.getAllByText("東京第一高校");
       expect(breadcrumbItems.length).toBeGreaterThanOrEqual(1);
     });
@@ -51,10 +84,14 @@ describe("SchoolDetailPresenter", () => {
   });
 
   describe("タブ", () => {
-    it("「概要」「教師管理」タブが表示される", () => {
+    it("4つのタブが表示される", () => {
       render(<Presenter {...defaultProps} />);
       expect(screen.getByRole("tab", { name: "概要" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "教師管理" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("tab", { name: "学年・クラス" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "お知らせ" })).toBeInTheDocument();
     });
 
     it("初期表示では「概要」タブが選択されている", () => {
@@ -68,6 +105,20 @@ describe("SchoolDetailPresenter", () => {
       const teacherTab = screen.getByRole("tab", { name: "教師管理" });
       fireEvent.click(teacherTab);
       expect(teacherTab).toHaveAttribute("aria-selected", "true");
+    });
+
+    it("「学年・クラス」タブをクリックすると選択状態が切り替わる", () => {
+      render(<Presenter {...defaultProps} />);
+      const gradesTab = screen.getByRole("tab", { name: "学年・クラス" });
+      fireEvent.click(gradesTab);
+      expect(gradesTab).toHaveAttribute("aria-selected", "true");
+    });
+
+    it("「お知らせ」タブをクリックすると選択状態が切り替わる", () => {
+      render(<Presenter {...defaultProps} />);
+      const announcementsTab = screen.getByRole("tab", { name: "お知らせ" });
+      fireEvent.click(announcementsTab);
+      expect(announcementsTab).toHaveAttribute("aria-selected", "true");
     });
   });
 
@@ -89,11 +140,31 @@ describe("SchoolDetailPresenter", () => {
   });
 
   describe("教師管理タブ", () => {
-    it("タブ切り替え後に「最初の教師を追加する」ボタンが表示される", () => {
+    it("タブ切り替え後に「最初の教師を追加する」ボタンが表示される", async () => {
       render(<Presenter {...defaultProps} />);
       fireEvent.click(screen.getByRole("tab", { name: "教師管理" }));
       expect(
-        screen.getByRole("button", { name: "最初の教師を追加する" }),
+        await screen.findByRole("button", { name: "最初の教師を追加する" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("学年・クラスタブ", () => {
+    it("タブ切り替え後に空状態メッセージが表示される", async () => {
+      render(<Presenter {...defaultProps} />);
+      fireEvent.click(screen.getByRole("tab", { name: "学年・クラス" }));
+      expect(
+        await screen.findByText("学年が登録されていません"),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("お知らせタブ", () => {
+    it("タブ切り替え後に空状態メッセージが表示される", async () => {
+      render(<Presenter {...defaultProps} />);
+      fireEvent.click(screen.getByRole("tab", { name: "お知らせ" }));
+      expect(
+        await screen.findByText("お知らせがありません"),
       ).toBeInTheDocument();
     });
   });
