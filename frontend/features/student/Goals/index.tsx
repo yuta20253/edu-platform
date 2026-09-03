@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress } from "@mui/material";
 import { Presenter } from "./Presenter";
-import { useGetGoals } from "./hools";
+import { useGetGoals } from "./hooks";
 
 export const Goals = () => {
   const { data, page, setPage, loading, error } = useGetGoals();

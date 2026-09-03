@@ -145,9 +145,9 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
 
       it '招待メールが送信される' do
-        allow(AuthMailer).to receive(:invite_teacher).and_call_original
+        allow(AuthMailer).to receive(:invite_user).and_call_original
         subject
-        expect(AuthMailer).to have_received(:invite_teacher)
+        expect(AuthMailer).to have_received(:invite_user)
       end
     end
 

@@ -27,7 +27,7 @@ RSpec.describe Teacher::TeacherNotificationJob, type: :job do
         mailer = instance_double(ActionMailer::MessageDelivery)
 
         allow(AuthMailer)
-          .to receive(:invite_teacher)
+          .to receive(:invite_user)
           .and_return(mailer)
 
         allow(mailer)
@@ -48,7 +48,7 @@ RSpec.describe Teacher::TeacherNotificationJob, type: :job do
         expect(notification.status).to eq('sent')
         expect(receiver.reload.password_reset_required).to be(false)
 
-        expect(AuthMailer).to have_received(:invite_teacher).with(receiver, anything)
+        expect(AuthMailer).to have_received(:invite_user).with(receiver, anything)
         expect(mailer).to have_received(:deliver_now)
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe Teacher::TeacherNotificationJob, type: :job do
         mailer = instance_double(ActionMailer::MessageDelivery)
 
         allow(AuthMailer)
-          .to receive(:invite_teacher)
+          .to receive(:invite_user)
           .and_return(mailer)
 
         allow(mailer)

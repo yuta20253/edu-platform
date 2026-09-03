@@ -60,9 +60,9 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
     end
 
     it '招待メールを送信する' do
-      allow(AuthMailer).to receive(:invite_teacher).and_call_original
+      allow(AuthMailer).to receive(:invite_user).and_call_original
       service.call
-      expect(AuthMailer).to have_received(:invite_teacher)
+      expect(AuthMailer).to have_received(:invite_user)
     end
   end
 
