@@ -117,9 +117,24 @@ export const Presenter = ({ data }: Props) => {
           sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
         >
           <CardContent>
-            <Typography fontWeight={600} sx={{ mb: 2 }}>
-              最近のCSVインポート
-            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 2,
+              }}
+            >
+              <Typography fontWeight={600}>最近のCSVインポート</Typography>
+              <Typography
+                component={Link}
+                href="/admin/csv-import/history"
+                variant="body2"
+                sx={{ color: colors.brand.primary, textDecoration: "none" }}
+              >
+                すべて見る
+              </Typography>
+            </Box>
             {recent_imports.length === 0 ? (
               <Typography
                 color="text.secondary"
