@@ -168,215 +168,208 @@ export const Presenter = ({
           display: "flex",
           flexWrap: "wrap",
           alignItems: "flex-start",
-          justifyContent: "space-between",
           gap: 1.25,
-          mb: 3,
+          mb: 1.5,
           p: 1.5,
           bgcolor: flat.filterBg,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "flex-start",
-            gap: 1.25,
-          }}
-        >
-          <FormControl size="small" sx={{ minWidth: 110, ...compactFieldSx }}>
-            <InputLabel id="import-history-status-label">ステータス</InputLabel>
-            <Select
-              labelId="import-history-status-label"
-              label="ステータス"
-              value={filters.status}
-              onChange={(e) =>
-                onStatusChange(e.target.value as ImportHistoryStatus | "")
-              }
-              endAdornment={
-                filters.status && (
-                  <InputAdornment position="end" sx={{ mr: 2 }}>
-                    <IconButton
-                      aria-label="ステータスをクリア"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStatusChange("");
-                      }}
-                    >
-                      <ClearIcon fontSize="inherit" />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            >
-              <MenuItem value="">すべて</MenuItem>
-              {STATUS_OPTIONS.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
-            <InputLabel id="import-history-course-label">コース</InputLabel>
-            <Select
-              labelId="import-history-course-label"
-              label="コース"
-              value={filters.courseId}
-              onChange={(e) => onCourseChange(e.target.value)}
-              endAdornment={
-                filters.courseId && (
-                  <InputAdornment position="end" sx={{ mr: 2 }}>
-                    <IconButton
-                      aria-label="コースをクリア"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onCourseChange("");
-                      }}
-                    >
-                      <ClearIcon fontSize="inherit" />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            >
-              <MenuItem value="">すべて</MenuItem>
-              {courseOptions.map((course) => (
-                <MenuItem key={course.id} value={String(course.id)}>
-                  {course.level_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
-            <InputLabel id="import-history-unit-label">単元</InputLabel>
-            <Select
-              labelId="import-history-unit-label"
-              label="単元"
-              value={filters.unitId}
-              onChange={(e) => onUnitChange(e.target.value)}
-              endAdornment={
-                filters.unitId && (
-                  <InputAdornment position="end" sx={{ mr: 2 }}>
-                    <IconButton
-                      aria-label="単元をクリア"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUnitChange("");
-                      }}
-                    >
-                      <ClearIcon fontSize="inherit" />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            >
-              <MenuItem value="">すべて</MenuItem>
-              {unitOptions.map((unit) => (
-                <MenuItem key={unit.id} value={String(unit.id)}>
-                  {unit.unit_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
-            <InputLabel id="import-history-user-label">実行者</InputLabel>
-            <Select
-              labelId="import-history-user-label"
-              label="実行者"
-              value={filters.userId}
-              onChange={(e) => onUserChange(e.target.value)}
-              endAdornment={
-                filters.userId && (
-                  <InputAdornment position="end" sx={{ mr: 2 }}>
-                    <IconButton
-                      aria-label="実行者をクリア"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUserChange("");
-                      }}
-                    >
-                      <ClearIcon fontSize="inherit" />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            >
-              <MenuItem value="">すべて</MenuItem>
-              {userOptions.map((user) => (
-                <MenuItem key={user.id} value={String(user.id)}>
-                  {user.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={ja}
-            localeText={
-              jaJP.components.MuiLocalizationProvider.defaultProps.localeText
+        <FormControl size="small" sx={{ minWidth: 110, ...compactFieldSx }}>
+          <InputLabel id="import-history-status-label">ステータス</InputLabel>
+          <Select
+            labelId="import-history-status-label"
+            label="ステータス"
+            value={filters.status}
+            onChange={(e) =>
+              onStatusChange(e.target.value as ImportHistoryStatus | "")
+            }
+            endAdornment={
+              filters.status && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="ステータスをクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStatusChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
             }
           >
-            <DatePicker
-              label="開始日"
-              format="yyyy/MM/dd"
-              value={fromDate}
-              maxDate={toDate ?? undefined}
-              onChange={(date) => {
-                if (isCommittedDate(date)) onFromChange(dateToParam(date));
-              }}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  sx: { width: 220, ...compactFieldSx },
-                },
-                field: { clearable: true },
-              }}
-            />
-            <DatePicker
-              label="終了日"
-              format="yyyy/MM/dd"
-              value={toDate}
-              minDate={fromDate ?? undefined}
-              onChange={(date) => {
-                if (isCommittedDate(date)) onToChange(dateToParam(date));
-              }}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  error: dateRangeInvalid,
-                  helperText: dateRangeInvalid
-                    ? "終了日は開始日以降の日付を指定してください"
-                    : undefined,
-                  sx: { width: 220, ...compactFieldSx },
-                },
-                field: { clearable: true },
-              }}
-            />
-          </LocalizationProvider>
+            <MenuItem value="">すべて</MenuItem>
+            {STATUS_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-          {hasActiveFilters && (
-            <Button
-              size="small"
-              onClick={onClearFilters}
-              sx={{
-                color: colors.text.muted,
-                textTransform: "none",
-                fontSize: "0.8125rem",
-              }}
-            >
-              フィルタを全てクリア
-            </Button>
-          )}
-        </Box>
+        <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
+          <InputLabel id="import-history-course-label">コース</InputLabel>
+          <Select
+            labelId="import-history-course-label"
+            label="コース"
+            value={filters.courseId}
+            onChange={(e) => onCourseChange(e.target.value)}
+            endAdornment={
+              filters.courseId && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="コースをクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCourseChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
+          >
+            <MenuItem value="">すべて</MenuItem>
+            {courseOptions.map((course) => (
+              <MenuItem key={course.id} value={String(course.id)}>
+                {course.level_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
+        <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
+          <InputLabel id="import-history-unit-label">単元</InputLabel>
+          <Select
+            labelId="import-history-unit-label"
+            label="単元"
+            value={filters.unitId}
+            onChange={(e) => onUnitChange(e.target.value)}
+            endAdornment={
+              filters.unitId && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="単元をクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUnitChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
+          >
+            <MenuItem value="">すべて</MenuItem>
+            {unitOptions.map((unit) => (
+              <MenuItem key={unit.id} value={String(unit.id)}>
+                {unit.unit_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 130, ...compactFieldSx }}>
+          <InputLabel id="import-history-user-label">実行者</InputLabel>
+          <Select
+            labelId="import-history-user-label"
+            label="実行者"
+            value={filters.userId}
+            onChange={(e) => onUserChange(e.target.value)}
+            endAdornment={
+              filters.userId && (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    aria-label="実行者をクリア"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUserChange("");
+                    }}
+                  >
+                    <ClearIcon fontSize="inherit" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
+          >
+            <MenuItem value="">すべて</MenuItem>
+            {userOptions.map((user) => (
+              <MenuItem key={user.id} value={String(user.id)}>
+                {user.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <LocalizationProvider
+          dateAdapter={AdapterDateFns}
+          adapterLocale={ja}
+          localeText={
+            jaJP.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+        >
+          <DatePicker
+            label="開始日"
+            format="yyyy/MM/dd"
+            value={fromDate}
+            maxDate={toDate ?? undefined}
+            onChange={(date) => {
+              if (isCommittedDate(date)) onFromChange(dateToParam(date));
+            }}
+            slotProps={{
+              textField: {
+                size: "small",
+                sx: { width: 220, ...compactFieldSx },
+              },
+              field: { clearable: true },
+            }}
+          />
+          <DatePicker
+            label="終了日"
+            format="yyyy/MM/dd"
+            value={toDate}
+            minDate={fromDate ?? undefined}
+            onChange={(date) => {
+              if (isCommittedDate(date)) onToChange(dateToParam(date));
+            }}
+            slotProps={{
+              textField: {
+                size: "small",
+                error: dateRangeInvalid,
+                helperText: dateRangeInvalid
+                  ? "終了日は開始日以降の日付を指定してください"
+                  : undefined,
+                sx: { width: 220, ...compactFieldSx },
+              },
+              field: { clearable: true },
+            }}
+          />
+        </LocalizationProvider>
+
+        {hasActiveFilters && (
+          <Button
+            size="small"
+            onClick={onClearFilters}
+            sx={{
+              color: colors.text.muted,
+              textTransform: "none",
+              fontSize: "0.8125rem",
+            }}
+          >
+            フィルタを全てクリア
+          </Button>
+        )}
+      </Box>
+
+      {/* 表示件数（常にテーブル右上に固定） */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1.5 }}>
         <FormControl size="small" sx={{ minWidth: 90, ...compactFieldSx }}>
           <InputLabel id="import-history-per-page-label">表示件数</InputLabel>
           <Select
