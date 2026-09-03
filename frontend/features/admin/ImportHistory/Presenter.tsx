@@ -326,7 +326,7 @@ export const Presenter = ({
             slotProps={{
               textField: {
                 size: "small",
-                sx: { width: 190, ...compactFieldSx },
+                sx: { width: 220, ...compactFieldSx },
               },
               field: { clearable: true },
             }}
@@ -346,7 +346,7 @@ export const Presenter = ({
                 helperText: dateRangeInvalid
                   ? "終了日は開始日以降の日付を指定してください"
                   : undefined,
-                sx: { width: 190, ...compactFieldSx },
+                sx: { width: 220, ...compactFieldSx },
               },
               field: { clearable: true },
             }}
