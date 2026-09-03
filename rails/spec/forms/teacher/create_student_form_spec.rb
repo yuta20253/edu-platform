@@ -182,12 +182,6 @@ RSpec.describe Teacher::CreateStudentForm, type: :model do
         expect(student.student_number).to be_present
         expect(student.student_number).to start_with(high_school.school_code)
       end
-
-      it 'form.studentで作成した生徒を取得できること' do
-        save
-
-        expect(form.student).to eq(User.find_by(email: 'yamada@example.com'))
-      end
     end
 
     context '入力値が不正な場合' do
@@ -197,7 +191,6 @@ RSpec.describe Teacher::CreateStudentForm, type: :model do
         expect { save }.not_to change(User, :count)
 
         expect(save).to be false
-        expect(form.student).to be_nil
       end
     end
 

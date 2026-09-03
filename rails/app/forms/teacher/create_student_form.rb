@@ -15,7 +15,6 @@ module Teacher
     attribute :school_class_id, :integer
 
     attr_accessor :current_user
-    attr_reader :student
 
     validates :name, presence: true
     validates :name_kana, presence: true, format: {
@@ -38,7 +37,7 @@ module Teacher
     def save
       return false unless valid?
 
-      @student = Student::CreateStudentService.new(
+      Student::CreateStudentService.new(
         name: name,
         name_kana: name_kana,
         email: email,
