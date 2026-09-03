@@ -5,6 +5,7 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include GradeScopeValidatable
 
     require 'csv'
 
@@ -37,7 +38,6 @@ module Teacher
     validates :school_class_name, presence: true
     validate :grade_must_exist
     validate :school_class_must_exist
-    validate :grade_must_be_within_teacher_scope
     validate :email_not_duplicated_in_csv
     validate :email_not_used_by_other_high_school
     validate :email_not_used_by_non_student
@@ -111,13 +111,8 @@ module Teacher
       errors.add(:school_class_name, 'に該当する学級が見つかりません') if school_class.nil?
     end
 
-    # own_grade権限の教員は、自分の担当学年以外の生徒をインポートできない。
-    def grade_must_be_within_teacher_scope
-      # gradeが見つからない場合はgrade_must_existのエラーに任せる
-      return if grade.nil? || current_user.blank?
-      return unless current_user.teacher_permission&.own_grade?
-
-      errors.add(:grade_name, 'は担当学年ではないため登録できません') if grade.id != current_user.grade_id
+    def grade_scope_error_attribute
+      :grade_name
     end
 
     def email_not_duplicated_in_csv

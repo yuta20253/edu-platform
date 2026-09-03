@@ -5,6 +5,7 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include GradeScopeValidatable
 
     KATAKANA_REGEX = /\A[\p{katakana}ー・\s　]+\z/
 
@@ -27,7 +28,6 @@ module Teacher
 
     validate :grade_must_exist
     validate :school_class_must_exist
-    validate :grade_must_be_within_teacher_scope
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -85,12 +85,8 @@ module Teacher
       errors.add(:school_class_id, 'は学年に存在しません') if school_class.nil?
     end
 
-    def grade_must_be_within_teacher_scope
-      # gradeが見つからない場合はgrade_must_existのエラーに任せる
-      return if grade.nil? || current_user.blank?
-      return unless current_user.teacher_permission&.own_grade?
-
-      errors.add(:grade_id, 'は担当学年ではないため登録できません') if grade.id != current_user.grade_id
+    def grade_scope_error_attribute
+      :grade_id
     end
   end
 end
