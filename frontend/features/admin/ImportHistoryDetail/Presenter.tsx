@@ -149,7 +149,6 @@ export const Presenter = ({
   const warnings = data.warnings ?? [];
   const successes = data.successes ?? [];
 
-  // 成功行はAPIが返さないため、タブのラベルには集計値の success_count を出す。
   const tabRows: Record<DetailTabValue, ImportHistoryDetailRow[]> = {
     errors: data.errors,
     warnings,
@@ -250,7 +249,7 @@ export const Presenter = ({
         >
           <Tab label={`エラー (${data.errors.length})`} value="errors" />
           <Tab label={`警告 (${warnings.length})`} value="warnings" />
-          <Tab label={`成功 (${data.success_count})`} value="successes" />
+          <Tab label={`成功 (${successes.length})`} value="successes" />
         </Tabs>
       </Box>
 

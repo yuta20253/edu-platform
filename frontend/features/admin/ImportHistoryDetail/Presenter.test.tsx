@@ -116,7 +116,23 @@ describe("ImportHistoryDetailPresenter", () => {
         screen.getByRole("tab", { name: "エラー (2)" }),
       ).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "警告 (0)" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "成功 (8)" })).toBeInTheDocument();
+      // 成功行はAPIが返さない（successesは常に空）ため、ラベルの件数は
+      // 集計値のsuccess_countではなく実際の行数(0)と一致させる。
+      // ラベルと中身が食い違うと矛盾した表示になるため。
+      expect(screen.getByRole("tab", { name: "成功 (0)" })).toBeInTheDocument();
+    });
+
+    it("成功行が返された場合はタブのラベルに実際の件数が表示される", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          data={{
+            ...mockData,
+            successes: [{ row_number: 1, message: "登録しました" }],
+          }}
+        />,
+      );
+      expect(screen.getByRole("tab", { name: "成功 (1)" })).toBeInTheDocument();
     });
 
     it("初期表示ではエラータブが選択されている", () => {
