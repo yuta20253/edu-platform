@@ -1,4 +1,4 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { NextResponse } from "next/server";
 
@@ -26,13 +26,6 @@ export async function PATCH(
 
     return nextResponse;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
-    return NextResponse.json(
-      { message: "INTERNAL_SERVER_ERROR" },
-      { status: 500 },
-    );
+    return handleRailsRouteError(error, "学習記録の更新に失敗しました");
   }
 }
