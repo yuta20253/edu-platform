@@ -68,6 +68,32 @@ describe("useQuestion", () => {
     expect(result.current.isAnswered).toBe(true);
   });
 
+  it("解答中に端末時刻が巻き戻ってもtime_spent_secは0未満にならない", async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: { is_correct: true } });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(100_000);
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    dateNowSpy.mockReturnValue(90_000);
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+
+    expect(apiClient.post).toHaveBeenCalledWith("/api/student/answers", {
+      task_id: 5,
+      unit_id: 11,
+      question_id: 1,
+      question_choice_id: 101,
+      time_spent_sec: 0,
+    });
+
+    dateNowSpy.mockRestore();
+  });
+
   it("既に回答済みの問題に回答し直すとapiClient.patchが呼ばれる", async () => {
     vi.mocked(apiClient.patch).mockResolvedValue({
       data: { is_correct: false },

@@ -75,8 +75,9 @@ export const useQuestion = ({
       const alreadyAnswered =
         currentQuestion.answered || answeredQuestionIds.has(currentQuestion.id);
 
-      const timeSpentSec = Math.round(
-        (Date.now() - questionStartedAtRef.current) / 1000,
+      const timeSpentSec = Math.max(
+        0,
+        Math.round((Date.now() - questionStartedAtRef.current) / 1000),
       );
 
       const payload = {
