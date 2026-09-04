@@ -137,7 +137,11 @@ describe("useFetchHistoryDetail", () => {
         { responseType: "blob" },
       );
       expect(clickMock).toHaveBeenCalledTimes(1);
-      expect(revokeObjectURLMock).toHaveBeenCalledWith("blob:mock-url");
+      // revokeObjectURL はダウンロード開始を妨げないよう setTimeout で
+      // 遅延実行されるため、非同期に完了を待つ
+      await waitFor(() =>
+        expect(revokeObjectURLMock).toHaveBeenCalledWith("blob:mock-url"),
+      );
       expect(result.current.exporting).toBe(false);
     });
 

@@ -94,7 +94,9 @@ export const useFetchHistoryDetail = (historyId: number) => {
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
+      // click() 直後に revoke すると、ダウンロード開始前にURLが
+      // 失効し大きなファイルで中断されうるため、遅延させて破棄する
+      setTimeout(() => URL.revokeObjectURL(url), 0);
     } catch (err) {
       const { status } = extractApiError(err);
       if (status === 401) {
