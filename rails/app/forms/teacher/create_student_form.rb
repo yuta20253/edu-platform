@@ -6,8 +6,8 @@ module Teacher
     include ActiveModel::Attributes
     include ActiveModel::Validations
     include GradeScopeValidatable
-
-    KATAKANA_REGEX = /\A[\p{katakana}ー・\s　]+\z/
+    include NameKanaEmailValidatable
+    include ExistingUserValidatable
 
     attribute :name, :string
     attribute :name_kana, :string
@@ -17,19 +17,11 @@ module Teacher
 
     attr_accessor :current_user
 
-    validates :name, presence: true
-    validates :name_kana, presence: true, format: {
-      with: KATAKANA_REGEX,
-      message: 'はカタカナで入力してください'
-    }
-    validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :grade_id, presence: true
     validates :school_class_id, presence: true
 
     validate :grade_must_exist
     validate :school_class_must_exist
-    validate :email_not_used_by_other_high_school
-    validate :email_not_used_by_non_student
     validate :email_not_used_by_existing_student
 
     def initialize(current_user:, **attributes)
@@ -73,11 +65,8 @@ module Teacher
       @school_class = grade.school_classes.find_by(id: school_class_id)
     end
 
-    def existing_user
-      return @existing_user if defined?(@existing_user)
-      return @existing_user = nil if email.blank?
-
-      @existing_user = User.find_by(email: email)
+    def high_school
+      current_user&.high_school
     end
 
     private
@@ -93,18 +82,6 @@ module Teacher
       return if grade.nil? # grade自体が見つからない場合はgrade_must_existのエラーに任せる
 
       errors.add(:school_class_id, 'は学年に存在しません') if school_class.nil?
-    end
-
-    def email_not_used_by_other_high_school
-      return if email.blank? || current_user.blank? || existing_user.blank?
-
-      errors.add(:email, 'は他の高校のアカウントで使用されています') if existing_user.high_school_id != current_user.high_school_id
-    end
-
-    def email_not_used_by_non_student
-      return if email.blank? || existing_user.blank?
-
-      errors.add(:email, 'は生徒以外のアカウントで使用されています') unless existing_user.student?
     end
 
     def email_not_used_by_existing_student
