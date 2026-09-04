@@ -1,14 +1,15 @@
-export type ImportHistoryStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed";
+import type {
+  CourseOption,
+  ImportMode,
+  ImportStatus,
+  UnitOption,
+  UserOption,
+} from "@/types/common/import_history";
 
-export type ImportHistoryMode = "append" | "overwrite";
+export type { CourseOption, UnitOption, UserOption };
 
-export type CourseOption = { id: number; level_name: string };
-export type UnitOption = { id: number; unit_name: string };
-export type UserOption = { id: number; name: string };
+export type ImportHistoryStatus = ImportStatus;
+export type ImportHistoryMode = ImportMode;
 
 export type ImportHistoryRow = {
   id: number;
