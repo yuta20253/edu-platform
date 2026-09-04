@@ -251,7 +251,9 @@ describe("useQuestion", () => {
   });
 
   it("送信中に再度回答しても二重に送信されない", async () => {
-    let resolvePost: (value: { data: { is_correct: boolean } }) => void = () => {};
+    let resolvePost: (value: {
+      data: { is_correct: boolean };
+    }) => void = () => {};
     vi.mocked(apiClient.post).mockImplementation(
       () =>
         new Promise((resolve) => {

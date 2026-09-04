@@ -120,8 +120,9 @@ describe("useStartStudyLog", () => {
   });
 
   it("開始処理中に再度呼んでも二重に送信されない", async () => {
-    let resolvePost: (value: { data: { study_log_id: number } }) => void =
-      () => {};
+    let resolvePost: (value: {
+      data: { study_log_id: number };
+    }) => void = () => {};
     vi.mocked(apiClient.post).mockImplementation(
       () =>
         new Promise((resolve) => {
