@@ -44,7 +44,8 @@ import {
   type UserOption,
 } from "./types";
 import { isValid } from "date-fns";
-import { dateToInput, dateToParam, formatDateTime } from "./dateUtils";
+import { formatDateTime } from "@/libs/ui/formatDate";
+import { dateToInput, dateToParam } from "./dateUtils";
 
 // DatePickerは日付欄が入力途中の間、"01"を入力しようとして"0"だけ打った瞬間
 // のように、まだ確定していないInvalid Dateをonchangeへ渡してくることがある。
