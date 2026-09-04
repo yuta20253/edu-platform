@@ -40,6 +40,10 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
   }
 
+  if (response.status === 404) {
+    return NextResponse.json({ message: "NOT_FOUND" }, { status: 404 });
+  }
+
   if (!response.ok) {
     return NextResponse.json(
       { message: "INTERNAL_SERVER_ERROR" },
