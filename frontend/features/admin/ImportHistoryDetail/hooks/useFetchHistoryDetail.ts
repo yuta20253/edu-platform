@@ -50,9 +50,12 @@ export const useFetchHistoryDetail = (historyId: number) => {
 
     setError(false);
     apiClient
-      .get<ImportHistoryDetailData>(`/api/admin/import_histories/${historyId}`, {
-        signal: controller.signal,
-      })
+      .get<ImportHistoryDetailData>(
+        `/api/admin/import_histories/${historyId}`,
+        {
+          signal: controller.signal,
+        },
+      )
       .then((res) => setData(res.data))
       .catch((err) => {
         if (axios.isCancel(err)) return;
