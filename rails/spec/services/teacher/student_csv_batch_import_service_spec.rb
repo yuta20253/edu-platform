@@ -38,6 +38,10 @@ RSpec.describe Teacher::StudentCsvBatchImportService, type: :service do
         user = User.find_by(email: 'taro@example.com')
         expect(user.student_number).to be_present
       end
+
+      it '新規作成された生徒に招待メールが送信される' do
+        expect { described_class.new(import_history).call }.to have_enqueued_mail(AuthMailer, :invite_user).once
+      end
     end
 
     context '同じCSVを2回インポートした場合（冪等性）' do
@@ -56,6 +60,17 @@ RSpec.describe Teacher::StudentCsvBatchImportService, type: :service do
                                           content_type: 'text/csv')
 
         expect { described_class.new(second_import_history).call }.not_to change(User, :count)
+      end
+
+      it '2回目は招待メールが再送信されない' do
+        described_class.new(import_history).call
+
+        second_import_history = create(:import_history, user: teacher, unit: nil, import_type: :student)
+        second_import_history.file.attach(io: StringIO.new(csv_content), filename: 'students.csv',
+                                          content_type: 'text/csv')
+
+        expect { described_class.new(second_import_history).call }
+          .not_to have_enqueued_mail(AuthMailer, :invite_user)
       end
     end
 
@@ -96,6 +111,27 @@ RSpec.describe Teacher::StudentCsvBatchImportService, type: :service do
         expect(other_school_user.reload.high_school_id).to eq(other_high_school.id)
         import_history.reload
         expect(import_history.status).to eq('failed')
+      end
+    end
+
+    context '一部の行は有効だが別の行のエラーでバッチ全体が失敗する場合' do
+      let(:csv_content) do
+        <<~CSV
+          氏名,氏名カナ,メール,学年,学級
+          山田太郎,ヤマダタロウ,taro@example.com,#{Grade::DISPLAY_NAMES[1]},A組
+          鈴木花子,スズキハナコ,hanako@example.com,#{Grade::DISPLAY_NAMES[1]},存在しない組
+        CSV
+      end
+
+      it '有効な行も含めUserが作成されない(ロールバック)' do
+        expect { described_class.new(import_history).call }.not_to change(User, :count)
+
+        expect(import_history.reload.status).to eq('failed')
+      end
+
+      it 'ロールバックされた行の招待メールは送信されない' do
+        expect { described_class.new(import_history).call }
+          .not_to have_enqueued_mail(AuthMailer, :invite_user)
       end
     end
 

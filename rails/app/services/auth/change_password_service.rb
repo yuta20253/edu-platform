@@ -17,7 +17,7 @@ module Auth
 
       raise ValidationError, user.errors.full_messages if user.errors.any?
 
-      user.update!(password_reset_required: false) if user.teacher?
+      user.update!(password_reset_required: false) if user.teacher? || user.student?
 
       'パスワードを更新しました。'
     end
