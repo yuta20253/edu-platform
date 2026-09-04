@@ -75,6 +75,13 @@ export const useQuestion = ({
       const alreadyAnswered =
         currentQuestion.answered || answeredQuestionIds.has(currentQuestion.id);
 
+      // フロントエンドでの経過時間計測はdevtools等で改竄可能。ただしtime_spent_secは
+      // 正誤判定(Student::QuestionAnswerJudgeService)に一切使われない分析用の付随情報であり、
+      // 改竄されても採点・進捗解放などには影響しない。サーバー側から「問題を開いた瞬間」を
+      // 正確に把握する手段がない(表示から回答までの間にタブ切り替え・離脱もありうる)ため、
+      // 厳密な計測をサーバー側に持たせるコストに見合わないと判断し、フロント計測を採用している。
+      // バックエンド側はcreate_question_history_form.rbで上限(1時間)のみ検証し、
+      // 極端な改竄値によるエラーを防ぐサニティチェックに留めている。
       const timeSpentSec = Math.max(
         0,
         Math.round((Date.now() - questionStartedAtRef.current) / 1000),
