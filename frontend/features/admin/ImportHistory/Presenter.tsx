@@ -29,8 +29,10 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { jaJP } from "@mui/x-date-pickers/locales";
 import { ja } from "date-fns/locale";
 import {
-  IMPORT_STATUS_COLOR,
-  IMPORT_STATUS_LABEL,
+  importStatusColor,
+  importStatusLabel,
+} from "@/constants/import_status";
+import {
   PER_PAGE_OPTIONS,
   type CourseOption,
   type ImportHistoriesData,
@@ -75,10 +77,10 @@ type Props = {
 };
 
 const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
-  { value: "pending", label: IMPORT_STATUS_LABEL.pending },
-  { value: "processing", label: IMPORT_STATUS_LABEL.processing },
-  { value: "completed", label: IMPORT_STATUS_LABEL.completed },
-  { value: "failed", label: IMPORT_STATUS_LABEL.failed },
+  { value: "pending", label: importStatusLabel.pending },
+  { value: "processing", label: importStatusLabel.processing },
+  { value: "completed", label: importStatusLabel.completed },
+  { value: "failed", label: importStatusLabel.failed },
 ];
 
 // Gentelella風のフラット・ミニマルなテイストを本画面ローカルで再現するトークン。
@@ -533,9 +535,9 @@ export const Presenter = ({
                       <TableCell>{history.user?.name ?? "-"}</TableCell>
                       <TableCell>
                         <Chip
-                          label={IMPORT_STATUS_LABEL[history.status]}
+                          label={importStatusLabel[history.status]}
                           size="small"
-                          color={IMPORT_STATUS_COLOR[history.status]}
+                          color={importStatusColor[history.status]}
                           variant="filled"
                           sx={{
                             borderRadius: "3px",

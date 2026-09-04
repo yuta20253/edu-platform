@@ -56,20 +56,3 @@ export type ImportHistoryFilters = {
 };
 
 export const PER_PAGE_OPTIONS = [20, 50, 100] as const;
-
-export const IMPORT_STATUS_LABEL: Record<ImportHistoryStatus, string> = {
-  pending: "待機中",
-  processing: "処理中",
-  completed: "完了",
-  failed: "失敗",
-};
-
-export const IMPORT_STATUS_COLOR: Record<
-  ImportHistoryStatus,
-  "warning" | "info" | "success" | "error"
-> = {
-  pending: "warning",
-  processing: "info",
-  completed: "success",
-  failed: "error",
-};
