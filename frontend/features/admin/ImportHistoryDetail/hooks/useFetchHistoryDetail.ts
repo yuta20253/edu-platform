@@ -48,6 +48,9 @@ export const useFetchHistoryDetail = (historyId: number) => {
     // レスポンスを上書きしないよう、リクエストごとにキャンセルする
     const controller = new AbortController();
 
+    // 履歴の切り替え中に前の履歴の内容が表示され続けないよう、
+    // 取得開始時点で一旦クリアする
+    setData(null);
     setError(false);
     apiClient
       .get<ImportHistoryDetailData>(
