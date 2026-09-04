@@ -141,6 +141,19 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
       end
     end
 
+    context '異常系 - time_spent_secが上限を超える' do
+      let(:params) { super().merge(time_spent_sec: TimeSpentSecValidatable::MAX_TIME_SPENT_SEC + 1) }
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+
+      it 'エラーが設定される' do
+        form.save
+        expect(form.errors[:time_spent_sec]).to be_present
+      end
+    end
+
     context '異常系 - 選択肢が問題に紐づかない' do
       let!(:other_question) { create(:question, unit: unit) }
       let!(:other_choice) { create(:question_choice, question: other_question) }

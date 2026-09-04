@@ -5,6 +5,7 @@ module Student
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include TimeSpentSecValidatable
 
     attribute :task_id, :integer
     attribute :unit_id, :integer
@@ -22,7 +23,6 @@ module Student
     validate :validate_question_choice_relation
 
     validates :explanation_viewed, inclusion: { in: [true, false] }
-    validates :time_spent_sec, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
     def initialize(current_user:, **attributes)
       super(attributes)
