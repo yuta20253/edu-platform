@@ -26,6 +26,8 @@ const defaultProps = {
   taskId: 5,
   unitId: 11,
   unit: mockUnit,
+  onStart: vi.fn(),
+  isStarting: false,
 };
 
 describe("UnitPresenter", () => {
@@ -39,18 +41,16 @@ describe("UnitPresenter", () => {
     expect(screen.getByText("単元: 二次関数")).toBeInTheDocument();
   });
 
-  it("「スタート」ボタンでgoalIdなしのquestions画面へ遷移する", () => {
-    render(<Presenter {...defaultProps} />);
+  it("「スタート」ボタンをクリックするとonStartが呼ばれる", () => {
+    const onStart = vi.fn();
+    render(<Presenter {...defaultProps} onStart={onStart} />);
     fireEvent.click(screen.getByRole("button", { name: "スタート" }));
-    expect(pushMock).toHaveBeenCalledWith("/tasks/5/units/11/questions");
+    expect(onStart).toHaveBeenCalledTimes(1);
   });
 
-  it("goalIdがあるとき「スタート」ボタンでgoals配下のquestions画面へ遷移する", () => {
-    render(<Presenter {...defaultProps} goalId={3} />);
-    fireEvent.click(screen.getByRole("button", { name: "スタート" }));
-    expect(pushMock).toHaveBeenCalledWith(
-      "/goals/3/tasks/5/units/11/questions",
-    );
+  it("isStarting中は「スタート」ボタンが無効になる", () => {
+    render(<Presenter {...defaultProps} isStarting />);
+    expect(screen.getByRole("button", { name: "スタート" })).toBeDisabled();
   });
 
   it("「戻る」ボタンでrouter.backが呼ばれる", () => {

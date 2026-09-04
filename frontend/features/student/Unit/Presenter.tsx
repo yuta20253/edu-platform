@@ -11,9 +11,10 @@ type Props = {
   unitId: number;
   unit: UnitType;
   onStart: () => void;
+  isStarting: boolean;
 };
 
-export const Presenter = ({ unit, onStart }: Props) => {
+export const Presenter = ({ unit, onStart, isStarting }: Props) => {
   const router = useRouter();
 
   return (
@@ -100,6 +101,7 @@ export const Presenter = ({ unit, onStart }: Props) => {
                 },
               }}
               onClick={onStart}
+              disabled={isStarting}
             >
               スタート
             </Button>

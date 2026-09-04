@@ -12,7 +12,11 @@ type Props = {
 
 export const Unit = ({ goalId, taskId, unitId }: Props) => {
   const { unit, loading, error } = useGetUnit({ taskId, unitId });
-  const { handleStart } = useStartStudyLog({ taskId, unitId, goalId });
+  const { handleStart, isStarting } = useStartStudyLog({
+    taskId,
+    unitId,
+    goalId,
+  });
 
   if (loading) {
     return (
@@ -53,6 +57,7 @@ export const Unit = ({ goalId, taskId, unitId }: Props) => {
       unitId={unitId}
       unit={unit}
       onStart={handleStart}
+      isStarting={isStarting}
     />
   );
 };
