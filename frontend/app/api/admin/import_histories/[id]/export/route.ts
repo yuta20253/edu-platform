@@ -9,6 +9,11 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
 
+  // id は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
+  if (!/^\d+$/.test(id)) {
+    return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
+  }
+
   const origin = process.env.API_URL;
   if (!origin) {
     return NextResponse.json(
