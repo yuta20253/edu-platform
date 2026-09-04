@@ -5,8 +5,7 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
-
-    KATAKANA_REGEX = /\A[\p{katakana}ー・\s　]+\z/
+    include NameKanaEmailValidatable
 
     attribute :name, :string
     attribute :name_kana, :string
@@ -15,12 +14,6 @@ module Teacher
     attribute :manage_other_teachers, :boolean
     attribute :grade_id, :integer
 
-    validates :name, presence: true
-    validates :name_kana, presence: true, format: {
-      with: KATAKANA_REGEX,
-      message: 'はカタカナで入力してください'
-    }
-    validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :grade_scope, inclusion: { in: TeacherPermission.grade_scopes.keys }
     validates :manage_other_teachers, inclusion: { in: [true, false] }
     validates :grade_id, presence: true

@@ -5,10 +5,12 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include GradeScopeValidatable
+    include NameKanaEmailValidatable
+    include ExistingUserValidatable
 
     require 'csv'
 
-    KATAKANA_REGEX = /\A[\p{katakana}ー・\s　]+\z/
     EMAIL_HEADER = 'メール'
 
     # CSVの列名・列順を定義する唯一の場所。
@@ -27,20 +29,11 @@ module Teacher
 
     attr_accessor :high_school, :duplicate_emails, :current_user
 
-    validates :name, presence: true
-    validates :name_kana, presence: true, format: {
-      with: KATAKANA_REGEX,
-      message: 'はカタカナで入力してください'
-    }
-    validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :grade_name, presence: true
     validates :school_class_name, presence: true
     validate :grade_must_exist
     validate :school_class_must_exist
-    validate :grade_must_be_within_teacher_scope
     validate :email_not_duplicated_in_csv
-    validate :email_not_used_by_other_high_school
-    validate :email_not_used_by_non_student
 
     def self.from_csv_row(row, high_school:, duplicate_emails: [], current_user: nil)
       new(
@@ -66,15 +59,6 @@ module Teacher
       end
 
       counts.select { |_email, count| count > 1 }.keys.to_set
-    end
-
-    # emailで既存Userを検索する。dry runの重複検証と本実行のupsertで同じ結果を使い回すため、
-    # 検索結果をメモ化して公開する。
-    def existing_user
-      return @existing_user if defined?(@existing_user)
-      return @existing_user = nil if email.blank?
-
-      @existing_user = User.find_by(email: email)
     end
 
     # 学年表示名(Grade::DISPLAY_NAMES)から、high_school配下のGradeを解決する。
@@ -111,35 +95,14 @@ module Teacher
       errors.add(:school_class_name, 'に該当する学級が見つかりません') if school_class.nil?
     end
 
-    # own_grade権限の教員は、自分の担当学年以外の生徒をインポートできない。
-    def grade_must_be_within_teacher_scope
-      # gradeが見つからない場合はgrade_must_existのエラーに任せる
-      return if grade.nil? || current_user.blank?
-      return unless current_user.teacher_permission&.own_grade?
-
-      errors.add(:grade_name, 'は担当学年ではないため登録できません') if grade.id != current_user.grade_id
+    def grade_scope_error_attribute
+      :grade_name
     end
 
     def email_not_duplicated_in_csv
       return if email.blank? || duplicate_emails.blank?
 
       errors.add(:email, 'がCSV内で重複しています') if duplicate_emails.include?(email.strip)
-    end
-
-    # 既存Userが見つかっても、それ自体はエラーにしない(更新対象として扱う)。
-    # 別の高校に所属するUserの場合のみ、他校のアカウントを書き換えられないようエラーにする。
-    def email_not_used_by_other_high_school
-      return if email.blank? || high_school.blank? || existing_user.blank?
-
-      errors.add(:email, 'は他の高校のアカウントで使用されています') if existing_user.high_school_id != high_school.id
-    end
-
-    # 生徒以外(教員・保護者・管理者等)のメールアドレスと一致する場合、生徒として
-    # 上書き(氏名・学年・学級の書き換えや生徒番号の付与)されないようエラーにする。
-    def email_not_used_by_non_student
-      return if email.blank? || existing_user.blank?
-
-      errors.add(:email, 'は生徒以外のアカウントで使用されています') unless existing_user.student?
     end
   end
 end
