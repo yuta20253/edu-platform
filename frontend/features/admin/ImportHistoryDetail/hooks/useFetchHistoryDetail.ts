@@ -31,7 +31,9 @@ const extractFileName = (contentDisposition: string | undefined) => {
     }
   }
 
-  const plain = contentDisposition.match(/filename="?([^";]+)"?/i);
+  // "filename*=" (RFC5987) に誤マッチしないよう、直後に "*" が
+  // 続かない filename= だけを素のfilenameとして扱う
+  const plain = contentDisposition.match(/filename(?!\*)="?([^";]+)"?/i);
   return plain ? plain[1] : null;
 };
 

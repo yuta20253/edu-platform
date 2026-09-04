@@ -181,6 +181,44 @@ describe("useFetchHistoryDetail", () => {
       expect(downloadName).toBe("import_history_1.csv");
     });
 
+    it("RFC5987形式(filename*=)のファイル名を優先してデコードする", async () => {
+      let downloadName = "";
+      vi.spyOn(document, "createElement").mockImplementation((tagName) => {
+        const element = originalCreateElement(tagName);
+        if (tagName === "a") {
+          element.click = clickMock;
+          Object.defineProperty(element, "download", {
+            set: (value: string) => {
+              downloadName = value;
+            },
+            get: () => downloadName,
+          });
+        }
+        return element;
+      });
+
+      vi.mocked(apiClient.get)
+        .mockResolvedValueOnce({ data: mockDetail })
+        .mockResolvedValueOnce({
+          data: new Blob(["csv"]),
+          headers: {
+            "content-disposition":
+              "attachment; filename*=UTF-8''%E5%B1%A5%E6%AD%B4.csv",
+          },
+        });
+
+      const { result } = renderHook(() => useFetchHistoryDetail(1));
+      await waitFor(() => expect(result.current.data).not.toBeNull());
+
+      await act(async () => {
+        await result.current.onExport();
+      });
+
+      // filename*= の中身が誤って素のfilenameとして拾われず、
+      // 正しくデコードされること
+      expect(downloadName).toBe("履歴.csv");
+    });
+
     it("失敗時はSnackbarにエラーを表示する", async () => {
       vi.mocked(apiClient.get)
         .mockResolvedValueOnce({ data: mockDetail })
