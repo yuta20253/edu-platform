@@ -11,4 +11,9 @@ describe("formatDateTime", () => {
     expect(formatDateTime("")).toBe("-");
     expect(formatDateTime("invalid")).toBe("-");
   });
+
+  it("nullまたはundefinedの場合は「-」を返す", () => {
+    expect(formatDateTime(null)).toBe("-");
+    expect(formatDateTime(undefined)).toBe("-");
+  });
 });
