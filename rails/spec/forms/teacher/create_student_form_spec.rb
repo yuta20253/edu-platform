@@ -150,6 +150,39 @@ RSpec.describe Teacher::CreateStudentForm, type: :model do
         expect(form.errors[:grade_id]).to be_present
       end
     end
+
+    context '他校の既存ユーザーとemailが重複する場合' do
+      let!(:other_school_user) do
+        create(:user, :student, high_school: other_high_school, grade: other_school_grade, email: 'yamada@example.com')
+      end
+
+      it '無効であること' do
+        expect(form.valid?).to be false
+        expect(form.errors[:email]).to be_present
+      end
+    end
+
+    context '生徒以外の既存ユーザーとemailが重複する場合' do
+      let!(:other_teacher) do
+        create(:user, :teacher, high_school: high_school, email: 'yamada@example.com')
+      end
+
+      it '無効であること' do
+        expect(form.valid?).to be false
+        expect(form.errors[:email]).to be_present
+      end
+    end
+
+    context '同校の既存生徒とemailが重複する場合' do
+      let!(:other_student) do
+        create(:user, :student, high_school: high_school, grade: grade, email: 'yamada@example.com')
+      end
+
+      it '無効であること' do
+        expect(form.valid?).to be false
+        expect(form.errors[:email]).to be_present
+      end
+    end
   end
 
   describe '#grade / #school_class' do
@@ -195,13 +228,13 @@ RSpec.describe Teacher::CreateStudentForm, type: :model do
     end
 
     context 'emailが重複している場合' do
-      let!(:other_user) { create(:user, :student, high_school: high_school, email: 'yamada@example.com') }
+      let!(:other_user) { create(:user, :student, high_school: high_school, grade: grade, email: 'yamada@example.com') }
 
       it '生徒を作成せずfalseを返すこと' do
         expect { save }.not_to change(User, :count)
 
         expect(save).to be false
-        expect(form.errors[:base]).to be_present
+        expect(form.errors[:email]).to be_present
       end
     end
   end

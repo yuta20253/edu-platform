@@ -28,6 +28,9 @@ module Teacher
 
     validate :grade_must_exist
     validate :school_class_must_exist
+    validate :email_not_used_by_other_high_school
+    validate :email_not_used_by_non_student
+    validate :email_not_used_by_existing_student
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -70,6 +73,13 @@ module Teacher
       @school_class = grade.school_classes.find_by(id: school_class_id)
     end
 
+    def existing_user
+      return @existing_user if defined?(@existing_user)
+      return @existing_user = nil if email.blank?
+
+      @existing_user = User.find_by(email: email)
+    end
+
     private
 
     def grade_must_exist
@@ -83,6 +93,26 @@ module Teacher
       return if grade.nil? # grade自体が見つからない場合はgrade_must_existのエラーに任せる
 
       errors.add(:school_class_id, 'は学年に存在しません') if school_class.nil?
+    end
+
+    def email_not_used_by_other_high_school
+      return if email.blank? || current_user.blank? || existing_user.blank?
+
+      errors.add(:email, 'は他の高校のアカウントで使用されています') if existing_user.high_school_id != current_user.high_school_id
+    end
+
+    def email_not_used_by_non_student
+      return if email.blank? || existing_user.blank?
+
+      errors.add(:email, 'は生徒以外のアカウントで使用されています') unless existing_user.student?
+    end
+
+    def email_not_used_by_existing_student
+      return if email.blank? || current_user.blank? || existing_user.blank?
+      return unless existing_user.student?
+      return if existing_user.high_school_id != current_user.high_school_id
+
+      errors.add(:email, 'は既に生徒として登録されています')
     end
 
     def grade_scope_error_attribute
