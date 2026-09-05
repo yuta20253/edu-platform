@@ -5,6 +5,7 @@ module Student
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include TimeSpentSecValidatable
 
     attribute :task_id, :integer
     attribute :unit_id, :integer

@@ -1,18 +1,26 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { taskUnitPath } from "@/libs/path/taskUnitPath";
 import { QuestionType } from "@/types/question/question";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   questions: QuestionType[];
   taskId: number;
   unitId: number;
   goalId?: number;
+  studyLogId?: number;
 };
 
-export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
+export const useQuestion = ({
+  questions,
+  taskId,
+  unitId,
+  goalId,
+  studyLogId,
+}: Props) => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
@@ -28,13 +36,20 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
   const isLastQuestion =
     questions.length > 0 && currentIndex === questions.length - 1;
 
+  const currentQuestion = questions[currentIndex];
+
+  const questionStartedAtRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    questionStartedAtRef.current = Date.now();
+  }, [currentQuestion?.id]);
+
   const handleNextQuestion = (ids?: Set<number>) => {
     const targetIds = ids ?? answeredQuestionIds;
 
     const answeredQuestionIdsParam = Array.from(targetIds).join(",");
-    const confirmUrl = goalId
-      ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}`
-      : `/tasks/${taskId}/units/${unitId}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}`;
+    const studyLogIdParam = studyLogId ? `&study_log_id=${studyLogId}` : "";
+    const confirmUrl = `${taskUnitPath(taskId, unitId, goalId)}/questions/confirmation?answered_question_ids=${answeredQuestionIdsParam}${studyLogIdParam}`;
     if (isLastQuestion) {
       router.push(confirmUrl);
       return;
@@ -49,8 +64,6 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
     setOpenedHintStep(0);
   };
 
-  const currentQuestion = questions[currentIndex];
-
   const handleAnswer = async (choiceId: number) => {
     if (isSubmitting) return;
 
@@ -62,11 +75,24 @@ export const useQuestion = ({ questions, taskId, unitId, goalId }: Props) => {
       const alreadyAnswered =
         currentQuestion.answered || answeredQuestionIds.has(currentQuestion.id);
 
+      // フロントエンドでの経過時間計測はdevtools等で改竄可能。ただしtime_spent_secは
+      // 正誤判定(Student::QuestionAnswerJudgeService)に一切使われない分析用の付随情報であり、
+      // 改竄されても採点・進捗解放などには影響しない。サーバー側から「問題を開いた瞬間」を
+      // 正確に把握する手段がない(表示から回答までの間にタブ切り替え・離脱もありうる)ため、
+      // 厳密な計測をサーバー側に持たせるコストに見合わないと判断し、フロント計測を採用している。
+      // バックエンド側はcreate_question_history_form.rbで上限(1時間)のみ検証し、
+      // 極端な改竄値によるエラーを防ぐサニティチェックに留めている。
+      const timeSpentSec = Math.max(
+        0,
+        Math.round((Date.now() - questionStartedAtRef.current) / 1000),
+      );
+
       const payload = {
         task_id: taskId,
         unit_id: unitId,
         question_id: currentQuestion.id,
         question_choice_id: choiceId,
+        time_spent_sec: timeSpentSec,
       };
 
       const res = alreadyAnswered

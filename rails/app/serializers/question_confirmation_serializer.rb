@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 class QuestionConfirmationSerializer < ActiveModel::Serializer
-  attributes :question_id, :question_text, :correct_answer, :is_correct, :selected_choice_number, :status
+  attributes :question_id, :question_text, :correct_answer, :is_correct, :selected_choice_number, :status,
+             :time_spent_sec
 
   def question_id
     object.id
+  end
+
+  def time_spent_sec
+    history&.time_spent_sec
   end
 
   delegate :question_text, to: :object
