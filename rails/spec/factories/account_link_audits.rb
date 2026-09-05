@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: account_link_audits
@@ -15,6 +17,5 @@
 #
 FactoryBot.define do
   factory :account_link_audit do
-    
   end
 end
