@@ -10,7 +10,8 @@ RSpec.describe Student::AccountLinkService, type: :service do
   describe '#call' do
     context '未利用の仮Userが存在する場合' do
       let!(:target_user) do
-        create(:user, :student, :invitation_pending, :with_school_class, student_number: 'AB12-CD3456')
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'AB12-CD3456', high_school: user.high_school)
       end
       let(:student_number) { target_user.student_number }
 
@@ -101,9 +102,26 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
+    context 'student_numberの学校がログイン中Userの学校と異なる場合' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class, student_number: 'SCH-000001')
+      end
+      let(:student_number) { 'SCH-000001' }
+
+      it 'SchoolMismatchErrorが発生する' do
+        expect { call }.to raise_error(Student::AccountLinkService::SchoolMismatchError)
+      end
+
+      it '仮Userが削除されない' do
+        expect { call }.to raise_error(StandardError)
+        expect(User.exists?(target_user.id)).to be(true)
+      end
+    end
+
     context '仮Userに関連データ(学習履歴)が存在する場合' do
       let!(:target_user) do
-        create(:user, :student, :invitation_pending, :with_school_class, student_number: 'DEP-000001')
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'DEP-000001', high_school: user.high_school)
       end
       let(:student_number) { 'DEP-000001' }
 
@@ -121,7 +139,8 @@ RSpec.describe Student::AccountLinkService, type: :service do
 
     context '統合処理の途中で保存エラーが発生した場合' do
       let!(:target_user) do
-        create(:user, :student, :invitation_pending, :with_school_class, student_number: 'ROLL-000001')
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'ROLL-000001', high_school: user.high_school)
       end
       let(:student_number) { 'ROLL-000001' }
 

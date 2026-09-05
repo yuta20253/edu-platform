@@ -53,7 +53,7 @@ module Auth
 
       user = User.active.find_by(student_number: @form.student_number)
       raise SignUpError, '生徒コードが正しくありません' unless user
-      raise SignUpError, '生徒コードが正しくありません' unless user.high_school_id == high_school.id
+      raise SignUpError, '生徒コードが正しくありません' if User.high_school_mismatch?(user.high_school_id, high_school.id)
       raise SignUpError, 'このアカウントは既に有効化されています' unless user.password_reset_required?
 
       original_email = user.email

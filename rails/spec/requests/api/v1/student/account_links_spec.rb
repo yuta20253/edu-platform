@@ -28,7 +28,8 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
 
     context '正常系' do
       let!(:target_user) do
-        create(:user, :student, :invitation_pending, :with_school_class, student_number: 'AB12-CD3456')
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'AB12-CD3456', high_school: user.high_school)
       end
       let(:params) { { student_number: 'AB12-CD3456' } }
 
@@ -99,11 +100,25 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
 
       context '仮Userに関連データが存在する場合' do
         let!(:target_user) do
-          create(:user, :student, :invitation_pending, :with_school_class, student_number: 'DEP-000001')
+          create(:user, :student, :invitation_pending, :with_school_class,
+                 student_number: 'DEP-000001', high_school: user.high_school)
         end
         let(:params) { { student_number: 'DEP-000001' } }
 
         before { create(:study_log, user: target_user, task: create(:task, user: target_user)) }
+
+        it '400を返す' do
+          subject
+
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'student_numberの学校がログイン中Userの学校と異なる場合' do
+        let!(:target_user) do
+          create(:user, :student, :invitation_pending, :with_school_class, student_number: 'SCH-000001')
+        end
+        let(:params) { { student_number: 'SCH-000001' } }
 
         it '400を返す' do
           subject

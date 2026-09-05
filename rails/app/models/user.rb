@@ -139,6 +139,10 @@ class User < ApplicationRecord
     value.to_s.split(STUDENT_NUMBER_DELIMITER, 2).first
   end
 
+  def self.high_school_mismatch?(target_high_school_id, expected_high_school_id)
+    target_high_school_id != expected_high_school_id
+  end
+
   private
 
   def set_jti
