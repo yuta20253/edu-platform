@@ -23,7 +23,7 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
-#  student_number          :string
+#  student_number          :string(255)
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
