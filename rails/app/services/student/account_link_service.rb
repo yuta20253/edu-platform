@@ -2,6 +2,7 @@ class Student::AccountLinkService
   class AlreadyLinkedError < StandardError; end
   class AlreadyActivatedError < StandardError; end
   class HasDependentDataError < StandardError; end
+  class InvalidFormatError < StandardError; end
 
   def initialize(user:, student_number:)
     @user = user
@@ -12,36 +13,22 @@ class Student::AccountLinkService
     find_user!
 
     ActiveRecord::Base.transaction do
-      high_school_id = @target_user.high_school_id
-      grade_id = @target_user.grade_id
-      school_class_id = @target_user.school_class_id
-      student_number = @target_user.student_number
+      attrs = @target_user.slice(:high_school_id, :grade_id, :school_class_id, :student_number)
       merged_user_id = @target_user.id
 
       @target_user.destroy!
 
-      @user.update!(
-        high_school_id: high_school_id,
-        grade_id: grade_id,
-        school_class_id: school_class_id,
-        student_number: student_number
-      )
+      @user.update!(attrs)
 
-      AccountLinkAudit.create!(
-        user: @user,
-        merged_user_id: merged_user_id,
-        student_number: student_number,
-        high_school_id: high_school_id,
-        grade_id: grade_id,
-        school_class_id: school_class_id,
-        result: :success,
-      )
+      AccountLinkAudit.create!(attrs.merge(user: @user, merged_user_id: merged_user_id, result: :success))
     end
   end
 
   private
 
   def find_user!
+    raise InvalidFormatError, '不正な生徒番号です' unless User.student_number_format_valid?(@student_number)
+
     @target_user = User.active.find_by!(student_number: @student_number)
 
     raise AlreadyLinkedError, '既に紐付けられています' if @target_user == @user
