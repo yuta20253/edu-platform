@@ -27,9 +27,8 @@
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-
-  STUDENT_NUMBER_DELIMITER = '-'
-  STUDENT_NUMBER_FORMAT = /\A[A-Z0-9]+#{STUDENT_NUMBER_DELIMITER}[A-Z0-9]+\z/
+  include Roleable
+  include StudentNumberable
 
   before_validation :set_jti, on: :create
 
@@ -73,8 +72,6 @@ class User < ApplicationRecord
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
-  validates :student_number, uniqueness: true, allow_nil: true
-  validates :student_number, absence: true, unless: :student?
 
   validate :school_class_belongs_to_grade
 
@@ -83,26 +80,6 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
-
-  def admin?
-    user_role&.admin?
-  end
-
-  def student?
-    user_role&.student?
-  end
-
-  def teacher?
-    user_role&.teacher?
-  end
-
-  def guardian?
-    user_role&.guardian?
-  end
-
-  def requires_high_school?
-    user_role&.student? || user_role&.teacher?
-  end
 
   def profile_completed?
     info = user_personal_info
@@ -121,23 +98,6 @@ class User < ApplicationRecord
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
   scope :invitation_pending, -> { where(password_reset_required: true) }
   scope :active, -> { where(deleted_at: nil) }
-
-  def generate_student_number
-    raise "生徒以外(#{user_role&.name})にstudent_numberは発行できません" unless student?
-
-    self.student_number = loop do
-      code = "#{high_school.school_code}#{STUDENT_NUMBER_DELIMITER}#{SecureRandom.alphanumeric(8).upcase}"
-      break code unless User.exists?(student_number: code)
-    end
-  end
-
-  def self.student_number_format_valid?(value)
-    value.present? && value.match?(STUDENT_NUMBER_FORMAT)
-  end
-
-  def self.school_code_from_student_number(value)
-    value.to_s.split(STUDENT_NUMBER_DELIMITER, 2).first
-  end
 
   private
 
