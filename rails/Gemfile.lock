@@ -253,6 +253,8 @@ GEM
     raabro (1.5.0)
     racc (1.8.1)
     rack (3.2.6)
+    rack-attack (6.8.0)
+      rack (>= 1.0, < 4)
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
@@ -429,6 +431,7 @@ DEPENDENCIES
   mysql2 (~> 0.5)
   puma (>= 5.0)
   pundit
+  rack-attack
   rack-cors
   rails (~> 7.2.3)
   rspec-rails

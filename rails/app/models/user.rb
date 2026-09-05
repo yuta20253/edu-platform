@@ -23,7 +23,7 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
-#  student_number          :string
+#  student_number          :string(255)
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -137,6 +137,10 @@ class User < ApplicationRecord
 
   def self.school_code_from_student_number(value)
     value.to_s.split(STUDENT_NUMBER_DELIMITER, 2).first
+  end
+
+  def self.high_school_mismatch?(target_high_school_id, expected_high_school_id)
+    target_high_school_id != expected_high_school_id
   end
 
   private
