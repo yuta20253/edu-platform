@@ -124,5 +124,40 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
         end
       end
     end
+
+    context 'レート制限' do
+      let(:params) { { student_number: 'ZZ99-NOTFOUND1' } }
+
+      def request_account_link
+        post '/api/v1/student/account_link',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+      end
+
+      before { Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new }
+
+      it '制限回数(5回)以内は都度リクエストが処理される' do
+        5.times do
+          request_account_link
+          expect(response).not_to have_http_status(:too_many_requests)
+        end
+      end
+
+      it '制限回数を超えると429を返す' do
+        6.times { request_account_link }
+
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it '制限時間経過後は再度リクエストできる' do
+        6.times { request_account_link }
+        expect(response).to have_http_status(:too_many_requests)
+
+        travel 11.minutes do
+          request_account_link
+          expect(response).not_to have_http_status(:too_many_requests)
+        end
+      end
+    end
   end
 end

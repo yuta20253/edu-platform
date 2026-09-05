@@ -5,7 +5,7 @@ module Rack
     ACCOUNT_LINK_PATH = '/api/v1/student/account_link'
 
     throttle('account_link/user', limit: 5, period: 10.minutes) do |req|
-      req.env['warden']&.user&.id if req.post? && req.path == ACCOUNT_LINK_PATH
+      req.env['warden']&.authenticate(scope: :user)&.id if req.post? && req.path == ACCOUNT_LINK_PATH
     end
 
     self.throttled_responder = lambda do |_request|

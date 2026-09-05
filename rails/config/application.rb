@@ -60,6 +60,5 @@ module RailsApp
 
     config.autoload_paths << Rails.root.join('lib')
     config.middleware.insert_before Warden::Manager, JwtCookieToHeader
-    config.middleware.use Rack::Attack
   end
 end
