@@ -37,9 +37,8 @@ module Student
 
       raise AlreadyLinkedError, '既に紐付けられています' if @target_user == @user
       raise AlreadyActivatedError, '既に利用されているアカウントです' unless @target_user.password_reset_required
-      if User.high_school_mismatch?(@target_user.high_school_id, @user.high_school_id)
-        raise SchoolMismatchError, '生徒コードが正しくありません'
-      end
+      raise SchoolMismatchError, '生徒コードが正しくありません' if User.high_school_mismatch?(@target_user.high_school_id,
+                                                                                              @user.high_school_id)
       raise HasDependentDataError, '統合できません' if dependent_data_exists?
     end
 
