@@ -17,8 +17,6 @@ module Api
           ).call
 
           render json: message, serializer: InterviewRequestMessageSerializer, status: :created
-        rescue ActiveRecord::RecordInvalid => e
-          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
         end
 
         private
