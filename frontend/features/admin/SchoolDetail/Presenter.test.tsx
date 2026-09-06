@@ -147,6 +147,31 @@ describe("SchoolDetailPresenter", () => {
         await screen.findByRole("button", { name: "最初の教師を追加する" }),
       ).toBeInTheDocument();
     });
+
+    it("一度表示した教師管理タブへ戻ってきても再フェッチされない", async () => {
+      render(<Presenter {...defaultProps} />);
+
+      fireEvent.click(screen.getByRole("tab", { name: "教師管理" }));
+      await screen.findByRole("button", { name: "最初の教師を追加する" });
+
+      const callCountAfterFirstVisit = vi
+        .mocked(apiClient.get)
+        .mock.calls.filter((call) =>
+          (call[0] as string).includes("/teachers"),
+        ).length;
+
+      fireEvent.click(screen.getByRole("tab", { name: "概要" }));
+      fireEvent.click(screen.getByRole("tab", { name: "教師管理" }));
+      await screen.findByRole("button", { name: "最初の教師を追加する" });
+
+      const callCountAfterReturn = vi
+        .mocked(apiClient.get)
+        .mock.calls.filter((call) =>
+          (call[0] as string).includes("/teachers"),
+        ).length;
+
+      expect(callCountAfterReturn).toBe(callCountAfterFirstVisit);
+    });
   });
 
   describe("学年・クラスタブ", () => {
