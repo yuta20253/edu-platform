@@ -1,3 +1,4 @@
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { isNumericId } from "@/libs/server/routeParams";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -29,13 +30,22 @@ export async function GET(_request: Request, { params }: Params) {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const response = await fetch(
-    `${origin}/api/v1/admin/import_histories/${id}/export`,
-    {
-      headers: cookieHeader ? { Cookie: cookieHeader } : {},
-      cache: "no-store",
-    },
-  );
+  let response: Response;
+  try {
+    response = await fetch(
+      `${origin}/api/v1/admin/import_histories/${id}/export`,
+      {
+        headers: cookieHeader ? { Cookie: cookieHeader } : {},
+        cache: "no-store",
+      },
+    );
+  } catch (error) {
+    // Rails への接続断など、fetch自体が例外を投げるケースを
+    // 未処理例外にせず、隣接するJSONルートと同じ契約で返す
+    // （RailsUnauthorizedError/RailsFetchErrorのどちらでもないため
+    // 一律INTERNAL_SERVER_ERRORの500になる）
+    return handleRailsRouteError(error, "CSVのエクスポートに失敗しました");
+  }
 
   if (response.status === 401) {
     return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
