@@ -35,14 +35,21 @@ module Admin
     end
 
     def after_create(user)
-      user.create_teacher_permission!(
+      permission = user.create_teacher_permission!(
         grade_scope: @attributes[:grade_scope],
         manage_other_teachers: @attributes[:manage_other_teachers]
       )
 
+      grade_ids_for(permission).each { |grade_id| user.teacher_grades.create!(grade_id: grade_id) }
+    end
+
+    # grade_scopeがall_gradesの場合、クライアントが指定したgrade_idsは無視して
+    # 所属校の全学年を設定する(grade_scopeとTeacherGradeの不整合を防ぐ)
+    def grade_ids_for(permission)
+      return @school.grades.pluck(:id) if permission.all_grades?
+
       # 対象校に属さない学年IDが紛れ込んでも無視する(他校の学年に紐付けられないようにする)
-      valid_grade_ids = @school.grades.where(id: Array(@attributes[:grade_ids])).pluck(:id)
-      valid_grade_ids.each { |grade_id| user.teacher_grades.create!(grade_id: grade_id) }
+      @school.grades.where(id: Array(@attributes[:grade_ids])).pluck(:id)
     end
   end
 end

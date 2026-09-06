@@ -32,11 +32,17 @@ module Admin
     def update_teacher_grades
       return unless @params.key?(:grade_ids)
 
-      # 対象教師の所属校に属さない学年IDが紛れ込んでも無視する
-      valid_grade_ids = @user.high_school.grades.where(id: Array(@params[:grade_ids])).pluck(:id)
-
       @user.teacher_grades.destroy_all
       valid_grade_ids.each { |grade_id| @user.teacher_grades.create!(grade_id: grade_id) }
+    end
+
+    # grade_scopeがall_gradesの場合、クライアントが指定したgrade_idsは無視して
+    # 所属校の全学年を設定する(grade_scopeとTeacherGradeの不整合を防ぐ)
+    def valid_grade_ids
+      return @user.high_school.grades.pluck(:id) if @user.teacher_permission.all_grades?
+
+      # 対象教師の所属校に属さない学年IDが紛れ込んでも無視する
+      @user.high_school.grades.where(id: Array(@params[:grade_ids])).pluck(:id)
     end
   end
 end
