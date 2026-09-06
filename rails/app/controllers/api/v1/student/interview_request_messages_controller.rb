@@ -5,7 +5,7 @@ module Api
     module Student
       class InterviewRequestMessagesController < Api::V1::Student::BaseController
         def index
-          messages = interview_request.interview_request_messages.order(:created_at)
+          messages = interview_request.interview_request_messages.includes(:sender).order(:created_at)
           render json: messages, each_serializer: InterviewRequestMessageSerializer, status: :ok
         end
 

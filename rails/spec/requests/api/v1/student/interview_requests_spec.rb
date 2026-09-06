@@ -46,6 +46,23 @@ RSpec.describe 'Api::V1::Student::InterviewRequests', type: :request do
       ids = response.parsed_body['interview_requests'].pluck('id')
       expect(ids).to contain_exactly(own_request.id)
     end
+
+    it '件数によらずusersへのクエリ件数が増えない(N+1にならない)' do
+      create_list(:interview_request, 3, :initiated_by_teacher, student: student)
+      request_headers = headers.merge('Cookie' => cookie)
+
+      queries = []
+      callback = lambda { |_n, _s, _f, _id, payload|
+        queries << payload[:sql] if payload[:name] != 'SCHEMA'
+      }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+        get '/api/v1/student/interview_requests', headers: request_headers
+      end
+
+      user_queries = queries.grep(/FROM `users`/i)
+      # 内訳: current_userの認証クエリ1件 + student/teacherのバッチpreloadクエリ2件(N+1なら記録数に比例して増える)
+      expect(user_queries.size).to be <= 3
+    end
   end
 
   describe 'POST /api/v1/student/interview_requests' do

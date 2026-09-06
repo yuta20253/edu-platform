@@ -38,6 +38,23 @@ RSpec.describe 'Api::V1::Student::InterviewRequestMessages', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it '件数によらずusersへのクエリ件数が増えない(N+1にならない)' do
+      create_list(:interview_request_message, 4, interview_request: interview_request, sender: teacher)
+      request_headers = headers.merge('Cookie' => cookie)
+
+      queries = []
+      callback = lambda { |_n, _s, _f, _id, payload|
+        queries << payload[:sql] if payload[:name] != 'SCHEMA'
+      }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+        get "/api/v1/student/interview_requests/#{interview_request.id}/messages", headers: request_headers
+      end
+
+      user_queries = queries.grep(/FROM `users`/i)
+      # 内訳: current_userの認証クエリ1件 + senderのバッチpreloadクエリ1件(N+1ならメッセージ数に比例して増える)
+      expect(user_queries.size).to be <= 2
+    end
+
     it 'メッセージ一覧が返る' do
       get "/api/v1/student/interview_requests/#{interview_request.id}/messages",
           headers: headers.merge('Cookie' => cookie)

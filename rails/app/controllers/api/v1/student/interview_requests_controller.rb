@@ -54,7 +54,7 @@ module Api
         private
 
         def scoped_interview_requests
-          relation = InterviewRequest.where(student_id: current_user.id)
+          relation = InterviewRequest.includes(:student, :teacher).where(student_id: current_user.id)
           relation = relation.where(status: params[:status]) if params[:status].present?
           relation
         end
