@@ -44,6 +44,30 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
+  context '正常系 - grade_scope を all_grades に変更し grade_ids で一部の学年のみ指定した場合' do
+    let(:params) { { grade_scope: 'all_grades', grade_ids: [grade1.id] } }
+
+    it '指定した grade_ids を無視して所属校の全学年で TeacherGrade が更新される' do
+      service.call
+      expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade1.id, grade2.id)
+    end
+  end
+
+  context '正常系 - 既に grade_scope が all_grades の教師の grade_ids のみ更新した場合' do
+    let!(:teacher) do
+      user = create(:user, :teacher, high_school: school, grade: nil)
+      create(:teacher_permission, user: user, grade_scope: :all_grades, manage_other_teachers: false)
+      create(:teacher_grade, user: user, grade: grade1)
+      user
+    end
+    let(:params) { { grade_ids: [grade1.id] } }
+
+    it '指定した grade_ids を無視して所属校の全学年で TeacherGrade が更新される' do
+      service.call
+      expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade1.id, grade2.id)
+    end
+  end
+
   context '異常系 - email が重複している' do
     let(:params) { { email: 'duplicate@example.com' } }
 

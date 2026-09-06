@@ -59,6 +59,18 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       end
     end
 
+    context 'grade_scope が all_grades で grade_ids が一部の学年のみ指定されている場合' do
+      let(:grade_scope) { 'all_grades' }
+      let!(:other_grade) { create(:grade, high_school: school, year: 2) }
+      let(:grade_ids) { [grade.id] }
+
+      it '指定した grade_ids を無視して所属校の全学年で TeacherGrade が作成される' do
+        service.call
+        user = User.find_by(email: email)
+        expect(user.grades).to contain_exactly(grade, other_grade)
+      end
+    end
+
     it '招待メールを送信する' do
       allow(AuthMailer).to receive(:invite_user).and_call_original
       service.call
