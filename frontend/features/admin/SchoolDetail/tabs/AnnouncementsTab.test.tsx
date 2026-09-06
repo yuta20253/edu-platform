@@ -113,7 +113,7 @@ describe("AnnouncementsTab", () => {
 
     expect(apiClient.get).toHaveBeenLastCalledWith(
       "/api/admin/schools/1/announcements",
-      { params: { page: "2" } },
+      { params: { page: "2" }, signal: expect.any(AbortSignal) },
     );
   });
 });

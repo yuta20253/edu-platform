@@ -41,7 +41,7 @@ describe("useFetchAnnouncements", () => {
     expect(result.current.announcements).toHaveLength(1);
     expect(apiClient.get).toHaveBeenCalledWith(
       "/api/admin/schools/1/announcements",
-      { params: { page: "1" } },
+      { params: { page: "1" }, signal: expect.any(AbortSignal) },
     );
   });
 
@@ -68,9 +68,28 @@ describe("useFetchAnnouncements", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith(
         "/api/admin/schools/1/announcements",
-        { params: { page: "2" } },
+        { params: { page: "2" }, signal: expect.any(AbortSignal) },
       ),
     );
+  });
+
+  it("ページ変更前の古いリクエストはキャンセルされる", async () => {
+    vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
+
+    const { result, unmount } = renderHook(() => useFetchAnnouncements(1));
+
+    const firstSignal = (
+      vi.mocked(apiClient.get).mock.calls[0][1] as { signal?: AbortSignal }
+    )?.signal;
+
+    act(() => {
+      result.current.setPage(2);
+    });
+
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(2));
+    expect(firstSignal?.aborted).toBe(true);
+
+    unmount();
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {
