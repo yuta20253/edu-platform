@@ -1,14 +1,15 @@
-export type ImportHistoryStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed";
+import type {
+  CourseOption,
+  ImportMode,
+  ImportStatus,
+  UnitOption,
+  UserOption,
+} from "@/types/common/import_history";
 
-export type ImportHistoryMode = "append" | "overwrite";
+export type { CourseOption, UnitOption, UserOption };
 
-export type CourseOption = { id: number; level_name: string };
-export type UnitOption = { id: number; unit_name: string };
-export type UserOption = { id: number; name: string };
+export type ImportHistoryStatus = ImportStatus;
+export type ImportHistoryMode = ImportMode;
 
 export type ImportHistoryRow = {
   id: number;
@@ -55,20 +56,3 @@ export type ImportHistoryFilters = {
 };
 
 export const PER_PAGE_OPTIONS = [20, 50, 100] as const;
-
-export const IMPORT_STATUS_LABEL: Record<ImportHistoryStatus, string> = {
-  pending: "待機中",
-  processing: "処理中",
-  completed: "完了",
-  failed: "失敗",
-};
-
-export const IMPORT_STATUS_COLOR: Record<
-  ImportHistoryStatus,
-  "warning" | "info" | "success" | "error"
-> = {
-  pending: "warning",
-  processing: "info",
-  completed: "success",
-  failed: "error",
-};
