@@ -177,4 +177,16 @@ RSpec.describe InterviewRequest, type: :model do
       end
     end
   end
+
+  describe '#other_party_id' do
+    let(:request) { build(:interview_request, :initiated_by_teacher) }
+
+    it 'student_idを渡すとteacher_idが返る' do
+      expect(request.other_party_id(request.student_id)).to eq(request.teacher_id)
+    end
+
+    it 'teacher_idを渡すとstudent_idが返る' do
+      expect(request.other_party_id(request.teacher_id)).to eq(request.student_id)
+    end
+  end
 end

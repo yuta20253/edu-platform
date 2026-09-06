@@ -24,7 +24,7 @@ module Common
     end
 
     def recipient_id
-      @interview_request.initiator_role_teacher? ? @interview_request.student_id : @interview_request.teacher_id
+      @interview_request.other_party_id(@interview_request.initiator_id)
     end
 
     def content

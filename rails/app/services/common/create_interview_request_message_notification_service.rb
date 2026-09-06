@@ -21,11 +21,7 @@ module Common
     private
 
     def recipient_id
-      if @message.sender_id == @interview_request.student_id
-        @interview_request.teacher_id
-      else
-        @interview_request.student_id
-      end
+      @interview_request.other_party_id(@message.sender_id)
     end
   end
 end

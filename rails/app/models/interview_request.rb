@@ -76,6 +76,10 @@ class InterviewRequest < ApplicationRecord
     requested? || scheduling? || confirmed?
   end
 
+  def other_party_id(user_id)
+    user_id == student_id ? teacher_id : student_id
+  end
+
   private
 
   def student_must_be_student
