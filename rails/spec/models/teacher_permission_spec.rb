@@ -52,4 +52,31 @@ RSpec.describe TeacherPermission, type: :model do
 
     expect { teacher.destroy }.to change(described_class, :count).by(-1)
   end
+
+  context 'grade_scopeが未設定の場合' do
+    it '無効になる' do
+      teacher = create(:user, :teacher)
+      permission = build(:teacher_permission, user: teacher, grade_scope: nil)
+
+      expect(permission).to be_invalid
+    end
+  end
+
+  context 'manage_other_teachersが未設定の場合' do
+    it '無効になる' do
+      teacher = create(:user, :teacher)
+      permission = build(:teacher_permission, user: teacher, manage_other_teachers: nil)
+
+      expect(permission).to be_invalid
+    end
+  end
+
+  context 'manage_other_teachersがfalseの場合' do
+    it '有効になる' do
+      teacher = create(:user, :teacher)
+      permission = build(:teacher_permission, user: teacher, manage_other_teachers: false)
+
+      expect(permission).to be_valid
+    end
+  end
 end
