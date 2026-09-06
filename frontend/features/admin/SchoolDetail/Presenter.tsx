@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type SyntheticEvent } from "react";
 import Link from "next/link";
 import { Box, Breadcrumbs, Tab, Tabs, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
@@ -18,6 +18,18 @@ type TabValue = "overview" | "teachers" | "grades" | "announcements";
 
 export const Presenter = ({ school }: Props) => {
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
+  // 一度表示したタブはアンマウントせず非表示にすることで、タブを行き来する
+  // たびに各タブのデータが再フェッチされるのを防ぐ
+  const [mountedTabs, setMountedTabs] = useState<ReadonlySet<TabValue>>(
+    () => new Set(["overview"]),
+  );
+
+  const handleTabChange = (_: SyntheticEvent, value: TabValue) => {
+    setActiveTab(value);
+    setMountedTabs((prev) =>
+      prev.has(value) ? prev : new Set(prev).add(value),
+    );
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -44,10 +56,7 @@ export const Presenter = ({ school }: Props) => {
 
       {/* タブ */}
       <Box sx={{ borderBottom: 1, borderColor: colors.border.light, mb: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={(_, val: TabValue) => setActiveTab(val)}
-        >
+        <Tabs value={activeTab} onChange={handleTabChange}>
           <Tab label="概要" value="overview" />
           <Tab label="教師管理" value="teachers" />
           <Tab label="学年・クラス" value="grades" />
@@ -55,11 +64,25 @@ export const Presenter = ({ school }: Props) => {
         </Tabs>
       </Box>
 
-      {activeTab === "overview" && <OverviewTab school={school} />}
-      {activeTab === "teachers" && <TeachersTab schoolId={school.id} />}
-      {activeTab === "grades" && <GradesTab schoolId={school.id} />}
-      {activeTab === "announcements" && (
-        <AnnouncementsTab schoolId={school.id} />
+      {mountedTabs.has("overview") && (
+        <Box hidden={activeTab !== "overview"}>
+          <OverviewTab school={school} />
+        </Box>
+      )}
+      {mountedTabs.has("teachers") && (
+        <Box hidden={activeTab !== "teachers"}>
+          <TeachersTab schoolId={school.id} />
+        </Box>
+      )}
+      {mountedTabs.has("grades") && (
+        <Box hidden={activeTab !== "grades"}>
+          <GradesTab schoolId={school.id} />
+        </Box>
+      )}
+      {mountedTabs.has("announcements") && (
+        <Box hidden={activeTab !== "announcements"}>
+          <AnnouncementsTab schoolId={school.id} />
+        </Box>
       )}
     </Box>
   );
