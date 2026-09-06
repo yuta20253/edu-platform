@@ -5,10 +5,11 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include NameValidatable
+    include EmailValidatable
 
     require 'csv'
 
-    KATAKANA_REGEX = /\A[\p{katakana}ー・\s　]+\z/
     EMAIL_HEADER = 'メール'
 
     # CSVの列名・列順を定義する唯一の場所。
@@ -27,12 +28,6 @@ module Teacher
 
     attr_accessor :high_school, :duplicate_emails, :current_user
 
-    validates :name, presence: true
-    validates :name_kana, presence: true, format: {
-      with: KATAKANA_REGEX,
-      message: 'はカタカナで入力してください'
-    }
-    validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :grade_name, presence: true
     validates :school_class_name, presence: true
     validate :grade_must_exist
