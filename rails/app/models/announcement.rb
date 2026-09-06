@@ -15,6 +15,8 @@
 #  scheduled_at :datetime
 #
 class Announcement < ApplicationRecord
+  include StatusTransitionValidatable
+
   before_validation :set_published_at
 
   STATUS_TRANSITIONS = {
@@ -48,7 +50,6 @@ class Announcement < ApplicationRecord
   }
 
   validate :scheduled_at_must_be_future
-  validate :valid_status_transition
 
   private
 
@@ -60,18 +61,6 @@ class Announcement < ApplicationRecord
     elsif scheduled_at < Time.current
       errors.add(:scheduled_at, 'は未来日時を指定してください')
     end
-  end
-
-  def valid_status_transition
-    return unless persisted?
-    return unless will_save_change_to_status?
-
-    from = status_was
-    to = status
-
-    return if STATUS_TRANSITIONS[from].include?(to)
-
-    errors.add(:status, "#{from} から #{to} へは変更できません")
   end
 
   def set_published_at
