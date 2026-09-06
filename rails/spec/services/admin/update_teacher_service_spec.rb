@@ -24,12 +24,47 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
+  context '正常系 - grade_ids に他校の学年IDが含まれる場合' do
+    let(:other_school) { create(:high_school) }
+    let(:other_grade) { create(:grade, high_school: other_school, year: 1) }
+    let(:params) { { grade_ids: [grade2.id, other_grade.id] } }
+
+    it '対象教師の所属校に属する学年のみ TeacherGrade が更新される' do
+      service.call
+      expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade2.id)
+    end
+  end
+
   context '正常系 - grade_ids を省略した場合' do
     let(:params) { { name: '更新太郎' } }
 
     it '既存の TeacherGrade が変わらない' do
       service.call
       expect(teacher.reload.grades.pluck(:id)).to eq([grade1.id])
+    end
+  end
+
+  context '正常系 - grade_scope を all_grades に変更し grade_ids で一部の学年のみ指定した場合' do
+    let(:params) { { grade_scope: 'all_grades', grade_ids: [grade1.id] } }
+
+    it '指定した grade_ids を無視して所属校の全学年で TeacherGrade が更新される' do
+      service.call
+      expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade1.id, grade2.id)
+    end
+  end
+
+  context '正常系 - 既に grade_scope が all_grades の教師の grade_ids のみ更新した場合' do
+    let!(:teacher) do
+      user = create(:user, :teacher, high_school: school, grade: nil)
+      create(:teacher_permission, user: user, grade_scope: :all_grades, manage_other_teachers: false)
+      create(:teacher_grade, user: user, grade: grade1)
+      user
+    end
+    let(:params) { { grade_ids: [grade1.id] } }
+
+    it '指定した grade_ids を無視して所属校の全学年で TeacherGrade が更新される' do
+      service.call
+      expect(teacher.reload.grades.pluck(:id)).to contain_exactly(grade1.id, grade2.id)
     end
   end
 
