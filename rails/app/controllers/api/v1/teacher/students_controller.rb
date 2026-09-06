@@ -25,6 +25,20 @@ module Api
           render json: student, serializer: StudentSerializer, status: :ok
         end
 
+        def create
+          form = ::Teacher::CreateStudentForm.new(
+            current_user: current_user, **create_student_params.to_h.symbolize_keys
+          )
+
+          if form.save
+            render json: { message: '生徒の新規作成に成功しました。' }, status: :created
+          else
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+          end
+        rescue ActiveRecord::RecordInvalid => e
+          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+        end
+
         private
 
         def students_query
@@ -35,6 +49,10 @@ module Api
           return nil unless current_user.teacher_permission.own_grade?
 
           current_user.grade_id
+        end
+
+        def create_student_params
+          params.require(:user).permit(:name, :name_kana, :email, :grade_id, :school_class_id)
         end
       end
     end
