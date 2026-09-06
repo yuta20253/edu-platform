@@ -3,6 +3,7 @@
 class ProfileUpdateForm
   include ActiveModel::Model
   include ActiveModel::Attributes
+  include NameValidatable
 
   attr_accessor :user
 
@@ -13,8 +14,6 @@ class ProfileUpdateForm
   attribute :phone_number, :string
   attribute :birthday, :date
 
-  validates :name, presence: true
-  validates :name_kana, presence: true
   validates :phone_number, format: { with: /\A\d{10,11}\z/ }, allow_blank: true
   validates :gender, inclusion: { in: UserPersonalInfo.genders.keys }
   validate :address_must_exist
