@@ -1,5 +1,6 @@
 import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { railsFetchMultipart } from "@/libs/server/rails/railsFetchMultipart";
+import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ courseId: string; unitId: string }> };
@@ -7,7 +8,7 @@ type Params = { params: Promise<{ courseId: string; unitId: string }> };
 export async function POST(request: NextRequest, { params }: Params) {
   const { courseId, unitId } = await params;
 
-  if (!/^\d+$/.test(courseId) || !/^\d+$/.test(unitId)) {
+  if (!isNumericId(courseId) || !isNumericId(unitId)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 

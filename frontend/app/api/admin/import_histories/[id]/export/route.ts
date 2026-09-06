@@ -1,3 +1,4 @@
+import { isNumericId } from "@/libs/server/routeParams";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -10,7 +11,7 @@ export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
 
   // id は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
-  if (!/^\d+$/.test(id)) {
+  if (!isNumericId(id)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 

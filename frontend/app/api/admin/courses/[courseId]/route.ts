@@ -1,5 +1,6 @@
 import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -9,7 +10,7 @@ export async function GET(
   const { courseId } = await params;
 
   // courseId は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
-  if (!/^\d+$/.test(courseId)) {
+  if (!isNumericId(courseId)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 
