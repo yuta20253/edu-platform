@@ -87,6 +87,72 @@ describe("TeacherDrawer", () => {
       );
     });
 
+    it("担当学年をチェックした後に担当学年権限を「全学年」に変更すると全学年が登録される", async () => {
+      const onSubmit = vi.fn();
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
+
+      fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
+        target: { value: "田中" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
+        target: { value: "太郎" },
+      });
+      fireEvent.change(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+        {
+          target: { value: "tanaka@example.com" },
+        },
+      );
+      fireEvent.click(screen.getByRole("checkbox", { name: "高１生" }));
+      fireEvent.click(screen.getByRole("radio", { name: "全学年" }));
+
+      fireEvent.click(screen.getByRole("button", { name: "追加" }));
+
+      await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gradeScope: "all_grades",
+          gradeIds: [1, 2],
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("担当学年権限を「全学年」から「自学年」に戻すと担当学年の選択がクリアされる", async () => {
+      const onSubmit = vi.fn();
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
+
+      fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
+        target: { value: "田中" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
+        target: { value: "太郎" },
+      });
+      fireEvent.change(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+        {
+          target: { value: "tanaka@example.com" },
+        },
+      );
+      fireEvent.click(screen.getByRole("radio", { name: "全学年" }));
+      fireEvent.click(screen.getByRole("radio", { name: "自学年" }));
+
+      fireEvent.click(screen.getByRole("button", { name: "追加" }));
+
+      await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gradeScope: "own_grade",
+          gradeIds: [],
+        }),
+        expect.anything(),
+      );
+    });
+
     it("必須項目が未入力だとonSubmitが呼ばれずエラーが表示される", async () => {
       const onSubmit = vi.fn();
       render(
