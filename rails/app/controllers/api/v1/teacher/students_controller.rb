@@ -32,9 +32,7 @@ module Api
         end
 
         def filter_grade_id
-          return nil unless current_user.teacher_permission.own_grade?
-
-          current_user.grade_id
+          current_user.own_grade_restriction
         end
       end
     end

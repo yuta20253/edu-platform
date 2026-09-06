@@ -130,6 +130,36 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#own_grade_restriction' do
+    let(:teacher) { create(:user, user_role: teacher_role, high_school:, grade:) }
+
+    context 'own_grade権限の教員のとき' do
+      it '自分のgrade_idを返す' do
+        permission = instance_double(TeacherPermission, own_grade?: true)
+        allow(teacher).to receive(:teacher_permission).and_return(permission)
+
+        expect(teacher.own_grade_restriction).to eq(teacher.grade_id)
+      end
+    end
+
+    context 'all_grades権限の教員のとき' do
+      it 'nilを返す' do
+        permission = instance_double(TeacherPermission, own_grade?: false)
+        allow(teacher).to receive(:teacher_permission).and_return(permission)
+
+        expect(teacher.own_grade_restriction).to be_nil
+      end
+    end
+
+    context 'teacher_permissionを持たないとき' do
+      it 'nilを返す' do
+        allow(teacher).to receive(:teacher_permission).and_return(nil)
+
+        expect(teacher.own_grade_restriction).to be_nil
+      end
+    end
+  end
+
   describe '#generate_student_number' do
     let(:student) { create(:user, user_role: student_role, high_school:, grade:) }
 

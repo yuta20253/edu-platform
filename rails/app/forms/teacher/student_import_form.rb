@@ -110,9 +110,11 @@ module Teacher
     def grade_must_be_within_teacher_scope
       # gradeが見つからない場合はgrade_must_existのエラーに任せる
       return if grade.nil? || current_user.blank?
-      return unless current_user.teacher_permission&.own_grade?
 
-      errors.add(:grade_name, 'は担当学年ではないため登録できません') if grade.id != current_user.grade_id
+      restriction = current_user.own_grade_restriction
+      return if restriction.nil?
+
+      errors.add(:grade_name, 'は担当学年ではないため登録できません') if grade.id != restriction
     end
 
     def email_not_duplicated_in_csv
