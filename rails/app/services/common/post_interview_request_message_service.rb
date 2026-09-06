@@ -24,7 +24,7 @@ module Common
     private
 
     def notify_message(message)
-      Common::CreateInterviewRequestMessageNotificationService.new(message: message).call
+      Common::CreateInterviewRequestMessageNotificationJob.perform_later(interview_request_message_id: message.id)
     end
   end
 end

@@ -28,10 +28,7 @@ module Common
     private
 
     def notify_cancelled
-      Common::CreateInterviewCancelledNotificationService.new(
-        interview_request: @interview_request
-      )
-                                                         .call
+      Common::CreateInterviewCancelledNotificationJob.perform_later(interview_request_id: @interview_request.id)
     end
   end
 end

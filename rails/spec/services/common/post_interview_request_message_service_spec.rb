@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Common::PostInterviewRequestMessageService do
+  include ActiveJob::TestHelper
+
   subject(:service) do
     described_class.new(interview_request: interview_request, sender: sender, body: '来週の火曜16時はいかがですか?')
   end
@@ -26,13 +28,8 @@ RSpec.describe Common::PostInterviewRequestMessageService do
       expect(interview_request.reload.status).to eq('scheduling')
     end
 
-    it '通知サービスが呼ばれる' do
-      notification = instance_double(Common::CreateInterviewRequestMessageNotificationService, call: true)
-      allow(Common::CreateInterviewRequestMessageNotificationService).to receive(:new).and_return(notification)
-
-      service.call
-
-      expect(notification).to have_received(:call)
+    it '通知ジョブがキューに積まれる' do
+      expect { service.call }.to have_enqueued_job(Common::CreateInterviewRequestMessageNotificationJob)
     end
 
     context 'すでにschedulingの場合' do

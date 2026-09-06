@@ -36,7 +36,7 @@ module Teacher
     end
 
     def notify_confirmed
-      Common::CreateInterviewConfirmedNotificationService.new(interview_request: interview_request).call
+      Common::CreateInterviewConfirmedNotificationJob.perform_later(interview_request_id: interview_request.id)
     end
 
     def interview_request

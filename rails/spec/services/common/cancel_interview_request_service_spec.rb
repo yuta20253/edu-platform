@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Common::CancelInterviewRequestService do
+  include ActiveJob::TestHelper
+
   subject(:service) do
     described_class.new(interview_request: interview_request, cancelled_by: cancelled_by, reason: reason)
   end
@@ -27,13 +29,9 @@ RSpec.describe Common::CancelInterviewRequestService do
         expect(interview_request.cancelled_at).to be_present
       end
 
-      it 'キャンセル通知サービスが呼ばれる' do
-        notification = instance_double(Common::CreateInterviewCancelledNotificationService, call: true)
-        allow(Common::CreateInterviewCancelledNotificationService).to receive(:new).and_return(notification)
-
-        service.call
-
-        expect(notification).to have_received(:call)
+      it 'キャンセル通知ジョブがキューに積まれる' do
+        expect { service.call }.to have_enqueued_job(Common::CreateInterviewCancelledNotificationJob)
+          .with(interview_request_id: interview_request.id)
       end
     end
 

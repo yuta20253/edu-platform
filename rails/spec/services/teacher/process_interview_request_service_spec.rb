@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::ProcessInterviewRequestService do
+  include ActiveJob::TestHelper
+
   subject(:service) do
     described_class.new(
       user: teacher, id: interview_request.id, status: status, lock_version: interview_request.lock_version,
@@ -31,13 +33,9 @@ RSpec.describe Teacher::ProcessInterviewRequestService do
         expect(interview_request.scheduled_at).to be_within(1.second).of(scheduled_at)
       end
 
-      it '確定通知サービスが呼ばれる' do
-        notification = instance_double(Common::CreateInterviewConfirmedNotificationService, call: true)
-        allow(Common::CreateInterviewConfirmedNotificationService).to receive(:new).and_return(notification)
-
-        service.call
-
-        expect(notification).to have_received(:call)
+      it '確定通知ジョブがキューに積まれる' do
+        expect { service.call }.to have_enqueued_job(Common::CreateInterviewConfirmedNotificationJob)
+          .with(interview_request_id: interview_request.id)
       end
     end
 
