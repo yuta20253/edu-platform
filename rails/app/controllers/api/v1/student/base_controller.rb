@@ -8,6 +8,7 @@ module Api
 
         rescue_from ::Student::InvalidAnalyticsTypeError, with: :bad_request
         rescue_from ::Student::AlreadyCompletedStudyLogError, with: :bad_request
+        rescue_from ActiveRecord::StaleObjectError, with: :stale_object
 
         private
 
@@ -17,6 +18,10 @@ module Api
 
         def bad_request(exception)
           render json: { errors: [exception.message] }, status: :bad_request
+        end
+
+        def stale_object
+          render json: { errors: ['他のユーザーによってデータが更新されています。再読み込みしてください'] }, status: :conflict
         end
       end
     end

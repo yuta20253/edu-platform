@@ -10,7 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_23_061756) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_06_151609) do
+  create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "merged_user_id", null: false
+    t.string "student_number", null: false
+    t.bigint "high_school_id", null: false
+    t.bigint "grade_id", null: false
+    t.bigint "school_class_id"
+    t.string "result", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_account_link_audits_on_user_id"
+  end
+
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -190,6 +203,39 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_061756) do
     t.integer "import_type", default: 0, null: false
     t.index ["unit_id"], name: "index_import_histories_on_unit_id"
     t.index ["user_id"], name: "index_import_histories_on_user_id"
+  end
+
+  create_table "interview_request_messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "interview_request_id", null: false
+    t.bigint "sender_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["interview_request_id"], name: "index_interview_request_messages_on_interview_request_id"
+    t.index ["sender_id"], name: "index_interview_request_messages_on_sender_id"
+  end
+
+  create_table "interview_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "student_id", null: false
+    t.bigint "teacher_id", null: false
+    t.bigint "initiator_id", null: false
+    t.integer "initiator_role", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "reason_category"
+    t.text "reason_detail", null: false
+    t.datetime "scheduled_at"
+    t.datetime "completed_at"
+    t.datetime "cancelled_at"
+    t.bigint "cancelled_by_id"
+    t.text "cancel_reason"
+    t.integer "lock_version", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cancelled_by_id"], name: "index_interview_requests_on_cancelled_by_id"
+    t.index ["initiator_id"], name: "index_interview_requests_on_initiator_id"
+    t.index ["student_id", "teacher_id", "status"], name: "index_interview_requests_on_student_teacher_status"
+    t.index ["student_id"], name: "index_interview_requests_on_student_id"
+    t.index ["teacher_id"], name: "index_interview_requests_on_teacher_id"
   end
 
   create_table "prefectures", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -544,6 +590,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_061756) do
     t.index ["user_role_id"], name: "index_users_on_user_role_id"
   end
 
+  add_foreign_key "account_link_audits", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "addresses", "prefectures"
@@ -565,6 +612,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_061756) do
   add_foreign_key "import_errors", "import_histories"
   add_foreign_key "import_histories", "units"
   add_foreign_key "import_histories", "users"
+  add_foreign_key "interview_request_messages", "interview_requests"
+  add_foreign_key "interview_request_messages", "users", column: "sender_id"
+  add_foreign_key "interview_requests", "users", column: "cancelled_by_id"
+  add_foreign_key "interview_requests", "users", column: "initiator_id"
+  add_foreign_key "interview_requests", "users", column: "student_id"
+  add_foreign_key "interview_requests", "users", column: "teacher_id"
   add_foreign_key "question_choices", "questions"
   add_foreign_key "question_explanations", "questions"
   add_foreign_key "question_hints", "questions"

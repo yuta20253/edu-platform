@@ -65,6 +65,10 @@ class User < ApplicationRecord
   has_many :school_class_requests, foreign_key: :applicant_id, inverse_of: :applicant
   has_many :approved_school_class_requests, class_name: 'SchoolClassRequest', foreign_key: :approver_id,
                                             inverse_of: :approver
+  has_many :interview_requests_as_student, class_name: 'InterviewRequest', foreign_key: :student_id,
+                                           inverse_of: :student, dependent: :restrict_with_error
+  has_many :interview_requests_as_teacher, class_name: 'InterviewRequest', foreign_key: :teacher_id,
+                                           inverse_of: :teacher, dependent: :restrict_with_error
 
   validates :name, presence: true, on: :update
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
