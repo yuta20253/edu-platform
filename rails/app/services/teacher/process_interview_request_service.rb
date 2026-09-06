@@ -22,14 +22,10 @@ module Teacher
     private
 
     def allowed_transition?
-      case @status
-      when 'confirmed'
-        (interview_request.requested? || interview_request.scheduling?) && @scheduled_at.present?
-      when 'completed'
-        interview_request.confirmed?
-      else
-        false
-      end
+      return false unless InterviewRequest::STATUS_TRANSITIONS[interview_request.status].include?(@status)
+      return @scheduled_at.present? if @status == 'confirmed'
+
+      true
     end
 
     def update_attributes
