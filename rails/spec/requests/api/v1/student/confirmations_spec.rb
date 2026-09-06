@@ -167,9 +167,11 @@ RSpec.describe 'Api::V1::Student::Confirmations', type: :request do
 
         expect(first_result['selected_choice_number']).to eq(2)
         expect(first_result['status']).to eq('answered')
+        expect(first_result['time_spent_sec']).to eq(30)
 
         expect(second_result['selected_choice_number']).to eq(4)
         expect(second_result['status']).to eq('answered')
+        expect(second_result['time_spent_sec']).to eq(30)
       end
     end
 
@@ -245,6 +247,7 @@ RSpec.describe 'Api::V1::Student::Confirmations', type: :request do
         expect(json.first['question_id']).to eq(question.id)
         expect(json.first['status']).to eq('unanswered')
         expect(json.first['selected_choice_number']).to be_nil
+        expect(json.first['time_spent_sec']).to be_nil
       end
     end
 

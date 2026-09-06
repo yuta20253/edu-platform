@@ -21,6 +21,7 @@ const mockHistories: QuestionHistory[] = [
     is_correct: true,
     selected_choice_number: 2,
     status: "answered",
+    time_spent_sec: 30,
   },
   {
     question_id: 2,
@@ -29,6 +30,7 @@ const mockHistories: QuestionHistory[] = [
     is_correct: false,
     selected_choice_number: 3,
     status: "answered",
+    time_spent_sec: 45,
   },
   {
     question_id: 3,
@@ -37,6 +39,7 @@ const mockHistories: QuestionHistory[] = [
     is_correct: false,
     selected_choice_number: 0,
     status: "unanswered",
+    time_spent_sec: null,
   },
 ];
 
