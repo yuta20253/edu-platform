@@ -198,7 +198,22 @@ export const TeacherDrawer = ({
                   <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
                     担当学年権限
                   </Typography>
-                  <RadioGroup row {...field}>
+                  <RadioGroup
+                    row
+                    {...field}
+                    onChange={(event) => {
+                      field.onChange(event);
+                      const value = event.target.value as GradeScope;
+                      // 「全学年」に切り替えたら全学年を、「自学年」に戻したら選択を
+                      // クリアする(チェック状態と権限の食い違いを防ぐ)
+                      setValue(
+                        "gradeIds",
+                        value === "all_grades"
+                          ? grades.map((grade) => grade.id)
+                          : [],
+                      );
+                    }}
+                  >
                     <FormControlLabel
                       value="own_grade"
                       control={<Radio />}
