@@ -27,6 +27,9 @@ module Teacher
         errors.add(error.attribute, error.message)
       end
       false
+    rescue ActiveRecord::RecordNotUnique
+      errors.add(:base, 'この生徒との進行中の面談が既に存在します')
+      false
     end
 
     private

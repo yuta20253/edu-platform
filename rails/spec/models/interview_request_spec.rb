@@ -4,22 +4,23 @@
 #
 # Table name: interview_requests
 #
-#  id               :bigint           not null, primary key
-#  student_id       :bigint           not null
-#  teacher_id       :bigint           not null
-#  initiator_id     :bigint           not null
-#  initiator_role   :integer          not null
-#  status           :integer          default("requested"), not null
-#  reason_category  :integer
-#  reason_detail    :text(65535)      not null
-#  scheduled_at     :datetime
-#  completed_at     :datetime
-#  cancelled_at     :datetime
-#  cancelled_by_id  :bigint
-#  cancel_reason    :text(65535)
-#  lock_version     :integer          default(0), not null
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
+#  id              :bigint           not null, primary key
+#  student_id      :bigint           not null
+#  teacher_id      :bigint           not null
+#  initiator_id    :bigint           not null
+#  initiator_role  :integer          not null
+#  status          :integer          default("requested"), not null
+#  reason_category :integer
+#  reason_detail   :text(65535)      not null
+#  scheduled_at    :datetime
+#  completed_at    :datetime
+#  cancelled_at    :datetime
+#  cancelled_by_id :bigint
+#  cancel_reason   :text(65535)
+#  lock_version    :integer          default(0), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  active_pair_key :string(255)
 #
 require 'rails_helper'
 
@@ -135,6 +136,24 @@ RSpec.describe InterviewRequest, type: :model do
 
       it 'validになる(自分自身は除外される)' do
         expect(existing_request).to be_valid
+      end
+    end
+
+    context 'モデルバリデーションを迂回して同時作成された場合(DB制約による防止)' do
+      it 'active_pair_keyのユニークインデックスによりRecordNotUniqueが発生する' do
+        create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :requested)
+
+        duplicate = build(:interview_request, :initiated_by_teacher, student: student, teacher: teacher)
+
+        expect { duplicate.save!(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
+      end
+
+      it 'active/active以外の組み合わせなら制約に引っかからない' do
+        create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :cancelled)
+
+        duplicate = build(:interview_request, :initiated_by_teacher, student: student, teacher: teacher)
+
+        expect { duplicate.save!(validate: false) }.not_to raise_error
       end
     end
   end

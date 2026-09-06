@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_06_151609) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_06_160855) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -231,6 +231,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_06_151609) do
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.virtual "active_pair_key", type: :string, as: "(case when (`status` in (0,1,2)) then concat(`student_id`,_utf8mb4'-',`teacher_id`) else NULL end)", stored: true
+    t.index ["active_pair_key"], name: "index_interview_requests_on_active_pair_key", unique: true
     t.index ["cancelled_by_id"], name: "index_interview_requests_on_cancelled_by_id"
     t.index ["initiator_id"], name: "index_interview_requests_on_initiator_id"
     t.index ["student_id", "teacher_id", "status"], name: "index_interview_requests_on_student_teacher_status"

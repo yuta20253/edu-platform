@@ -122,5 +122,20 @@ RSpec.describe Teacher::CreateInterviewRequestForm, type: :model do
         expect(form.errors[:base]).to include('この生徒との進行中の面談が既に存在します')
       end
     end
+
+    context '同時作成によりDBのユニーク制約に違反した場合' do
+      before do
+        allow(Teacher::CreateInterviewRequestService).to receive(:new).and_raise(ActiveRecord::RecordNotUnique)
+      end
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+
+      it 'エラーメッセージが返る' do
+        form.save
+        expect(form.errors[:base]).to include('この生徒との進行中の面談が既に存在します')
+      end
+    end
   end
 end

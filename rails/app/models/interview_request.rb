@@ -4,22 +4,23 @@
 #
 # Table name: interview_requests
 #
-#  id               :bigint           not null, primary key
-#  student_id       :bigint           not null
-#  teacher_id       :bigint           not null
-#  initiator_id     :bigint           not null
-#  initiator_role   :integer          not null
-#  status           :integer          default("requested"), not null
-#  reason_category  :integer
-#  reason_detail    :text(65535)      not null
-#  scheduled_at     :datetime
-#  completed_at     :datetime
-#  cancelled_at     :datetime
-#  cancelled_by_id  :bigint
-#  cancel_reason    :text(65535)
-#  lock_version     :integer          default(0), not null
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
+#  id              :bigint           not null, primary key
+#  student_id      :bigint           not null
+#  teacher_id      :bigint           not null
+#  initiator_id    :bigint           not null
+#  initiator_role  :integer          not null
+#  status          :integer          default("requested"), not null
+#  reason_category :integer
+#  reason_detail   :text(65535)      not null
+#  scheduled_at    :datetime
+#  completed_at    :datetime
+#  cancelled_at    :datetime
+#  cancelled_by_id :bigint
+#  cancel_reason   :text(65535)
+#  lock_version    :integer          default(0), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  active_pair_key :string(255)
 #
 class InterviewRequest < ApplicationRecord
   belongs_to :student, class_name: 'User'
