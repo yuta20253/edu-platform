@@ -81,6 +81,24 @@ RSpec.describe Teacher::ProcessInterviewRequestService do
       end
     end
 
+    context 'lock_versionが指定されない場合' do
+      subject(:service) do
+        described_class.new(user: teacher, id: interview_request.id, status: status, scheduled_at: scheduled_at)
+      end
+
+      let(:status) { 'confirmed' }
+      let(:scheduled_at) { 1.week.from_now }
+
+      it 'ArgumentErrorにならずtrueを返す' do
+        expect(service.call).to be true
+      end
+
+      it '現在のlock_versionで更新される' do
+        service.call
+        expect(interview_request.reload.status).to eq('confirmed')
+      end
+    end
+
     context '他の教員が担当する面談を操作しようとする場合' do
       subject(:service) do
         described_class.new(

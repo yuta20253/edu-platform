@@ -2,7 +2,7 @@
 
 module Teacher
   class ProcessInterviewRequestService
-    def initialize(user:, id:, status:, lock_version:, scheduled_at: nil)
+    def initialize(user:, id:, status:, lock_version: nil, scheduled_at: nil)
       @user = user
       @interview_request_id = id
       @status = status
@@ -33,17 +33,14 @@ module Teacher
     end
 
     def update_attributes
-      attributes = { status: @status, lock_version: @lock_version }
+      attributes = { status: @status, lock_version: @lock_version || interview_request.lock_version }
       attributes[:scheduled_at] = @scheduled_at if @status == 'confirmed'
       attributes[:completed_at] = Time.current if @status == 'completed'
       attributes
     end
 
     def notify_confirmed
-      Common::CreateInterviewConfirmedNotificationService.new(
-        interview_request: interview_request
-      )
-                                                         .call
+      Common::CreateInterviewConfirmedNotificationService.new(interview_request: interview_request).call
     end
 
     def interview_request
