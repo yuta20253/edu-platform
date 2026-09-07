@@ -5,7 +5,7 @@ module Api
     class PasswordResetsController < ApplicationController
       skip_before_action :authenticate_user!, only: %i[create update verify]
       def create
-        user = User.find_by(email: params[:email])
+        user = User.active.find_by(email: params[:email])
         Auth::ResetPasswordService.new(user).call
 
         render json: { message: 'パスワード変更メールを送信しました。' }, status: :ok

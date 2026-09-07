@@ -85,6 +85,15 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
 
+  # JTIMatcher標準の実装はjti一致のみで失効判定するため、論理削除(deleted_at)
+  # より前に発行済みのJWTは削除後もそのまま使え続けてしまう。deleted_atが
+  # 設定されたUserのトークンは常に失効扱いにする。
+  def self.jwt_revoked?(payload, user)
+    return true if user.deleted_at?
+
+    payload['jti'] != user.jti
+  end
+
   def admin?
     user_role&.admin?
   end
