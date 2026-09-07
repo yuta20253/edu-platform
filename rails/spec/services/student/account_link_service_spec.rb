@@ -269,5 +269,26 @@ RSpec.describe Student::AccountLinkService, type: :service do
         expect(AccountLinkAudit.count).to eq(0)
       end
     end
+
+    context 'DB接続断などのインフラ障害が発生した場合' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'INFRA-00001', high_school: user.high_school)
+      end
+      let(:student_number) { 'INFRA-00001' }
+
+      before do
+        allow(user).to receive(:update!).and_raise(ActiveRecord::ConnectionNotEstablished, 'DB接続不可')
+      end
+
+      it 'そのままActiveRecord::ConnectionNotEstablishedが発生する' do
+        expect { call }.to raise_error(ActiveRecord::ConnectionNotEstablished)
+      end
+
+      it 'この生徒固有の業務失敗ではないため監査ログは作成されない' do
+        expect { call }.to raise_error(ActiveRecord::ConnectionNotEstablished)
+        expect(AccountLinkAudit.count).to eq(0)
+      end
+    end
   end
 end

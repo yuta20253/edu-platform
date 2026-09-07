@@ -8,16 +8,21 @@ module Student
     class InvalidFormatError < StandardError; end
     class SchoolMismatchError < StandardError; end
 
-    # 統合失敗として監査ログに残す対象は「業務上想定される失敗」に限定する。
-    # NoMethodErrorなどのバグまでここで揉み消してしまわないようにするため、
-    # StandardErrorのような広い範囲は使わない。
+    # 統合失敗として監査ログに残す対象は「この統合試行そのものが失敗した」ケースに限定する。
+    # NoMethodErrorなどのバグや、DB接続断・デッドロックのようなインフラ障害
+    # (ActiveRecord::StatementInvalid系)まで含めてしまうと、この生徒番号固有の
+    # 業務失敗であるかのように誤って記録してしまうため、StandardErrorや
+    # ActiveRecord::ActiveRecordErrorのような広い範囲は使わない。
     RESCUABLE_ERRORS = [
       AlreadyLinkedError,
       AlreadyActivatedError,
       HasDependentDataError,
       InvalidFormatError,
       SchoolMismatchError,
-      ActiveRecord::ActiveRecordError
+      ActiveRecord::RecordNotFound,
+      ActiveRecord::RecordInvalid,
+      ActiveRecord::RecordNotDestroyed,
+      ActiveRecord::InvalidForeignKey
     ].freeze
 
     def initialize(user:, student_number:)
