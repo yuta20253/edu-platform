@@ -42,12 +42,18 @@ module Student
       raise HasDependentDataError, '統合できません' if dependent_data_exists?
     end
 
+    # Userのhas_many/has_one関連を網羅的にチェックすることで、
+    # 新しい関連が追加された際にチェック漏れが発生しないようにする。
     def dependent_data_exists?
-      @target_user.study_logs.exists? ||
-        @target_user.question_histories.exists? ||
-        @target_user.goals.exists? ||
-        @target_user.draft_tasks.exists? ||
-        @target_user.tasks.exists?
+      checked_associations.any? do |reflection|
+        @target_user.association(reflection.name).scope.exists?
+      end
+    end
+
+    def checked_associations
+      User.reflect_on_all_associations.select do |reflection|
+        %i[has_many has_one].include?(reflection.macro) && reflection.options[:through].blank?
+      end
     end
   end
 end

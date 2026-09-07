@@ -137,6 +137,44 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
+    context '仮Userに関連データ(プロフィール情報)が存在する場合' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'DEP-000002', high_school: user.high_school)
+      end
+      let(:student_number) { 'DEP-000002' }
+
+      before { UserPersonalInfo.create!(user: target_user) }
+
+      it 'HasDependentDataErrorが発生する' do
+        expect { call }.to raise_error(Student::AccountLinkService::HasDependentDataError)
+      end
+
+      it '仮Userが削除されない' do
+        expect { call }.to raise_error(StandardError)
+        expect(User.exists?(target_user.id)).to be(true)
+      end
+    end
+
+    context '仮Userに関連データ(お知らせの個別配信先)が存在する場合' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'DEP-000003', high_school: user.high_school)
+      end
+      let(:student_number) { 'DEP-000003' }
+
+      before { create(:announcement_target, target_type: :by_user, user: target_user) }
+
+      it 'HasDependentDataErrorが発生する' do
+        expect { call }.to raise_error(Student::AccountLinkService::HasDependentDataError)
+      end
+
+      it '仮Userが削除されない' do
+        expect { call }.to raise_error(StandardError)
+        expect(User.exists?(target_user.id)).to be(true)
+      end
+    end
+
     context '統合処理の途中で保存エラーが発生した場合' do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,

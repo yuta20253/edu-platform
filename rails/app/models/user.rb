@@ -65,6 +65,7 @@ class User < ApplicationRecord
   has_many :school_class_requests, foreign_key: :applicant_id, inverse_of: :applicant
   has_many :approved_school_class_requests, class_name: 'SchoolClassRequest', foreign_key: :approver_id,
                                             inverse_of: :approver
+  has_many :announcement_targets, dependent: :destroy
 
   validates :name, presence: true, on: :update
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
