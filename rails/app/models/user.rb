@@ -27,7 +27,7 @@
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-  include Roleable
+  include RoleCheckable
   include StudentNumberable
 
   before_validation :set_jti, on: :create
