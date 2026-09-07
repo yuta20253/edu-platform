@@ -36,10 +36,13 @@ RSpec.describe Student::AccountLinkService, type: :service do
         expect(user.encrypted_password).to eq(original_encrypted_password)
       end
 
-      it '仮Userが削除される' do
+      it '仮Userが論理削除される' do
         call
 
-        expect(User.exists?(target_user.id)).to be(false)
+        target_user.reload
+        expect(User.exists?(target_user.id)).to be(true)
+        expect(target_user.deleted_at).to be_present
+        expect(target_user.student_number).to be_nil
       end
 
       it '監査ログが記録される' do
@@ -220,10 +223,12 @@ RSpec.describe Student::AccountLinkService, type: :service do
         allow(user).to receive(:update!).and_raise(ActiveRecord::RecordInvalid.new(user))
       end
 
-      it 'トランザクションがロールバックされ仮Userが削除されない' do
+      it 'トランザクションがロールバックされ仮Userが論理削除されない' do
         expect { call }.to raise_error(ActiveRecord::RecordInvalid)
 
-        expect(User.exists?(target_user.id)).to be(true)
+        target_user.reload
+        expect(target_user.deleted_at).to be_nil
+        expect(target_user.student_number).to eq('ROLL-000001')
       end
 
       it '成功の監査ログは作成されず、失敗の監査ログが記録される' do

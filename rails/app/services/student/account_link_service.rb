@@ -20,9 +20,7 @@ module Student
       InvalidFormatError,
       SchoolMismatchError,
       ActiveRecord::RecordNotFound,
-      ActiveRecord::RecordInvalid,
-      ActiveRecord::RecordNotDestroyed,
-      ActiveRecord::InvalidForeignKey
+      ActiveRecord::RecordInvalid
     ].freeze
 
     def initialize(user:, student_number:)
@@ -36,8 +34,17 @@ module Student
       ActiveRecord::Base.transaction do
         attrs = link_attrs(@target_user)
         merged_user_id = @target_user.id
+        now = Time.current
 
-        @target_user.destroy!
+        # 論理削除は内部的な状態変更のため、招待直後で氏名等が未設定な仮User
+        # に対するバリデーション(on: :update)を避け、admins_controller#destroyと
+        # 同様に検証・コールバックなしで更新する。student_numberはUNIQUE制約が
+        # あるため、統合先(@user)へ引き継ぐ前にnilにしておく(NULLは複数行でも
+        # 重複しない)。update_columnsではなくupdate_allを使うのは、@target_user
+        # インスタンスのメモリ上の属性を変更しないため。update_columnsだと
+        # ロールバック時にDB上の値は戻るがメモリ上はnilのままになり、失敗時に
+        # log_failureが参照するstudent_number等が壊れてしまう。
+        User.where(id: merged_user_id).update_all(deleted_at: now, student_number: nil, updated_at: now)
 
         @user.update!(attrs)
 

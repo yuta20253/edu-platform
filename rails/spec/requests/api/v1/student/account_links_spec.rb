@@ -46,10 +46,13 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
         expect(user.student_number).to eq('AB12-CD3456')
       end
 
-      it '仮Userが削除される' do
+      it '仮Userが論理削除される' do
         subject
 
-        expect(User.exists?(target_user.id)).to be(false)
+        target_user.reload
+        expect(User.exists?(target_user.id)).to be(true)
+        expect(target_user.deleted_at).to be_present
+        expect(target_user.student_number).to be_nil
       end
     end
 

@@ -11,7 +11,7 @@ module Api
                               .page(sanitized_page).per(sanitized_per_page)
 
           school_ids = schools.pluck(:id)
-          student_counts = User.students.by_high_school(school_ids).group(:high_school_id).count
+          student_counts = User.students.active.by_high_school(school_ids).group(:high_school_id).count
           teacher_counts = User.teachers.by_high_school(school_ids).group(:high_school_id).count
 
           render json: {
@@ -32,7 +32,7 @@ module Api
 
         def show
           school = HighSchool.includes(:prefecture).find(params[:id])
-          student_count = User.students.by_high_school(school.id).count
+          student_count = User.students.active.by_high_school(school.id).count
           teacher_count = User.teachers.by_high_school(school.id).count
 
           render json: school,

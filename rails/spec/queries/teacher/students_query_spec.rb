@@ -28,4 +28,11 @@ RSpec.describe Teacher::StudentsQuery, type: :model do
     expect(result).to contain_exactly(student1, student2)
     expect(result).not_to include(student3, teacher1, teacher2)
   end
+
+  it '論理削除済み(統合済み)のstudentは返さない' do
+    student1.update_columns(deleted_at: Time.current)
+
+    result = described_class.new(teacher1.high_school.users).call
+    expect(result).to contain_exactly(student2)
+  end
 end
