@@ -235,5 +235,20 @@ RSpec.describe Student::AccountLinkService, type: :service do
         expect(audit.result).to eq('failed')
       end
     end
+
+    context '失敗の監査ログ自体の記録に失敗した場合' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_completed, :with_school_class, student_number: 'AUDITFAIL-01')
+      end
+      let(:student_number) { 'AUDITFAIL-01' }
+
+      before do
+        allow(AccountLinkAudit).to receive(:create!).and_raise(ActiveRecord::RecordInvalid.new(AccountLinkAudit.new))
+      end
+
+      it '監査ログの記録失敗に上書きされず、元のエラーがそのまま発生する' do
+        expect { call }.to raise_error(Student::AccountLinkService::AlreadyActivatedError)
+      end
+    end
   end
 end

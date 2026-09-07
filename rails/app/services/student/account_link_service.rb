@@ -17,7 +17,7 @@ module Student
       find_user!
 
       ActiveRecord::Base.transaction do
-        attrs = @target_user.slice(:high_school_id, :grade_id, :school_class_id, :student_number)
+        attrs = link_attrs(@target_user)
         merged_user_id = @target_user.id
 
         @target_user.destroy!
@@ -33,6 +33,10 @@ module Student
 
     private
 
+    def link_attrs(target_user)
+      target_user.slice(:high_school_id, :grade_id, :school_class_id, :student_number)
+    end
+
     def log_failure(error)
       Rails.logger.warn(
         "[AccountLinkService] 統合失敗: user_id=#{@user&.id} student_number=#{@student_number} " \
@@ -41,14 +45,12 @@ module Student
 
       return unless @target_user
 
-      AccountLinkAudit.create!(
-        user: @user,
-        merged_user_id: @target_user.id,
-        student_number: @target_user.student_number,
-        high_school_id: @target_user.high_school_id,
-        grade_id: @target_user.grade_id,
-        school_class_id: @target_user.school_class_id,
-        result: :failed
+      AccountLinkAudit.create!(link_attrs(@target_user).merge(user: @user, merged_user_id: @target_user.id,
+                                                              result: :failed))
+    rescue StandardError => e
+      Rails.logger.error(
+        "[AccountLinkService] 失敗監査ログの記録にも失敗: user_id=#{@user&.id} student_number=#{@student_number} " \
+        "error=#{e.class} message=#{e.message}"
       )
     end
 
