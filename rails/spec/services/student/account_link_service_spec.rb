@@ -59,6 +59,11 @@ RSpec.describe Student::AccountLinkService, type: :service do
       it 'RecordNotFoundが発生する' do
         expect { call }.to raise_error(ActiveRecord::RecordNotFound)
       end
+
+      it '対象Userが特定できないため監査ログは作成されない' do
+        expect { call }.to raise_error(StandardError)
+        expect(AccountLinkAudit.count).to eq(0)
+      end
     end
 
     context 'student_numberが空の場合' do
@@ -66,6 +71,11 @@ RSpec.describe Student::AccountLinkService, type: :service do
 
       it 'InvalidFormatErrorが発生する' do
         expect { call }.to raise_error(Student::AccountLinkService::InvalidFormatError)
+      end
+
+      it '対象Userが特定できないため監査ログは作成されない' do
+        expect { call }.to raise_error(StandardError)
+        expect(AccountLinkAudit.count).to eq(0)
       end
     end
 
@@ -100,6 +110,14 @@ RSpec.describe Student::AccountLinkService, type: :service do
         expect { call }.to raise_error(StandardError)
         expect(User.exists?(target_user.id)).to be(true)
       end
+
+      it '失敗の監査ログが記録される' do
+        expect { call }.to raise_error(StandardError)
+
+        audit = AccountLinkAudit.last
+        expect(audit.merged_user_id).to eq(target_user.id)
+        expect(audit.result).to eq('failed')
+      end
     end
 
     context 'student_numberの学校がログイン中Userの学校と異なる場合' do
@@ -115,6 +133,14 @@ RSpec.describe Student::AccountLinkService, type: :service do
       it '仮Userが削除されない' do
         expect { call }.to raise_error(StandardError)
         expect(User.exists?(target_user.id)).to be(true)
+      end
+
+      it '失敗の監査ログが記録される' do
+        expect { call }.to raise_error(StandardError)
+
+        audit = AccountLinkAudit.last
+        expect(audit.merged_user_id).to eq(target_user.id)
+        expect(audit.result).to eq('failed')
       end
     end
 
@@ -134,6 +160,14 @@ RSpec.describe Student::AccountLinkService, type: :service do
       it '仮Userが削除されない' do
         expect { call }.to raise_error(StandardError)
         expect(User.exists?(target_user.id)).to be(true)
+      end
+
+      it '失敗の監査ログが記録される' do
+        expect { call }.to raise_error(StandardError)
+
+        audit = AccountLinkAudit.last
+        expect(audit.merged_user_id).to eq(target_user.id)
+        expect(audit.result).to eq('failed')
       end
     end
 
@@ -192,10 +226,13 @@ RSpec.describe Student::AccountLinkService, type: :service do
         expect(User.exists?(target_user.id)).to be(true)
       end
 
-      it '監査ログも作成されない' do
+      it '成功の監査ログは作成されず、失敗の監査ログが記録される' do
         expect { call }.to raise_error(ActiveRecord::RecordInvalid)
 
-        expect(AccountLinkAudit.count).to eq(0)
+        expect(AccountLinkAudit.count).to eq(1)
+        audit = AccountLinkAudit.last
+        expect(audit.merged_user_id).to eq(target_user.id)
+        expect(audit.result).to eq('failed')
       end
     end
   end

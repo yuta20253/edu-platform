@@ -26,9 +26,31 @@ module Student
 
         AccountLinkAudit.create!(attrs.merge(user: @user, merged_user_id: merged_user_id, result: :success))
       end
+    rescue StandardError => e
+      log_failure(e)
+      raise
     end
 
     private
+
+    def log_failure(error)
+      Rails.logger.warn(
+        "[AccountLinkService] 統合失敗: user_id=#{@user&.id} student_number=#{@student_number} " \
+        "error=#{error.class} message=#{error.message}"
+      )
+
+      return unless @target_user
+
+      AccountLinkAudit.create!(
+        user: @user,
+        merged_user_id: @target_user.id,
+        student_number: @target_user.student_number,
+        high_school_id: @target_user.high_school_id,
+        grade_id: @target_user.grade_id,
+        school_class_id: @target_user.school_class_id,
+        result: :failed
+      )
+    end
 
     def find_user!
       raise InvalidFormatError, '不正な生徒番号です' unless User.student_number_format_valid?(@student_number)
