@@ -8,6 +8,18 @@ module Student
     class InvalidFormatError < StandardError; end
     class SchoolMismatchError < StandardError; end
 
+    # 統合失敗として監査ログに残す対象は「業務上想定される失敗」に限定する。
+    # NoMethodErrorなどのバグまでここで揉み消してしまわないようにするため、
+    # StandardErrorのような広い範囲は使わない。
+    RESCUABLE_ERRORS = [
+      AlreadyLinkedError,
+      AlreadyActivatedError,
+      HasDependentDataError,
+      InvalidFormatError,
+      SchoolMismatchError,
+      ActiveRecord::ActiveRecordError
+    ].freeze
+
     def initialize(user:, student_number:)
       @user = user
       @student_number = student_number
@@ -26,7 +38,7 @@ module Student
 
         AccountLinkAudit.create!(attrs.merge(user: @user, merged_user_id: merged_user_id, result: :success))
       end
-    rescue StandardError => e
+    rescue *RESCUABLE_ERRORS => e
       log_failure(e)
       raise
     end
@@ -48,6 +60,8 @@ module Student
       AccountLinkAudit.create!(link_attrs(@target_user).merge(user: @user, merged_user_id: @target_user.id,
                                                               result: :failed))
     rescue StandardError => e
+      # 監査ログの記録自体はあくまで副次的な処理なので、ここは元のエラー種別を問わず
+      # 広く受け止めて握りつぶし、呼び出し元には常に元のエラー(RESCUABLE_ERRORS)を返す。
       Rails.logger.error(
         "[AccountLinkService] 失敗監査ログの記録にも失敗: user_id=#{@user&.id} student_number=#{@student_number} " \
         "error=#{e.class} message=#{e.message}"

@@ -250,5 +250,24 @@ RSpec.describe Student::AccountLinkService, type: :service do
         expect { call }.to raise_error(Student::AccountLinkService::AlreadyActivatedError)
       end
     end
+
+    context '想定外のバグ(NoMethodErrorなど)が発生した場合' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'BUG-000001', high_school: user.high_school)
+      end
+      let(:student_number) { 'BUG-000001' }
+
+      before { allow(user).to receive(:update!).and_raise(NoMethodError, "undefined method 'foo'") }
+
+      it 'そのままNoMethodErrorが発生する' do
+        expect { call }.to raise_error(NoMethodError)
+      end
+
+      it '業務失敗ではないため監査ログは作成されない' do
+        expect { call }.to raise_error(NoMethodError)
+        expect(AccountLinkAudit.count).to eq(0)
+      end
+    end
   end
 end
