@@ -9,13 +9,15 @@ export type NoticePublisher = {
 };
 
 // GET /api/admin/announcements（Admin::AnnouncementListSerializer）のレスポンス形状。
-// target_typeは常に"all_users"（管理者は全ユーザー配信のみ）だが、
-// 一覧の表示ロジックはこの値を見ずに固定文字列を出す。
+// target_typeは常に"all_users"（管理者は全ユーザー配信のみ。
+// Admin::CreateAnnouncementServiceがannouncement_targetsを固定で作成するため）。
+// 一覧の表示ロジックはこの値を見ずに固定文字列を出すが、型としてはAPIが
+// 実際に返しうる値に絞っておく。
 export type Notice = {
   id: number;
   title: string;
   status: NoticeStatus;
-  target_type: string;
+  target_type: "all_users";
   published_at: string | null;
   scheduled_at: string | null;
   created_at: string;
