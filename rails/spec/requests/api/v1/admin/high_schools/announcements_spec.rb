@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
+RSpec.describe 'Api::V1::Admin::HighSchools::Announcements', type: :request do
   let(:headers) do
     {
       'Content-Type' => 'application/json',
