@@ -33,7 +33,7 @@ module Api
         end
 
         def create
-          form = ::Admin::AnnouncementForm.new(publisher: current_user, **create_params.to_h.symbolize_keys)
+          form = ::Admin::AnnouncementForm.new(publisher: current_user, **announcement_params.to_h.symbolize_keys)
 
           if form.save
             render json: { message: 'お知らせを作成しました。' }, status: :created
@@ -43,7 +43,7 @@ module Api
         end
 
         def update
-          form = ::Admin::AnnouncementForm.new(announcement: @announcement, **update_params.to_h.symbolize_keys)
+          form = ::Admin::AnnouncementForm.new(announcement: @announcement, **announcement_params.to_h.symbolize_keys)
 
           if form.save
             render json: { message: 'お知らせを更新しました。' }, status: :ok
@@ -81,11 +81,7 @@ module Api
           AnnouncementsQuery.new.result
         end
 
-        def create_params
-          params.require(:announcement).permit(:title, :content, :status, :scheduled_at)
-        end
-
-        def update_params
+        def announcement_params
           params.require(:announcement).permit(:title, :content, :status, :scheduled_at)
         end
       end
