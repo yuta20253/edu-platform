@@ -247,4 +247,66 @@ RSpec.describe Announcement, type: :model do
       expect(result).to include(another_announcement)
     end
   end
+
+  describe 'validations' do
+    subject(:announcement) { build(:announcement, title: title, content: content) }
+
+    context 'titleが空の場合' do
+      let(:title) { '' }
+      let(:content) { 'テスト内容' }
+
+      it '無効である' do
+        expect(announcement).not_to be_valid
+        expect(announcement.errors[:title]).to be_present
+      end
+    end
+
+    context 'titleが256文字の場合' do
+      let(:title) { 'あ' * 256 }
+      let(:content) { 'テスト内容' }
+
+      it '無効である' do
+        expect(announcement).not_to be_valid
+        expect(announcement.errors[:title]).to be_present
+      end
+    end
+
+    context 'titleが255文字の場合' do
+      let(:title) { 'あ' * 255 }
+      let(:content) { 'テスト内容' }
+
+      it '有効である' do
+        expect(announcement).to be_valid
+      end
+    end
+
+    context 'contentが空の場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { '' }
+
+      it '無効である' do
+        expect(announcement).not_to be_valid
+        expect(announcement.errors[:content]).to be_present
+      end
+    end
+
+    context 'contentが10001文字の場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'あ' * 10_001 }
+
+      it '無効である' do
+        expect(announcement).not_to be_valid
+        expect(announcement.errors[:content]).to be_present
+      end
+    end
+
+    context 'contentが10000文字の場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'あ' * 10_000 }
+
+      it '有効である' do
+        expect(announcement).to be_valid
+      end
+    end
+  end
 end
