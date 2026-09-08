@@ -61,9 +61,9 @@ module Admin
 
       success = announcement.update(
         {
-          title: title.presence,
-          content: content.presence,
-          status: status.presence,
+          title: title,
+          content: content,
+          status: status,
           scheduled_at: scheduled_at
         }.compact
       )

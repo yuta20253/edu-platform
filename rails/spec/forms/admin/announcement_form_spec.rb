@@ -119,6 +119,39 @@ RSpec.describe Admin::AnnouncementForm do
       end
     end
 
+    context 'titleを空文字で更新しようとした場合' do
+      let(:announcement) { create(:announcement, publisher: admin, title: '旧タイトル') }
+      let(:params) { { title: '' } }
+
+      it '保存に失敗する' do
+        expect(form.save).to be false
+      end
+
+      it 'errorsにtitleのエラーが含まれる' do
+        form.save
+        expect(form.errors[:title]).to be_present
+      end
+
+      it 'titleが更新されない' do
+        form.save
+        expect(announcement.reload.title).to eq('旧タイトル')
+      end
+    end
+
+    context 'contentを空文字で更新しようとした場合' do
+      let(:announcement) { create(:announcement, publisher: admin, content: '旧内容') }
+      let(:params) { { content: '' } }
+
+      it '保存に失敗する' do
+        expect(form.save).to be false
+      end
+
+      it 'errorsにcontentのエラーが含まれる' do
+        form.save
+        expect(form.errors[:content]).to be_present
+      end
+    end
+
     context 'statusをscheduledに変更しscheduled_atを指定する場合' do
       let(:announcement) { create(:announcement, publisher: admin) }
       let(:params) { { status: 'scheduled', scheduled_at: 1.day.from_now } }
