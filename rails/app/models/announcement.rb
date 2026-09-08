@@ -47,6 +47,12 @@ class Announcement < ApplicationRecord
       .distinct
   }
 
+  scope :for_high_school, lambda { |high_school_id|
+    joins(:announcement_targets)
+      .where(announcement_targets: { high_school_id: high_school_id })
+      .distinct
+  }
+
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true, length: { maximum: 10_000 }
   validate :scheduled_at_must_be_future

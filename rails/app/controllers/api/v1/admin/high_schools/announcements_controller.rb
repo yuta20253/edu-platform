@@ -9,10 +9,8 @@ module Api
             school = HighSchool.find(params[:high_school_id])
             per_page = sanitized_per_page
             announcements = Announcement
-                            .joins(:announcement_targets)
-                            .where(announcement_targets: { high_school_id: school.id })
+                            .for_high_school(school.id)
                             .includes(:publisher, :announcement_targets)
-                            .distinct
                             .order(created_at: :desc, id: :desc)
                             .page(sanitized_page).per(per_page)
 

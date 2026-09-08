@@ -255,6 +255,49 @@ RSpec.describe Announcement, type: :model do
     end
   end
 
+  describe '.for_high_school' do
+    let(:school) { create(:high_school) }
+    let(:other_school) { create(:high_school) }
+
+    let!(:school_announcement) do
+      ann = create(:announcement)
+      create(:announcement_target, :by_school, announcement: ann, high_school_id: school.id)
+      ann
+    end
+
+    let!(:other_school_announcement) do
+      ann = create(:announcement)
+      create(:announcement_target, :by_school, announcement: ann, high_school_id: other_school.id)
+      ann
+    end
+
+    let!(:all_users_announcement) do
+      ann = create(:announcement)
+      create(:announcement_target, :all_users, announcement: ann)
+      ann
+    end
+
+    it '指定した高校をターゲットにしたお知らせのみ返す' do
+      result = described_class.for_high_school(school.id)
+
+      expect(result).to contain_exactly(school_announcement)
+    end
+
+    it '全体配信(all_users)のお知らせは含まない' do
+      result = described_class.for_high_school(school.id)
+
+      expect(result).not_to include(all_users_announcement)
+    end
+
+    it '同一高校をターゲットにした行が複数あっても重複せず1件で返す' do
+      create(:announcement_target, :by_school, announcement: school_announcement, high_school_id: school.id)
+
+      result = described_class.for_high_school(school.id)
+
+      expect(result.to_a.count { |a| a == school_announcement }).to eq(1)
+    end
+  end
+
   describe 'validations' do
     subject(:announcement) { build(:announcement, title: title, content: content) }
 
