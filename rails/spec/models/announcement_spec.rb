@@ -17,6 +17,13 @@
 require 'rails_helper'
 
 RSpec.describe Announcement, type: :model do
+  describe 'indexes' do
+    it 'status と scheduled_at の複合インデックスが存在する' do
+      expect(ActiveRecord::Base.connection.index_exists?(:announcements, %i[status scheduled_at]))
+        .to be true
+    end
+  end
+
   describe 'enum' do
     it do
       expect(subject).to define_enum_for(:status).with_values(
