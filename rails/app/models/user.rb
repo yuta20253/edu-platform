@@ -27,9 +27,8 @@
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-
-  STUDENT_NUMBER_DELIMITER = '-'
-  STUDENT_NUMBER_FORMAT = /\A[A-Z0-9]+#{STUDENT_NUMBER_DELIMITER}[A-Z0-9]+\z/
+  include RoleCheckable
+  include StudentNumberable
 
   before_validation :set_jti, on: :create
 
@@ -74,8 +73,6 @@ class User < ApplicationRecord
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
-  validates :student_number, uniqueness: true, allow_nil: true
-  validates :student_number, absence: true, unless: :student?
 
   validate :school_class_belongs_to_grade
 
