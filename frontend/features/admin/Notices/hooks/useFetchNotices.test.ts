@@ -158,4 +158,30 @@ describe("useFetchNotices", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
+
+  it("401以外のエラー時はerrorがtrueになる", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 500 },
+    });
+
+    const { result } = renderHook(() => useFetchNotices());
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("再取得に成功するとerrorがfalseに戻る", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce(emptyResponse);
+
+    const { result } = renderHook(() => useFetchNotices());
+    await waitFor(() => expect(result.current.error).toBe(true));
+
+    act(() => {
+      result.current.setPage(2);
+    });
+
+    await waitFor(() => expect(result.current.error).toBe(false));
+  });
 });

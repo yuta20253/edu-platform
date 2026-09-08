@@ -13,6 +13,7 @@ import type { NoticesData, NoticeStatus } from "../types";
 export const useFetchNotices = () => {
   const [data, setData] = useState<NoticesData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -54,6 +55,7 @@ export const useFetchNotices = () => {
     const controller = new AbortController();
 
     setLoading(true);
+    setError(false);
     apiClient
       .get<NoticesData>("/api/admin/announcements", {
         params,
@@ -64,7 +66,9 @@ export const useFetchNotices = () => {
         if (axios.isCancel(err)) return;
         if (extractApiError(err).status === 401) {
           router.push("/login");
+          return;
         }
+        setError(true);
       })
       .finally(() => {
         if (controller.signal.aborted) return;
@@ -79,6 +83,7 @@ export const useFetchNotices = () => {
   return {
     data,
     loading,
+    error,
     page,
     setPage,
     query,
