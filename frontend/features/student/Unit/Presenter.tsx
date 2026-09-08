@@ -10,9 +10,11 @@ type Props = {
   taskId: number;
   unitId: number;
   unit: UnitType;
+  onStart: () => void;
+  isStarting: boolean;
 };
 
-export const Presenter = ({ goalId, taskId, unitId, unit }: Props) => {
+export const Presenter = ({ unit, onStart, isStarting }: Props) => {
   const router = useRouter();
 
   return (
@@ -98,12 +100,8 @@ export const Presenter = ({ goalId, taskId, unitId, unit }: Props) => {
                   backgroundColor: colors.brand.primaryHover,
                 },
               }}
-              onClick={() => {
-                const nextHref = goalId
-                  ? `/goals/${goalId}/tasks/${taskId}/units/${unitId}/questions`
-                  : `/tasks/${taskId}/units/${unitId}/questions`;
-                router.push(nextHref);
-              }}
+              onClick={onStart}
+              disabled={isStarting}
             >
               スタート
             </Button>

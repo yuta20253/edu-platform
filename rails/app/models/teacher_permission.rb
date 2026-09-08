@@ -15,6 +15,8 @@ class TeacherPermission < ApplicationRecord
   belongs_to :user
 
   validates :user_id, uniqueness: true
+  validates :grade_scope, presence: true
+  validates :manage_other_teachers, inclusion: { in: [true, false] }
   validate :user_must_be_teacher
 
   enum grade_scope: {

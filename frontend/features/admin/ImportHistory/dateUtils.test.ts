@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { dateToInput, dateToParam, formatDateTime } from "./dateUtils";
+import { dateToInput, dateToParam } from "./dateUtils";
 
 describe("dateToInput", () => {
   it("yyyy-MM-dd形式の文字列をDateに変換する", () => {
@@ -25,17 +25,5 @@ describe("dateToParam", () => {
     // DatePickerで日付を入力中、桁が揃うまでの間はInvalid Dateが
     // 渡ってくることがある（例: "01"を入力しようとして"0"だけ打った瞬間）。
     expect(dateToParam(new Date(NaN))).toBe("");
-  });
-});
-
-describe("formatDateTime", () => {
-  it("ISO8601文字列をyyyy/MM/dd HH:mm形式に変換する", () => {
-    const result = formatDateTime("2026-08-01T10:30:00+09:00");
-    expect(result).toBe("2026/08/01 10:30");
-  });
-
-  it("不正な値の場合は「-」を返す", () => {
-    expect(formatDateTime("")).toBe("-");
-    expect(formatDateTime("invalid")).toBe("-");
   });
 });

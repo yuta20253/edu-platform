@@ -23,7 +23,7 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
-#  student_number          :string
+#  student_number          :string(255)
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
@@ -64,6 +64,7 @@ class User < ApplicationRecord
   has_many :school_class_requests, foreign_key: :applicant_id, inverse_of: :applicant
   has_many :approved_school_class_requests, class_name: 'SchoolClassRequest', foreign_key: :approver_id,
                                             inverse_of: :approver
+  has_many :announcement_targets, dependent: :destroy
 
   validates :name, presence: true, on: :update
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
@@ -80,6 +81,35 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
+
+  # JTIMatcher標準の実装はjti一致のみで失効判定するため、論理削除(deleted_at)
+  # より前に発行済みのJWTは削除後もそのまま使え続けてしまう。deleted_atが
+  # 設定されたUserのトークンは常に失効扱いにする。
+  def self.jwt_revoked?(payload, user)
+    return true if user.deleted_at?
+
+    payload['jti'] != user.jti
+  end
+
+  def admin?
+    user_role&.admin?
+  end
+
+  def student?
+    user_role&.student?
+  end
+
+  def teacher?
+    user_role&.teacher?
+  end
+
+  def guardian?
+    user_role&.guardian?
+  end
+
+  def requires_high_school?
+    user_role&.student? || user_role&.teacher?
+  end
 
   def profile_completed?
     info = user_personal_info
@@ -98,6 +128,27 @@ class User < ApplicationRecord
   scope :high_school_current, -> { joins(:grade).where(grades: { year: 1..3 }) }
   scope :invitation_pending, -> { where(password_reset_required: true) }
   scope :active, -> { where(deleted_at: nil) }
+
+  def generate_student_number
+    raise "生徒以外(#{user_role&.name})にstudent_numberは発行できません" unless student?
+
+    self.student_number = loop do
+      code = "#{high_school.school_code}#{STUDENT_NUMBER_DELIMITER}#{SecureRandom.alphanumeric(8).upcase}"
+      break code unless User.exists?(student_number: code)
+    end
+  end
+
+  def self.student_number_format_valid?(value)
+    value.present? && value.match?(STUDENT_NUMBER_FORMAT)
+  end
+
+  def self.school_code_from_student_number(value)
+    value.to_s.split(STUDENT_NUMBER_DELIMITER, 2).first
+  end
+
+  def self.high_school_mismatch?(target_high_school_id, expected_high_school_id)
+    target_high_school_id != expected_high_school_id
+  end
 
   private
 

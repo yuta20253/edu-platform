@@ -38,4 +38,15 @@ RSpec.describe Auth::LoginService, type: :service do
       expect { subject }.to raise_error(Auth::LoginService::LoginError)
     end
   end
+
+  context '論理削除済みのUserの場合' do
+    let(:email) { 'student@example.com' }
+    let(:password) { 'password' }
+
+    before { user.update_columns(deleted_at: Time.current) }
+
+    it 'LoginErrorが発生する' do
+      expect { subject }.to raise_error(Auth::LoginService::LoginError)
+    end
+  end
 end

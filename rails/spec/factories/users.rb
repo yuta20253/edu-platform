@@ -23,6 +23,7 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
+#  student_number          :string(255)
 #
 FactoryBot.define do
   factory :user do

@@ -9,9 +9,10 @@ type Props = {
   taskId: number;
   unitId: number;
   goalId?: number;
+  studyLogId?: number;
 };
 
-export const Question = ({ goalId, taskId, unitId }: Props) => {
+export const Question = ({ goalId, taskId, unitId, studyLogId }: Props) => {
   const { questions, loading, error } = useGetQuestions({ taskId, unitId });
   const {
     currentQuestion,
@@ -27,7 +28,7 @@ export const Question = ({ goalId, taskId, unitId }: Props) => {
     handleNextQuestion,
     handleSkip,
     handleAnswer,
-  } = useQuestion({ questions, taskId, unitId, goalId });
+  } = useQuestion({ questions, taskId, unitId, goalId, studyLogId });
 
   if (loading) {
     return (

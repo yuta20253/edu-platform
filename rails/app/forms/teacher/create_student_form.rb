@@ -1,0 +1,99 @@
+# frozen_string_literal: true
+
+module Teacher
+  class CreateStudentForm
+    include ActiveModel::Model
+    include ActiveModel::Attributes
+    include ActiveModel::Validations
+    include GradeScopeValidatable
+    include NameKanaEmailValidatable
+    include ExistingUserValidatable
+
+    attribute :name, :string
+    attribute :name_kana, :string
+    attribute :email, :string
+    attribute :grade_id, :integer
+    attribute :school_class_id, :integer
+
+    attr_accessor :current_user
+
+    validates :grade_id, presence: true
+    validates :school_class_id, presence: true
+
+    validate :grade_must_exist
+    validate :school_class_must_exist
+    validate :email_not_used_by_existing_student
+
+    def initialize(current_user:, **attributes)
+      super(attributes)
+      @current_user = current_user
+    end
+
+    def save
+      return false unless valid?
+
+      Student::CreateStudentService.new(
+        name: name,
+        name_kana: name_kana,
+        email: email,
+        high_school: current_user.high_school,
+        grade: grade,
+        school_class: school_class
+      ).call
+
+      true
+    rescue ActiveRecord::RecordInvalid => e
+      errors.add(:base, e.record.errors.full_messages.join(', '))
+      false
+    end
+
+    # current_userの所属高校配下に限定して解決するため、他校のgrade_idを
+    # 指定した場合は自然にnil(=grade_must_existのエラー)になる。
+    def grade
+      return @grade if defined?(@grade)
+      return @grade = nil if grade_id.blank? || current_user.blank?
+
+      @grade = current_user.high_school.grades.find_by(id: grade_id)
+    end
+
+    # gradeにスコープしてSchoolClassを解決するため、学年と学級の不一致も
+    # 「このgrade配下にその学級idは存在しない」として自然にエラーになる。
+    def school_class
+      return @school_class if defined?(@school_class)
+      return @school_class = nil if school_class_id.blank? || grade.blank?
+
+      @school_class = grade.school_classes.find_by(id: school_class_id)
+    end
+
+    def high_school
+      current_user&.high_school
+    end
+
+    private
+
+    def grade_must_exist
+      return if grade_id.blank? || current_user.blank?
+
+      errors.add(:grade_id, 'は所属高校の学年を指定してください') if grade.nil?
+    end
+
+    def school_class_must_exist
+      return if school_class_id.blank? || grade_id.blank?
+      return if grade.nil? # grade自体が見つからない場合はgrade_must_existのエラーに任せる
+
+      errors.add(:school_class_id, 'は学年に存在しません') if school_class.nil?
+    end
+
+    def email_not_used_by_existing_student
+      return if email.blank? || current_user.blank? || existing_user.blank?
+      return unless existing_user.student?
+      return if existing_user.high_school_id != current_user.high_school_id
+
+      errors.add(:email, 'は既に生徒として登録されています')
+    end
+
+    def grade_scope_error_attribute
+      :grade_id
+    end
+  end
+end

@@ -23,6 +23,7 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
+#  student_number          :string(255)
 #
 require 'rails_helper'
 
@@ -154,6 +155,25 @@ RSpec.describe User, type: :model do
       student.generate_student_number
 
       expect(student.student_number).to eq("#{high_school.school_code}-BBBBBBBB")
+    end
+  end
+
+  describe '.jwt_revoked?' do
+    let(:user) { create(:user, user_role: student_role, high_school:, grade:) }
+    let(:payload) { { 'jti' => user.jti } }
+
+    it 'jtiが一致していれば失効していない' do
+      expect(described_class.jwt_revoked?(payload, user)).to be(false)
+    end
+
+    it 'jtiが一致していなければ失効している' do
+      expect(described_class.jwt_revoked?({ 'jti' => 'other' }, user)).to be(true)
+    end
+
+    it '論理削除済みならjtiが一致していても失効している' do
+      user.update_columns(deleted_at: Time.current)
+
+      expect(described_class.jwt_revoked?(payload, user)).to be(true)
     end
   end
 end
