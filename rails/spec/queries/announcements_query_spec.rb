@@ -16,6 +16,17 @@ RSpec.describe AnnouncementsQuery do
       expect(result).to include(admin_announcement)
       expect(result).not_to include(teacher_announcement)
     end
+
+    context '論理削除済みの管理者が作成したお知らせがある場合' do
+      let!(:deleted_admin) { create(:user, :admin, high_school: nil, deleted_at: 1.day.ago) }
+      let!(:deleted_admin_announcement) { create(:announcement, publisher: deleted_admin) }
+
+      it '含まれない' do
+        result = described_class.new.result
+
+        expect(result).not_to include(deleted_admin_announcement)
+      end
+    end
   end
 
   describe '#search' do

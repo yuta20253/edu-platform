@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AnnouncementsQuery
-  def initialize(scope = Announcement.where(publisher_id: User.admins.select(:id)))
+  def initialize(scope = Announcement.where(publisher_id: User.admins.active.select(:id)))
     @scope = scope
   end
 
