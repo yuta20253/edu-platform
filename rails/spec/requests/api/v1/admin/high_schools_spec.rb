@@ -61,6 +61,14 @@ RSpec.describe 'Api::V1::Admin::HighSchools', type: :request do
         expect(school_data['student_count']).to eq(2)
       end
 
+      it 'student_count に論理削除済み(統合済み)のstudentは含まれない' do
+        students.first.update_columns(deleted_at: Time.current)
+
+        subject
+        school_data = response.parsed_body['schools'].find { |s| s['id'] == school.id }
+        expect(school_data['student_count']).to eq(1)
+      end
+
       it 'teacher_count が正しい' do
         subject
         school_data = response.parsed_body['schools'].find { |s| s['id'] == school.id }

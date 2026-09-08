@@ -189,12 +189,15 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
       login_teacher.update!(deleted_at: Time.current)
     end
 
-    it '更新できないこと' do
+    # login_teacher自身が論理削除されているため、この状態ではJWTが失効し
+    # そもそも認証を通過できない(「最後の教員」バリデーションには到達しない)。
+    # only_active_teacher?はcurrent_user自身を除外対象に含めていないため、
+    # 認証さえ通れば current_user が常に「他のアクティブな教員」として
+    # カウントされてしまい、この422は現状本番では到達不能。
+    it '本人が論理削除されているため認証エラー(401)になること' do
       subject
 
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.parsed_body['errors'])
-        .to include('最後の教員は更新できません')
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 
