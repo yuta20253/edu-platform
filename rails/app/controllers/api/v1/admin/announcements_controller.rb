@@ -78,7 +78,7 @@ module Api
         end
 
         def announcement_scope
-          AnnouncementsQuery.new.result
+          AnnouncementsQuery.new.result.includes(:publisher, :announcement_targets)
         end
 
         def announcement_params
