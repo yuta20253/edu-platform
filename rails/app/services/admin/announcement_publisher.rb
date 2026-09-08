@@ -12,7 +12,7 @@ module Admin
         return false
       end
 
-      @announcement.update(status: :published)
+      @announcement.update(status: :published, scheduled_at: nil)
     end
   end
 end

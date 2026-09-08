@@ -40,6 +40,11 @@ RSpec.describe Admin::AnnouncementPublisher do
         publisher.call
         expect(announcement.reload.status).to eq('published')
       end
+
+      it 'scheduled_atがクリアされる' do
+        publisher.call
+        expect(announcement.reload.scheduled_at).to be_nil
+      end
     end
 
     context 'すでにpublishedのお知らせの場合' do
