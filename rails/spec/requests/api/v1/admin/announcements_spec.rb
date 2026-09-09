@@ -81,6 +81,13 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
           expect(ids).to contain_exactly(admin_announcement.id)
         end
       end
+
+      context 'qに配列を指定する場合' do
+        it 'エラーにならずステータス200が返される' do
+          get '/api/v1/admin/announcements', params: { q: %w[foo bar] }, headers: auth_headers
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
 
     context '異常系 - 未認証アクセス' do

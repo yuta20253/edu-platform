@@ -6,6 +6,7 @@ class AnnouncementsQuery
   end
 
   def search(keyword)
+    keyword = keyword.to_s
     return self if keyword.blank?
 
     pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword)}%"
