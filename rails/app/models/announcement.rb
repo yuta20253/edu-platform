@@ -58,6 +58,7 @@ class Announcement < ApplicationRecord
   validates :content, presence: true, length: { maximum: 10_000 }
   validate :scheduled_at_must_be_future
   validate :valid_status_transition
+  validate :immutable_once_published, on: :update
 
   private
 
@@ -95,5 +96,11 @@ class Announcement < ApplicationRecord
 
     errors.add(:base, 'は配信済みのため削除できません')
     throw :abort
+  end
+
+  def immutable_once_published
+    return unless status_was == 'published'
+
+    errors.add(:base, 'は配信済みのため編集できません')
   end
 end

@@ -386,4 +386,32 @@ RSpec.describe Announcement, type: :model do
       end
     end
   end
+
+  describe '#update' do
+    context 'published状態の場合' do
+      let!(:announcement) { create(:announcement, status: :published, title: '旧タイトル') }
+
+      it '更新に失敗する' do
+        expect(announcement.update(title: '新タイトル')).to be false
+      end
+
+      it 'エラーが追加される' do
+        announcement.update(title: '新タイトル')
+        expect(announcement.errors[:base]).to be_present
+      end
+
+      it 'titleが更新されない' do
+        announcement.update(title: '新タイトル')
+        expect(announcement.reload.title).to eq('旧タイトル')
+      end
+    end
+
+    context 'draft状態の場合' do
+      let!(:announcement) { create(:announcement, status: :draft, title: '旧タイトル') }
+
+      it '更新に成功する' do
+        expect(announcement.update(title: '新タイトル')).to be true
+      end
+    end
+  end
 end
