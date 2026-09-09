@@ -6,6 +6,10 @@ module Api
       class AnnouncementsController < BaseController
         before_action :set_announcement, only: %i[show update destroy publish]
 
+        rescue_from ActiveRecord::RecordNotDestroyed do |e|
+          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+        end
+
         def index
           announcements = AnnouncementsQuery.new
                                             .search(params[:q])
@@ -52,10 +56,6 @@ module Api
         end
 
         def destroy
-          if @announcement.published?
-            return render json: { errors: ['配信済みのお知らせは削除できません'] }, status: :unprocessable_content
-          end
-
           @announcement.destroy!
           head :no_content
         end

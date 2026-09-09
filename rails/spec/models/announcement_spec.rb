@@ -359,4 +359,31 @@ RSpec.describe Announcement, type: :model do
       end
     end
   end
+
+  describe '#destroy' do
+    context 'published状態の場合' do
+      let!(:announcement) { create(:announcement, status: :published) }
+
+      it '削除に失敗する' do
+        expect(announcement.destroy).to be false
+      end
+
+      it 'エラーが追加される' do
+        announcement.destroy
+        expect(announcement.errors[:base]).to be_present
+      end
+
+      it 'レコードが削除されない' do
+        expect { announcement.destroy }.not_to change(described_class, :count)
+      end
+    end
+
+    context 'draft状態の場合' do
+      let!(:announcement) { create(:announcement, status: :draft) }
+
+      it '削除に成功する' do
+        expect { announcement.destroy }.to change(described_class, :count).by(-1)
+      end
+    end
+  end
 end

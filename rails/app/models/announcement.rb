@@ -16,6 +16,7 @@
 #
 class Announcement < ApplicationRecord
   before_validation :set_published_at
+  before_destroy :prevent_destroy_when_published
 
   STATUS_TRANSITIONS = {
     'draft' => %w[scheduled published],
@@ -87,5 +88,12 @@ class Announcement < ApplicationRecord
     return unless published?
 
     self.published_at ||= Time.current
+  end
+
+  def prevent_destroy_when_published
+    return unless published?
+
+    errors.add(:base, 'は配信済みのため削除できません')
+    throw :abort
   end
 end
