@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 module Teacher
-  class CreateAnnouncementService < Announcements::CreateService
+  class CreateAnnouncementService < Common::AnnouncementCreateService
   end
 end

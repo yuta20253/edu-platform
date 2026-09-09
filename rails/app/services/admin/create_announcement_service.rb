@@ -11,7 +11,7 @@ module Admin
     end
 
     def call
-      Announcements::CreateService.new(
+      Common::AnnouncementCreateService.new(
         publisher: @publisher,
         title: @title,
         content: @content,
