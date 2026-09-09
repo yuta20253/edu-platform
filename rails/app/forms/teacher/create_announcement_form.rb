@@ -12,7 +12,7 @@ module Teacher
     attribute :content, :string
     attribute :announcement_targets
     validates :title, presence: true
-    validates :content, presence: true
+    validates :content, presence: true, length: { maximum: 10_000 }
     validates :announcement_targets, presence: true
 
     validate :announcement_targets_must_be_array

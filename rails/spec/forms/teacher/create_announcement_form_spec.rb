@@ -62,6 +62,30 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
     end
 
+    context 'contentが10001文字の場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'あ' * 10_001 }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーが追加される' do
+        form.valid?
+
+        expect(form.errors[:content]).to be_present
+      end
+    end
+
+    context 'contentが10000文字の場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'あ' * 10_000 }
+
+      it 'validになる' do
+        expect(form).to be_valid
+      end
+    end
+
     context 'announcement_targetsが空' do
       let(:title) { 'テストタイトル' }
       let(:content) { 'テスト内容' }
