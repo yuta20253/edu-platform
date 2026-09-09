@@ -2,7 +2,7 @@
 
 class AnnouncementsQuery
   def initialize(scope = Announcement.where(publisher_id: User.admins.active.select(:id)))
-    @scope = scope.includes(:publisher, :announcement_targets)
+    @scope = scope
   end
 
   def search(keyword)

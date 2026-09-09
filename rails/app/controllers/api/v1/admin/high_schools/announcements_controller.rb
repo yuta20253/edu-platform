@@ -11,6 +11,7 @@ module Api
             announcements = AnnouncementsQuery.new(Announcement.for_high_school(school.id))
                                               .order_default
                                               .result
+                                              .includes(:publisher, :announcement_targets)
                                               .page(sanitized_page).per(per_page)
 
             render json: {

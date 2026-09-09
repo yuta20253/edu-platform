@@ -16,6 +16,7 @@ module Api
                                             .filter_by_status(params[:status])
                                             .order_default
                                             .result
+                                            .includes(:publisher, :announcement_targets)
                                             .page(sanitized_page).per(sanitized_per_page)
 
           render json: {
