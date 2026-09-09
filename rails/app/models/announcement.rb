@@ -16,6 +16,7 @@
 #
 class Announcement < ApplicationRecord
   before_validation :set_published_at
+  before_destroy :prevent_destroy_when_published
 
   STATUS_TRANSITIONS = {
     'draft' => %w[scheduled published],
@@ -47,8 +48,17 @@ class Announcement < ApplicationRecord
       .distinct
   }
 
+  scope :for_high_school, lambda { |high_school_id|
+    joins(:announcement_targets)
+      .where(announcement_targets: { high_school_id: high_school_id })
+      .distinct
+  }
+
+  validates :title, presence: true, length: { maximum: 255 }
+  validates :content, presence: true, length: { maximum: 10_000 }
   validate :scheduled_at_must_be_future
   validate :valid_status_transition
+  validate :immutable_once_published, on: :update
 
   private
 
@@ -79,5 +89,18 @@ class Announcement < ApplicationRecord
     return unless published?
 
     self.published_at ||= Time.current
+  end
+
+  def prevent_destroy_when_published
+    return unless published?
+
+    errors.add(:base, 'は配信済みのため削除できません')
+    throw :abort
+  end
+
+  def immutable_once_published
+    return unless status_was == 'published'
+
+    errors.add(:base, 'は配信済みのため編集できません')
   end
 end

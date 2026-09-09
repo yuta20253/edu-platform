@@ -10,6 +10,10 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     }
   end
 
+  let!(:admin_user) { create(:user, :admin, high_school: nil) }
+  let(:cookie) { login_and_get_cookie(admin_user) }
+  let(:auth_headers) { headers.merge('Cookie' => cookie) }
+
   def login_and_get_cookie(user)
     post '/api/v1/user/login',
          params: { email: user.email, password: 'password' }.to_json,
@@ -17,151 +21,288 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     response.headers['Set-Cookie']&.split(';')&.first
   end
 
-  describe 'GET /api/v1/admin/high_schools/:high_school_id/announcements' do
+  describe 'GET /api/v1/admin/announcements' do
+    subject { get '/api/v1/admin/announcements', headers: auth_headers }
+
+    let!(:admin_announcement) do
+      ann = create(:announcement, publisher: admin_user, title: 'システムメンテナンスのお知らせ')
+      create(:announcement_target, :all_users, announcement: ann)
+      ann
+    end
+
+    let!(:teacher_announcement) do
+      teacher = create(:user, :teacher)
+      ann = create(:announcement, publisher: teacher, title: '教師からのお知らせ')
+      create(:announcement_target, :by_school, announcement: ann, high_school_id: teacher.high_school_id)
+      ann
+    end
+
     context '正常系' do
-      subject do
-        get "/api/v1/admin/high_schools/#{school.id}/announcements",
-            headers: headers.merge('Cookie' => cookie)
-      end
-
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let!(:publisher) do
-        create(:user, :admin, high_school: nil, name: '配信者太郎', name_kana: 'ハイシンシャタロウ')
-      end
-      let!(:school) { create(:high_school) }
-      let!(:announcement) do
-        ann = create(:announcement, publisher: publisher)
-        create(:announcement_target, announcement: ann, target_type: :by_school, high_school_id: school.id)
-        ann
-      end
-      let(:cookie) { login_and_get_cookie(admin_user) }
-
       it 'ステータス200が返される' do
         subject
         expect(response).to have_http_status(:ok)
       end
 
-      it 'announcements キーが含まれる' do
+      it 'announcements キーとmetaが含まれる' do
         subject
         expect(response.parsed_body).to have_key('announcements')
+        expect(response.parsed_body['meta']).to include('current_page' => 1, 'per_page' => 20)
       end
 
-      it 'meta にページネーション情報が含まれる' do
-        subject
-        expect(response.parsed_body['meta']).to include(
-          'current_page' => 1,
-          'total_pages' => 1,
-          'total_count' => 1,
-          'per_page' => 20
-        )
-      end
-
-      it '各お知らせに必要なフィールドが含まれる' do
-        subject
-        data = response.parsed_body['announcements'].first
-        expect(data.keys).to include(
-          'id', 'title', 'content', 'status', 'published_at', 'scheduled_at',
-          'created_at', 'publisher', 'targets'
-        )
-      end
-
-      it 'publisher に配信者名が含まれる' do
-        subject
-        data = response.parsed_body['announcements'].first
-        expect(data['publisher']['name']).to eq('配信者太郎')
-        expect(data['publisher']['name_kana']).to eq('ハイシンシャタロウ')
-      end
-
-      it 'targets が配列で返される' do
-        subject
-        data = response.parsed_body['announcements'].first
-        expect(data['targets']).to be_an(Array)
-        expect(data['targets'].first['high_school_id']).to eq(school.id)
-      end
-
-      it '他校をターゲットにした行は targets に含まれない' do
-        other_school = create(:high_school)
-        create(:announcement_target, announcement: announcement, target_type: :by_school,
-                                     high_school_id: other_school.id)
-        subject
-        data = response.parsed_body['announcements'].find { |a| a['id'] == announcement.id }
-        school_ids = data['targets'].pluck('high_school_id')
-        expect(school_ids).to all(eq(school.id))
-      end
-
-      it 'status が文字列で返される' do
-        subject
-        data = response.parsed_body['announcements'].first
-        expect(data['status']).to eq('draft')
-      end
-
-      it '対象高校をターゲットにしたお知らせのみ返される' do
-        other_school = create(:high_school)
-        other_ann = create(:announcement, publisher: publisher)
-        create(:announcement_target, announcement: other_ann, target_type: :by_school,
-                                     high_school_id: other_school.id)
+      it '管理者が作成したお知らせのみ含まれる' do
         subject
         ids = response.parsed_body['announcements'].pluck('id')
-        expect(ids).to contain_exactly(announcement.id)
+        expect(ids).to contain_exactly(admin_announcement.id)
       end
 
-      it '全体配信のお知らせは含まれない' do
-        all_ann = create(:announcement, publisher: publisher)
-        create(:announcement_target, :all_users, announcement: all_ann)
+      it '一覧の各要素にcontentを含まない' do
         subject
-        ids = response.parsed_body['announcements'].pluck('id')
-        expect(ids).not_to include(all_ann.id)
+        expect(response.parsed_body['announcements'].first.keys).not_to include('content')
       end
 
-      it 'created_at の降順で返される' do
-        newer = create(:announcement, publisher: publisher)
-        create(:announcement_target, announcement: newer, target_type: :by_school, high_school_id: school.id)
-        newer.update!(created_at: 1.day.from_now)
-        subject
-        ids = response.parsed_body['announcements'].pluck('id')
-        expect(ids).to eq([newer.id, announcement.id])
+      context 'statusで絞り込む場合' do
+        let!(:published_announcement) do
+          ann = create(:announcement, publisher: admin_user, status: :published)
+          create(:announcement_target, :all_users, announcement: ann)
+          ann
+        end
+
+        it '指定したstatusのみ返す' do
+          get '/api/v1/admin/announcements', params: { status: 'published' }, headers: auth_headers
+          ids = response.parsed_body['announcements'].pluck('id')
+          expect(ids).to contain_exactly(published_announcement.id)
+        end
       end
 
-      it 'created_at が同一の場合は id の降順で返される' do
-        same_time = announcement.created_at
-        newer = create(:announcement, publisher: publisher)
-        create(:announcement_target, announcement: newer, target_type: :by_school, high_school_id: school.id)
-        newer.update!(created_at: same_time)
-        subject
-        ids = response.parsed_body['announcements'].pluck('id')
-        expect(ids).to eq([newer.id, announcement.id])
+      context 'qで検索する場合' do
+        it 'タイトルが部分一致するもののみ返す' do
+          get '/api/v1/admin/announcements', params: { q: 'メンテナンス' }, headers: auth_headers
+          ids = response.parsed_body['announcements'].pluck('id')
+          expect(ids).to contain_exactly(admin_announcement.id)
+        end
+      end
+
+      context 'qに配列を指定する場合' do
+        it 'エラーにならずステータス200が返される' do
+          get '/api/v1/admin/announcements', params: { q: %w[foo bar] }, headers: auth_headers
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 
     context '異常系 - 未認証アクセス' do
-      let!(:school) { create(:high_school) }
-
       it '401が返される' do
-        get "/api/v1/admin/high_schools/#{school.id}/announcements", headers: headers
+        get '/api/v1/admin/announcements', headers: headers
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
     context '異常系 - 管理者以外のアクセス（生徒）' do
-      let!(:student_user) { create(:user) }
-      let!(:school)       { create(:high_school) }
-
       it '403が返される' do
-        cookie = login_and_get_cookie(student_user)
-        get "/api/v1/admin/high_schools/#{school.id}/announcements",
-            headers: headers.merge('Cookie' => cookie)
+        student = create(:user)
+        cookie = login_and_get_cookie(student)
+        get '/api/v1/admin/announcements', headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:forbidden)
       end
     end
+  end
 
-    context '異常系 - 存在しない high_school_id' do
-      let!(:admin_user) { create(:user, :admin, high_school: nil) }
-      let(:cookie) { login_and_get_cookie(admin_user) }
+  describe 'GET /api/v1/admin/announcements/:id' do
+    let!(:announcement) do
+      ann = create(:announcement, publisher: admin_user, content: '詳細本文です。')
+      create(:announcement_target, :all_users, announcement: ann)
+      ann
+    end
 
+    context '正常系' do
+      it 'ステータス200でcontentを含む詳細が返される' do
+        get "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['announcement']['content']).to eq('詳細本文です。')
+      end
+    end
+
+    context '異常系 - 教師が作成したお知らせを指定した場合' do
       it '404が返される' do
-        get '/api/v1/admin/high_schools/0/announcements',
-            headers: headers.merge('Cookie' => cookie)
+        teacher = create(:user, :teacher)
+        other = create(:announcement, publisher: teacher)
+        create(:announcement_target, :by_school, announcement: other, high_school_id: teacher.high_school_id)
+
+        get "/api/v1/admin/announcements/#{other.id}", headers: auth_headers
         expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'POST /api/v1/admin/announcements' do
+    let(:valid_params) do
+      {
+        announcement: {
+          title: 'システムメンテナンスのお知らせ',
+          content: 'メンテナンスを実施します。',
+          status: 'draft'
+        }
+      }
+    end
+
+    context '正常系' do
+      it 'ステータス201が返される' do
+        post '/api/v1/admin/announcements', params: valid_params.to_json, headers: auth_headers
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'announcementが作成される' do
+        expect do
+          post '/api/v1/admin/announcements', params: valid_params.to_json, headers: auth_headers
+        end.to change(Announcement, :count).by(1)
+      end
+
+      it 'publisherが現在の管理者になる' do
+        post '/api/v1/admin/announcements', params: valid_params.to_json, headers: auth_headers
+        expect(Announcement.last.publisher).to eq(admin_user)
+      end
+
+      it 'all_usersターゲットが1件作成される' do
+        post '/api/v1/admin/announcements', params: valid_params.to_json, headers: auth_headers
+        targets = Announcement.last.announcement_targets
+        expect(targets.count).to eq(1)
+        expect(targets.first.target_type).to eq('all_users')
+      end
+    end
+
+    context '異常系 - titleが空の場合' do
+      it 'ステータス422が返される' do
+        params = valid_params.deep_merge(announcement: { title: '' })
+        post '/api/v1/admin/announcements', params: params.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - statusが不正な場合' do
+      it 'ステータス422が返される' do
+        params = valid_params.deep_merge(announcement: { status: 'invalid' })
+        post '/api/v1/admin/announcements', params: params.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - 未認証アクセス' do
+      it '401が返される' do
+        post '/api/v1/admin/announcements', params: valid_params.to_json, headers: headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
+  describe 'PATCH /api/v1/admin/announcements/:id' do
+    context 'draftのお知らせの場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, title: '旧タイトル') }
+
+      it 'ステータス200が返される' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'titleが更新される' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(announcement.reload.title).to eq('新タイトル')
+      end
+    end
+
+    context 'publishedのお知らせの場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, title: '旧タイトル', status: :published) }
+
+      it 'ステータス422が返される' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'titleが更新されない' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(announcement.reload.title).to eq('旧タイトル')
+      end
+    end
+
+    context '異常系 - 教師が作成したお知らせを指定した場合' do
+      it '404が返される' do
+        teacher = create(:user, :teacher)
+        other = create(:announcement, publisher: teacher)
+        create(:announcement_target, :by_school, announcement: other, high_school_id: teacher.high_school_id)
+
+        patch "/api/v1/admin/announcements/#{other.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'DELETE /api/v1/admin/announcements/:id' do
+    context 'draftのお知らせの場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user) }
+
+      it 'ステータス204が返される' do
+        delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it 'announcementが削除される' do
+        expect do
+          delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        end.to change(Announcement, :count).by(-1)
+      end
+    end
+
+    context 'publishedのお知らせの場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, status: :published) }
+
+      it 'ステータス422が返される' do
+        delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'announcementが削除されない' do
+        expect do
+          delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        end.not_to change(Announcement, :count)
+      end
+    end
+  end
+
+  describe 'POST /api/v1/admin/announcements/:id/publish' do
+    context 'draftのお知らせの場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user) }
+
+      before do
+        create(:announcement_target, :all_users, announcement: announcement)
+      end
+
+      it 'ステータス200が返される' do
+        post "/api/v1/admin/announcements/#{announcement.id}/publish", headers: auth_headers
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'publishedになる' do
+        post "/api/v1/admin/announcements/#{announcement.id}/publish", headers: auth_headers
+        expect(announcement.reload.status).to eq('published')
+      end
+
+      it '生徒から見えるようになる' do
+        student = create(:user)
+        post "/api/v1/admin/announcements/#{announcement.id}/publish", headers: auth_headers
+        expect(Announcement.for_user(student).published).to include(announcement)
+      end
+    end
+
+    context 'すでにpublishedのお知らせの場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, status: :published) }
+
+      it 'ステータス422が返される' do
+        post "/api/v1/admin/announcements/#{announcement.id}/publish", headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
