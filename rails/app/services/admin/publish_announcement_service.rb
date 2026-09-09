@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class AnnouncementPublisher
+  class PublishAnnouncementService
     def initialize(announcement)
       @announcement = announcement
     end

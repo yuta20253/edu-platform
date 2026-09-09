@@ -61,7 +61,7 @@ module Api
         end
 
         def publish
-          publisher = ::Admin::AnnouncementPublisher.new(@announcement)
+          publisher = ::Admin::PublishAnnouncementService.new(@announcement)
 
           if publisher.call
             render json: { message: 'お知らせを配信しました。' }, status: :ok
