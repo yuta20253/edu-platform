@@ -34,7 +34,7 @@ module Teacher
     def save
       return false unless valid?
 
-      ::Teacher::CreateAnnouncementService.new(
+      ::Common::AnnouncementCreateService.new(
         publisher: current_user,
         title: title,
         content: content,

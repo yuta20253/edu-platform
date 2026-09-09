@@ -79,5 +79,85 @@ RSpec.describe Common::AnnouncementCreateService do
         expect(Announcement.count).to eq(0)
       end
     end
+
+    context 'target_type別のannouncement_target属性' do
+      subject(:service) do
+        described_class.new(
+          publisher: publisher,
+          title: 'テストタイトル',
+          content: 'テスト内容',
+          announcement_targets: announcement_targets
+        )
+      end
+
+      let!(:high_school) { create(:high_school) }
+      let(:publisher) { create(:user, :teacher, high_school: high_school) }
+
+      context 'target_type: by_role' do
+        let(:announcement_targets) do
+          [{ 'target_type' => 'by_role', 'user_role_id' => publisher.user_role_id }]
+        end
+
+        it 'user_role_idが保存される' do
+          service.call
+
+          target = AnnouncementTarget.last
+          expect(target.target_type).to eq('by_role')
+          expect(target.user_role_id).to eq(publisher.user_role_id)
+        end
+      end
+
+      context 'target_type: by_grade' do
+        let(:announcement_targets) do
+          [{ 'target_type' => 'by_grade', 'grade_id' => publisher.grade_id, 'user_role_id' => publisher.user_role_id }]
+        end
+
+        it 'grade_idとuser_role_idが保存される' do
+          service.call
+
+          target = AnnouncementTarget.last
+          expect(target.target_type).to eq('by_grade')
+          expect(target.grade_id).to eq(publisher.grade_id)
+          expect(target.user_role_id).to eq(publisher.user_role_id)
+        end
+      end
+
+      context 'target_type: by_school' do
+        let(:announcement_targets) { [{ 'target_type' => 'by_school' }] }
+
+        it 'high_school_idが保存される' do
+          service.call
+
+          target = AnnouncementTarget.last
+          expect(target.target_type).to eq('by_school')
+          expect(target.high_school_id).to eq(publisher.high_school_id)
+        end
+      end
+
+      context 'target_type: by_user' do
+        let(:announcement_targets) { [{ 'target_type' => 'by_user', 'user_id' => publisher.id }] }
+
+        it 'user_idが保存される' do
+          service.call
+
+          target = AnnouncementTarget.last
+          expect(target.target_type).to eq('by_user')
+          expect(target.user_id).to eq(publisher.id)
+        end
+      end
+
+      context '複数target_type' do
+        let(:announcement_targets) do
+          [
+            { 'target_type' => 'by_school' },
+            { 'target_type' => 'by_role', 'user_role_id' => publisher.user_role_id }
+          ]
+        end
+
+        it '複数のannouncement_targetが作成される' do
+          expect { service.call }.to change(AnnouncementTarget, :count).by(2)
+        end
+      end
+    end
   end
 end
