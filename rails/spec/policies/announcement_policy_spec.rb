@@ -43,14 +43,14 @@ RSpec.describe AnnouncementPolicy do
   end
 
   describe '#update?' do
-    include_examples 'ownerによるdraft/scheduledのみ許可するアクション', :update?
+    it_behaves_like 'ownerによるdraft/scheduledのみ許可するアクション', :update?
   end
 
   describe '#destroy?' do
-    include_examples 'ownerによるdraft/scheduledのみ許可するアクション', :destroy?
+    it_behaves_like 'ownerによるdraft/scheduledのみ許可するアクション', :destroy?
   end
 
   describe '#publish?' do
-    include_examples 'ownerによるdraft/scheduledのみ許可するアクション', :publish?
+    it_behaves_like 'ownerによるdraft/scheduledのみ許可するアクション', :publish?
   end
 end
