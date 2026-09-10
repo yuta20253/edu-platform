@@ -214,10 +214,10 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context 'publishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, title: '旧タイトル', status: :published) }
 
-      it 'ステータス422が返される' do
+      it 'ステータス403が返される' do
         patch "/api/v1/admin/announcements/#{announcement.id}",
               params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:forbidden)
       end
 
       it 'titleが更新されない' do
@@ -278,9 +278,9 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context 'publishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, status: :published) }
 
-      it 'ステータス422が返される' do
+      it 'ステータス403が返される' do
         delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:forbidden)
       end
 
       it 'announcementが削除されない' do
@@ -337,9 +337,9 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context 'すでにpublishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, status: :published) }
 
-      it 'ステータス422が返される' do
+      it 'ステータス403が返される' do
         post "/api/v1/admin/announcements/#{announcement.id}/publish", headers: auth_headers
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
