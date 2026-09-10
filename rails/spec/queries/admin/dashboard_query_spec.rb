@@ -7,6 +7,16 @@ RSpec.describe Admin::DashboardQuery, type: :model do
 
   let!(:admin) { create(:user, :admin, high_school: nil) }
 
+  # task ファクトリは user を持たないため、学習ログ・解答履歴は
+  # 本人のタスクにぶら下げて作る。
+  def create_study_log_for(user, **attrs)
+    create(:study_log, user: user, task: create(:task, user: user), **attrs)
+  end
+
+  def create_question_history_for(user, **attrs)
+    create(:question_history, user: user, task: create(:task, user: user), **attrs)
+  end
+
   describe '#stats' do
     describe ':student_count / :teacher_count / :admin_count' do
       before do
@@ -66,27 +76,27 @@ RSpec.describe Admin::DashboardQuery, type: :model do
       let!(:student) { create(:user) }
 
       it '30日以内に学習ログがある生徒を数える' do
-        create(:study_log, user: student, started_at: 10.days.ago)
+        create_study_log_for(student, started_at: 10.days.ago)
 
         expect(query.stats).to include(active_student_count: 1)
       end
 
       it '30日以内に解答履歴がある生徒を数える' do
-        create(:question_history, user: student, answered_at: 10.days.ago)
+        create_question_history_for(student, answered_at: 10.days.ago)
 
         expect(query.stats).to include(active_student_count: 1)
       end
 
       it '学習ログと解答履歴の両方がある生徒を二重に数えない' do
-        create(:study_log, user: student, started_at: 10.days.ago)
-        create(:question_history, user: student, answered_at: 5.days.ago)
+        create_study_log_for(student, started_at: 10.days.ago)
+        create_question_history_for(student, answered_at: 5.days.ago)
 
         expect(query.stats).to include(active_student_count: 1)
       end
 
       it '31日前の活動しかない生徒を数えない' do
-        create(:study_log, user: student, started_at: 31.days.ago)
-        create(:question_history, user: student, answered_at: 31.days.ago)
+        create_study_log_for(student, started_at: 31.days.ago)
+        create_question_history_for(student, answered_at: 31.days.ago)
 
         expect(query.stats).to include(active_student_count: 0)
       end
@@ -96,29 +106,29 @@ RSpec.describe Admin::DashboardQuery, type: :model do
       end
 
       it '論理削除済みの活動しかない生徒を数えない' do
-        create(:study_log, user: student, started_at: 10.days.ago, deleted_at: Time.current)
-        create(:question_history, user: student, answered_at: 10.days.ago, deleted_at: Time.current)
+        create_study_log_for(student, started_at: 10.days.ago, deleted_at: Time.current)
+        create_question_history_for(student, answered_at: 10.days.ago, deleted_at: Time.current)
 
         expect(query.stats).to include(active_student_count: 0)
       end
 
       it '論理削除済みの生徒は活動があっても数えない' do
         student.update!(deleted_at: Time.current)
-        create(:study_log, user: student, started_at: 10.days.ago)
+        create_study_log_for(student, started_at: 10.days.ago)
 
         expect(query.stats).to include(active_student_count: 0)
       end
 
       it '招待未受諾の生徒は活動があっても数えない' do
         student.update!(password_reset_required: true)
-        create(:study_log, user: student, started_at: 10.days.ago)
+        create_study_log_for(student, started_at: 10.days.ago)
 
         expect(query.stats).to include(active_student_count: 0)
       end
 
       it '活動のある教師を生徒として数えない' do
         teacher = create(:user, :teacher)
-        create(:study_log, user: teacher, started_at: 10.days.ago)
+        create_study_log_for(teacher, started_at: 10.days.ago)
 
         expect(query.stats).to include(active_student_count: 0)
       end
@@ -128,7 +138,7 @@ RSpec.describe Admin::DashboardQuery, type: :model do
       let!(:student) { create(:user) }
 
       it '指定した日数で活動を判定する' do
-        create(:study_log, user: student, started_at: 10.days.ago)
+        create_study_log_for(student, started_at: 10.days.ago)
 
         expect(described_class.new(active_within_days: 7).stats).to include(active_student_count: 0)
         expect(described_class.new(active_within_days: 60).stats).to include(active_student_count: 1)
