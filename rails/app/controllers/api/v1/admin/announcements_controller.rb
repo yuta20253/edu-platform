@@ -47,6 +47,8 @@ module Api
         end
 
         def update
+          authorize @announcement
+
           form = ::Admin::AnnouncementForm.new(announcement: @announcement, **announcement_params.to_h.symbolize_keys)
 
           if form.save
@@ -57,11 +59,15 @@ module Api
         end
 
         def destroy
+          authorize @announcement
+
           @announcement.destroy!
           head :no_content
         end
 
         def publish
+          authorize @announcement
+
           publisher = ::Admin::PublishAnnouncementService.new(@announcement)
 
           if publisher.call

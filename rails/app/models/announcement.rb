@@ -60,6 +60,10 @@ class Announcement < ApplicationRecord
   validate :valid_status_transition
   validate :immutable_once_published, on: :update
 
+  def editable?
+    !published?
+  end
+
   private
 
   def scheduled_at_must_be_future
@@ -92,14 +96,14 @@ class Announcement < ApplicationRecord
   end
 
   def prevent_destroy_when_published
-    return unless published?
+    return if editable?
 
     errors.add(:base, 'は配信済みのため削除できません')
     throw :abort
   end
 
   def immutable_once_published
-    return unless status_was == 'published'
+    return if status_was != 'published'
 
     errors.add(:base, 'は配信済みのため編集できません')
   end

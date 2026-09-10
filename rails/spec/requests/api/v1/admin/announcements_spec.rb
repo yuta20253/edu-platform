@@ -214,10 +214,10 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context 'publishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, title: '旧タイトル', status: :published) }
 
-      it 'ステータス422が返される' do
+      it 'ステータス403が返される' do
         patch "/api/v1/admin/announcements/#{announcement.id}",
               params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:forbidden)
       end
 
       it 'titleが更新されない' do
@@ -236,6 +236,25 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         patch "/api/v1/admin/announcements/#{other.id}",
               params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 他の管理者が作成したdraftのお知らせを指定した場合' do
+      let!(:other_admin_announcement) do
+        other_admin = create(:user, :admin, high_school: nil)
+        create(:announcement, publisher: other_admin, title: '他の管理者のお知らせ')
+      end
+
+      it 'ステータス403が返される' do
+        patch "/api/v1/admin/announcements/#{other_admin_announcement.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'titleが更新されない' do
+        patch "/api/v1/admin/announcements/#{other_admin_announcement.id}",
+              params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
+        expect(other_admin_announcement.reload.title).to eq('他の管理者のお知らせ')
       end
     end
   end
@@ -259,14 +278,32 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context 'publishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, status: :published) }
 
-      it 'ステータス422が返される' do
+      it 'ステータス403が返される' do
         delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:forbidden)
       end
 
       it 'announcementが削除されない' do
         expect do
           delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        end.not_to change(Announcement, :count)
+      end
+    end
+
+    context '異常系 - 他の管理者が作成したdraftのお知らせの場合' do
+      let!(:other_admin_announcement) do
+        other_admin = create(:user, :admin, high_school: nil)
+        create(:announcement, publisher: other_admin)
+      end
+
+      it 'ステータス403が返される' do
+        delete "/api/v1/admin/announcements/#{other_admin_announcement.id}", headers: auth_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'announcementが削除されない' do
+        expect do
+          delete "/api/v1/admin/announcements/#{other_admin_announcement.id}", headers: auth_headers
         end.not_to change(Announcement, :count)
       end
     end
@@ -300,9 +337,26 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context 'すでにpublishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, status: :published) }
 
-      it 'ステータス422が返される' do
+      it 'ステータス403が返される' do
         post "/api/v1/admin/announcements/#{announcement.id}/publish", headers: auth_headers
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context '異常系 - 他の管理者が作成したdraftのお知らせの場合' do
+      let!(:other_admin_announcement) do
+        other_admin = create(:user, :admin, high_school: nil)
+        create(:announcement, publisher: other_admin)
+      end
+
+      it 'ステータス403が返される' do
+        post "/api/v1/admin/announcements/#{other_admin_announcement.id}/publish", headers: auth_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'publishedにならない' do
+        post "/api/v1/admin/announcements/#{other_admin_announcement.id}/publish", headers: auth_headers
+        expect(other_admin_announcement.reload.status).to eq('draft')
       end
     end
   end
