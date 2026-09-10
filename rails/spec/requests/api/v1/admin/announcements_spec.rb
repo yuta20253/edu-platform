@@ -346,9 +346,7 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
     context '異常系 - 他の管理者が作成したdraftのお知らせの場合' do
       let!(:other_admin_announcement) do
         other_admin = create(:user, :admin, high_school: nil)
-        ann = create(:announcement, publisher: other_admin)
-        create(:announcement_target, :all_users, announcement: ann)
-        ann
+        create(:announcement, publisher: other_admin)
       end
 
       it 'ステータス403が返される' do
