@@ -152,7 +152,7 @@ RSpec.describe Admin::DashboardQuery, type: :model do
     it '作成日時の降順で最大5件返す' do
       imports = create_list(:import_history, 6, user: admin, unit: unit)
 
-      expect(query.recent_imports.to_a).to eq(imports.reverse.first(5))
+      expect(query.recent_imports.to_a).to eq(imports.last(5).reverse)
     end
 
     it '生徒CSVのインポート履歴を含めない' do
