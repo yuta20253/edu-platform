@@ -65,10 +65,22 @@ RSpec.describe Admin::DashboardQuery, type: :model do
     end
 
     describe ':total_questions' do
+      let!(:unit) { create(:unit) }
+
       it '問題の総数を返す' do
-        create_list(:question, 4, unit: create(:unit))
+        create_list(:question, 4, unit: unit)
 
         expect(query.stats).to include(total_questions: 4)
+      end
+
+      # CSVインポートの上書きモード（Admin::QuestionCsvBatchImportService）は
+      # 既存問題を論理削除するため、単純な Question.count では上書きのたびに
+      # 総問題数が水増しされる。
+      it '論理削除済みの問題を数えない' do
+        create_list(:question, 2, unit: unit)
+        create(:question, unit: unit, deleted_at: Time.current)
+
+        expect(query.stats).to include(total_questions: 2)
       end
     end
 
