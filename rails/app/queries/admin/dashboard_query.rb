@@ -41,8 +41,10 @@ module Admin
       AnnouncementsQuery.new.order_default.result.limit(RECENT_ANNOUNCEMENTS_LIMIT)
     end
 
+    # study_logs と question_histories の判定基準をぶらさないため、
+    # 1インスタンス内では同じ時刻を使い回す。
     def active_since
-      active_within_days.days.ago
+      @active_since ||= active_within_days.days.ago
     end
 
     private
