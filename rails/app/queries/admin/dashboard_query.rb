@@ -27,7 +27,7 @@ module Admin
         active_student_count: active_student_count,
         teacher_count: counts.dig('teacher', :accepted),
         admin_count: counts.dig('admin', :accepted),
-        total_questions: Question.count,
+        total_questions: Question.active.count,
         pending_student_count: counts.dig('student', :pending),
         pending_teacher_count: counts.dig('teacher', :pending)
       }
