@@ -27,12 +27,6 @@ RSpec.describe AnnouncementsQuery do
         expect(result).not_to include(deleted_admin_announcement)
       end
     end
-
-    it 'publisherとannouncement_targetsがeager loadされる' do
-      result = described_class.new.result
-
-      expect(result.includes_values).to contain_exactly(:publisher, :announcement_targets)
-    end
   end
 
   describe '#search' do
@@ -60,6 +54,10 @@ RSpec.describe AnnouncementsQuery do
 
     it 'SQLの特殊文字を含んでいてもエラーにならない' do
       expect { described_class.new.search('%_\\').result.to_a }.not_to raise_error
+    end
+
+    it 'keywordが配列の場合でもエラーにならない' do
+      expect { described_class.new.search(%w[foo bar]).result.to_a }.not_to raise_error
     end
   end
 

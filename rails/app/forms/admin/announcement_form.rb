@@ -54,11 +54,6 @@ module Admin
     def update_announcement
       @result = announcement
 
-      if announcement.published?
-        errors.add(:status, 'は配信済みのため編集できません')
-        return false
-      end
-
       success = announcement.update(
         {
           title: title,

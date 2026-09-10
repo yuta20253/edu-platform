@@ -8,11 +8,11 @@ module Api
           def index
             school = HighSchool.find(params[:high_school_id])
             per_page = sanitized_per_page
-            announcements = Announcement
-                            .for_high_school(school.id)
-                            .includes(:publisher, :announcement_targets)
-                            .order(created_at: :desc, id: :desc)
-                            .page(sanitized_page).per(per_page)
+            announcements = AnnouncementsQuery.new(Announcement.for_high_school(school.id))
+                                              .order_default
+                                              .result
+                                              .includes(:publisher, :announcement_targets)
+                                              .page(sanitized_page).per(per_page)
 
             render json: {
               announcements: ActiveModelSerializers::SerializableResource.new(

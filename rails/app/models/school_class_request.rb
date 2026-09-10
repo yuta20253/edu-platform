@@ -28,6 +28,8 @@ class SchoolClassRequest < ApplicationRecord
   validate :validate_request_attributes
   validate :no_duplicate_pending_request_for_school_class
 
+  validates :reason, length: { maximum: 10_000 }, allow_nil: true
+
   enum action: {
     creation: 0,
     modification: 1,

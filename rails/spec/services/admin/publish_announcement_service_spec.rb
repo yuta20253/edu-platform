@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Admin::AnnouncementPublisher do
+RSpec.describe Admin::PublishAnnouncementService do
   subject(:publisher) { described_class.new(announcement) }
 
   let(:admin) { create(:user, :admin, high_school: nil) }

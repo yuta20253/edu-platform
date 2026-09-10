@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Announcements
-  class CreateService
+module Common
+  class AnnouncementCreateService
     def initialize(publisher:, title:, content:, announcement_targets:, delivery: {})
       @publisher = publisher
       @title = title

@@ -2,10 +2,11 @@
 
 class AnnouncementsQuery
   def initialize(scope = Announcement.where(publisher_id: User.admins.active.select(:id)))
-    @scope = scope.includes(:publisher, :announcement_targets)
+    @scope = scope
   end
 
   def search(keyword)
+    keyword = keyword.to_s
     return self if keyword.blank?
 
     pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword)}%"
