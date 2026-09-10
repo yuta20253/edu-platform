@@ -66,7 +66,7 @@ module Api
         end
 
         def publish
-          authorize @announcement, :update?
+          authorize @announcement
 
           publisher = ::Admin::PublishAnnouncementService.new(@announcement)
 
