@@ -33,5 +33,11 @@ RSpec.describe Teacher::CreateSystemAnnouncementService do
 
       expect(Announcement.for_user(teacher).published).to include(Announcement.last)
     end
+
+    it 'system_generatedがtrueになる' do
+      service.call
+
+      expect(Announcement.last.system_generated).to be true
+    end
   end
 end

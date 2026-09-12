@@ -241,6 +241,25 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
 
           expect(json['announcements'].first).not_to have_key('publisher')
         end
+
+        context 'システムが自動生成した通知(面談確定等)が自分宛にpublisherとして記録されている場合' do
+          let!(:system_generated_announcement) do
+            a = create(:announcement, :published, :system_generated, publisher: teacher)
+            create(:announcement_target, :by_user, announcement: a, user_id: teacher.id)
+            a
+          end
+
+          it '自分が作成したお知らせ一覧には含まれない' do
+            get '/api/v1/teacher/announcements',
+                params: { tab: 'authored' },
+                headers: headers.merge('Cookie' => cookie)
+
+            json = response.parsed_body
+            returned_ids = json['announcements'].pluck('id')
+
+            expect(returned_ids).not_to include(system_generated_announcement.id)
+          end
+        end
       end
 
       it 'publishedタブではpublisher情報が返る' do

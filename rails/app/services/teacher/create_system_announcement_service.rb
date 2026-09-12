@@ -8,5 +8,9 @@ module Teacher
     def initial_status
       :published
     end
+
+    def system_generated?
+      true
+    end
   end
 end

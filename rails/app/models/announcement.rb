@@ -13,6 +13,7 @@
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  scheduled_at :datetime
+#  system_generated :boolean          default(FALSE), not null
 #
 class Announcement < ApplicationRecord
   include StatusTransitionValidatable

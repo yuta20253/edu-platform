@@ -68,7 +68,7 @@ module Api
         def announcement_scope
           case params[:tab]
           when 'authored'
-            current_user.announcements
+            current_user.announcements.where(system_generated: false)
           else
             Announcement.for_user(current_user).includes(:publisher).published
           end
