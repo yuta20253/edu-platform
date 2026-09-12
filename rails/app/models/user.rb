@@ -23,13 +23,12 @@
 #  password_reset_required :boolean          default(FALSE), not null
 #  activated_at            :datetime
 #  school_class_id         :bigint
-#  student_number          :string
+#  student_number          :string(255)
 #
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-
-  STUDENT_NUMBER_DELIMITER = '-'
-  STUDENT_NUMBER_FORMAT = /\A[A-Z0-9]+#{STUDENT_NUMBER_DELIMITER}[A-Z0-9]+\z/
+  include RoleCheckable
+  include StudentNumberable
 
   before_validation :set_jti, on: :create
 
@@ -69,6 +68,7 @@ class User < ApplicationRecord
                                            inverse_of: :student, dependent: :restrict_with_error
   has_many :interview_requests_as_teacher, class_name: 'InterviewRequest', foreign_key: :teacher_id,
                                            inverse_of: :teacher, dependent: :restrict_with_error
+  has_many :announcement_targets, dependent: :destroy
 
   validates :name, presence: true, on: :update
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
@@ -77,8 +77,6 @@ class User < ApplicationRecord
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?
-  validates :student_number, uniqueness: true, allow_nil: true
-  validates :student_number, absence: true, unless: :student?
 
   validate :school_class_belongs_to_grade
 
@@ -87,6 +85,15 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
+
+  # JTIMatcher標準の実装はjti一致のみで失効判定するため、論理削除(deleted_at)
+  # より前に発行済みのJWTは削除後もそのまま使え続けてしまう。deleted_atが
+  # 設定されたUserのトークンは常に失効扱いにする。
+  def self.jwt_revoked?(payload, user)
+    return true if user.deleted_at?
+
+    payload['jti'] != user.jti
+  end
 
   def admin?
     user_role&.admin?
@@ -141,6 +148,10 @@ class User < ApplicationRecord
 
   def self.school_code_from_student_number(value)
     value.to_s.split(STUDENT_NUMBER_DELIMITER, 2).first
+  end
+
+  def self.high_school_mismatch?(target_high_school_id, expected_high_school_id)
+    target_high_school_id != expected_high_school_id
   end
 
   private

@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-module Teacher
-  class CreateAnnouncementService
-    def initialize(publisher:, title:, content:, announcement_targets:)
+module Common
+  class AnnouncementCreateService
+    def initialize(publisher:, title:, content:, announcement_targets:, delivery: {})
       @publisher = publisher
       @title = title
       @content = content
       @announcement_targets = announcement_targets
+      @status = delivery[:status] || initial_status
+      @scheduled_at = delivery[:scheduled_at]
     end
 
     def call
@@ -14,7 +16,8 @@ module Teacher
         announcement = Announcement.create!(
           title: @title,
           content: @content,
-          status: initial_status,
+          status: @status,
+          scheduled_at: @scheduled_at,
           publisher_id: @publisher.id
         )
 
@@ -23,6 +26,8 @@ module Teacher
             build_target_attributes(target)
           )
         end
+
+        announcement
       end
     end
 

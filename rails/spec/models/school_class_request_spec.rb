@@ -140,4 +140,42 @@ RSpec.describe SchoolClassRequest, type: :model do
       end
     end
   end
+
+  describe '#reason' do
+    subject(:request) do
+      build(
+        :school_class_request,
+        applicant: applicant,
+        grade: grade,
+        action: :creation,
+        name: 'テストクラス',
+        reason: reason
+      )
+    end
+
+    context 'reasonがnilの場合' do
+      let(:reason) { nil }
+
+      it '有効である' do
+        expect(request).to be_valid
+      end
+    end
+
+    context 'reasonが10000文字の場合' do
+      let(:reason) { 'あ' * 10_000 }
+
+      it '有効である' do
+        expect(request).to be_valid
+      end
+    end
+
+    context 'reasonが10001文字の場合' do
+      let(:reason) { 'あ' * 10_001 }
+
+      it '無効である' do
+        expect(request).not_to be_valid
+        expect(request.errors[:reason]).to be_present
+      end
+    end
+  end
 end

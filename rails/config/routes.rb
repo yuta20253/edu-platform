@@ -48,6 +48,7 @@ Rails.application.routes.draw do
         resources :interview_requests, only: [:index, :show, :create, :destroy] do
           resources :messages, only: [:index, :create], controller: 'interview_request_messages'
         end
+        resource :account_link, only: :create
       end
 
       namespace :teacher do
@@ -72,11 +73,14 @@ Rails.application.routes.draw do
       namespace :admin do
         resource :dashboard, only: :show
         resources :admins, only: [:index, :show, :create, :update, :destroy]
+        resources :announcements, only: [:index, :show, :create, :update, :destroy] do
+          post :publish, on: :member
+        end
         resources :addresses, only: :index
         resources :high_schools, only: [:index, :show] do
           resources :teachers, only: [:index, :create, :update]
           resources :grades, only: :index
-          resources :announcements, only: :index
+          resources :announcements, only: :index, module: :high_schools
         end
 
         get 'csv_template/questions', to: 'csv_templates#questions'

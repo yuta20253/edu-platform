@@ -9,6 +9,11 @@ module Api
         rescue_from ::Student::InvalidAnalyticsTypeError, with: :bad_request
         rescue_from ::Student::AlreadyCompletedStudyLogError, with: :bad_request
         rescue_from ActiveRecord::StaleObjectError, with: :stale_object
+        rescue_from ::Student::AccountLinkService::AlreadyLinkedError, with: :bad_request
+        rescue_from ::Student::AccountLinkService::AlreadyActivatedError, with: :bad_request
+        rescue_from ::Student::AccountLinkService::HasDependentDataError, with: :bad_request
+        rescue_from ::Student::AccountLinkService::InvalidFormatError, with: :bad_request
+        rescue_from ::Student::AccountLinkService::SchoolMismatchError, with: :bad_request
 
         private
 
