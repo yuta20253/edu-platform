@@ -5,8 +5,23 @@ module Api
     module Student
       class InterviewRequestMessagesController < Api::V1::Student::BaseController
         def index
-          messages = interview_request.interview_request_messages.includes(:sender).order(:created_at)
-          render json: messages, each_serializer: InterviewRequestMessageSerializer, status: :ok
+          messages = interview_request.interview_request_messages
+                                       .includes(:sender)
+                                       .order(:created_at)
+                                       .page(sanitized_page)
+                                       .per(sanitized_per_page)
+
+          render json: {
+            interview_request_messages: ActiveModelSerializers::SerializableResource.new(
+              messages, each_serializer: InterviewRequestMessageSerializer
+            ),
+            meta: {
+              current_page: messages.current_page,
+              total_pages: messages.total_pages,
+              total_count: messages.total_count,
+              per_page: messages.limit_value
+            }
+          }, status: :ok
         end
 
         def create

@@ -59,8 +59,42 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequestMessages', type: :request do
       get "/api/v1/teacher/interview_requests/#{interview_request.id}/messages",
           headers: headers.merge('Cookie' => cookie)
 
-      ids = response.parsed_body.pluck('id')
+      json = response.parsed_body
+      ids = json['interview_request_messages'].pluck('id')
       expect(ids).to contain_exactly(message.id)
+    end
+
+    it 'meta情報が返る' do
+      get "/api/v1/teacher/interview_requests/#{interview_request.id}/messages",
+          headers: headers.merge('Cookie' => cookie)
+
+      json = response.parsed_body
+
+      expect(json['meta']['current_page']).to eq(1)
+      expect(json['meta']['total_count']).to eq(1)
+      expect(json['meta']['per_page']).to eq(20)
+    end
+
+    context 'メッセージが21件以上ある場合' do
+      before { create_list(:interview_request_message, 25, interview_request: interview_request, sender: teacher) }
+
+      it '1ページ20件返る' do
+        get "/api/v1/teacher/interview_requests/#{interview_request.id}/messages",
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+        expect(json['interview_request_messages'].size).to eq(20)
+      end
+
+      it 'page=2で2ページ目が返る' do
+        get "/api/v1/teacher/interview_requests/#{interview_request.id}/messages",
+            params: { page: 2 },
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+        expect(json['meta']['current_page']).to eq(2)
+        expect(json['interview_request_messages'].size).to eq(6)
+      end
     end
   end
 
