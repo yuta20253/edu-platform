@@ -6,10 +6,10 @@ module Api
       class InterviewRequestMessagesController < Api::V1::Student::BaseController
         def index
           messages = interview_request.interview_request_messages
-                                       .includes(:sender)
-                                       .order(:created_at)
-                                       .page(sanitized_page)
-                                       .per(sanitized_per_page)
+                                      .includes(:sender)
+                                      .order(:created_at)
+                                      .page(sanitized_page)
+                                      .per(sanitized_per_page)
 
           render json: {
             interview_request_messages: ActiveModelSerializers::SerializableResource.new(
@@ -37,7 +37,7 @@ module Api
         private
 
         def interview_request
-          InterviewRequest.for_participant(current_user).find_by!(id: params[:interview_request_id])
+          InterviewRequest.for_participant(current_user).find(params[:interview_request_id])
         end
 
         def create_message_params
