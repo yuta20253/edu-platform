@@ -47,5 +47,23 @@ RSpec.describe Common::PostInterviewRequestMessageService do
         expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
+
+    context 'ステータス遷移の更新時にStaleObjectErrorが発生する場合(他の操作と競合した場合)' do
+      before do
+        allow(interview_request).to receive(:reload).and_return(interview_request)
+        allow(interview_request).to receive(:requested?).and_return(true)
+        allow(interview_request).to receive(:update!)
+          .with(status: :scheduling)
+          .and_raise(ActiveRecord::StaleObjectError.new(interview_request, 'update'))
+      end
+
+      it '例外が外に伝播しない' do
+        expect { service.call }.not_to raise_error
+      end
+
+      it 'メッセージ作成はロールバックされない' do
+        expect { service.call }.to change(InterviewRequestMessage, :count).by(1)
+      end
+    end
   end
 end
