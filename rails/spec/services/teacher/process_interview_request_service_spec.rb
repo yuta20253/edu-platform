@@ -97,6 +97,32 @@ RSpec.describe Teacher::ProcessInterviewRequestService do
       end
     end
 
+    context '古いlock_versionが渡された場合' do
+      subject(:service) do
+        described_class.new(
+          user: teacher, id: interview_request.id, status: status,
+          lock_version: interview_request.lock_version - 1, scheduled_at: scheduled_at
+        )
+      end
+
+      let(:status) { 'confirmed' }
+      let(:scheduled_at) { 1.week.from_now }
+
+      it 'StaleObjectErrorが発生する' do
+        expect { service.call }.to raise_error(ActiveRecord::StaleObjectError)
+      end
+
+      it '更新されない' do
+        begin
+          service.call
+        rescue ActiveRecord::StaleObjectError
+          nil
+        end
+
+        expect(interview_request.reload.status).to eq('requested')
+      end
+    end
+
     context '他の教員が担当する面談を操作しようとする場合' do
       subject(:service) do
         described_class.new(
