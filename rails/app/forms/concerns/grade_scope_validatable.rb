@@ -14,9 +14,10 @@ module GradeScopeValidatable
 
   def grade_must_be_within_teacher_scope
     return if grade.nil? || current_user.blank?
-    return unless current_user.teacher_permission&.own_grade?
 
-    return if grade.id == current_user.grade_id
+    allowed_grade_id = current_user.own_grade_restriction
+
+    return if allowed_grade_id.nil? || allowed_grade_id == grade.id
 
     errors.add(grade_scope_error_attribute, 'は担当学年ではないため登録できません')
   end

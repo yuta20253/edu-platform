@@ -19,6 +19,25 @@ RSpec.describe Auth::SignUpForm, type: :model do
     )
   end
 
+  describe 'name_kanaのバリデーション' do
+    it 'カタカナでない場合は無効' do
+      form = build_form(user_role_name: 'teacher')
+      form.name_kana = 'やまだたろう'
+
+      expect(form).to be_invalid
+      expect(form.errors[:name_kana]).to include('はカタカナで入力してください')
+    end
+
+    it '未入力の場合は無効にしない（presenceは呼び出し元の責務）' do
+      form = build_form(user_role_name: 'teacher')
+      form.name_kana = ''
+
+      form.valid?
+
+      expect(form.errors[:name_kana]).to be_blank
+    end
+  end
+
   describe 'student_numberのバリデーション' do
     context 'csv_managedな高校を選んだ生徒' do
       before { high_school.update!(csv_managed: true) }

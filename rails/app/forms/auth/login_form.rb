@@ -5,11 +5,11 @@ module Auth
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include EmailValidatable
 
     attribute :email, :string
     attribute :password, :string
 
-    validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :password, presence: true
 
     def to_attributes

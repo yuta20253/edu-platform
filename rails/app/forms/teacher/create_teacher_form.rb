@@ -5,7 +5,8 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
-    include NameKanaEmailValidatable
+    include NameValidatable
+    include EmailValidatable
 
     attribute :name, :string
     attribute :name_kana, :string

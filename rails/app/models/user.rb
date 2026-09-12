@@ -111,6 +111,14 @@ class User < ApplicationRecord
     user_role&.student? || user_role&.teacher?
   end
 
+  # own_gradeスコープの教員が閲覧・操作を許可されている学年IDを返す。
+  # all_grades権限の教員や教員以外はnil(学年による制限なし)。
+  def own_grade_restriction
+    return nil unless teacher_permission&.own_grade?
+
+    grade_id
+  end
+
   def profile_completed?
     info = user_personal_info
     return false unless info
