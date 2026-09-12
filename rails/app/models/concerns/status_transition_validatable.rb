@@ -19,7 +19,7 @@ module StatusTransitionValidatable
     from = status_was
     to = status
 
-    return if self.class::STATUS_TRANSITIONS[from].include?(to)
+    return if self.class::STATUS_TRANSITIONS.fetch(from, []).include?(to)
 
     errors.add(:status, "#{from} から #{to} へは変更できません")
   end
