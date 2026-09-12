@@ -98,11 +98,9 @@ class InterviewRequest < ApplicationRecord
 
   def no_duplicate_active_request_for_pair
     return if student_id.blank? || teacher_id.blank?
-    return unless %w[requested scheduling confirmed].include?(status)
+    return unless active?
 
-    duplicates = self.class.where(
-      student_id: student_id, teacher_id: teacher_id, status: %i[requested scheduling confirmed]
-    )
+    duplicates = self.class.active.where(student_id: student_id, teacher_id: teacher_id)
     duplicates = duplicates.where.not(id: id) if persisted?
 
     errors.add(:base, 'この生徒との進行中の面談が既に存在します') if duplicates.exists?
