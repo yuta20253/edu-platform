@@ -54,5 +54,45 @@ RSpec.describe Common::CancelInterviewRequestService do
         expect(service.call).to be false
       end
     end
+
+    context '古いlock_versionが渡された場合' do
+      subject(:service) do
+        described_class.new(
+          interview_request: interview_request, cancelled_by: cancelled_by, reason: reason,
+          lock_version: interview_request.lock_version - 1
+        )
+      end
+
+      it 'StaleObjectErrorが発生する' do
+        expect { service.call }.to raise_error(ActiveRecord::StaleObjectError)
+      end
+
+      it '更新されない' do
+        begin
+          service.call
+        rescue ActiveRecord::StaleObjectError
+          nil
+        end
+
+        expect(interview_request.reload.status).to eq('requested')
+      end
+    end
+
+    context '現在のlock_versionが渡された場合' do
+      subject(:service) do
+        described_class.new(
+          interview_request: interview_request, cancelled_by: cancelled_by, reason: reason,
+          lock_version: interview_request.lock_version
+        )
+      end
+
+      it 'trueを返す' do
+        expect(service.call).to be true
+      end
+
+      it 'lock_versionがインクリメントされる' do
+        expect { service.call }.to change { interview_request.reload.lock_version }.by(1)
+      end
+    end
   end
 end
