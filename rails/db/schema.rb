@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_08_000002) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "scheduled_at"
+    t.boolean "system_generated", default: false, null: false
     t.index ["publisher_id"], name: "index_announcements_on_publisher_id"
     t.index ["status", "scheduled_at"], name: "index_announcements_on_status_and_scheduled_at"
   end
@@ -204,6 +205,41 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
     t.integer "import_type", default: 0, null: false
     t.index ["unit_id"], name: "index_import_histories_on_unit_id"
     t.index ["user_id"], name: "index_import_histories_on_user_id"
+  end
+
+  create_table "interview_request_messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "interview_request_id", null: false
+    t.bigint "sender_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["interview_request_id"], name: "index_interview_request_messages_on_interview_request_id"
+    t.index ["sender_id"], name: "index_interview_request_messages_on_sender_id"
+  end
+
+  create_table "interview_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "student_id", null: false
+    t.bigint "teacher_id", null: false
+    t.bigint "initiator_id", null: false
+    t.integer "initiator_role", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "reason_category"
+    t.text "reason_detail", null: false
+    t.datetime "scheduled_at"
+    t.datetime "completed_at"
+    t.datetime "cancelled_at"
+    t.bigint "cancelled_by_id"
+    t.text "cancel_reason"
+    t.integer "lock_version", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.virtual "active_pair_key", type: :string, as: "(case when (`status` in (0,1,2)) then concat(`student_id`,_utf8mb4'-',`teacher_id`) else NULL end)", stored: true
+    t.index ["active_pair_key"], name: "index_interview_requests_on_active_pair_key", unique: true
+    t.index ["cancelled_by_id"], name: "index_interview_requests_on_cancelled_by_id"
+    t.index ["initiator_id"], name: "index_interview_requests_on_initiator_id"
+    t.index ["student_id", "teacher_id", "status"], name: "index_interview_requests_on_student_teacher_status"
+    t.index ["student_id"], name: "index_interview_requests_on_student_id"
+    t.index ["teacher_id"], name: "index_interview_requests_on_teacher_id"
   end
 
   create_table "prefectures", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -580,6 +616,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
   add_foreign_key "import_errors", "import_histories"
   add_foreign_key "import_histories", "units"
   add_foreign_key "import_histories", "users"
+  add_foreign_key "interview_request_messages", "interview_requests"
+  add_foreign_key "interview_request_messages", "users", column: "sender_id"
+  add_foreign_key "interview_requests", "users", column: "cancelled_by_id"
+  add_foreign_key "interview_requests", "users", column: "initiator_id"
+  add_foreign_key "interview_requests", "users", column: "student_id"
+  add_foreign_key "interview_requests", "users", column: "teacher_id"
   add_foreign_key "question_choices", "questions"
   add_foreign_key "question_explanations", "questions"
   add_foreign_key "question_hints", "questions"

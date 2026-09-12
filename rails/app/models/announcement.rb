@@ -13,8 +13,11 @@
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  scheduled_at :datetime
+#  system_generated :boolean          default(FALSE), not null
 #
 class Announcement < ApplicationRecord
+  include StatusTransitionValidatable
+
   before_validation :set_published_at
   before_destroy :prevent_destroy_when_published
 
@@ -57,7 +60,6 @@ class Announcement < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true, length: { maximum: 10_000 }
   validate :scheduled_at_must_be_future
-  validate :valid_status_transition
   validate :immutable_once_published, on: :update
 
   private
@@ -70,18 +72,6 @@ class Announcement < ApplicationRecord
     elsif scheduled_at < Time.current
       errors.add(:scheduled_at, 'は未来日時を指定してください')
     end
-  end
-
-  def valid_status_transition
-    return unless persisted?
-    return unless will_save_change_to_status?
-
-    from = status_was
-    to = status
-
-    return if STATUS_TRANSITIONS[from].include?(to)
-
-    errors.add(:status, "#{from} から #{to} へは変更できません")
   end
 
   def set_published_at
