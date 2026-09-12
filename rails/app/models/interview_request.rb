@@ -72,6 +72,7 @@ class InterviewRequest < ApplicationRecord
   validate :no_duplicate_active_request_for_pair
 
   scope :active, -> { where(status: %i[requested scheduling confirmed]) }
+  scope :for_participant, ->(user) { where(student_id: user.id).or(where(teacher_id: user.id)) }
 
   def active?
     requested? || scheduling? || confirmed?

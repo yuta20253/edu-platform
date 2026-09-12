@@ -53,11 +53,7 @@ module Teacher
     end
 
     def interview_request
-      @interview_request ||=
-        InterviewRequest.find_by!(
-          id: @interview_request_id,
-          teacher_id: @user.id
-        )
+      @interview_request ||= InterviewRequest.for_participant(@user).find_by!(id: @interview_request_id)
     end
   end
 end

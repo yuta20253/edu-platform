@@ -22,7 +22,7 @@ module Api
         private
 
         def interview_request
-          InterviewRequest.find_by!(id: params[:interview_request_id], student_id: current_user.id)
+          InterviewRequest.for_participant(current_user).find_by!(id: params[:interview_request_id])
         end
 
         def create_message_params
