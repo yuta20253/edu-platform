@@ -115,6 +115,19 @@ RSpec.describe 'Api::V1::Registrations', type: :request do
         expect(pre_created_user.password_reset_required).to be false
       end
 
+      it 'grade_idを送らずに送信しても422にならずclaimが成功する' do
+        params = valid_params.deep_merge(user: { student_number: pre_created_user.student_number })
+        params[:user].delete(:grade_id)
+
+        post '/api/v1/student/signup', params: params.to_json, headers: headers
+
+        expect(response).to have_http_status(:created)
+
+        pre_created_user.reload
+        expect(pre_created_user.email).to eq('student@example.com')
+        expect(pre_created_user.grade_id).to eq(grade.id)
+      end
+
       it 'csv_managedな高校で生徒コードが未入力だと422を返す' do
         post '/api/v1/student/signup', params: valid_params.to_json, headers: headers
 
