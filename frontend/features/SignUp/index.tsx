@@ -214,12 +214,16 @@ export const SignUp = ({
                     />
                   </Box>
                 )}
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 2, display: isClaimingExistingAccount ? "none" : "block" }}>
                   <Typography>学年</Typography>
                   <Controller
                     name="user.grade_id"
-                    disabled={grades.length === 0}
-                    rules={{ required: "学年を選択してください" }}
+                    disabled={grades.length === 0 || isClaimingExistingAccount}
+                    rules={{
+                      required: isClaimingExistingAccount
+                        ? false
+                        : "学年を選択してください",
+                    }}
                     control={control}
                     defaultValue=""
                     render={({ field }) => (
@@ -239,14 +243,6 @@ export const SignUp = ({
                       </FormControl>
                     )}
                   />
-                  {isClaimingExistingAccount && (
-                    <Typography
-                      variant="caption"
-                      sx={{ color: colors.text.secondary, display: "block" }}
-                    >
-                      生徒コードを入力した場合、学年は学校に登録済みの情報が使用されます（ここでの選択は反映されません）
-                    </Typography>
-                  )}
                 </Box>
               </>
             )}
