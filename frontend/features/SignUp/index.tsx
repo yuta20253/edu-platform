@@ -214,7 +214,12 @@ export const SignUp = ({
                     />
                   </Box>
                 )}
-                <Box sx={{ mb: 2, display: isClaimingExistingAccount ? "none" : "block" }}>
+                <Box
+                  sx={{
+                    mb: 2,
+                    display: isClaimingExistingAccount ? "none" : "block",
+                  }}
+                >
                   <Typography>学年</Typography>
                   <Controller
                     name="user.grade_id"
