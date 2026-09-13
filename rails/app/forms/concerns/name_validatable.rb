@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module NameKanaEmailValidatable
+module NameValidatable
   extend ActiveSupport::Concern
 
   KATAKANA_REGEX = /\A[\p{katakana}ー・\s　]+\z/
@@ -11,6 +11,5 @@ module NameKanaEmailValidatable
       with: KATAKANA_REGEX,
       message: 'はカタカナで入力してください'
     }
-    validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   end
 end
