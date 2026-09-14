@@ -360,6 +360,32 @@ RSpec.describe Announcement, type: :model do
     end
   end
 
+  describe '#editable?' do
+    context 'draft状態の場合' do
+      let(:announcement) { build(:announcement, status: :draft) }
+
+      it 'trueを返す' do
+        expect(announcement.editable?).to be true
+      end
+    end
+
+    context 'scheduled状態の場合' do
+      let(:announcement) { build(:announcement, :scheduled) }
+
+      it 'trueを返す' do
+        expect(announcement.editable?).to be true
+      end
+    end
+
+    context 'published状態の場合' do
+      let(:announcement) { build(:announcement, status: :published) }
+
+      it 'falseを返す' do
+        expect(announcement.editable?).to be false
+      end
+    end
+  end
+
   describe '#destroy' do
     context 'published状態の場合' do
       let!(:announcement) { create(:announcement, status: :published) }
