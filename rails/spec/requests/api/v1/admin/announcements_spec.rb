@@ -122,6 +122,17 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
       end
     end
 
+    context '発行者(管理者)が無効化されている場合' do
+      it 'ステータス200で取得できる' do
+        deactivated_admin = create(:user, :admin, high_school: nil, deleted_at: 1.day.ago)
+        ann = create(:announcement, publisher: deactivated_admin, content: '無効化された管理者の投稿')
+        create(:announcement_target, :all_users, announcement: ann)
+
+        get "/api/v1/admin/announcements/#{ann.id}", headers: auth_headers
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     context '異常系 - 教師が作成したお知らせを指定した場合' do
       it '404が返される' do
         teacher = create(:user, :teacher)
@@ -211,6 +222,16 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
       end
     end
 
+    context 'scheduled_atが設定済みのお知らせでscheduled_atをnullに指定した場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, scheduled_at: 1.day.from_now) }
+
+      it 'scheduled_atがnilに更新される' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { scheduled_at: nil } }.to_json, headers: auth_headers
+        expect(announcement.reload.scheduled_at).to be_nil
+      end
+    end
+
     context 'publishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, title: '旧タイトル', status: :published) }
 
@@ -236,6 +257,16 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         patch "/api/v1/admin/announcements/#{other.id}",
               params: { announcement: { title: '新タイトル' } }.to_json, headers: auth_headers
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - statusに空文字を指定した場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, status: :draft) }
+
+      it 'ステータス422が返される(500にならない)' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { status: '' } }.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
@@ -268,6 +299,17 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         expect do
           delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
         end.not_to change(Announcement, :count)
+      end
+    end
+
+    context '発行者(管理者)が無効化されている場合' do
+      it '削除できる(ロックアウトされない)' do
+        deactivated_admin = create(:user, :admin, high_school: nil, deleted_at: 1.day.ago)
+        announcement = create(:announcement, publisher: deactivated_admin)
+
+        expect do
+          delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        end.to change(Announcement, :count).by(-1)
       end
     end
   end

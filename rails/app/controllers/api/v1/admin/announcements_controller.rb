@@ -23,12 +23,7 @@ module Api
             announcements: ActiveModelSerializers::SerializableResource.new(
               announcements, each_serializer: ::Admin::AnnouncementListSerializer
             ),
-            meta: {
-              current_page: announcements.current_page,
-              total_pages: announcements.total_pages,
-              total_count: announcements.total_count,
-              per_page: announcements.limit_value
-            }
+            meta: pagination_meta(announcements)
           }
         end
 
@@ -78,7 +73,7 @@ module Api
         end
 
         def announcement_scope
-          AnnouncementsQuery.new.result
+          Announcement.where(publisher_id: User.admins.select(:id))
         end
 
         def announcement_params
