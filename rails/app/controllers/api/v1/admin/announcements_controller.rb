@@ -78,7 +78,7 @@ module Api
         end
 
         def announcement_scope
-          AnnouncementsQuery.new.result
+          Announcement.where(publisher_id: User.admins.select(:id))
         end
 
         def announcement_params
