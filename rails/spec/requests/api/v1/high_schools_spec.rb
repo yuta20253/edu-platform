@@ -19,5 +19,13 @@ RSpec.describe 'Api::V1::HighSchools', type: :request do
       school = body.find { |s| s['name'] == 'テスト高校' }
       expect(school['csv_managed']).to be true
     end
+
+    it 'idを含む学校情報が返される（フロントの高校選択・学年取得に必要）' do
+      get '/api/v1/high_schools', params: { prefecture_id: high_school.prefecture_id }
+
+      body = response.parsed_body
+      school = body.find { |s| s['name'] == 'テスト高校' }
+      expect(school['id']).to eq(high_school.id)
+    end
   end
 end

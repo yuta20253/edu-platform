@@ -83,4 +83,25 @@ RSpec.describe Auth::SignUpForm, type: :model do
       end
     end
   end
+
+  describe 'grade_idのバリデーション' do
+    context '生徒コードが入力されている場合（claim経路）' do
+      it 'grade_idが未入力でも有効' do
+        form = build_form(user_role_name: 'student', student_number: "#{high_school.school_code}-AAAAAAAA")
+        form.grade_id = nil
+
+        expect(form).to be_valid
+      end
+    end
+
+    context '生徒コードが入力されていない場合（通常登録経路）' do
+      it 'grade_idが未入力だと無効' do
+        form = build_form(user_role_name: 'student')
+        form.grade_id = nil
+
+        expect(form).to be_invalid
+        expect(form.errors[:grade_id]).to be_present
+      end
+    end
+  end
 end
