@@ -162,6 +162,32 @@ RSpec.describe Admin::AnnouncementForm do
       end
     end
 
+    context 'scheduled_atが設定済みのお知らせでscheduled_atをnilに戻す場合' do
+      let(:announcement) { create(:announcement, publisher: admin, status: :draft, scheduled_at: 1.day.from_now) }
+      let(:params) { { scheduled_at: nil } }
+
+      it '保存に成功する' do
+        expect(form.save).to be true
+      end
+
+      it 'scheduled_atがnilに更新される' do
+        form.save
+        expect(announcement.reload.scheduled_at).to be_nil
+      end
+    end
+
+    context '一部の属性のみ指定した場合、指定していない属性は変更されない' do
+      let(:announcement) { create(:announcement, publisher: admin, title: '元のタイトル', content: '元の内容') }
+      let(:params) { { title: '新タイトル' } }
+
+      it 'titleのみ更新されcontentは変更されない' do
+        form.save
+        announcement.reload
+        expect(announcement.title).to eq('新タイトル')
+        expect(announcement.content).to eq('元の内容')
+      end
+    end
+
     context 'すでにpublishedのお知らせを更新しようとした場合' do
       let(:announcement) { create(:announcement, publisher: admin, status: :published) }
       let(:params) { { title: '新タイトル' } }

@@ -222,6 +222,16 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
       end
     end
 
+    context 'scheduled_atが設定済みのお知らせでscheduled_atをnullに指定した場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, scheduled_at: 1.day.from_now) }
+
+      it 'scheduled_atがnilに更新される' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { scheduled_at: nil } }.to_json, headers: auth_headers
+        expect(announcement.reload.scheduled_at).to be_nil
+      end
+    end
+
     context 'publishedのお知らせの場合' do
       let!(:announcement) { create(:announcement, publisher: admin_user, title: '旧タイトル', status: :published) }
 

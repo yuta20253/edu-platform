@@ -23,6 +23,7 @@ module Admin
       super(attributes)
       @publisher = publisher
       @announcement = announcement
+      @provided_attribute_names = attributes.keys
     end
 
     def save
@@ -54,17 +55,14 @@ module Admin
     def update_announcement
       @result = announcement
 
-      success = announcement.update(
-        {
-          title: title,
-          content: content,
-          status: status,
-          scheduled_at: scheduled_at
-        }.compact
-      )
+      success = announcement.update(update_attributes)
 
       copy_errors(announcement) unless success
       success
+    end
+
+    def update_attributes
+      @provided_attribute_names.index_with { |name| public_send(name) }
     end
 
     def copy_errors(record)
