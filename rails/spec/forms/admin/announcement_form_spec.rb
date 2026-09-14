@@ -19,14 +19,9 @@ RSpec.describe Admin::AnnouncementForm do
         expect { form.save }.to change(Announcement, :count).by(1)
       end
 
-      it 'resultにannouncementが設定される' do
-        form.save
-        expect(form.result).to be_a(Announcement)
-      end
-
       it 'all_usersターゲットが1件作成される' do
         form.save
-        expect(form.result.announcement_targets.first.target_type).to eq('all_users')
+        expect(Announcement.last.announcement_targets.first.target_type).to eq('all_users')
       end
     end
 
@@ -37,7 +32,7 @@ RSpec.describe Admin::AnnouncementForm do
 
       it 'scheduledで作成される' do
         form.save
-        expect(form.result.status).to eq('scheduled')
+        expect(Announcement.last.status).to eq('scheduled')
       end
     end
 
@@ -111,11 +106,6 @@ RSpec.describe Admin::AnnouncementForm do
         form.save
         expect(announcement.reload.title).to eq('新タイトル')
         expect(announcement.reload.content).to eq('新内容')
-      end
-
-      it 'resultにannouncementが設定される' do
-        form.save
-        expect(form.result).to eq(announcement)
       end
     end
 

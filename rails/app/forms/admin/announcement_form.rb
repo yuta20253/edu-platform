@@ -12,7 +12,7 @@ module Admin
     attribute :status, :string
     attribute :scheduled_at, :datetime
 
-    attr_reader :publisher, :announcement, :result
+    attr_reader :publisher, :announcement
 
     validates :title, presence: true, unless: :updating?
     validates :content, presence: true, unless: :updating?
@@ -39,7 +39,7 @@ module Admin
     end
 
     def create_announcement
-      @result = ::Admin::CreateAnnouncementService.new(
+      ::Admin::CreateAnnouncementService.new(
         publisher: publisher,
         title: title,
         content: content,
@@ -53,8 +53,6 @@ module Admin
     end
 
     def update_announcement
-      @result = announcement
-
       success = announcement.update(update_attributes)
 
       copy_errors(announcement) unless success
