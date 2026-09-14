@@ -238,6 +238,16 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    context '異常系 - statusに空文字を指定した場合' do
+      let!(:announcement) { create(:announcement, publisher: admin_user, status: :draft) }
+
+      it 'ステータス422が返される(500にならない)' do
+        patch "/api/v1/admin/announcements/#{announcement.id}",
+              params: { announcement: { status: '' } }.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
   end
 
   describe 'DELETE /api/v1/admin/announcements/:id' do

@@ -188,5 +188,28 @@ RSpec.describe Admin::AnnouncementForm do
         expect { form.save }.not_to raise_error
       end
     end
+
+    context 'statusを空文字で更新しようとした場合' do
+      let(:announcement) { create(:announcement, publisher: admin, status: :draft) }
+      let(:params) { { status: '' } }
+
+      it '保存に失敗する' do
+        expect(form.save).to be false
+      end
+
+      it 'ArgumentErrorを発生させない' do
+        expect { form.save }.not_to raise_error
+      end
+
+      it 'errorsにstatusのエラーが含まれる' do
+        form.save
+        expect(form.errors[:status]).to be_present
+      end
+
+      it 'statusが更新されない' do
+        form.save
+        expect(announcement.reload.status).to eq('draft')
+      end
+    end
   end
 end
