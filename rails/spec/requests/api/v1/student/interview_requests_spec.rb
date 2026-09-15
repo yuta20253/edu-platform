@@ -148,6 +148,19 @@ RSpec.describe 'Api::V1::Student::InterviewRequests', type: :request do
       end
     end
 
+    context 'lock_versionが古い場合' do
+      let(:params) { { lock_version: 0 } }
+
+      before { interview_request.update_column(:lock_version, interview_request.lock_version + 1) }
+
+      it '409が返る' do
+        delete "/api/v1/student/interview_requests/#{interview_request.id}",
+               params: params.to_json, headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:conflict)
+      end
+    end
+
     context '他の生徒の面談の場合' do
       let!(:other_student) { create(:user, :student, high_school: high_school) }
       let(:other_cookie) { login_and_get_cookie(other_student) }
