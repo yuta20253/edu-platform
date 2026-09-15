@@ -14,7 +14,7 @@ module Teacher
     end
 
     def call
-      Teacher::CreateSystemAnnouncementService.new(
+      Common::CreateSystemAnnouncementService.new(
         publisher: @approver,
         title: title,
         content: content,

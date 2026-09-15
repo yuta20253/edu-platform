@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Teacher::CreateSystemAnnouncementService do
+RSpec.describe Common::CreateSystemAnnouncementService do
   subject(:service) do
     described_class.new(
       publisher: teacher,
