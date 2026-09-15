@@ -59,8 +59,18 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequestMessages', type: :request do
       get "/api/v1/teacher/interview_requests/#{interview_request.id}/messages",
           headers: headers.merge('Cookie' => cookie)
 
-      ids = response.parsed_body.pluck('id')
+      ids = response.parsed_body['interview_request_messages'].pluck('id')
       expect(ids).to contain_exactly(message.id)
+    end
+
+    it 'per_pageで件数を絞り込める' do
+      create_list(:interview_request_message, 4, interview_request: interview_request, sender: teacher)
+
+      get "/api/v1/teacher/interview_requests/#{interview_request.id}/messages",
+          params: { per_page: 2 }, headers: headers.merge('Cookie' => cookie)
+
+      expect(response.parsed_body['interview_request_messages'].size).to eq(2)
+      expect(response.parsed_body['meta']['total_count']).to eq(5)
     end
   end
 
