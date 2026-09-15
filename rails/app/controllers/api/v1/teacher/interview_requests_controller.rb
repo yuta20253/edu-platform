@@ -4,8 +4,6 @@ module Api
   module V1
     module Teacher
       class InterviewRequestsController < Api::V1::Teacher::BaseController
-        ALLOWED_UPDATE_STATUSES = %w[confirmed completed].freeze
-
         before_action :require_valid_update_status!, only: :update
 
         def index
@@ -90,7 +88,8 @@ module Api
         end
 
         def require_valid_update_status!
-          return if update_interview_request_params[:status].in?(ALLOWED_UPDATE_STATUSES)
+          allowed_statuses = ::Teacher::ProcessInterviewRequestService::ALLOWED_STATUSES
+          return if update_interview_request_params[:status].in?(allowed_statuses)
 
           render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
         end

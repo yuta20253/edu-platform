@@ -2,6 +2,8 @@
 
 module Teacher
   class ProcessInterviewRequestService
+    ALLOWED_STATUSES = %w[confirmed completed].freeze
+
     def initialize(user:, id:, status:, lock_version: nil, scheduled_at: nil)
       @user = user
       @interview_request_id = id
@@ -22,6 +24,7 @@ module Teacher
     private
 
     def allowed_transition?
+      return false unless @status.in?(ALLOWED_STATUSES)
       return false unless InterviewRequest::STATUS_TRANSITIONS[interview_request.status].include?(@status)
       return @scheduled_at.present? if @status == 'confirmed'
 
