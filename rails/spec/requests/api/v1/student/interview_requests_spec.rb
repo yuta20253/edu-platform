@@ -135,16 +135,28 @@ RSpec.describe 'Api::V1::Student::InterviewRequests', type: :request do
     end
 
     context '本人が取り消す場合' do
+      let(:params) { { lock_version: interview_request.lock_version } }
+
       it '200が返る' do
-        delete "/api/v1/student/interview_requests/#{interview_request.id}", headers: headers.merge('Cookie' => cookie)
+        delete "/api/v1/student/interview_requests/#{interview_request.id}",
+               params: params.to_json, headers: headers.merge('Cookie' => cookie)
 
         expect(response).to have_http_status(:ok)
       end
 
       it 'cancelledになる' do
-        delete "/api/v1/student/interview_requests/#{interview_request.id}", headers: headers.merge('Cookie' => cookie)
+        delete "/api/v1/student/interview_requests/#{interview_request.id}",
+               params: params.to_json, headers: headers.merge('Cookie' => cookie)
 
         expect(interview_request.reload.status).to eq('cancelled')
+      end
+    end
+
+    context 'lock_versionを指定しない場合' do
+      it '422が返る' do
+        delete "/api/v1/student/interview_requests/#{interview_request.id}", headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
@@ -164,10 +176,11 @@ RSpec.describe 'Api::V1::Student::InterviewRequests', type: :request do
     context '他の生徒の面談の場合' do
       let!(:other_student) { create(:user, :student, high_school: high_school) }
       let(:other_cookie) { login_and_get_cookie(other_student) }
+      let(:params) { { lock_version: interview_request.lock_version } }
 
       it '404が返る' do
         delete "/api/v1/student/interview_requests/#{interview_request.id}",
-               headers: headers.merge('Cookie' => other_cookie)
+               params: params.to_json, headers: headers.merge('Cookie' => other_cookie)
 
         expect(response).to have_http_status(:not_found)
       end
