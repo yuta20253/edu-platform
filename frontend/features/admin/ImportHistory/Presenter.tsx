@@ -83,17 +83,6 @@ const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
   { value: "failed", label: importStatusLabel.failed },
 ];
 
-// Gentelella風のフラット・ミニマルなテイストを本画面ローカルで再現するトークン。
-// 角丸なし・影なし、薄いグレーのボーダーのみで区切る。
-const flat = {
-  border: "#E6E9ED",
-  headerBg: "#ffffff",
-  stripe: "#F7F7F7",
-  accent: "#1ABB9C",
-  titleText: "#2A3F54",
-  filterBg: "#FAFBFC",
-};
-
 // フィルタのSelect/DatePickerを角丸なし・小さめのGentelella風に揃えるための共通sx
 const compactFieldSx = {
   "& .MuiOutlinedInput-root": {
@@ -149,13 +138,13 @@ export const Presenter = ({
           gap: 1.5,
           mb: 3,
           pb: 1.5,
-          borderBottom: `2px solid ${flat.border}`,
+          borderBottom: `2px solid ${colors.border.light}`,
         }}
       >
         <Typography
           variant="h5"
           fontWeight={600}
-          sx={{ color: flat.titleText, letterSpacing: 0.3 }}
+          sx={{ color: colors.text.primary, letterSpacing: 0.3 }}
         >
           インポート履歴一覧
         </Typography>
@@ -173,7 +162,7 @@ export const Presenter = ({
           gap: 1.25,
           mb: 1.5,
           p: 1.5,
-          bgcolor: flat.filterBg,
+          bgcolor: colors.surface.default,
         }}
       >
         <FormControl size="small" sx={{ minWidth: 110, ...compactFieldSx }}>
@@ -401,7 +390,7 @@ export const Presenter = ({
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: flat.headerBg }}>
+                <TableRow sx={{ bgcolor: colors.surface.light }}>
                   <TableCell sx={{ fontWeight: 600 }}>
                     <TableSortLabel
                       active={sort === "created_at"}
