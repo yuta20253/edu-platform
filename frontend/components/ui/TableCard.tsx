@@ -7,6 +7,8 @@ export type TableCardDensity = "default" | "compact";
 
 type Props = {
   density?: TableCardDensity;
+  // 下余白。ページ末尾に置く場合など、詰めたいときに 0 を渡す。
+  mb?: number;
   children: React.ReactNode;
 };
 
@@ -34,7 +36,7 @@ const compactSx = {
 
 // 管理画面のテーブルを包む共通のカード外枠。
 // Card + CardContent の組み合わせが各画面で重複していたため切り出した。
-export const TableCard = ({ density = "default", children }: Props) => (
+export const TableCard = ({ density = "default", mb = 3, children }: Props) => (
   <Card
     elevation={0}
     data-testid="table-card"
@@ -42,7 +44,7 @@ export const TableCard = ({ density = "default", children }: Props) => (
     sx={{
       border: `1px solid ${colors.border.light}`,
       borderRadius: 2,
-      mb: 3,
+      mb,
       ...(density === "compact" ? compactSx : {}),
     }}
   >

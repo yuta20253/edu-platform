@@ -35,4 +35,26 @@ describe("TableCard", () => {
       "compact",
     );
   });
+
+  it("下余白は既定で 24px (MUI spacing 3) になる", () => {
+    render(
+      <TableCard>
+        <div>テーブル本体</div>
+      </TableCard>,
+    );
+    expect(screen.getByTestId("table-card")).toHaveStyle({
+      marginBottom: "24px",
+    });
+  });
+
+  it("mb を指定すると下余白が変わる", () => {
+    render(
+      <TableCard mb={0}>
+        <div>テーブル本体</div>
+      </TableCard>,
+    );
+    expect(screen.getByTestId("table-card")).toHaveStyle({
+      marginBottom: "0px",
+    });
+  });
 });
