@@ -36,16 +36,6 @@ import type {
   SnackbarState,
 } from "./types";
 
-// 一覧画面と揃えたGentelella風のフラット・ミニマルなテイストのトークン。
-// 角丸なし・影なし、薄いグレーのボーダーのみで区切る。
-const flat = {
-  border: "#E6E9ED",
-  headerBg: "#ffffff",
-  stripe: "#F7F7F7",
-  titleText: "#2A3F54",
-  summaryBg: "#FAFBFC",
-};
-
 type Props = {
   data: ImportHistoryDetailData;
   activeTab: DetailTabValue;
@@ -89,7 +79,7 @@ const RowTable = ({ rows }: { rows: ImportHistoryDetailRow[] }) => {
     <TableContainer>
       <Table size="small">
         <TableHead>
-          <TableRow sx={{ bgcolor: flat.headerBg }}>
+          <TableRow sx={{ bgcolor: colors.surface.light }}>
             <TableCell align="right" sx={{ fontWeight: 600, width: 100 }}>
               行番号
             </TableCell>
@@ -137,7 +127,7 @@ export const Presenter = ({
           gap: 1.5,
           mb: 3,
           pb: 1.5,
-          borderBottom: `2px solid ${flat.border}`,
+          borderBottom: `2px solid ${colors.border.light}`,
         }}
       >
         <IconButton
@@ -151,7 +141,7 @@ export const Presenter = ({
         <Typography
           variant="h5"
           fontWeight={600}
-          sx={{ color: flat.titleText, letterSpacing: 0.3 }}
+          sx={{ color: colors.text.primary, letterSpacing: 0.3 }}
         >
           インポート履歴詳細
         </Typography>
@@ -194,8 +184,8 @@ export const Presenter = ({
           gap: 3,
           mb: 3,
           p: 2,
-          bgcolor: flat.summaryBg,
-          border: `1px solid ${flat.border}`,
+          bgcolor: colors.surface.default,
+          border: `1px solid ${colors.border.light}`,
         }}
       >
         <SummaryItem label="コース">
@@ -214,7 +204,7 @@ export const Presenter = ({
       </Box>
 
       {/* タブ */}
-      <Box sx={{ borderBottom: `1px solid ${flat.border}`, mb: 2 }}>
+      <Box sx={{ borderBottom: `1px solid ${colors.border.light}`, mb: 2 }}>
         <Tabs
           value={activeTab}
           onChange={(_, value: DetailTabValue) => onTabChange(value)}
