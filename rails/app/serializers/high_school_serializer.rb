@@ -11,5 +11,5 @@
 #  prefecture_id :bigint           not null
 #
 class HighSchoolSerializer < ActiveModel::Serializer
-  attributes :name, :csv_managed
+  attributes :id, :name, :csv_managed
 end
