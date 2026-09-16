@@ -45,6 +45,9 @@ Rails.application.routes.draw do
         resources :courses, only: :index
         resources :announcements, only: [:index, :show]
         resources :analytics, only: :index
+        resources :interview_requests, only: [:index, :show, :create, :destroy] do
+          resources :messages, only: [:index, :create], controller: 'interview_request_messages'
+        end
         resource :account_link, only: :create
       end
 
@@ -58,6 +61,9 @@ Rails.application.routes.draw do
         resources :grades, only: :index
         resources :school_classes, only: [:index, :show]
         resources :school_class_requests, only: [:create, :update, :destroy]
+        resources :interview_requests, only: [:index, :show, :create, :update, :destroy] do
+          resources :messages, only: [:index, :create], controller: 'interview_request_messages'
+        end
         resource :dashboard, only: :show
         resource :import_students, only: :create do
           post :dry_run, on: :member

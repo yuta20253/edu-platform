@@ -26,13 +26,13 @@ RSpec.describe Teacher::CreateSchoolClassRequestNotificationService do
 
   describe '#call' do
     it '同校でmanage_other_teachers権限を持つ教師宛にアナウンスサービスが呼ばれる' do
-      service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
+      service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
 
-      allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+      allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
       service.call
 
-      expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+      expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
         publisher: applicant,
         title: 'クラス作成申請',
         content: '山田太郎先生からクラス作成申請があります。',
@@ -63,13 +63,13 @@ RSpec.describe Teacher::CreateSchoolClassRequestNotificationService do
       end
 
       it '空のannouncement_targetsでアナウンスサービスが呼ばれる' do
-        service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
+        service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
 
-        allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+        allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
         service.call
 
-        expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+        expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
           publisher: isolated_applicant,
           title: 'クラス作成申請',
           content: '田中花子先生からクラス作成申請があります。',
