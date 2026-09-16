@@ -5,8 +5,6 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   IconButton,
@@ -24,6 +22,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { colors } from "@/app/theme/colors";
+import { TableCard } from "@/components/ui/TableCard";
 import {
   importModeLabel,
   importStatusColor,
@@ -88,45 +87,18 @@ const RowTable = ({ rows }: { rows: ImportHistoryDetailRow[] }) => {
 
   return (
     <TableContainer>
-      <Table
-        size="small"
-        sx={{
-          "& .MuiTableCell-root": {
-            borderBottom: `1px solid ${flat.border}`,
-          },
-        }}
-      >
+      <Table size="small">
         <TableHead>
           <TableRow sx={{ bgcolor: flat.headerBg }}>
-            <TableCell
-              align="right"
-              sx={{
-                fontWeight: 600,
-                width: 100,
-                borderBottom: `2px solid ${flat.border}`,
-              }}
-            >
+            <TableCell align="right" sx={{ fontWeight: 600, width: 100 }}>
               行番号
             </TableCell>
-            <TableCell
-              sx={{
-                fontWeight: 600,
-                borderBottom: `2px solid ${flat.border}`,
-              }}
-            >
-              メッセージ
-            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>メッセージ</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row, index) => (
-            <TableRow
-              key={`${row.row_number}-${index}`}
-              sx={{
-                bgcolor: index % 2 === 1 ? flat.stripe : "transparent",
-                "&:last-child td": { border: 0 },
-              }}
-            >
+            <TableRow key={`${row.row_number}-${index}`}>
               <TableCell align="right">{row.row_number}</TableCell>
               <TableCell>{row.message}</TableCell>
             </TableRow>
@@ -254,18 +226,9 @@ export const Presenter = ({
       </Box>
 
       {/* 行一覧 */}
-      <Card
-        elevation={0}
-        sx={{
-          border: `1px solid ${flat.border}`,
-          borderRadius: 0,
-          boxShadow: "none",
-        }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          <RowTable rows={tabRows[activeTab]} />
-        </CardContent>
-      </Card>
+      <TableCard density="compact" mb={0}>
+        <RowTable rows={tabRows[activeTab]} />
+      </TableCard>
 
       <Snackbar
         open={snackbar.open}
