@@ -11,6 +11,8 @@ class ApplicationController < ActionController::API
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
+  rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
+  rescue_from ActiveRecord::StaleObjectError, with: :stale_object
 
   DEFAULT_PER_PAGE = 20
   MAX_PER_PAGE = 100
@@ -24,6 +26,14 @@ class ApplicationController < ActionController::API
   def not_found(exception)
     model = exception.model.safe_constantize
     render json: { message: "#{model.model_name.human}が見つかりません" }, status: :not_found
+  end
+
+  def record_invalid(exception)
+    render json: { errors: exception.record.errors.full_messages }, status: :unprocessable_content
+  end
+
+  def stale_object
+    render json: { errors: ['他のユーザーによってデータが更新されています。再読み込みしてください'] }, status: :conflict
   end
 
   def sanitized_per_page
