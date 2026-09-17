@@ -6,7 +6,10 @@ RSpec.describe Common::CancelInterviewRequestService do
   include ActiveJob::TestHelper
 
   subject(:service) do
-    described_class.new(interview_request: interview_request, cancelled_by: cancelled_by, reason: reason)
+    described_class.new(
+      interview_request: interview_request, cancelled_by: cancelled_by, reason: reason,
+      lock_version: interview_request.lock_version
+    )
   end
 
   let!(:interview_request) { create(:interview_request, :initiated_by_teacher, status: :requested) }
