@@ -4,6 +4,8 @@ module Api
   module V1
     module Student
       class InterviewRequestsController < Api::V1::Student::BaseController
+        before_action :require_lock_version!, only: :destroy
+
         def index
           requests = scoped_interview_requests.order(created_at: :desc).page(sanitized_page).per(sanitized_per_page)
           render json: {
@@ -65,6 +67,12 @@ module Api
 
         def destroy_interview_request_params
           params.permit(:reason, :lock_version)
+        end
+
+        def require_lock_version!
+          return if params[:lock_version].present?
+
+          render json: { errors: ['lock_versionは必須です'] }, status: :unprocessable_content
         end
       end
     end

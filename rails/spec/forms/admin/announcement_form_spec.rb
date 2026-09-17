@@ -19,14 +19,9 @@ RSpec.describe Admin::AnnouncementForm do
         expect { form.save }.to change(Announcement, :count).by(1)
       end
 
-      it 'resultにannouncementが設定される' do
-        form.save
-        expect(form.result).to be_a(Announcement)
-      end
-
       it 'all_usersターゲットが1件作成される' do
         form.save
-        expect(form.result.announcement_targets.first.target_type).to eq('all_users')
+        expect(Announcement.last.announcement_targets.first.target_type).to eq('all_users')
       end
     end
 
@@ -37,7 +32,7 @@ RSpec.describe Admin::AnnouncementForm do
 
       it 'scheduledで作成される' do
         form.save
-        expect(form.result.status).to eq('scheduled')
+        expect(Announcement.last.status).to eq('scheduled')
       end
     end
 
@@ -112,11 +107,6 @@ RSpec.describe Admin::AnnouncementForm do
         expect(announcement.reload.title).to eq('新タイトル')
         expect(announcement.reload.content).to eq('新内容')
       end
-
-      it 'resultにannouncementが設定される' do
-        form.save
-        expect(form.result).to eq(announcement)
-      end
     end
 
     context 'titleを空文字で更新しようとした場合' do
@@ -162,6 +152,32 @@ RSpec.describe Admin::AnnouncementForm do
       end
     end
 
+    context 'scheduled_atが設定済みのお知らせでscheduled_atをnilに戻す場合' do
+      let(:announcement) { create(:announcement, publisher: admin, status: :draft, scheduled_at: 1.day.from_now) }
+      let(:params) { { scheduled_at: nil } }
+
+      it '保存に成功する' do
+        expect(form.save).to be true
+      end
+
+      it 'scheduled_atがnilに更新される' do
+        form.save
+        expect(announcement.reload.scheduled_at).to be_nil
+      end
+    end
+
+    context '一部の属性のみ指定した場合、指定していない属性は変更されない' do
+      let(:announcement) { create(:announcement, publisher: admin, title: '元のタイトル', content: '元の内容') }
+      let(:params) { { title: '新タイトル' } }
+
+      it 'titleのみ更新されcontentは変更されない' do
+        form.save
+        announcement.reload
+        expect(announcement.title).to eq('新タイトル')
+        expect(announcement.content).to eq('元の内容')
+      end
+    end
+
     context 'すでにpublishedのお知らせを更新しようとした場合' do
       let(:announcement) { create(:announcement, publisher: admin, status: :published) }
       let(:params) { { title: '新タイトル' } }
@@ -186,6 +202,29 @@ RSpec.describe Admin::AnnouncementForm do
 
       it 'ArgumentErrorを発生させない' do
         expect { form.save }.not_to raise_error
+      end
+    end
+
+    context 'statusを空文字で更新しようとした場合' do
+      let(:announcement) { create(:announcement, publisher: admin, status: :draft) }
+      let(:params) { { status: '' } }
+
+      it '保存に失敗する' do
+        expect(form.save).to be false
+      end
+
+      it 'ArgumentErrorを発生させない' do
+        expect { form.save }.not_to raise_error
+      end
+
+      it 'errorsにstatusのエラーが含まれる' do
+        form.save
+        expect(form.errors[:status]).to be_present
+      end
+
+      it 'statusが更新されない' do
+        form.save
+        expect(announcement.reload.status).to eq('draft')
       end
     end
   end

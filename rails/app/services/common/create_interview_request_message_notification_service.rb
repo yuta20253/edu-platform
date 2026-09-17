@@ -8,7 +8,7 @@ module Common
     end
 
     def call
-      Teacher::CreateSystemAnnouncementService.new(
+      CreateSystemAnnouncementService.new(
         publisher: @message.sender,
         title: '面談に新しいメッセージが届いています',
         content: "#{@message.sender.name}さんからメッセージが届きました。",

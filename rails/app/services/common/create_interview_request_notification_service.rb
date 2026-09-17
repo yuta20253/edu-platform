@@ -7,7 +7,7 @@ module Common
     end
 
     def call
-      Teacher::CreateSystemAnnouncementService.new(
+      CreateSystemAnnouncementService.new(
         publisher: publisher,
         title: '面談の申請があります',
         content: content,

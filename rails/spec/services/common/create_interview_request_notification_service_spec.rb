@@ -15,12 +15,12 @@ RSpec.describe Common::CreateInterviewRequestNotificationService do
       end
 
       it '生徒宛にアナウンスサービスが呼ばれる' do
-        service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
-        allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+        service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
+        allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
         service.call
 
-        expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+        expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
           publisher: teacher,
           title: '面談の申請があります',
           content: '山田太郎先生から面談の申請がありました。',
@@ -38,12 +38,12 @@ RSpec.describe Common::CreateInterviewRequestNotificationService do
       end
 
       it '教員宛にアナウンスサービスが呼ばれる' do
-        service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
-        allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+        service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
+        allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
         service.call
 
-        expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+        expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
           publisher: student,
           title: '面談の申請があります',
           content: '佐藤花子さんから面談の申請がありました。',

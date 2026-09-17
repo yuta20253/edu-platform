@@ -4,9 +4,8 @@ module Api
   module V1
     module Teacher
       class InterviewRequestsController < Api::V1::Teacher::BaseController
-        ALLOWED_UPDATE_STATUSES = %w[confirmed completed].freeze
-
         before_action :require_valid_update_status!, only: :update
+        before_action :require_lock_version!, only: %i[update destroy]
 
         def index
           requests = scoped_interview_requests.order(created_at: :desc).page(sanitized_page).per(sanitized_per_page)
@@ -90,9 +89,20 @@ module Api
         end
 
         def require_valid_update_status!
-          return if update_interview_request_params[:status].in?(ALLOWED_UPDATE_STATUSES)
+          allowed_statuses = ::Teacher::ProcessInterviewRequestService::ALLOWED_STATUSES
+          return if update_interview_request_params[:status].in?(allowed_statuses)
 
           render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
+        end
+
+        def require_lock_version!
+          return if lock_version_param.present?
+
+          render json: { errors: ['lock_versionは必須です'] }, status: :unprocessable_content
+        end
+
+        def lock_version_param
+          params[:lock_version] || params.dig(:interview_request, :lock_version)
         end
       end
     end

@@ -123,6 +123,26 @@ RSpec.describe Teacher::ProcessInterviewRequestService do
       end
     end
 
+    context 'STATUS_TRANSITIONS上は遷移可能だが許可されていないステータス(cancelled)を指定する場合' do
+      let(:status) { 'cancelled' }
+
+      it 'falseを返す(このサービスでキャンセルはできない)' do
+        expect(service.call).to be false
+      end
+
+      it '更新されない' do
+        expect { service.call }.not_to(change { interview_request.reload.status })
+      end
+
+      it 'キャンセルの付随情報が設定されない' do
+        service.call
+        interview_request.reload
+
+        expect(interview_request.cancelled_at).to be_nil
+        expect(interview_request.cancelled_by_id).to be_nil
+      end
+    end
+
     context '他の教員が担当する面談を操作しようとする場合' do
       subject(:service) do
         described_class.new(

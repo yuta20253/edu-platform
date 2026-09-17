@@ -10,7 +10,6 @@ module Api
                                       .order(:created_at)
                                       .page(sanitized_page)
                                       .per(sanitized_per_page)
-
           render json: {
             interview_request_messages: ActiveModelSerializers::SerializableResource.new(
               messages, each_serializer: InterviewRequestMessageSerializer

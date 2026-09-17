@@ -7,7 +7,7 @@ module Common
     end
 
     def call
-      Teacher::CreateSystemAnnouncementService.new(
+      CreateSystemAnnouncementService.new(
         publisher: @interview_request.cancelled_by,
         title: '面談がキャンセルされました',
         content: content,

@@ -14,12 +14,12 @@ RSpec.describe Common::CreateInterviewConfirmedNotificationService do
 
   describe '#call' do
     it '生徒宛にアナウンスサービスが呼ばれる' do
-      service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
-      allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+      service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
+      allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
       service.call
 
-      expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+      expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
         publisher: interview_request.teacher,
         title: '面談日程が確定しました',
         content: '面談日程が2026年09月10日 16:00に確定しました。',

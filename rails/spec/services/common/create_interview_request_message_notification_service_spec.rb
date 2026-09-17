@@ -14,12 +14,12 @@ RSpec.describe Common::CreateInterviewRequestMessageNotificationService do
       end
 
       it '生徒宛にアナウンスサービスが呼ばれる' do
-        service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
-        allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+        service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
+        allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
         service.call
 
-        expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+        expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
           publisher: interview_request.teacher,
           title: '面談に新しいメッセージが届いています',
           content: "#{interview_request.teacher.name}さんからメッセージが届きました。",
@@ -36,12 +36,12 @@ RSpec.describe Common::CreateInterviewRequestMessageNotificationService do
       end
 
       it '教員宛にアナウンスサービスが呼ばれる' do
-        service_double = instance_double(Teacher::CreateSystemAnnouncementService, call: true)
-        allow(Teacher::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
+        service_double = instance_double(Common::CreateSystemAnnouncementService, call: true)
+        allow(Common::CreateSystemAnnouncementService).to receive(:new).and_return(service_double)
 
         service.call
 
-        expect(Teacher::CreateSystemAnnouncementService).to have_received(:new).with(
+        expect(Common::CreateSystemAnnouncementService).to have_received(:new).with(
           publisher: interview_request.student,
           title: '面談に新しいメッセージが届いています',
           content: "#{interview_request.student.name}さんからメッセージが届きました。",
