@@ -2,12 +2,21 @@
 
 module Teacher
   class StudentCsvImportService
-    def initialize(form)
+    def initialize(form:, import_history:)
       @form = form
+      @import_history = import_history
     end
 
     def call
-      @form.existing_user ? update_existing_user : create_new_user
+      action = @form.existing_user ? :updated : :created
+      user = @form.existing_user ? update_existing_user : create_new_user
+
+      @import_history.imported_students.create!(
+        user: user,
+        action: action
+      )
+
+      user
     end
 
     private

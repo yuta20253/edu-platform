@@ -7,6 +7,7 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
   let!(:high_school) { create(:high_school) }
   let!(:grade) { create(:grade, high_school: high_school, year: 1) }
   let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
+  let!(:import_history) { create(:import_history, import_type: :student, unit: nil) }
 
   def build_form(email:)
     form = Teacher::StudentImportForm.new(
@@ -26,11 +27,11 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
       let(:form) { build_form(email: 'new-student@example.com') }
 
       it '新規Userを作成する' do
-        expect { described_class.new(form).call }.to change(User, :count).by(1)
+        expect { described_class.new(form: form, import_history: import_history).call }.to change(User, :count).by(1)
       end
 
       it '所属高校・学年・学級・氏名が設定される' do
-        user = described_class.new(form).call
+        user = described_class.new(form: form, import_history: import_history).call
 
         expect(user.high_school).to eq(high_school)
         expect(user.grade).to eq(grade)
@@ -39,23 +40,23 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
       end
 
       it '生徒コードが発行される' do
-        user = described_class.new(form).call
+        user = described_class.new(form: form, import_history: import_history).call
 
         expect(user.student_number).to match(/\A#{high_school.school_code}-/)
       end
 
       it 'password_reset_requiredがtrueになる（自己登録でclaim可能な状態）' do
-        user = described_class.new(form).call
+        user = described_class.new(form: form, import_history: import_history).call
 
         expect(user.password_reset_required).to be true
       end
 
       it '招待メールが送信される' do
-        expect { described_class.new(form).call }.to have_enqueued_mail(AuthMailer, :invite_user)
+        expect { described_class.new(form: form, import_history: import_history).call }.to have_enqueued_mail(AuthMailer, :invite_user)
       end
 
       it 'reset_password_tokenが発行される' do
-        user = described_class.new(form).call
+        user = described_class.new(form: form, import_history: import_history).call
 
         expect(user.reset_password_token).to be_present
       end
@@ -71,7 +72,7 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
 
       it '新規Userを作らず既存Userを更新する' do
         user = nil
-        expect { user = described_class.new(form).call }.not_to change(User, :count)
+        expect { user = described_class.new(form: form, import_history: import_history).call }.not_to change(User, :count)
 
         expect(user.id).to eq(existing_user.id)
         expect(user.name).to eq('山田太郎')
@@ -81,19 +82,19 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
       it 'パスワードや有効化状態は上書きしない' do
         original_password = existing_user.encrypted_password
 
-        described_class.new(form).call
+        described_class.new(form: form, import_history: import_history).call
 
         expect(existing_user.reload.encrypted_password).to eq(original_password)
         expect(existing_user.reload.password_reset_required).to be false
       end
 
       it '招待メールは送信されない' do
-        expect { described_class.new(form).call }.not_to have_enqueued_mail(AuthMailer, :invite_user)
+        expect { described_class.new(form: form, import_history: import_history).call }.not_to have_enqueued_mail(AuthMailer, :invite_user)
       end
 
       context 'student_numberが未設定の場合' do
         it '生徒コードが新たに発行される' do
-          user = described_class.new(form).call
+          user = described_class.new(form: form, import_history: import_history).call
 
           expect(user.student_number).to be_present
         end
@@ -103,7 +104,7 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
         before { existing_user.update!(student_number: "#{high_school.school_code}-EXISTING1") }
 
         it '既存の生徒コードが維持される' do
-          user = described_class.new(form).call
+          user = described_class.new(form: form, import_history: import_history).call
 
           expect(user.student_number).to eq("#{high_school.school_code}-EXISTING1")
         end
