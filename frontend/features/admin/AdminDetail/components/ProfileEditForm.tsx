@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import {
   Alert,
   Autocomplete,
@@ -198,7 +199,7 @@ export const ProfileEditForm = ({
           sx={{
             "& input:-webkit-autofill, & input:-webkit-autofill:focus, & input:-webkit-autofill:hover":
               {
-                WebkitBoxShadow: "0 0 0 1000px #fff inset",
+                WebkitBoxShadow: `0 0 0 1000px ${colors.surface.white} inset`,
                 WebkitTextFillColor: "inherit",
                 transition: "background-color 9999s ease-in-out 0s",
               },
