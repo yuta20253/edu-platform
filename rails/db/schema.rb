@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_18_165552) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "scheduled_at"
+    t.boolean "system_generated", default: false, null: false
     t.index ["publisher_id"], name: "index_announcements_on_publisher_id"
     t.index ["status", "scheduled_at"], name: "index_announcements_on_status_and_scheduled_at"
   end
@@ -204,6 +205,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
     t.integer "import_type", default: 0, null: false
     t.index ["unit_id"], name: "index_import_histories_on_unit_id"
     t.index ["user_id"], name: "index_import_histories_on_user_id"
+  end
+
+  create_table "imported_students", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "import_history_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "action", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["import_history_id", "user_id"], name: "index_imported_students_on_import_history_id_and_user_id", unique: true
+    t.index ["import_history_id"], name: "index_imported_students_on_import_history_id"
+    t.index ["user_id"], name: "index_imported_students_on_user_id"
   end
 
   create_table "interview_request_messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -593,7 +605,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
     t.index ["user_role_id"], name: "index_users_on_user_role_id"
   end
 
-  add_foreign_key "account_link_audits", "users"
+  add_foreign_key "account_link_audits", "users", name: "fk_rails_account_link_audits_user"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "addresses", "prefectures"
@@ -615,6 +627,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
   add_foreign_key "import_errors", "import_histories"
   add_foreign_key "import_histories", "units"
   add_foreign_key "import_histories", "users"
+  add_foreign_key "imported_students", "import_histories"
+  add_foreign_key "imported_students", "users"
   add_foreign_key "interview_request_messages", "interview_requests"
   add_foreign_key "interview_request_messages", "users", column: "sender_id"
   add_foreign_key "interview_requests", "users", column: "cancelled_by_id"

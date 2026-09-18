@@ -26,6 +26,8 @@ class ImportHistory < ApplicationRecord
   belongs_to :user
   belongs_to :unit, optional: true
   has_many :import_errors, -> { order(:row_number) }, dependent: :destroy, inverse_of: :import_history
+  has_many :imported_students, -> { order(:id) }, dependent: :destroy, inverse_of: :import_history, autosave: false
+  has_many :students, through: :imported_students, source: :user
 
   has_one_attached :file
 
