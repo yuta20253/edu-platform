@@ -14,8 +14,8 @@ RSpec.describe Teacher::ImportHistoryCsvExporterService, type: :model do
   context '成功行が存在する場合' do
     before do
       student = create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
-                                         name: '山田太郎', name_kana: 'ヤマダタロウ', student_number: 'TST-ABC123',
-                                         email: 'taro@sensitive-example.test')
+                                        name: '山田太郎', name_kana: 'ヤマダタロウ', student_number: 'TST-ABC123',
+                                        email: 'taro@sensitive-example.test')
       ImportedStudent.create!(import_history: history, user: student, action: :created)
     end
 
@@ -49,7 +49,7 @@ RSpec.describe Teacher::ImportHistoryCsvExporterService, type: :model do
   context '氏名が数式インジェクションを狙った値で始まる場合' do
     before do
       student = create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
-                                         name: '=cmd|calc', name_kana: '+HYPERLINK', student_number: 'TST-XYZ789')
+                                        name: '=cmd|calc', name_kana: '+HYPERLINK', student_number: 'TST-XYZ789')
       ImportedStudent.create!(import_history: history, user: student, action: :updated)
     end
 

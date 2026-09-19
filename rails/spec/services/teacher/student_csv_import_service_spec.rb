@@ -52,7 +52,9 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
       end
 
       it '招待メールが送信される' do
-        expect { described_class.new(form: form, import_history: import_history).call }.to have_enqueued_mail(AuthMailer, :invite_user)
+        expect do
+          described_class.new(form: form, import_history: import_history).call
+        end.to have_enqueued_mail(AuthMailer, :invite_user)
       end
 
       it 'reset_password_tokenが発行される' do
@@ -72,7 +74,9 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
 
       it '新規Userを作らず既存Userを更新する' do
         user = nil
-        expect { user = described_class.new(form: form, import_history: import_history).call }.not_to change(User, :count)
+        expect do
+          user = described_class.new(form: form, import_history: import_history).call
+        end.not_to change(User, :count)
 
         expect(user.id).to eq(existing_user.id)
         expect(user.name).to eq('山田太郎')
@@ -89,7 +93,10 @@ RSpec.describe Teacher::StudentCsvImportService, type: :service do
       end
 
       it '招待メールは送信されない' do
-        expect { described_class.new(form: form, import_history: import_history).call }.not_to have_enqueued_mail(AuthMailer, :invite_user)
+        expect do
+          described_class.new(form: form,
+                              import_history: import_history).call
+        end.not_to have_enqueued_mail(AuthMailer, :invite_user)
       end
 
       context 'student_numberが未設定の場合' do

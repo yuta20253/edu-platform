@@ -1,37 +1,41 @@
-class Teacher::ImportHistoryCsvExporterService
-  require 'csv'
+# frozen_string_literal: true
 
-  BOM = "\uFEFF"
-  FORMULA_PREFIXES = ['=', '+', '-', '@'].freeze
+module Teacher
+  class ImportHistoryCsvExporterService
+    require 'csv'
 
-  def initialize(history)
-    @history = history
-  end
+    BOM = "\uFEFF"
+    FORMULA_PREFIXES = ['=', '+', '-', '@'].freeze
 
-  def call
-    csv = CSV.generate do |c|
-      c << %w[氏名 氏名カナ 学年 学級 生徒コード]
-
-      @history.imported_students.each do |imported_student|
-        c << [
-          escape_formula(imported_student.user.name),
-          escape_formula(imported_student.user.name_kana),
-          escape_formula(imported_student.user.grade&.display_name),
-          escape_formula(imported_student.user.school_class.name),
-          imported_student.user.student_number
-        ]
-      end
+    def initialize(history)
+      @history = history
     end
 
-    "#{BOM}#{csv}"
-  end
+    def call
+      csv = CSV.generate do |c|
+        c << %w[氏名 氏名カナ 学年 学級 生徒コード]
 
-  private
+        @history.imported_students.each do |imported_student|
+          c << [
+            escape_formula(imported_student.user.name),
+            escape_formula(imported_student.user.name_kana),
+            escape_formula(imported_student.user.grade&.display_name),
+            escape_formula(imported_student.user.school_class.name),
+            imported_student.user.student_number
+          ]
+        end
+      end
 
-  def escape_formula(value)
-    return value unless value.is_a?(String)
-    return value unless value.start_with?(*FORMULA_PREFIXES)
+      "#{BOM}#{csv}"
+    end
 
-    "'#{value}"
+    private
+
+    def escape_formula(value)
+      return value unless value.is_a?(String)
+      return value unless value.start_with?(*FORMULA_PREFIXES)
+
+      "'#{value}"
+    end
   end
 end

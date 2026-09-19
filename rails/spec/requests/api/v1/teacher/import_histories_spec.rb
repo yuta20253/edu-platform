@@ -9,6 +9,9 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
       'Accept' => 'application/json'
     }
   end
+  let!(:high_school) { create(:high_school) }
+  let!(:teacher) { create(:user, :teacher, high_school: high_school) }
+  let(:cookie) { login_and_get_cookie(teacher) }
 
   def login_and_get_cookie(user)
     post '/api/v1/user/login',
@@ -16,10 +19,6 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
          headers: headers
     response.headers['Set-Cookie']&.split(';')&.first
   end
-
-  let!(:high_school) { create(:high_school) }
-  let!(:teacher) { create(:user, :teacher, high_school: high_school) }
-  let(:cookie) { login_and_get_cookie(teacher) }
 
   describe 'GET /api/v1/teacher/import_histories' do
     subject { get '/api/v1/teacher/import_histories', headers: headers.merge('Cookie' => cookie) }
@@ -86,7 +85,7 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
     context '成功行・失敗行が存在する場合' do
       let!(:student) do
         create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
-                                 name: '山田太郎', student_number: 'TST-ABC123')
+                                name: '山田太郎', student_number: 'TST-ABC123')
       end
 
       before do
@@ -133,7 +132,7 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
     let!(:history) { create(:import_history, user: teacher, unit: nil, import_type: :student, status: :completed) }
     let!(:student) do
       create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
-                               name: '山田太郎', student_number: 'TST-ABC123')
+                              name: '山田太郎', student_number: 'TST-ABC123')
     end
 
     before { ImportedStudent.create!(import_history: history, user: student, action: :created) }
