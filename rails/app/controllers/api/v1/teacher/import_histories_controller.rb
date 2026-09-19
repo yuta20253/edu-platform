@@ -23,6 +23,16 @@ class Api::V1::Teacher::ImportHistoriesController < Api::V1::Teacher::BaseContro
     render json: history, serializer: ::Teacher::ImportHistoryDetailSerializer
   end
 
+  def export
+    history = import_histories_scope.find(params[:id])
+    csv = ::Teacher::ImportHistoryCsvExporterService.new(history).call
+
+    send_data csv,
+      filename: "import_history_#{history.id}.csv",
+      type: 'text/csv; charset=UTF-8',
+      disposition: 'attachment'
+  end
+
   private
 
   def import_histories_scope
