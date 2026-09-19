@@ -21,7 +21,7 @@ export default function MainLayout({
         className={inter.className}
       >
         <Header />
-        <Box p={2} maxWidth="960px" width="100%" margin="0 auto">
+        <Box p={2} pb={9} maxWidth="960px" width="100%" margin="0 auto">
           {children}
         </Box>
         <Footer />

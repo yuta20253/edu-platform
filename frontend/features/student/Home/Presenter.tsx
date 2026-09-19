@@ -21,6 +21,10 @@ export const Presenter = ({
 
   const links = [
     {
+      href: "/analytics",
+      title: "学習分析",
+    },
+    {
       href: "/exams",
       title: "定期テスト管理",
     },
