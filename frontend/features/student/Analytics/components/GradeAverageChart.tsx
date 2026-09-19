@@ -20,10 +20,7 @@ export const GradeAverageChart = ({ data }: Props) => {
         },
         {
           label: "学年平均",
-          data: [
-            data.correct_rate.average,
-            data.task_completion_rate.average,
-          ],
+          data: [data.correct_rate.average, data.task_completion_rate.average],
           color: colors.text.muted,
         },
       ]}

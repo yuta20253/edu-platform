@@ -55,11 +55,7 @@ describe("AnalyticsPresenter", () => {
   it("教科を選択するとsetSubjectが呼ばれる", () => {
     const setSubject = vi.fn();
     render(
-      <Presenter
-        {...baseProps}
-        type="course_rank"
-        setSubject={setSubject}
-      />,
+      <Presenter {...baseProps} type="course_rank" setSubject={setSubject} />,
     );
 
     fireEvent.mouseDown(screen.getByLabelText("教科"));
