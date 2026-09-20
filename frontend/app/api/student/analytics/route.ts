@@ -1,5 +1,4 @@
 import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { NextRequest, NextResponse } from "next/server";
 
