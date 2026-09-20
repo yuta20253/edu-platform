@@ -17,6 +17,8 @@ module Student
         started_at: Time.current
       )
 
+      ::Student::TaskStartService.new(user: @user, task: @task).call
+
       study_log.id
     end
   end

@@ -1,27 +1,22 @@
 # frozen_string_literal: true
 
 module Student
-  class SubmissionService
-    def initialize(user:, task_id:)
+  class TaskStartService
+    def initialize(user:, task:)
       @user = user
-      @task_id = task_id
+      @task = task
     end
 
     def call
-      status = ::Student::TaskCompletionService.new(
-        user: @user,
-        task_id: @task_id
-      ).call
+      return unless @task.not_started?
 
       ::Student::TaskStatusUpdaterService.new(
         user: @user,
-        task_id: @task_id,
-        status: status
+        task_id: @task.id,
+        status: :in_progress
       ).call
 
       update_goal_status
-
-      status
     end
 
     private
@@ -29,18 +24,14 @@ module Student
     def update_goal_status
       goal_status = ::Student::GoalCompletionService.new(
         user: @user,
-        goal_id: task.goal_id
+        goal_id: @task.goal_id
       ).call
 
       ::Student::GoalStatusUpdaterService.new(
         user: @user,
-        goal_id: task.goal_id,
+        goal_id: @task.goal_id,
         status: goal_status
       ).call
-    end
-
-    def task
-      @task ||= @user.tasks.find(@task_id)
     end
   end
 end

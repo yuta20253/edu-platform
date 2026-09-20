@@ -29,7 +29,8 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
            headers: headers.merge('Cookie' => cookie)
     end
 
-    let!(:task) { create(:task, user: user) }
+    let!(:goal) { create(:goal, user: user) }
+    let!(:task) { create(:task, user: user, goal: goal) }
     let!(:unit) { create(:unit) }
 
     it 'StudyLogを作成できること' do
@@ -56,6 +57,22 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
       request
 
       expect(response.parsed_body['study_log_id']).to eq(StudyLog.last.id)
+    end
+
+    it 'taskのstatusがin_progressに更新されること' do
+      task.units << unit
+
+      request
+
+      expect(task.reload.status).to eq('in_progress')
+    end
+
+    it 'goalのstatusがin_progressに更新されること' do
+      task.units << unit
+
+      request
+
+      expect(goal.reload.status).to eq('in_progress')
     end
 
     it '同じTask/Unitで複数のStudyLogを作成できること' do
