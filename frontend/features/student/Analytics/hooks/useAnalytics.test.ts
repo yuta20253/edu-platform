@@ -36,9 +36,13 @@ describe("useAnalytics", () => {
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(apiClient.get).toHaveBeenCalledWith("/api/student/analytics", {
-      params: { type: "task_completion" },
-    });
+    expect(apiClient.get).toHaveBeenCalledWith(
+      "/api/student/analytics",
+      expect.objectContaining({
+        params: { type: "task_completion" },
+        signal: expect.anything(),
+      }),
+    );
     expect(result.current.data).toEqual({
       type: "task_completion",
       data: { completed_count: 1, total_count: 2, completion_rate: 50 },
@@ -76,9 +80,13 @@ describe("useAnalytics", () => {
     });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(apiClient.get).toHaveBeenCalledWith("/api/student/analytics", {
-      params: { type: "course_rank", course_id: "5" },
-    });
+    expect(apiClient.get).toHaveBeenCalledWith(
+      "/api/student/analytics",
+      expect.objectContaining({
+        params: { type: "course_rank", course_id: "5" },
+        signal: expect.anything(),
+      }),
+    );
     expect(result.current.data).toEqual({
       type: "course_rank",
       data: { rank: 3, total_users: 30 },

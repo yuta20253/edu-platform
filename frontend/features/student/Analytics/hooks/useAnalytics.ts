@@ -1,6 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import axios from "axios";
 import { useCourses } from "@/hooks/useCourses";
 import { SubjectName } from "@/constants/subject";
 import { useRouter } from "next/navigation";
@@ -53,6 +54,10 @@ export const useAnalytics = () => {
       return;
     }
 
+    // typeやcourseId/unitIdが切り替わった際、古いリクエストをキャンセルして
+    // 古い応答で新しい選択結果を上書きしないようにする
+    const controller = new AbortController();
+
     const params: Record<string, string> = { type };
     if (courseId !== null) params.course_id = String(courseId);
     if (unitId !== null) params.unit_id = String(unitId);
@@ -63,9 +68,11 @@ export const useAnalytics = () => {
     apiClient
       .get<AnalyticsDataMap[AnalyticsType]>("/api/student/analytics", {
         params,
+        signal: controller.signal,
       })
       .then((res) => setData({ type, data: res.data } as AnalyticsResult))
       .catch((err) => {
+        if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
           router.push("/login");
           return;
@@ -74,7 +81,14 @@ export const useAnalytics = () => {
         setError(true);
         setData(null);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (controller.signal.aborted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
   }, [type, courseId, unitId, canFetch, router]);
 
   return {

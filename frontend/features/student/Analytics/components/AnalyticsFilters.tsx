@@ -88,7 +88,7 @@ export const AnalyticsFilters = ({
         </FormControl>
       )}
 
-      {needsCourse(type) && courses !== null && (
+      {needsCourse(type) && subject !== null && courses !== null && (
         <FormControl sx={{ minWidth: 160 }}>
           <InputLabel id="analytics-course-label">コース</InputLabel>
           <Select

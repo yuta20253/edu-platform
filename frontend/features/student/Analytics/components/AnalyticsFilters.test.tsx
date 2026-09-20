@@ -60,6 +60,27 @@ describe("AnalyticsFilters", () => {
     expect(screen.getByLabelText("コース")).toBeInTheDocument();
   });
 
+  it("教科が未選択の場合はコース一覧が残っていてもコース選択を表示しない", () => {
+    const courses: Course[] = [
+      {
+        id: 1,
+        level_number: 1,
+        level_name: "基礎",
+        description: "",
+        units: [],
+      },
+    ];
+    render(
+      <AnalyticsFilters
+        {...baseProps}
+        type="course_rank"
+        subject={null}
+        courses={courses}
+      />,
+    );
+    expect(screen.queryByLabelText("コース")).not.toBeInTheDocument();
+  });
+
   it("unit_rankでコース未選択の間は単元セレクトを表示しない", () => {
     render(<AnalyticsFilters {...baseProps} type="unit_rank" />);
     expect(screen.queryByLabelText("単元")).not.toBeInTheDocument();
