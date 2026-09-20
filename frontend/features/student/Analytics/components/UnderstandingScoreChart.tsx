@@ -1,5 +1,6 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
+import { buildCourseLabel } from "@/libs/domain/course/courseLabel";
 import { UnderstandingScoreData } from "../types";
 
 type Props = {
@@ -28,7 +29,7 @@ export const UnderstandingScoreChart = ({ data }: Props) => {
               sx={{ mt: 2 }}
             >
               <Typography sx={{ mb: 1, fontWeight: "bold" }}>
-                {course.level_name}
+                {buildCourseLabel(course)}
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {course.units.map((unit) => (
