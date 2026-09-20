@@ -51,3 +51,10 @@ export type AnalyticsDataMap = {
   course_rank: RankData;
   unit_rank: RankData;
 };
+
+export type AnalyticsResult =
+  | { type: "task_completion"; data: TaskCompletionData }
+  | { type: "understanding_score"; data: UnderstandingScoreData }
+  | { type: "grade_average"; data: GradeAverageData }
+  | { type: "course_rank"; data: RankData }
+  | { type: "unit_rank"; data: RankData };

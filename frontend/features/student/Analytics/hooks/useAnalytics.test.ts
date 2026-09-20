@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useAnalytics } from "./hooks";
+import { useAnalytics } from "./useAnalytics";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -40,9 +40,8 @@ describe("useAnalytics", () => {
       params: { type: "task_completion" },
     });
     expect(result.current.data).toEqual({
-      completed_count: 1,
-      total_count: 2,
-      completion_rate: 50,
+      type: "task_completion",
+      data: { completed_count: 1, total_count: 2, completion_rate: 50 },
     });
   });
 
@@ -80,7 +79,10 @@ describe("useAnalytics", () => {
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/analytics", {
       params: { type: "course_rank", course_id: "5" },
     });
-    expect(result.current.data).toEqual({ rank: 3, total_users: 30 });
+    expect(result.current.data).toEqual({
+      type: "course_rank",
+      data: { rank: 3, total_users: 30 },
+    });
   });
 
   it("unit_rankはunitId未選択の間はAPIを呼ばない", async () => {

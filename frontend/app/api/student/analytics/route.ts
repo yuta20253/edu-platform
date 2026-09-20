@@ -22,10 +22,6 @@ export async function GET(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
     return handleRailsRouteError(error, "分析画面への遷移に失敗しました");
   }
 }
