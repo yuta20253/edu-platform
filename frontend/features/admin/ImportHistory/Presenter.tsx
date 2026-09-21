@@ -1,11 +1,10 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { TableCard } from "@/components/ui/TableCard";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   FormControl,
   IconButton,
@@ -84,17 +83,6 @@ const STATUS_OPTIONS: { value: ImportHistoryStatus; label: string }[] = [
   { value: "failed", label: importStatusLabel.failed },
 ];
 
-// Gentelella風のフラット・ミニマルなテイストを本画面ローカルで再現するトークン。
-// 角丸なし・影なし、薄いグレーのボーダーのみで区切る。
-const flat = {
-  border: "#E6E9ED",
-  headerBg: "#ffffff",
-  stripe: "#F7F7F7",
-  accent: "#1ABB9C",
-  titleText: "#2A3F54",
-  filterBg: "#FAFBFC",
-};
-
 // フィルタのSelect/DatePickerを角丸なし・小さめのGentelella風に揃えるための共通sx
 const compactFieldSx = {
   "& .MuiOutlinedInput-root": {
@@ -150,13 +138,13 @@ export const Presenter = ({
           gap: 1.5,
           mb: 3,
           pb: 1.5,
-          borderBottom: `2px solid ${flat.border}`,
+          borderBottom: `2px solid ${colors.border.light}`,
         }}
       >
         <Typography
           variant="h5"
           fontWeight={600}
-          sx={{ color: flat.titleText, letterSpacing: 0.3 }}
+          sx={{ color: colors.text.primary, letterSpacing: 0.3 }}
         >
           インポート履歴一覧
         </Typography>
@@ -174,7 +162,7 @@ export const Presenter = ({
           gap: 1.25,
           mb: 1.5,
           p: 1.5,
-          bgcolor: flat.filterBg,
+          bgcolor: colors.surface.default,
         }}
       >
         <FormControl size="small" sx={{ minWidth: 110, ...compactFieldSx }}>
@@ -391,171 +379,104 @@ export const Presenter = ({
       </Box>
 
       {/* テーブル */}
-      <Card
-        elevation={0}
-        sx={{
-          border: `1px solid ${flat.border}`,
-          borderRadius: 0,
-          boxShadow: "none",
-          mb: 3,
-        }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          {histories.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: "center" }}>
-              <Typography color="text.secondary">
-                インポート履歴が見つかりません
-              </Typography>
-            </Box>
-          ) : (
-            <TableContainer>
-              <Table
-                size="small"
-                sx={{
-                  "& .MuiTableCell-root": {
-                    borderBottom: `1px solid ${flat.border}`,
-                  },
-                }}
-              >
-                <TableHead>
-                  <TableRow sx={{ bgcolor: flat.headerBg }}>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
+      <TableCard density="compact">
+        {histories.length === 0 ? (
+          <Box sx={{ py: 6, textAlign: "center" }}>
+            <Typography color="text.secondary">
+              インポート履歴が見つかりません
+            </Typography>
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: colors.surface.light }}>
+                  <TableCell sx={{ fontWeight: 600 }}>
+                    <TableSortLabel
+                      active={sort === "created_at"}
+                      direction={sort === "created_at" ? order : "desc"}
+                      onClick={() => onSortChange("created_at")}
                     >
-                      <TableSortLabel
-                        active={sort === "created_at"}
-                        direction={sort === "created_at" ? order : "desc"}
-                        onClick={() => onSortChange("created_at")}
-                      >
-                        日時
-                      </TableSortLabel>
+                      日時
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>コース</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>単元</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    <TableSortLabel
+                      active={sort === "total_count"}
+                      direction={sort === "total_count" ? order : "asc"}
+                      onClick={() => onSortChange("total_count")}
+                    >
+                      件数
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    <TableSortLabel
+                      active={sort === "success_count"}
+                      direction={sort === "success_count" ? order : "asc"}
+                      onClick={() => onSortChange("success_count")}
+                    >
+                      成功数
+                    </TableSortLabel>
+                    {" / "}
+                    <TableSortLabel
+                      active={sort === "error_count"}
+                      direction={sort === "error_count" ? order : "asc"}
+                      onClick={() => onSortChange("error_count")}
+                    >
+                      エラー数
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>実行者</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>
+                    <TableSortLabel
+                      active={sort === "status"}
+                      direction={sort === "status" ? order : "asc"}
+                      onClick={() => onSortChange("status")}
+                    >
+                      ステータス
+                    </TableSortLabel>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {histories.map((history) => (
+                  <TableRow
+                    key={history.id}
+                    hover
+                    onClick={() => onRowClick(history.id)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell>{formatDateTime(history.created_at)}</TableCell>
+                    <TableCell>{history.course?.level_name ?? "-"}</TableCell>
+                    <TableCell>{history.unit?.unit_name ?? "-"}</TableCell>
+                    <TableCell align="right">{history.total_count}</TableCell>
+                    <TableCell align="right">
+                      {history.success_count} / {history.error_count}
                     </TableCell>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
-                    >
-                      コース
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
-                    >
-                      単元
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
-                      align="right"
-                    >
-                      <TableSortLabel
-                        active={sort === "total_count"}
-                        direction={sort === "total_count" ? order : "asc"}
-                        onClick={() => onSortChange("total_count")}
-                      >
-                        件数
-                      </TableSortLabel>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
-                      align="right"
-                    >
-                      <TableSortLabel
-                        active={sort === "success_count"}
-                        direction={sort === "success_count" ? order : "asc"}
-                        onClick={() => onSortChange("success_count")}
-                      >
-                        成功数
-                      </TableSortLabel>
-                      {" / "}
-                      <TableSortLabel
-                        active={sort === "error_count"}
-                        direction={sort === "error_count" ? order : "asc"}
-                        onClick={() => onSortChange("error_count")}
-                      >
-                        エラー数
-                      </TableSortLabel>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
-                    >
-                      実行者
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        borderBottom: `2px solid ${flat.border}`,
-                      }}
-                    >
-                      <TableSortLabel
-                        active={sort === "status"}
-                        direction={sort === "status" ? order : "asc"}
-                        onClick={() => onSortChange("status")}
-                      >
-                        ステータス
-                      </TableSortLabel>
+                    <TableCell>{history.user?.name ?? "-"}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={importStatusLabel[history.status]}
+                        size="small"
+                        color={importStatusColor[history.status]}
+                        variant="filled"
+                        sx={{
+                          borderRadius: "3px",
+                          fontWeight: 600,
+                          fontSize: "0.7rem",
+                          color: colors.text.inverse,
+                        }}
+                      />
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {histories.map((history, index) => (
-                    <TableRow
-                      key={history.id}
-                      hover
-                      onClick={() => onRowClick(history.id)}
-                      sx={{
-                        cursor: "pointer",
-                        bgcolor: index % 2 === 1 ? flat.stripe : "transparent",
-                        "&:last-child td": { border: 0 },
-                        "&:hover": { bgcolor: "#EFF3F5" },
-                      }}
-                    >
-                      <TableCell>
-                        {formatDateTime(history.created_at)}
-                      </TableCell>
-                      <TableCell>{history.course?.level_name ?? "-"}</TableCell>
-                      <TableCell>{history.unit?.unit_name ?? "-"}</TableCell>
-                      <TableCell align="right">{history.total_count}</TableCell>
-                      <TableCell align="right">
-                        {history.success_count} / {history.error_count}
-                      </TableCell>
-                      <TableCell>{history.user?.name ?? "-"}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={importStatusLabel[history.status]}
-                          size="small"
-                          color={importStatusColor[history.status]}
-                          variant="filled"
-                          sx={{
-                            borderRadius: "3px",
-                            fontWeight: 600,
-                            fontSize: "0.7rem",
-                            color: "#fff",
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </TableCard>
 
       {/* ページネーション */}
       {meta.total_pages > 1 && (
