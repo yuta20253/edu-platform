@@ -1,4 +1,4 @@
-export const ANALYTICS_TYPES = [
+const ANALYTICS_TYPES = [
   "task_completion",
   "understanding_score",
   "grade_average",
@@ -14,18 +14,18 @@ export type TaskCompletionData = {
   completion_rate: number;
 };
 
-export type UnderstandingScoreUnit = {
+type UnderstandingScoreUnit = {
   unit_name: string;
   score: number;
 };
 
-export type UnderstandingScoreCourse = {
+type UnderstandingScoreCourse = {
   level_name: string;
   level_number: number;
   units: UnderstandingScoreUnit[];
 };
 
-export type UnderstandingScoreSubject = {
+type UnderstandingScoreSubject = {
   subject_name: string;
   courses: UnderstandingScoreCourse[];
 };
