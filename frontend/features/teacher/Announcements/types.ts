@@ -13,7 +13,7 @@ export type AuthoredAnnouncement = {
   scheduled_at: string | null;
 };
 
-export type AnnouncementMeta = {
+type AnnouncementMeta = {
   current_page: number;
   total_pages: number;
   total_count: number;
