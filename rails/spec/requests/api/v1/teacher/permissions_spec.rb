@@ -263,7 +263,7 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
     it '更新できないこと' do
       subject
 
-      expect(response).to have_http_status(:unprocessable_content)
+      expect(response).to have_http_status(:forbidden)
       expect(response.parsed_body['errors'])
         .to include('他教員を編集する権限がありません')
     end

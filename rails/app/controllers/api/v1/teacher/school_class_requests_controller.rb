@@ -4,9 +4,11 @@ module Api
   module V1
     module Teacher
       class SchoolClassRequestsController < Api::V1::Teacher::BaseController
+        include RequireManageOtherTeachers
+
         ALLOWED_UPDATE_STATUSES = %w[approved rejected].freeze
 
-        before_action :require_manage_other_teachers!, only: :update
+        before_action -> { require_manage_other_teachers!('承認権限がないユーザーです') }, only: :update
         before_action :require_valid_update_status!, only: :update
 
         def create
@@ -63,12 +65,6 @@ module Api
 
         def destroy_school_class_params
           params.permit(:reason)
-        end
-
-        def require_manage_other_teachers!
-          return if current_user.teacher_permission.manage_other_teachers
-
-          render json: { errors: ['承認権限がないユーザーです'] }, status: :forbidden
         end
 
         def require_valid_update_status!
