@@ -18,7 +18,7 @@ module Admin
 
     def questions
       ActiveModelSerializers::SerializableResource.new(
-        object.questions.order(:id),
+        object.questions.sort_by(&:id),
         each_serializer: ::Admin::QuestionDetailSerializer
       ).as_json
     end
