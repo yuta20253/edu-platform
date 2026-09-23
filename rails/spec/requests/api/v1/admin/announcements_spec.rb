@@ -60,6 +60,15 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         expect(response.parsed_body['announcements'].first.keys).not_to include('content')
       end
 
+      it '発行者が論理削除された管理者のお知らせも含まれる' do
+        deleted_admin = create(:user, :admin, high_school: nil, deleted_at: 1.day.ago)
+        deleted_admin_announcement = create(:announcement, publisher: deleted_admin)
+
+        subject
+        ids = response.parsed_body['announcements'].pluck('id')
+        expect(ids).to include(deleted_admin_announcement.id)
+      end
+
       context 'statusで絞り込む場合' do
         let!(:published_announcement) do
           ann = create(:announcement, publisher: admin_user, status: :published)

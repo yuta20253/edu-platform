@@ -202,6 +202,13 @@ RSpec.describe Admin::DashboardQuery, type: :model do
 
       expect(query.recent_announcements).not_to include(teacher_announcement)
     end
+
+    it '発行者が論理削除された管理者のお知らせも含める' do
+      deleted_admin = create(:user, :admin, high_school: nil, deleted_at: 1.day.ago)
+      announcement = create(:announcement, publisher: deleted_admin)
+
+      expect(query.recent_announcements).to include(announcement)
+    end
   end
 
   describe '#active_within_days' do

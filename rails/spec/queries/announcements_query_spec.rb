@@ -21,10 +21,10 @@ RSpec.describe AnnouncementsQuery do
       let!(:deleted_admin) { create(:user, :admin, high_school: nil, deleted_at: 1.day.ago) }
       let!(:deleted_admin_announcement) { create(:announcement, publisher: deleted_admin) }
 
-      it '含まれない' do
+      it '含まれる' do
         result = described_class.new.result
 
-        expect(result).not_to include(deleted_admin_announcement)
+        expect(result).to include(deleted_admin_announcement)
       end
     end
   end
