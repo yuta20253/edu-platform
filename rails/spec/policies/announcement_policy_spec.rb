@@ -7,7 +7,7 @@ RSpec.describe AnnouncementPolicy do
 
   let(:user) { create(:user, :admin) }
 
-  shared_examples 'ownerによるdraft/scheduledのみ許可するアクション' do |method|
+  shared_examples 'ownerのみ許可するアクション' do |method|
     context '自分が作成したdraftのお知らせの場合' do
       let(:announcement) { create(:announcement, publisher: user, status: :draft) }
 
@@ -27,8 +27,8 @@ RSpec.describe AnnouncementPolicy do
     context '自分が作成したpublishedのお知らせの場合' do
       let(:announcement) { create(:announcement, publisher: user, status: :published) }
 
-      it 'falseを返す' do
-        expect(policy.public_send(method)).to be false
+      it 'trueを返す' do
+        expect(policy.public_send(method)).to be true
       end
     end
 
@@ -43,14 +43,14 @@ RSpec.describe AnnouncementPolicy do
   end
 
   describe '#update?' do
-    it_behaves_like 'ownerによるdraft/scheduledのみ許可するアクション', :update?
+    it_behaves_like 'ownerのみ許可するアクション', :update?
   end
 
   describe '#destroy?' do
-    it_behaves_like 'ownerによるdraft/scheduledのみ許可するアクション', :destroy?
+    it_behaves_like 'ownerのみ許可するアクション', :destroy?
   end
 
   describe '#publish?' do
-    it_behaves_like 'ownerによるdraft/scheduledのみ許可するアクション', :publish?
+    it_behaves_like 'ownerのみ許可するアクション', :publish?
   end
 end

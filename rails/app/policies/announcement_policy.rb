@@ -18,6 +18,6 @@ class AnnouncementPolicy < ApplicationPolicy
   def editable_by_owner?
     return false unless admin?
 
-    record.publisher_id == user.id && record.editable?
+    record.publisher_id == user.id
   end
 end
