@@ -61,7 +61,7 @@ class Announcement < ApplicationRecord
   validate :immutable_once_published, on: :update
 
   def editable?
-    !published?
+    status_was != 'published'
   end
 
   private
