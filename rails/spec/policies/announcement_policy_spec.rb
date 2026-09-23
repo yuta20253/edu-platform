@@ -40,6 +40,15 @@ RSpec.describe AnnouncementPolicy do
         expect(policy.public_send(method)).to be false
       end
     end
+
+    context '発行者(他の管理者)が無効化されている場合' do
+      let(:deactivated_admin) { create(:user, :admin, deleted_at: 1.day.ago) }
+      let(:announcement) { create(:announcement, publisher: deactivated_admin, status: :draft) }
+
+      it 'trueを返す' do
+        expect(policy.public_send(method)).to be true
+      end
+    end
   end
 
   describe '#update?' do
