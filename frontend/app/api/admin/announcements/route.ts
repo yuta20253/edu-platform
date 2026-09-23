@@ -2,7 +2,7 @@ import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
-// 管理者お知らせ一覧の取得（page / per_page / q / status を Rails へ引き継ぐ）
+// 管理者お知らせ一覧の取得（page / per_page / q / status をバックエンドへ引き継ぐ）
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const page = searchParams.get("page") ?? "1";
@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const {
-      status: railsStatus,
+      status: upstreamStatus,
       data,
       setCookie,
     } = await railsFetch(`/api/v1/admin/announcements?${params.toString()}`);
 
-    const res = NextResponse.json(data, { status: railsStatus });
+    const res = NextResponse.json(data, { status: upstreamStatus });
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
