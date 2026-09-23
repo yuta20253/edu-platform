@@ -60,6 +60,20 @@ RSpec.describe Teacher::ImportHistoryCsvExporterService, type: :model do
     end
   end
 
+  context '学級未所属の生徒が含まれる場合' do
+    before do
+      student = create(:user, :student, high_school: high_school, grade: grade, school_class: nil,
+                                        name: '鈴木花子', student_number: 'TST-NOCLS1')
+      ImportedStudent.create!(import_history: history, user: student, action: :created)
+    end
+
+    it '例外にならず、学級列が空で出力される' do
+      rows = CSV.parse(csv.delete_prefix('﻿'), headers: true)
+      expect(rows.first['氏名']).to eq('鈴木花子')
+      expect(rows.first['学級']).to be_nil
+    end
+  end
+
   context '成功行が存在しない場合' do
     it 'ヘッダー行のみで生徒の行は出力されない' do
       rows = CSV.parse(csv.delete_prefix('﻿'), headers: true)
