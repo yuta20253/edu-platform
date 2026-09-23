@@ -16,24 +16,24 @@ export const Notices = () => {
     onStatusChange,
   } = useFetchNotices();
 
-  if (error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          データの取得に失敗しました
-        </Typography>
-      </Box>
-    );
-  }
-
   if (!data) {
+    if (error) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            データの取得に失敗しました
+          </Typography>
+        </Box>
+      );
+    }
+
     return (
       <Box
         sx={{
