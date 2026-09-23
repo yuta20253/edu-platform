@@ -5,6 +5,7 @@ module Api
     module Admin
       class AnnouncementsController < BaseController
         before_action :set_announcement, only: %i[show update destroy publish]
+        before_action :authorize_announcement, only: %i[update destroy publish]
 
         rescue_from ActiveRecord::RecordNotDestroyed do |e|
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
@@ -42,8 +43,6 @@ module Api
         end
 
         def update
-          authorize @announcement
-
           form = ::Admin::AnnouncementForm.new(announcement: @announcement, **announcement_params.to_h.symbolize_keys)
 
           if form.save
@@ -54,15 +53,11 @@ module Api
         end
 
         def destroy
-          authorize @announcement
-
           @announcement.destroy!
           head :no_content
         end
 
         def publish
-          authorize @announcement
-
           publisher = ::Admin::PublishAnnouncementService.new(@announcement)
 
           if publisher.call
@@ -76,6 +71,10 @@ module Api
 
         def set_announcement
           @announcement = announcement_scope.find(params[:id])
+        end
+
+        def authorize_announcement
+          authorize @announcement
         end
 
         def announcement_scope
