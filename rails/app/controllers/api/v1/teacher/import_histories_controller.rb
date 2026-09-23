@@ -23,13 +23,17 @@ module Api
         end
 
         def show
-          history = import_histories_scope.find(params[:id])
+          history = import_histories_scope
+                    .includes(:import_errors, imported_students: { user: %i[grade school_class] })
+                    .find(params[:id])
 
           render json: history, serializer: ::Teacher::ImportHistoryDetailSerializer
         end
 
         def export
-          history = import_histories_scope.find(params[:id])
+          history = import_histories_scope
+                    .includes(imported_students: { user: %i[grade school_class] })
+                    .find(params[:id])
           csv = ::Teacher::ImportHistoryCsvExporterService.new(history).call
 
           send_data csv,

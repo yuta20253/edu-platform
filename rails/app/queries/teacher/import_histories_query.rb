@@ -6,7 +6,7 @@ module Teacher
 
     def initialize(teacher, scope = ImportHistory.all)
       @teacher = teacher
-      @scope = scope.student.where(user_id: @teacher.id).includes(:imported_students, :import_errors)
+      @scope = scope.student.where(user_id: @teacher.id)
     end
 
     def call(filters = {})
