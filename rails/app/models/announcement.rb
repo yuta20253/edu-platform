@@ -103,7 +103,7 @@ class Announcement < ApplicationRecord
   end
 
   def immutable_once_published
-    return if status_was != 'published'
+    return if editable?
 
     errors.add(:base, 'は配信済みのため編集できません')
   end
