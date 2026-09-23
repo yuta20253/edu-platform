@@ -100,6 +100,30 @@ RSpec.describe Auth::SignUpService, type: :service do
         expect(AuthMailer).to have_received(:account_claimed).with(an_instance_of(User), 'old@example.com')
       end
 
+      context 'grade_idが未入力の場合' do
+        let(:form) do
+          Auth::SignUpForm.new(
+            email: 'test@example.com',
+            name: '山田太郎',
+            name_kana: 'ヤマダタロウ',
+            password: 'password',
+            password_confirmation: 'password',
+            user_role_name: user_role_name,
+            high_school_id: high_school_id,
+            grade_id: nil,
+            student_number: student_number
+          )
+        end
+
+        it 'claimが成功する' do
+          expect { subject }.not_to change(User, :count)
+
+          user = subject
+          expect(user.id).to eq(pre_created_user.id)
+          expect(user.grade_id).to eq(pre_created_user.grade_id)
+        end
+      end
+
       context 'フォームで異なる学年が選択された場合' do
         let(:other_grade) { create(:grade, high_school: high_school, year: 2) }
         let(:form) do

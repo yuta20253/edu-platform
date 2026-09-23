@@ -72,6 +72,16 @@ RSpec.describe ProfileUpdateForm, type: :model do
       end
     end
 
+    context 'name_kanaがカタカナでない時' do
+      it '保存できない' do
+        form = described_class.new(params.merge(name_kana: 'たなか たろう'))
+        form.user = user
+
+        expect(form.save).to be false
+        expect(form.errors[:name_kana]).to include('はカタカナで入力してください')
+      end
+    end
+
     context 'phone_numberが不正な形式' do
       it 'phone_numberが9文字の時、保存できない' do
         form = described_class.new(params.merge(phone_number: '123456789'))

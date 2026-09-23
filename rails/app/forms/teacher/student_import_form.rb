@@ -5,8 +5,9 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include NameValidatable
+    include EmailValidatable
     include GradeScopeValidatable
-    include NameKanaEmailValidatable
     include ExistingUserValidatable
 
     require 'csv'

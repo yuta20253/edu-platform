@@ -77,10 +77,11 @@ module Teacher
     end
 
     def grade_scope_validation
-      return unless current_user.teacher_permission&.own_grade?
+      restriction = current_user.own_grade_restriction
+      return if restriction.nil?
 
       targets_of_type('by_grade').each do |target|
-        next if target['grade_id'].to_i == current_user.grade_id
+        next if target['grade_id'].to_i == restriction
 
         errors.add(:announcement_targets, '指定できない学年です')
       end

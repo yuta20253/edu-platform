@@ -11,11 +11,12 @@ module Auth
     def call
       ActiveRecord::Base.transaction do
         role = find_role!
-        high_school, grade = resolve_school_context(role)
 
         if role.student? && @form.student_number.present?
+          high_school = find_school!
           claim_existing_student(high_school:)
         else
+          high_school, grade = resolve_school_context(role)
           create_user(role:, high_school:, grade:)
         end
       end
@@ -30,16 +31,25 @@ module Auth
       role
     end
 
-    def resolve_school_context(role)
-      return [nil, nil] unless role.student? || role.teacher?
-
+    def find_school!
       high_school = HighSchool.find_by(id: @form.high_school_id)
       raise SignUpError, '学校が見つかりません' unless high_school
 
+      high_school
+    end
+
+    def find_grade!(high_school)
       grade = high_school.grades.find_by(id: @form.grade_id)
       raise SignUpError, '学年が見つかりません' unless grade
 
-      [high_school, grade]
+      grade
+    end
+
+    def resolve_school_context(role)
+      return [nil, nil] unless role.student? || role.teacher?
+
+      high_school = find_school!
+      [high_school, find_grade!(high_school)]
     end
 
     def create_user(role:, high_school:, grade:)

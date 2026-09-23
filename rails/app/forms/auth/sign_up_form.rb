@@ -16,9 +16,13 @@ module Auth
     attribute :grade_id, :integer
     attribute :student_number, :string
 
+    validates :name_kana, format: {
+      with: NameValidatable::KATAKANA_REGEX,
+      message: 'はカタカナで入力してください'
+    }, allow_blank: true
     validates :user_role_name, presence: true
     validates :high_school_id, presence: true, if: :school_required?
-    validates :grade_id, presence: true, if: :school_required?
+    validates :grade_id, presence: true, if: -> { school_required? && student_number.blank? }
     validate :student_number_required_for_csv_managed_school, if: :student?
     validate :student_number_format, if: :student?
 
