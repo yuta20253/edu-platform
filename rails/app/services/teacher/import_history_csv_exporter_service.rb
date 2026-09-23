@@ -19,7 +19,7 @@ module Teacher
             escape_formula(imported_student.user.name),
             escape_formula(imported_student.user.name_kana),
             escape_formula(imported_student.user.grade&.display_name),
-            escape_formula(imported_student.user.school_class.name),
+            escape_formula(imported_student.user.school_class&.name),
             imported_student.user.student_number
           ]
         end
