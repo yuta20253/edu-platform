@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { extractApiError } from "@/libs/http/extractApiError";
 import type {
@@ -39,23 +40,41 @@ const initialState: CsvImportState = {
 export const useCsvImport = () => {
   const router = useRouter();
   const [state, setState] = useState<CsvImportState>(initialState);
+  const dryRunControllerRef = useRef<AbortController | null>(null);
+
+  // 実行中のドライランをキャンセルする。ファイルを差し替えた後に古いファイルの
+  // 検証結果が反映され、プレビューと実際のインポート対象がずれるのを防ぐ
+  const cancelDryRun = () => {
+    dryRunControllerRef.current?.abort();
+    dryRunControllerRef.current = null;
+  };
+
+  useEffect(() => {
+    return () => {
+      cancelDryRun();
+    };
+  }, []);
 
   const handleFileSelect = (file: File) => {
+    cancelDryRun();
     const error = validateFile(file);
     setState((prev) => ({
       ...prev,
       file: error ? null : file,
       fileError: error,
+      dryRunLoading: false,
       dryRunResult: null,
       dryRunError: null,
     }));
   };
 
   const handleFileClear = () => {
+    cancelDryRun();
     setState((prev) => ({
       ...prev,
       file: null,
       fileError: null,
+      dryRunLoading: false,
       dryRunResult: null,
       dryRunError: null,
     }));
@@ -74,11 +93,18 @@ export const useCsvImport = () => {
     const formData = new FormData();
     formData.append("file", state.file);
 
+    cancelDryRun();
+    const controller = new AbortController();
+    dryRunControllerRef.current = controller;
+
     try {
       const res = await apiClient.post<DryRunResult>(
         "/api/teacher/import_students/dry_run",
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          signal: controller.signal,
+        },
       );
       setState((prev) => ({
         ...prev,
@@ -87,6 +113,7 @@ export const useCsvImport = () => {
         step: 2,
       }));
     } catch (err) {
+      if (axios.isCancel(err)) return;
       const { status, errors } = extractApiError(err);
       if (status === 401) {
         router.push("/login");
@@ -163,6 +190,7 @@ export const useCsvImport = () => {
   };
 
   const resetForNewImport = () => {
+    cancelDryRun();
     setState(initialState);
   };
 

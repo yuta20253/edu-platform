@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { useCsvImport } from "./useCsvImport";
 
@@ -107,11 +108,54 @@ describe("useCsvImport", () => {
       expect(apiClient.post).toHaveBeenCalledWith(
         "/api/teacher/import_students/dry_run",
         expect.any(FormData),
-        { headers: { "Content-Type": "multipart/form-data" } },
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          signal: expect.any(AbortSignal),
+        },
       );
       expect(result.current.state.step).toBe(2);
       expect(result.current.state.dryRunResult?.valid_count).toBe(2);
       expect(result.current.state.dryRunResult?.rows).toHaveLength(1);
+    });
+
+    it("ドライラン中にファイルを差し替えるとabortされ、古い結果は反映されない", async () => {
+      let dryRunSignal: AbortSignal | undefined;
+      vi.mocked(apiClient.post).mockImplementation((_url, _data, config) => {
+        dryRunSignal = config?.signal as AbortSignal;
+        // abortされるとキャンセルエラーで reject される
+        return new Promise((_resolve, reject) => {
+          config?.signal?.addEventListener?.("abort", () =>
+            reject(new axios.CanceledError()),
+          );
+        });
+      });
+      const { result } = renderHook(() => useCsvImport());
+      act(() => {
+        result.current.handleFileSelect(csvFile("a.csv", 100));
+      });
+
+      let pending: Promise<void> | undefined;
+      act(() => {
+        pending = result.current.goNext();
+      });
+      expect(result.current.state.dryRunLoading).toBe(true);
+      expect(dryRunSignal?.aborted).toBe(false);
+
+      const fileB = csvFile("b.csv", 100);
+      act(() => {
+        result.current.handleFileSelect(fileB);
+      });
+      await act(async () => {
+        await pending;
+      });
+
+      expect(dryRunSignal?.aborted).toBe(true);
+      expect(result.current.state.file).toBe(fileB);
+      expect(result.current.state.step).toBe(1);
+      expect(result.current.state.dryRunLoading).toBe(false);
+      expect(result.current.state.dryRunResult).toBeNull();
+      expect(result.current.state.dryRunError).toBeNull();
+      expect(pushMock).not.toHaveBeenCalled();
     });
 
     it("ファイル未選択の場合はAPIを呼ばずfileErrorにメッセージが入る", async () => {
