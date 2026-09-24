@@ -91,7 +91,34 @@ RSpec.describe Auth::ChangePasswordService do
       end
     end
 
-    context 'teacher・student以外の場合' do
+    context 'adminの場合' do
+      let(:admin_role) { create(:user_role, name: :admin) }
+      let(:user) do
+        create(
+          :user,
+          :invitation_pending,
+          user_role: admin_role
+        )
+      end
+
+      let(:raw_token) { user.send_reset_password_instructions }
+
+      let(:form) do
+        Auth::PasswordResetForm.new(
+          reset_password_token: raw_token,
+          password: 'newpassword',
+          password_confirmation: 'newpassword'
+        )
+      end
+
+      it 'password_reset_requiredがfalseになる' do
+        described_class.new(form).call
+
+        expect(user.reload.password_reset_required).to be(false)
+      end
+    end
+
+    context 'admin・teacher・student以外の場合' do
       let(:guardian_role) { create(:user_role, name: :guardian) }
       let(:user) do
         create(
