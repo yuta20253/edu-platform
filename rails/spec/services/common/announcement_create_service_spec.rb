@@ -23,6 +23,12 @@ RSpec.describe Common::AnnouncementCreateService do
 
         expect(Announcement.last.status).to eq('draft')
       end
+
+      it 'system_generatedはfalseで作成される' do
+        service.call
+
+        expect(Announcement.last.system_generated).to be false
+      end
     end
 
     context 'status: :scheduledとscheduled_atを指定した場合' do
