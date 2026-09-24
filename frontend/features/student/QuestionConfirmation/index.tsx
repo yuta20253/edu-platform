@@ -1,7 +1,8 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import { useCompleteStudyLog, useGetQuestionConfirmation } from "./hooks";
+import { useCompleteStudyLog } from "./hooks/useCompleteStudyLog";
+import { useGetQuestionConfirmation } from "./hooks/useGetQuestionConfirmation";
 import { Presenter } from "./Presenter";
 
 type Props = {

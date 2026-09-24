@@ -42,6 +42,14 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
         instance_double(Student::TaskStatusUpdaterService, call: true)
       end
 
+      let(:goal_completion_service) do
+        instance_double(Student::GoalCompletionService, call: :completed)
+      end
+
+      let(:goal_updater_service) do
+        instance_double(Student::GoalStatusUpdaterService, call: true)
+      end
+
       before do
         allow(Student::TaskCompletionService)
           .to receive(:new)
@@ -50,6 +58,14 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
         allow(Student::TaskStatusUpdaterService)
           .to receive(:new)
           .and_return(updater_service)
+
+        allow(Student::GoalCompletionService)
+          .to receive(:new)
+          .and_return(goal_completion_service)
+
+        allow(Student::GoalStatusUpdaterService)
+          .to receive(:new)
+          .and_return(goal_updater_service)
       end
 
       it 'ステータス200が返る' do
@@ -89,6 +105,33 @@ RSpec.describe 'Api::V1::Student::Submissions', type: :request do
           )
 
         expect(updater_service).to have_received(:call)
+      end
+
+      it 'GoalCompletionServiceが呼ばれる' do
+        patch path, headers: headers.merge('Cookie' => cookie)
+
+        expect(Student::GoalCompletionService)
+          .to have_received(:new)
+          .with(
+            user: user,
+            goal_id: goal.id
+          )
+
+        expect(goal_completion_service).to have_received(:call)
+      end
+
+      it 'GoalStatusUpdaterServiceが呼ばれる' do
+        patch path, headers: headers.merge('Cookie' => cookie)
+
+        expect(Student::GoalStatusUpdaterService)
+          .to have_received(:new)
+          .with(
+            user: user,
+            goal_id: goal.id,
+            status: :completed
+          )
+
+        expect(goal_updater_service).to have_received(:call)
       end
     end
 

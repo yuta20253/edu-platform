@@ -13,7 +13,8 @@ RSpec.describe Student::CreateStudyLogService, type: :model do
     end
 
     let!(:user) { create(:user) }
-    let!(:task) { create(:task, user: user) }
+    let!(:goal) { create(:goal, user: user) }
+    let!(:task) { create(:task, user: user, goal: goal) }
     let!(:unit) { create(:unit) }
 
     before do
@@ -56,6 +57,40 @@ RSpec.describe Student::CreateStudyLogService, type: :model do
 
       expect(StudyLog.count).to eq(2)
       expect(second_study_log_id).not_to eq(first_study_log_id)
+    end
+
+    context 'taskがnot_startedの場合' do
+      it 'taskのstatusがin_progressに更新されること' do
+        service.call
+
+        expect(task.reload.status).to eq('in_progress')
+      end
+    end
+
+    context 'task開始処理で例外が発生した場合' do
+      before do
+        allow_any_instance_of(Student::TaskStartService) # rubocop:disable RSpec/AnyInstance
+          .to receive(:call)
+          .and_raise(ActiveRecord::RecordInvalid)
+      end
+
+      it '例外が伝播すること' do
+        expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+
+      it 'StudyLogの作成もロールバックされること' do
+        expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+
+        expect(StudyLog.count).to eq(0)
+      end
+    end
+
+    context 'taskが既にin_progressの場合' do
+      let!(:task) { create(:task, :in_progress, user: user, goal: goal) }
+
+      it 'taskのstatusは変わらないこと' do
+        expect { service.call }.not_to(change { task.reload.status })
+      end
     end
   end
 end
