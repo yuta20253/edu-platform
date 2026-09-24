@@ -13,8 +13,11 @@
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  scheduled_at :datetime
+#  system_generated :boolean          default(FALSE), not null
 #
 class Announcement < ApplicationRecord
+  include StatusTransitionValidatable
+
   before_validation :set_published_at
   before_destroy :prevent_destroy_when_published
 
@@ -57,8 +60,11 @@ class Announcement < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true, length: { maximum: 10_000 }
   validate :scheduled_at_must_be_future
-  validate :valid_status_transition
   validate :immutable_once_published, on: :update
+
+  def editable?
+    status_was != 'published'
+  end
 
   private
 
@@ -72,18 +78,6 @@ class Announcement < ApplicationRecord
     end
   end
 
-  def valid_status_transition
-    return unless persisted?
-    return unless will_save_change_to_status?
-
-    from = status_was
-    to = status
-
-    return if STATUS_TRANSITIONS[from].include?(to)
-
-    errors.add(:status, "#{from} から #{to} へは変更できません")
-  end
-
   def set_published_at
     return unless will_save_change_to_status?
     return unless published?
@@ -92,14 +86,14 @@ class Announcement < ApplicationRecord
   end
 
   def prevent_destroy_when_published
-    return unless published?
+    return if editable?
 
     errors.add(:base, 'は配信済みのため削除できません')
     throw :abort
   end
 
   def immutable_once_published
-    return unless status_was == 'published'
+    return if editable?
 
     errors.add(:base, 'は配信済みのため編集できません')
   end

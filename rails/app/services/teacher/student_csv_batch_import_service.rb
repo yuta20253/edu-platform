@@ -16,7 +16,7 @@ module Teacher
           duplicate_emails: duplicate_emails,
           current_user: @import_history.user
         },
-        row_importer: ->(form) { Teacher::StudentCsvImportService.new(form).call }
+        row_importer: ->(form) { Teacher::StudentCsvImportService.new(form: form, import_history: @import_history).call }
       ).call
     end
 

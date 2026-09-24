@@ -5,6 +5,7 @@ module Api
     module Admin
       class AnnouncementsController < BaseController
         before_action :set_announcement, only: %i[show update destroy publish]
+        before_action :authorize_announcement, only: %i[update destroy publish]
 
         rescue_from ActiveRecord::RecordNotDestroyed do |e|
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
@@ -70,6 +71,10 @@ module Api
 
         def set_announcement
           @announcement = announcement_scope.find(params[:id])
+        end
+
+        def authorize_announcement
+          authorize @announcement
         end
 
         def announcement_scope

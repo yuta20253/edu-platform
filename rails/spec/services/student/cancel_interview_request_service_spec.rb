@@ -3,7 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe Student::CancelInterviewRequestService do
-  subject(:service) { described_class.new(user: student, id: interview_request.id, reason: '部活動と重なるため') }
+  subject(:service) do
+    described_class.new(
+      user: student, id: interview_request.id, reason: '部活動と重なるため',
+      lock_version: interview_request.lock_version
+    )
+  end
 
   let!(:interview_request) { create(:interview_request, :initiated_by_teacher, status: :requested) }
   let(:student) { interview_request.student }

@@ -178,6 +178,31 @@ RSpec.describe InterviewRequest, type: :model do
     end
   end
 
+  describe '.for_participant' do
+    let!(:student) { create(:user, :student) }
+    let!(:teacher) { create(:user, :teacher) }
+    let!(:other_teacher) { create(:user, :teacher) }
+    let!(:request_as_student) do
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: other_teacher)
+    end
+    let!(:request_as_teacher) do
+      create(:interview_request, :initiated_by_teacher, student: create(:user, :student), teacher: teacher)
+    end
+    let!(:unrelated_request) { create(:interview_request, :initiated_by_teacher) }
+
+    it 'studentとして参加している面談が含まれる' do
+      expect(described_class.for_participant(student)).to include(request_as_student)
+    end
+
+    it 'teacherとして参加している面談が含まれる' do
+      expect(described_class.for_participant(teacher)).to include(request_as_teacher)
+    end
+
+    it '参加していない面談は含まれない' do
+      expect(described_class.for_participant(student)).not_to include(unrelated_request, request_as_teacher)
+    end
+  end
+
   describe '#other_party_id' do
     let(:request) { build(:interview_request, :initiated_by_teacher) }
 

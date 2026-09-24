@@ -68,6 +68,9 @@ Rails.application.routes.draw do
         resource :import_students, only: :create do
           post :dry_run, on: :member
         end
+        resources :import_histories, only: [:index, :show] do
+          get :export, on: :member
+        end
       end
 
       namespace :admin do

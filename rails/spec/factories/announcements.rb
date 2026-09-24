@@ -13,6 +13,7 @@
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  scheduled_at :datetime
+#  system_generated :boolean          default(FALSE), not null
 #
 FactoryBot.define do
   factory :announcement do
@@ -24,6 +25,10 @@ FactoryBot.define do
     trait :scheduled do
       status { :scheduled }
       scheduled_at { 1.minute.from_now }
+    end
+
+    trait :system_generated do
+      system_generated { true }
     end
   end
 end
