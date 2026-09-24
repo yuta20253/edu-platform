@@ -23,6 +23,8 @@
 #  active_pair_key :string(255)
 #
 class InterviewRequest < ApplicationRecord
+  include StatusTransitionValidatable
+
   belongs_to :student, class_name: 'User'
   belongs_to :teacher, class_name: 'User'
   belongs_to :initiator, class_name: 'User'
@@ -68,9 +70,9 @@ class InterviewRequest < ApplicationRecord
   validate :student_must_be_student
   validate :teacher_must_be_teacher
   validate :no_duplicate_active_request_for_pair
-  validate :valid_status_transition
 
   scope :active, -> { where(status: %i[requested scheduling confirmed]) }
+  scope :for_participant, ->(user) { where(student_id: user.id).or(where(teacher_id: user.id)) }
 
   def active?
     requested? || scheduling? || confirmed?
@@ -96,25 +98,11 @@ class InterviewRequest < ApplicationRecord
 
   def no_duplicate_active_request_for_pair
     return if student_id.blank? || teacher_id.blank?
-    return unless %w[requested scheduling confirmed].include?(status)
+    return unless active?
 
-    duplicates = self.class.where(
-      student_id: student_id, teacher_id: teacher_id, status: %i[requested scheduling confirmed]
-    )
+    duplicates = self.class.active.where(student_id: student_id, teacher_id: teacher_id)
     duplicates = duplicates.where.not(id: id) if persisted?
 
     errors.add(:base, 'この生徒との進行中の面談が既に存在します') if duplicates.exists?
-  end
-
-  def valid_status_transition
-    return unless persisted?
-    return unless will_save_change_to_status?
-
-    from = status_was
-    to = status
-
-    return if STATUS_TRANSITIONS[from].include?(to)
-
-    errors.add(:status, "#{from} から #{to} へは変更できません")
   end
 end

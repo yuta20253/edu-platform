@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_08_000002) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_08_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "scheduled_at"
+    t.boolean "system_generated", default: false, null: false
     t.index ["publisher_id"], name: "index_announcements_on_publisher_id"
     t.index ["status", "scheduled_at"], name: "index_announcements_on_status_and_scheduled_at"
   end

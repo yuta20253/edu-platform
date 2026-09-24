@@ -79,21 +79,29 @@ RSpec.describe Teacher::ProcessInterviewRequestService do
       end
     end
 
-    context 'lock_versionが指定されない場合' do
+    context '古いlock_versionが渡された場合' do
       subject(:service) do
-        described_class.new(user: teacher, id: interview_request.id, status: status, scheduled_at: scheduled_at)
+        described_class.new(
+          user: teacher, id: interview_request.id, status: status,
+          lock_version: interview_request.lock_version - 1, scheduled_at: scheduled_at
+        )
       end
 
       let(:status) { 'confirmed' }
       let(:scheduled_at) { 1.week.from_now }
 
-      it 'ArgumentErrorにならずtrueを返す' do
-        expect(service.call).to be true
+      it 'StaleObjectErrorが発生する' do
+        expect { service.call }.to raise_error(ActiveRecord::StaleObjectError)
       end
 
-      it '現在のlock_versionで更新される' do
-        service.call
-        expect(interview_request.reload.status).to eq('confirmed')
+      it '更新されない' do
+        begin
+          service.call
+        rescue ActiveRecord::StaleObjectError
+          nil
+        end
+
+        expect(interview_request.reload.status).to eq('requested')
       end
     end
 

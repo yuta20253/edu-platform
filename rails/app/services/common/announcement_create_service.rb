@@ -18,7 +18,8 @@ module Common
           content: @content,
           status: @status,
           scheduled_at: @scheduled_at,
-          publisher_id: @publisher.id
+          publisher_id: @publisher.id,
+          system_generated: system_generated?
         )
 
         @announcement_targets.each do |target|
@@ -35,6 +36,10 @@ module Common
 
     def initial_status
       :draft
+    end
+
+    def system_generated?
+      false
     end
 
     def build_target_attributes(target)

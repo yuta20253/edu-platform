@@ -12,14 +12,12 @@ module Common
     def call
       return false unless @interview_request.active?
 
-      # lock_versionを明示的に代入すると、AR内部ではその値をWHERE句の期待値として使う。
-      # クライアントの申告値がDBの最新値と食い違えば0件更新となりStaleObjectErrorが発生する。
       @interview_request.update!(
         status: :cancelled,
         cancelled_at: Time.current,
         cancelled_by_id: @cancelled_by.id,
         cancel_reason: @reason,
-        lock_version: @lock_version || @interview_request.lock_version
+        lock_version: @lock_version
       )
 
       notify_cancelled
