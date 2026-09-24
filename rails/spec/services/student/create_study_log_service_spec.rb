@@ -67,6 +67,24 @@ RSpec.describe Student::CreateStudyLogService, type: :model do
       end
     end
 
+    context 'task開始処理で例外が発生した場合' do
+      before do
+        allow_any_instance_of(Student::TaskStartService) # rubocop:disable RSpec/AnyInstance
+          .to receive(:call)
+          .and_raise(ActiveRecord::RecordInvalid)
+      end
+
+      it '例外が伝播すること' do
+        expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+
+      it 'StudyLogの作成もロールバックされること' do
+        expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+
+        expect(StudyLog.count).to eq(0)
+      end
+    end
+
     context 'taskが既にin_progressの場合' do
       let!(:task) { create(:task, :in_progress, user: user, goal: goal) }
 
