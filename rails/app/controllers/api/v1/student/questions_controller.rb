@@ -9,7 +9,7 @@ module Api
           unit = task.units.find(params[:unit_id])
           questions = unit
                       .questions
-                      .includes(:question_hints, :question_choices)
+                      .includes(:unit, :question_hints, :question_choices)
 
           answered_ids = current_user
                          .question_histories
