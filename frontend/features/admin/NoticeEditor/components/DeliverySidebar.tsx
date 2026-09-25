@@ -75,16 +75,6 @@ export const DeliverySidebar = ({ control, deliveryTiming }: Props) => {
               <Controller
                 name="scheduledAt"
                 control={control}
-                rules={{
-                  validate: (value) => {
-                    if (deliveryTiming !== "scheduled") return true;
-                    if (!value) return "配信日時を指定してください";
-                    if (value.getTime() <= Date.now()) {
-                      return "未来の日時を指定してください";
-                    }
-                    return true;
-                  },
-                }}
                 render={({ field, fieldState }) => (
                   <DateTimePicker
                     label="配信日時"

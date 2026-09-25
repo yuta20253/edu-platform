@@ -51,6 +51,7 @@ export const Presenter = ({
     handleSubmit,
     control,
     watch,
+    setError,
     formState: { errors },
   } = useForm<NoticeFormValues>({
     defaultValues: buildDefaultValues(notice),
@@ -58,6 +59,24 @@ export const Presenter = ({
 
   const content = watch("content");
   const deliveryTiming = watch("deliveryTiming");
+
+  // scheduledAtの必須・未来日時チェックは「配信する」で予約配信を選んだ場合のみ行う。
+  // Controllerのrulesにすると「下書き保存」の送信時にも走ってしまい、
+  // 予約配信を選んだだけで下書き保存がブロックされてしまうため、ここで個別に検証する。
+  const handleDeliver = handleSubmit((values) => {
+    if (values.deliveryTiming === "scheduled") {
+      if (!values.scheduledAt) {
+        setError("scheduledAt", { message: "配信日時を指定してください" });
+        return;
+      }
+      if (values.scheduledAt.getTime() <= Date.now()) {
+        setError("scheduledAt", { message: "未来の日時を指定してください" });
+        return;
+      }
+    }
+
+    onDeliver(values);
+  });
 
   return (
     <Box sx={{ p: 3 }}>
@@ -178,7 +197,7 @@ export const Presenter = ({
           startIcon={
             submitting ? <CircularProgress size={16} color="inherit" /> : null
           }
-          onClick={handleSubmit((values) => onDeliver(values))}
+          onClick={handleDeliver}
         >
           配信する
         </Button>

@@ -238,6 +238,33 @@ describe("NoticeEditorPresenter", () => {
     expect(onDeliver).not.toHaveBeenCalled();
   });
 
+  it("予約配信を選択したまま日時未指定で下書き保存すると、配信日時のエラーに妨げられずonSaveDraftが呼ばれる", async () => {
+    const onSaveDraft = vi.fn();
+    render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
+      target: { value: "下書きのお知らせ" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
+      target: { value: "本文です" },
+    });
+    fireEvent.click(screen.getByLabelText("予約配信"));
+    fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+    await waitFor(() =>
+      expect(onSaveDraft).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "下書きのお知らせ",
+          content: "本文です",
+          deliveryTiming: "scheduled",
+        }),
+      ),
+    );
+    expect(
+      screen.queryByText("配信日時を指定してください"),
+    ).not.toBeInTheDocument();
+  });
+
   it("予約配信で未来日時を指定して配信するとonDeliverがscheduledAt付きで呼ばれる", async () => {
     const onDeliver = vi.fn();
     render(<Presenter {...defaultProps} onDeliver={onDeliver} />);
