@@ -13,12 +13,13 @@ module Api
         def show
           school_class = SchoolClass
                          .joins(:grade)
+                         .includes(:grade, :users, teacher_school_classes: :user)
                          .find_by!(
                            id: params[:id],
                            grades: { high_school_id: current_user.high_school_id }
                          )
 
-          render json: school_class, serializer: SchoolClassSerializer, status: :ok
+          render json: school_class, serializer: ::Teacher::TeacherSchoolClassDetailSerializer, status: :ok
         end
       end
     end

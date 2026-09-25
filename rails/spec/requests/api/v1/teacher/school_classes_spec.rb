@@ -85,6 +85,82 @@ RSpec.describe 'Api::V1::Teacher::SchoolClasses', type: :request do
 
         expect(json['name']).to eq('1組')
       end
+
+      it '所属学年の情報が返る' do
+        get "/api/v1/teacher/school_classes/#{school_class.id}", headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['grade']).to include('id' => grade.id, 'display_name' => grade.display_name)
+      end
+
+      it '在籍生徒・担任がいない場合は空配列が返る' do
+        get "/api/v1/teacher/school_classes/#{school_class.id}", headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['teachers']).to eq([])
+        expect(json['students']).to eq([])
+      end
+    end
+
+    context '担任がいる場合' do
+      let!(:homeroom_teacher) do
+        create(:user, :teacher, high_school: high_school, name: '山田太郎')
+      end
+
+      before do
+        create(:teacher_school_class, user: homeroom_teacher, school_class: school_class, role: :homeroom)
+      end
+
+      it '担任がroleつきで返る' do
+        get "/api/v1/teacher/school_classes/#{school_class.id}", headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['teachers']).to contain_exactly(
+          { 'id' => homeroom_teacher.id, 'name' => '山田太郎', 'role' => 'homeroom' }
+        )
+      end
+    end
+
+    context '副担任がいる場合' do
+      let!(:assistant_teacher) do
+        create(:user, :teacher, high_school: high_school, name: '佐藤次郎')
+      end
+
+      before do
+        create(:teacher_school_class, user: assistant_teacher, school_class: school_class, role: :assistant)
+      end
+
+      it '副担任がroleつきで返る' do
+        get "/api/v1/teacher/school_classes/#{school_class.id}", headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['teachers']).to contain_exactly(
+          { 'id' => assistant_teacher.id, 'name' => '佐藤次郎', 'role' => 'assistant' }
+        )
+      end
+    end
+
+    context '在籍生徒が複数いる場合' do
+      let!(:student_b) do
+        create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
+                                name: 'ベータ', name_kana: 'ベータ')
+      end
+      let!(:student_a) do
+        create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
+                                name: 'アルファ', name_kana: 'アルファ')
+      end
+
+      it 'name_kana昇順で返る' do
+        get "/api/v1/teacher/school_classes/#{school_class.id}", headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['students'].pluck('id')).to eq([student_a.id, student_b.id])
+      end
     end
 
     context '他高校のクラスの場合' do
