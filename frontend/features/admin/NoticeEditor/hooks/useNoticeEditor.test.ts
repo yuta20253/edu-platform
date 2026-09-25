@@ -156,7 +156,7 @@ describe("useNoticeEditor", () => {
       );
     });
 
-    it("下書き保存はタイトル・本文のみPATCHし、statusは送らない", async () => {
+    it("下書きのお知らせを下書き保存するとstatus: draftをPATCHする(draft→draftの無変更)", async () => {
       vi.mocked(apiClient.get).mockResolvedValue({
         data: { announcement: draftNotice },
       });
@@ -172,8 +172,49 @@ describe("useNoticeEditor", () => {
       expect(apiClient.patch).toHaveBeenCalledWith("/api/admin/notices/1", {
         title: "お知らせ",
         content: "本文",
+        status: "draft",
+        scheduled_at: null,
       });
       expect(pushMock).toHaveBeenCalledWith("/admin/notices");
+    });
+
+    it("予約配信中のお知らせで下書き保存するとRailsが遷移を拒否しsubmitErrorに反映される", async () => {
+      const scheduledNotice = {
+        ...draftNotice,
+        status: "scheduled" as const,
+        scheduled_at: "2099-01-01T00:00:00.000Z",
+      };
+      vi.mocked(apiClient.get).mockResolvedValue({
+        data: { announcement: scheduledNotice },
+      });
+      vi.mocked(apiClient.patch).mockRejectedValue({
+        response: {
+          status: 422,
+          data: {
+            errors: ["ステータスはscheduledからdraftへは変更できません"],
+          },
+        },
+      });
+
+      const { result } = renderHook(() => useNoticeEditor({ noticeId: 1 }));
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      act(() => {
+        void result.current.onSaveDraft(baseValues);
+      });
+
+      await waitFor(() =>
+        expect(result.current.submitError).toBe(
+          "ステータスはscheduledからdraftへは変更できません",
+        ),
+      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/api/admin/notices/1", {
+        title: "お知らせ",
+        content: "本文",
+        status: "draft",
+        scheduled_at: null,
+      });
+      expect(pushMock).not.toHaveBeenCalledWith("/admin/notices");
     });
 
     it("即時配信は内容をPATCHしてからpublishエンドポイントを呼ぶ", async () => {
