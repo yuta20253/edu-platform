@@ -71,15 +71,19 @@ const defaultProps = {
 describe("NoticeEditorPresenter", () => {
   it("新規作成時はタイトル・本文が空で表示される", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByLabelText("タイトル")).toHaveValue("");
-    expect(screen.getByLabelText("本文")).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "タイトル" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "本文" })).toHaveValue("");
     expect(screen.getByText("お知らせを作成")).toBeInTheDocument();
   });
 
   it("編集時は既存のタイトル・本文が表示される", () => {
     render(<Presenter {...defaultProps} notice={draftNotice} />);
-    expect(screen.getByLabelText("タイトル")).toHaveValue("既存のお知らせ");
-    expect(screen.getByLabelText("本文")).toHaveValue("既存の本文");
+    expect(screen.getByRole("textbox", { name: "タイトル" })).toHaveValue(
+      "既存のお知らせ",
+    );
+    expect(screen.getByRole("textbox", { name: "本文" })).toHaveValue(
+      "既存の本文",
+    );
     expect(screen.getByText("お知らせを編集")).toBeInTheDocument();
   });
 
@@ -94,15 +98,13 @@ describe("NoticeEditorPresenter", () => {
     render(<Presenter {...defaultProps} />);
     expect(screen.getByText("全ユーザー")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "特定の高校・学年への配信は教師機能で行います",
-      ),
+      screen.getByText("特定の高校・学年への配信は教師機能で行います"),
     ).toBeInTheDocument();
   });
 
   it("本文を入力するとプレビューに改行を保持して表示され、HTMLはエスケープされる", () => {
     render(<Presenter {...defaultProps} />);
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "1行目\n<script>alert(1)</script>" },
     });
 
@@ -127,10 +129,10 @@ describe("NoticeEditorPresenter", () => {
 
   it("タイトルが255文字を超えるとエラーが表示される", async () => {
     render(<Presenter {...defaultProps} />);
-    fireEvent.change(screen.getByLabelText("タイトル"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "あ".repeat(256) },
     });
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "本文" },
     });
     fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
@@ -144,10 +146,10 @@ describe("NoticeEditorPresenter", () => {
     const onSaveDraft = vi.fn();
     render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
 
-    fireEvent.change(screen.getByLabelText("タイトル"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "新しいお知らせ" },
     });
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "本文です" },
     });
     fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
@@ -172,10 +174,10 @@ describe("NoticeEditorPresenter", () => {
     const onDeliver = vi.fn();
     render(<Presenter {...defaultProps} onDeliver={onDeliver} />);
 
-    fireEvent.change(screen.getByLabelText("タイトル"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "即時配信のお知らせ" },
     });
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "本文です" },
     });
     fireEvent.click(screen.getByLabelText("即時配信"));
@@ -199,10 +201,10 @@ describe("NoticeEditorPresenter", () => {
     const onDeliver = vi.fn();
     render(<Presenter {...defaultProps} onDeliver={onDeliver} />);
 
-    fireEvent.change(screen.getByLabelText("タイトル"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "予約配信のお知らせ" },
     });
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "本文です" },
     });
     fireEvent.click(screen.getByLabelText("予約配信"));
@@ -218,10 +220,10 @@ describe("NoticeEditorPresenter", () => {
     const onDeliver = vi.fn();
     render(<Presenter {...defaultProps} onDeliver={onDeliver} />);
 
-    fireEvent.change(screen.getByLabelText("タイトル"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "予約配信のお知らせ" },
     });
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "本文です" },
     });
     fireEvent.click(screen.getByLabelText("予約配信"));
@@ -240,10 +242,10 @@ describe("NoticeEditorPresenter", () => {
     const onDeliver = vi.fn();
     render(<Presenter {...defaultProps} onDeliver={onDeliver} />);
 
-    fireEvent.change(screen.getByLabelText("タイトル"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "予約配信のお知らせ" },
     });
-    fireEvent.change(screen.getByLabelText("本文"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
       target: { value: "本文です" },
     });
     fireEvent.click(screen.getByLabelText("予約配信"));
@@ -266,7 +268,10 @@ describe("NoticeEditorPresenter", () => {
 
   it("submitErrorが渡されるとエラーメッセージが表示される", () => {
     render(
-      <Presenter {...defaultProps} submitError="お知らせの配信に失敗しました" />,
+      <Presenter
+        {...defaultProps}
+        submitError="お知らせの配信に失敗しました"
+      />,
     );
     expect(
       screen.getByText("お知らせの配信に失敗しました"),
