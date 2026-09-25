@@ -5,9 +5,8 @@ import { type NextRequest, NextResponse } from "next/server";
 // お知らせの新規作成。Railsはparams.require(:announcement)を要求するため
 // リクエストボディをannouncementキーでラップしてforwardする。
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-
   try {
+    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       "/api/v1/admin/announcements",
       { method: "POST", body: { announcement: body } },

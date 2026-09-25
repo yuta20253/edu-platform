@@ -25,9 +25,9 @@ export async function GET(_: NextRequest, { params }: Params) {
 // リクエストボディをannouncementキーでラップしてforwardする。
 export async function PATCH(request: NextRequest, { params }: Params) {
   const { noticeId } = await params;
-  const body = await request.json();
 
   try {
+    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       `/api/v1/admin/announcements/${noticeId}`,
       { method: "PATCH", body: { announcement: body } },
