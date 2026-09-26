@@ -182,7 +182,7 @@ export const CreateTask = ({
           showAllCourses={showAllCourses}
           fetchCourse={fetchCourse}
           setSelectedCourseId={setSelectedCourseId}
-          setShowAllCourses={setShowAllCourses}
+          onToggleShowAll={() => setShowAllCourses((prev) => !prev)}
           selectedUnitIds={selectedUnitIds}
           handleToggleUnit={handleToggleUnit}
         />

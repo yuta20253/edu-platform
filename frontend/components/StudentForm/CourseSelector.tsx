@@ -15,7 +15,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Dispatch, SetStateAction } from "react";
 import { FormLabel, FormSection } from ".";
 
 type Props = {
@@ -26,7 +25,8 @@ type Props = {
   showAllCourses: boolean;
   fetchCourse: (name: SubjectName) => Promise<void>;
   setSelectedCourseId: (value: number) => void;
-  setShowAllCourses: Dispatch<SetStateAction<boolean>>;
+  /** 「もっと見る」「閉じる」の切替 */
+  onToggleShowAll: () => void;
   selectedUnitIds: number[];
   handleToggleUnit: (unitId: number) => void;
   /** 学習開始済みの単元(編集時のみ。チェックを外せなくする) */
@@ -42,7 +42,7 @@ export const CourseSelector = ({
   showAllCourses,
   fetchCourse,
   setSelectedCourseId,
-  setShowAllCourses,
+  onToggleShowAll,
   selectedUnitIds,
   handleToggleUnit,
   startedUnitIds,
@@ -101,7 +101,7 @@ export const CourseSelector = ({
         ))}
         {courses && courses.length > 3 && (
           <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Button onClick={() => setShowAllCourses((prev) => !prev)}>
+            <Button onClick={onToggleShowAll}>
               {showAllCourses ? "閉じる" : "もっと見る"}
             </Button>
           </Box>

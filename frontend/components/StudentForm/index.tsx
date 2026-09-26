@@ -3,7 +3,6 @@
 import { colors } from "@/app/theme/colors";
 import { cardSx } from "@/app/theme/studentTheme";
 import { Box, Typography } from "@mui/material";
-import { ReactNode } from "react";
 
 /**
  * フォーム項目の見出しラベル(入力欄の上に置く)。
@@ -14,7 +13,7 @@ export const FormLabel = ({
   htmlFor,
   id,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
   htmlFor?: string;
   id?: string;
 }): React.JSX.Element => (
@@ -34,7 +33,7 @@ export const FormSection = ({
   children,
 }: {
   title: string;
-  children: ReactNode;
+  children: React.ReactNode;
 }): React.JSX.Element => (
   <Box sx={{ ...cardSx, mt: 3, overflow: "hidden" }}>
     <Typography

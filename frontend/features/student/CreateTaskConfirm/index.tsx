@@ -11,7 +11,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegisterTask } from "./hooks";
 import { priorityMap } from "./constants";
@@ -23,7 +23,7 @@ const Field = ({
   children,
 }: {
   label: string;
-  children?: ReactNode;
+  children?: React.ReactNode;
 }): React.JSX.Element => (
   <Box sx={{ mb: 1.5 }}>
     <Typography sx={{ fontSize: 11, color: "text.secondary" }}>

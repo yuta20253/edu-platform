@@ -203,7 +203,7 @@ export const Presenter = ({
           showAllCourses={showAllCourses}
           fetchCourse={fetchCourse}
           setSelectedCourseId={setSelectedCourseId}
-          setShowAllCourses={setShowAllCourses}
+          onToggleShowAll={() => setShowAllCourses((prev) => !prev)}
           selectedUnitIds={selectedUnitIds}
           handleToggleUnit={handleToggleUnit}
           startedUnitIds={startedUnitIds}
