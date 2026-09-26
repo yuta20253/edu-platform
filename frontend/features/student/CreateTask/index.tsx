@@ -1,19 +1,13 @@
 "use client";
 
-import { FormLabel, FormSection } from "@/components/StudentForm";
+import { CourseSelector } from "@/components/StudentForm/CourseSelector";
+import { FormLabel } from "@/components/StudentForm";
 import { PrimaryCta } from "@/components/PrimaryCta";
 import {
   Box,
-  Button,
   TextField,
   Typography,
   MenuItem,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
-  FormControlLabel,
-  Checkbox,
   Select,
   FormControl,
 } from "@mui/material";
@@ -23,9 +17,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
-import { SubjectName } from "@/constants/subject";
 import { useCourses } from "@/hooks/useCourses";
-import { priorities, PRIORITY, subjectLists } from "./constants";
+import { priorities, PRIORITY } from "./constants";
 import { useUnitSelection } from "@/hooks/useUnitSelection";
 import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
 import { useEffect } from "react";
@@ -104,8 +97,9 @@ export const CreateTask = ({
       </Typography>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <Box sx={{ mb: 2 }}>
-          <FormLabel>タスクタイトル</FormLabel>
+          <FormLabel htmlFor="task-title">タスクタイトル</FormLabel>
           <TextField
+            id="task-title"
             fullWidth
             variant="outlined"
             {...register("title", {
@@ -116,8 +110,9 @@ export const CreateTask = ({
           />
         </Box>
         <Box sx={{ mb: 2 }}>
-          <FormLabel>タスク内容</FormLabel>
+          <FormLabel htmlFor="task-content">タスク内容</FormLabel>
           <TextField
+            id="task-content"
             multiline
             rows={4}
             fullWidth
@@ -127,7 +122,7 @@ export const CreateTask = ({
         </Box>
         <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <FormLabel>優先度</FormLabel>
+            <FormLabel id="task-priority-label">優先度</FormLabel>
             <Controller
               name="priority"
               control={control}
@@ -136,6 +131,7 @@ export const CreateTask = ({
                 <FormControl fullWidth error={!!errors.priority}>
                   <Select
                     {...field}
+                    labelId="task-priority-label"
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   >
                     {priorities.map((priority) => (
@@ -149,7 +145,7 @@ export const CreateTask = ({
             />
           </Box>
           <Box sx={{ flex: 1.5, minWidth: 0 }}>
-            <FormLabel>期限</FormLabel>
+            <FormLabel htmlFor="task-due-date">期限</FormLabel>
             <LocalizationProvider
               dateAdapter={AdapterDateFns}
               adapterLocale={ja}
@@ -165,6 +161,7 @@ export const CreateTask = ({
                     onChange={(date) => field.onChange(date)}
                     slotProps={{
                       textField: {
+                        id: "task-due-date",
                         fullWidth: true,
                         error: !!errors.due_date,
                         helperText: errors.due_date?.message,
@@ -177,94 +174,18 @@ export const CreateTask = ({
           </Box>
         </Box>
 
-        <FormSection title="講座を選択">
-          <FormLabel>教科選択</FormLabel>
-          <TextField
-            select
-            fullWidth
-            defaultValue=""
-            onChange={(e) => fetchCourse(e.target.value as SubjectName)}
-            slotProps={{
-              select: {
-                MenuProps: {
-                  PaperProps: {
-                    sx: {
-                      maxHeight: 48 * 4,
-                    },
-                  },
-                },
-              },
-            }}
-          >
-            <MenuItem value="">選択してください</MenuItem>
-            {subjectLists.map((subject, i) => (
-              <MenuItem key={i} value={subject}>
-                {subject}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <Box sx={{ mt: 3 }}>
-            <FormLabel>講座一覧</FormLabel>
-            {displayedCourses?.map((course) => (
-              <Card variant="outlined" sx={{ mt: 1.5 }} key={course.id}>
-                <CardContent>
-                  <Typography variant="h6" component="div" gutterBottom>
-                    {course.level_name}レベル{course.level_number}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {course.description ?? "説明はありません"}
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: "flex-end" }}>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => setSelectedCourseId(course.id)}
-                  >
-                    詳細を見る
-                  </Button>
-                </CardActions>
-              </Card>
-            ))}
-            {courses && courses.length > 3 && (
-              <Box sx={{ textAlign: "center", mt: 2 }}>
-                <Button onClick={() => setShowAllCourses((prev) => !prev)}>
-                  {showAllCourses ? "閉じる" : "もっと見る"}
-                </Button>
-              </Box>
-            )}
-          </Box>
-        </FormSection>
-
-        {selectedCourseId && (
-          <FormSection title="講座詳細">
-            <Typography variant="h6" gutterBottom>
-              {selectedCourse?.level_name}レベル
-              {selectedCourse?.level_number}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {selectedCourse?.description ?? "説明はありません"}
-            </Typography>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-              単元一覧
-            </Typography>
-            {selectedCourse?.units.map((unit) => (
-              <FormControlLabel
-                key={unit.id}
-                control={
-                  <Checkbox
-                    checked={selectedUnitIds.includes(unit.id)}
-                    onChange={() => handleToggleUnit(unit.id)}
-                  />
-                }
-                label={unit.unit_name}
-                sx={{ display: "block" }}
-              />
-            ))}
-          </FormSection>
-        )}
+        <CourseSelector
+          courses={courses}
+          displayedCourses={displayedCourses}
+          selectedCourse={selectedCourse}
+          selectedCourseId={selectedCourseId}
+          showAllCourses={showAllCourses}
+          fetchCourse={fetchCourse}
+          setSelectedCourseId={setSelectedCourseId}
+          setShowAllCourses={setShowAllCourses}
+          selectedUnitIds={selectedUnitIds}
+          handleToggleUnit={handleToggleUnit}
+        />
 
         <Box sx={{ mt: 4, mb: 2, display: "flex", gap: 1.25 }}>
           <PrimaryCta variant="outlined" href="/" sx={{ flex: 1 }}>

@@ -1,17 +1,29 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { radius } from "@/app/theme/studentTheme";
+import { cardSx } from "@/app/theme/studentTheme";
 import { Box, Typography } from "@mui/material";
 import { ReactNode } from "react";
 
-/** フォーム項目の見出しラベル(入力欄の上に置く) */
+/**
+ * フォーム項目の見出しラベル(入力欄の上に置く)。
+ * htmlFor は input 系、id は MUI Select の labelId に渡して入力欄と関連付ける。
+ */
 export const FormLabel = ({
   children,
+  htmlFor,
+  id,
 }: {
   children: ReactNode;
+  htmlFor?: string;
+  id?: string;
 }): React.JSX.Element => (
-  <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.75 }}>
+  <Typography
+    component="label"
+    htmlFor={htmlFor}
+    id={id}
+    sx={{ display: "block", fontSize: 13, fontWeight: 700, mb: 0.75 }}
+  >
     {children}
   </Typography>
 );
@@ -24,15 +36,7 @@ export const FormSection = ({
   title: string;
   children: ReactNode;
 }): React.JSX.Element => (
-  <Box
-    sx={{
-      mt: 3,
-      bgcolor: colors.surface.white,
-      borderRadius: `${radius.md}px`,
-      boxShadow: `0 1px 3px ${colors.shadow.footer}`,
-      overflow: "hidden",
-    }}
-  >
+  <Box sx={{ ...cardSx, mt: 3, overflow: "hidden" }}>
     <Typography
       component="h2"
       sx={{

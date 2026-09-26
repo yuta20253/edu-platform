@@ -1,7 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { radius } from "@/app/theme/studentTheme";
+import { cardSx } from "@/app/theme/studentTheme";
 import { statusLabel } from "@/constants/status";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { Box, Button, Chip, Divider, Typography } from "@mui/material";
@@ -12,12 +12,6 @@ type Props = {
   task: Task;
   goalId?: number;
 };
-
-const cardSx = {
-  bgcolor: colors.surface.white,
-  borderRadius: `${radius.md}px`,
-  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
-} as const;
 
 export const Presenter = ({ task, goalId }: Props) => {
   const statusColor = colors.statusUi[task.status];

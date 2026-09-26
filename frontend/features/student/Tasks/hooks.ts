@@ -1,6 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { TasksData, TaskStatusFilter } from "./types";
@@ -14,15 +15,24 @@ export const useGetTasks = () => {
   const router = useRouter();
 
   useEffect(() => {
+    // 絞り込みやページが切り替わった際、古いリクエストをキャンセルして
+    // 古い応答で新しい結果を上書きしないようにする
+    const controller = new AbortController();
+
     const params: Record<string, string> = { page: String(page) };
     if (status !== "active") params.status = status;
+
     setLoading(true);
     setError(false);
 
     apiClient
-      .get<TasksData>("/api/student/tasks", { params })
+      .get<TasksData>("/api/student/tasks", {
+        params,
+        signal: controller.signal,
+      })
       .then((res) => setData(res.data))
       .catch((err) => {
+        if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
           router.push("/login");
           return;
@@ -31,7 +41,14 @@ export const useGetTasks = () => {
         setError(true);
         setData(null);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (controller.signal.aborted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
   }, [page, status, router]);
 
   const setStatus = (next: TaskStatusFilter) => {
