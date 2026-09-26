@@ -1,3 +1,4 @@
+import type { StatusBadgeDefinition } from "@/components/ui/StatusBadge";
 import { ImportMode, ImportStatus } from "@/types/common/import_history";
 
 // CSVインポート履歴ステータスの日本語ラベル。
@@ -18,6 +19,26 @@ export const importStatusColor: Record<
   processing: "info",
   completed: "success",
   failed: "error",
+};
+
+// StatusBadge用にlabel/colorを1つのテーブルにまとめたもの。
+export const importStatusDefinitions: Record<
+  ImportStatus,
+  StatusBadgeDefinition
+> = {
+  pending: {
+    label: importStatusLabel.pending,
+    color: importStatusColor.pending,
+  },
+  processing: {
+    label: importStatusLabel.processing,
+    color: importStatusColor.processing,
+  },
+  completed: {
+    label: importStatusLabel.completed,
+    color: importStatusColor.completed,
+  },
+  failed: { label: importStatusLabel.failed, color: importStatusColor.failed },
 };
 
 // インポートモードの日本語ラベル。
