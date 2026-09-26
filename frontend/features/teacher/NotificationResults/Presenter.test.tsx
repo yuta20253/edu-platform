@@ -60,4 +60,18 @@ describe("TeacherNotificationResultsPresenter", () => {
     render(<Presenter data={[]} />);
     expect(screen.getByText("送信された通知はありません")).toBeInTheDocument();
   });
+
+  it("未知のstatus値が来てもクラッシュせず「不明」で表示される", () => {
+    const dataWithUnknownStatus = [
+      {
+        ...mockData[0],
+        status: "queued",
+      },
+    ] as unknown as NotificationResultsData;
+
+    expect(() =>
+      render(<Presenter data={dataWithUnknownStatus} />),
+    ).not.toThrow();
+    expect(screen.getByText("不明")).toBeInTheDocument();
+  });
 });

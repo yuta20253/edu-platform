@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -22,6 +21,10 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
+import {
+  StatusBadge,
+  type StatusBadgeDefinition,
+} from "@/components/ui/StatusBadge";
 import { importStatusLabel } from "@/constants/import_status";
 import type { ImportStatus } from "@/types/common/import_history";
 import type { DashboardData } from "./types";
@@ -58,11 +61,22 @@ const kpiCards = (stats: DashboardData["stats"]) => [
 ];
 
 // 色はダッシュボード固有の表現。ラベルは共通の importStatusLabel を使う。
-const statusColor: Record<ImportStatus, string> = {
-  completed: colors.status.success,
-  failed: colors.status.error,
-  processing: colors.status.info,
-  pending: colors.status.pending,
+// constants/import_status.tsのimportStatusDefinitions（MUIのcolor
+// キーワード版）とは別物なので名前を変えて衝突を避ける。
+const dashboardImportStatusDefinitions: Record<
+  ImportStatus,
+  StatusBadgeDefinition
+> = {
+  completed: {
+    label: importStatusLabel.completed,
+    color: colors.status.success,
+  },
+  failed: { label: importStatusLabel.failed, color: colors.status.error },
+  processing: {
+    label: importStatusLabel.processing,
+    color: colors.status.info,
+  },
+  pending: { label: importStatusLabel.pending, color: colors.status.pending },
 };
 
 export const Presenter = ({ data }: Props) => {
@@ -174,15 +188,9 @@ export const Presenter = ({ data }: Props) => {
                         {item.success_count} / {item.total_count} 件
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={importStatusLabel[item.status]}
-                          size="small"
-                          sx={{
-                            bgcolor: statusColor[item.status],
-                            color: colors.text.inverse,
-                            fontWeight: 600,
-                            fontSize: "0.7rem",
-                          }}
+                        <StatusBadge
+                          status={item.status}
+                          definitions={dashboardImportStatusDefinitions}
                         />
                       </TableCell>
                     </TableRow>

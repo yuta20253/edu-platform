@@ -1,4 +1,5 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import theme from "../theme/theme";
 import { Inter } from "next/font/google";
 
@@ -12,7 +13,9 @@ export default function AdminLayout({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className={inter.className}>{children}</div>
+      <ToastProvider>
+        <div className={inter.className}>{children}</div>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
