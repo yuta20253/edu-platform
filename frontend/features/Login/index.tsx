@@ -1,10 +1,10 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { PrimaryCta } from "@/components/PrimaryCta";
 import {
   Alert,
   Box,
-  Button,
   IconButton,
   InputAdornment,
   TextField,
@@ -40,22 +40,26 @@ export const Login = (): React.JSX.Element => {
       }}
     >
       <Box sx={{ width: "100%", maxWidth: 600 }}>
+        <Box sx={{ width: 40, height: 6, bgcolor: "primary.main" }} />
         <Typography
           variant="h4"
-          component="p"
-          sx={{ fontWeight: "bold", mt: 4, textAlign: "center" }}
+          component="h1"
+          sx={{ fontWeight: 800, mt: 2.25 }}
         >
-          ログイン
+          おかえりなさい
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          学習App(仮) にログイン
         </Typography>
         {errorMessage && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {errorMessage}
           </Alert>
         )}
-        <Box sx={{ padding: 2, width: "100%" }}>
+        <Box sx={{ py: 2, width: "100%" }}>
           <Box
             component="form"
-            sx={{ width: "100%", maxWidth: 600, mx: "auto", mt: 5 }}
+            sx={{ width: "100%", maxWidth: 600, mx: "auto", mt: 3 }}
             onSubmit={handleSubmit(onSubmit)}
           >
             <Box sx={{ mb: 2 }}>
@@ -107,23 +111,34 @@ export const Login = (): React.JSX.Element => {
               />
             </Box>
             <Box sx={{ my: 4 }}>
-              <Button
-                type="submit"
-                sx={{
-                  width: "100%",
-                  backgroundColor: colors.brand.primary,
-                  color: colors.text.inverse,
-                  p: 2,
-                  fontSize: "large",
-                }}
-              >
-                <Typography sx={{ fontSize: "large", textAlign: "center" }}>
-                  ログイン
-                </Typography>
-              </Button>
+              <PrimaryCta type="submit" sx={{ justifyContent: "center" }}>
+                ログイン
+              </PrimaryCta>
             </Box>
-            <Box sx={{ width: "100%", textAlign: "center" }}>
-              <Link href="/password/reset">パスワードをお忘れの方はこちら</Link>
+            <Box sx={{ width: "100%", textAlign: "center", fontSize: 13 }}>
+              <Link
+                href="/password/reset"
+                style={{ color: colors.accent[600] }}
+              >
+                パスワードをお忘れの方はこちら
+              </Link>
+            </Box>
+            <Box
+              sx={{
+                width: "100%",
+                textAlign: "center",
+                fontSize: 13,
+                color: "text.secondary",
+                mt: 2,
+              }}
+            >
+              アカウントをお持ちでない方は
+              <Link
+                href="/signup"
+                style={{ color: colors.accent[600], marginLeft: 4 }}
+              >
+                新規作成
+              </Link>
             </Box>
           </Box>
         </Box>
