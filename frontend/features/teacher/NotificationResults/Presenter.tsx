@@ -54,45 +54,43 @@ export const Presenter = ({ data }: Props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((item) => {
-                  return (
-                    <TableRow key={item.id} hover>
-                      <TableCell sx={{ whiteSpace: "nowrap" }}>
-                        {item.formatted_sent_at ?? "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Typography>{item.sender_user.name}</Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Typography>{item.receiver_user.name}</Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          maxWidth: 240,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
+                {data.map((item) => (
+                  <TableRow key={item.id} hover>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                      {item.formatted_sent_at ?? "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        {item.email}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          status={item.status}
-                          definitions={statusDefinitions}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                        <Typography>{item.sender_user.name}</Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Typography>{item.receiver_user.name}</Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        maxWidth: 240,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.email}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        status={item.status}
+                        definitions={statusDefinitions}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
