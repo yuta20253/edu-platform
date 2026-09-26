@@ -48,6 +48,19 @@ describe("StatusBadge", () => {
     expect(screen.getByText("その他")).toBeInTheDocument();
   });
 
+  it("variantを指定するとMUIのcolorキーワード表示に反映される", () => {
+    render(
+      <StatusBadge
+        status="completed"
+        definitions={definitions}
+        variant="outlined"
+      />,
+    );
+    expect(screen.getByText("完了").closest(".MuiChip-root")).toHaveClass(
+      "MuiChip-outlined",
+    );
+  });
+
   it("クラッシュせずレンダリングできる(未知のstatus値による例外が発生しない)", () => {
     expect(() =>
       render(

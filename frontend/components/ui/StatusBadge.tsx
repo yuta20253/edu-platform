@@ -21,6 +21,8 @@ type Props = {
   // 一覧全体をクラッシュさせないための必須のフォールバック。
   fallback?: StatusBadgeDefinition;
   size?: ChipProps["size"];
+  // 生の色コード指定時は無視される(bgcolorで塗りつぶすためoutlinedと相性が悪い)
+  variant?: ChipProps["variant"];
 };
 
 const DEFAULT_FALLBACK: StatusBadgeDefinition = {
@@ -38,6 +40,7 @@ export const StatusBadge = ({
   definitions,
   fallback = DEFAULT_FALLBACK,
   size = "small",
+  variant,
 }: Props) => {
   const definition = definitions[status] ?? fallback;
 
@@ -61,6 +64,7 @@ export const StatusBadge = ({
       label={definition.label}
       size={size}
       color={definition.color as ChipProps["color"]}
+      variant={variant}
     />
   );
 };
