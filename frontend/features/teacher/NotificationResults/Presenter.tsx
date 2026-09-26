@@ -4,7 +4,6 @@ import {
   Box,
   Card,
   CardContent,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -14,7 +13,8 @@ import {
 } from "@mui/material";
 import { NotificationResultsData } from "./types";
 import { colors } from "@/app/theme/colors";
-import { statusConfig } from "./constants";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { statusDefinitions } from "./constants";
 
 type Props = {
   data: NotificationResultsData;
@@ -55,8 +55,6 @@ export const Presenter = ({ data }: Props) => {
               </TableHead>
               <TableBody>
                 {data.map((item) => {
-                  const status = statusConfig[item.status];
-
                   return (
                     <TableRow key={item.id} hover>
                       <TableCell sx={{ whiteSpace: "nowrap" }}>
@@ -87,15 +85,9 @@ export const Presenter = ({ data }: Props) => {
                         {item.email}
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={status.label}
-                          size="small"
-                          sx={{
-                            bgcolor: status.color,
-                            color: colors.text.inverse,
-                            fontWeight: 600,
-                            fontSize: "0.7rem",
-                          }}
+                        <StatusBadge
+                          status={item.status}
+                          definitions={statusDefinitions}
                         />
                       </TableCell>
                     </TableRow>
