@@ -1,11 +1,12 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { FormSection } from "@/components/StudentForm";
+import { PrimaryCta } from "@/components/PrimaryCta";
 import {
   Box,
   Backdrop,
   Typography,
-  Button,
   Snackbar,
   Alert,
   CircularProgress,
@@ -16,6 +17,23 @@ import { useRegisterTask } from "./hooks";
 import { priorityMap } from "./constants";
 import { useFetchGoal } from "./useFetchGoal";
 import { useFetchDraftTask } from "./useFetchDraftTask";
+
+const Field = ({
+  label,
+  children,
+}: {
+  label: string;
+  children?: React.ReactNode;
+}): React.JSX.Element => (
+  <Box sx={{ mb: 1.5 }}>
+    <Typography sx={{ fontSize: 11, color: "text.secondary" }}>
+      {label}
+    </Typography>
+    <Typography sx={{ fontSize: 14, whiteSpace: "pre-wrap" }}>
+      {children}
+    </Typography>
+  </Box>
+);
 
 type GoalIdProps = {
   goalId: number;
@@ -67,164 +85,69 @@ export const CreateTaskConfirm = ({
 
   return (
     <>
-      <Box
-        sx={{
-          minHeight: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          px: 2,
-        }}
-      >
-        <Box sx={{ width: "100%", maxWidth: 600, pb: 4 }}>
-          <Typography
-            variant="h4"
-            component="p"
-            sx={{ fontWeight: "bold", mt: 8, textAlign: "center" }}
-          >
-            確認
+      <Box sx={{ maxWidth: 600, mx: "auto" }}>
+        <Typography
+          variant="h5"
+          component="h1"
+          sx={{ fontWeight: 800, mt: 1, mb: 1 }}
+        >
+          確認
+        </Typography>
+
+        <FormSection title="目標内容">
+          <Field label="タイトル">{goal?.title}</Field>
+          <Field label="期限">{goal?.due_date}</Field>
+          <Field label="説明">{goal?.description}</Field>
+        </FormSection>
+
+        <FormSection title="登録するタスク">
+          <Field label="タイトル">{draftTask?.title}</Field>
+          <Field label="内容">{draftTask?.content}</Field>
+          <Field label="優先度">
+            {draftTask?.priority && priorityMap[draftTask?.priority]}
+          </Field>
+          <Field label="期限">{draftTask?.due_date}</Field>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, mt: 2, mb: 1 }}>
+            {draftTask?.units?.[0]?.course.level_name}レベル
+            {draftTask?.units?.[0]?.course.level_number}
           </Typography>
-
-          <Box sx={{ padding: 2, width: "100%" }}>
-            <Box sx={{ width: "100%", maxWidth: 600, mx: "auto", mt: 5 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                目標内容
-              </Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            {draftTask?.units.map((unit) => (
               <Box
+                key={unit.id}
                 sx={{
-                  border: `1px solid ${colors.border.subtle}`,
-                  borderRadius: 2,
-                  p: 3,
-                  mb: 4,
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 999,
+                  bgcolor: colors.accent[100],
+                  color: colors.accent[800],
+                  fontSize: 13,
+                  fontWeight: 600,
                 }}
               >
-                <Typography
-                  sx={{
-                    mb: 2,
-                    fontWeight: 700,
-                    fontSize: "1.1rem",
-                    borderBottom: `1px solid ${colors.border.muted}`,
-                    pb: 1,
-                  }}
-                >
-                  目標内容
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>タイトル：</strong>
-                  {goal?.title}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>期限：</strong>
-                  {goal?.due_date}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>説明：</strong>
-                  {goal?.description}
-                </Typography>
+                {unit.unit_name}
               </Box>
-              <Box
-                sx={{
-                  border: `1px solid ${colors.border.subtle}`,
-                  borderRadius: 2,
-                  p: 3,
-                }}
-              >
-                <Typography
-                  sx={{
-                    mb: 2,
-                    fontWeight: 700,
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid",
-                    pb: 1,
-                  }}
-                >
-                  登録するタスク
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>タイトル：</strong>
-                  {draftTask?.title}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>内容：</strong>
-                  {draftTask?.content}
-                </Typography>
-                <Typography sx={{ mb: 1 }}>
-                  <strong>優先度：</strong>
-                  {draftTask?.priority && priorityMap[draftTask?.priority]}
-                </Typography>
-                <Typography sx={{ mb: 2 }}>
-                  <strong>期限：</strong>
-                  {draftTask?.due_date}
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                    {draftTask?.units?.[0]?.course.level_name}レベル
-                    {draftTask?.units?.[0]?.course.level_number}
-                  </Typography>
-                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                    {draftTask?.units.map((unit) => (
-                      <Box
-                        key={unit.id}
-                        sx={{
-                          px: 2,
-                          py: 0.5,
-                          borderRadius: 10,
-                          backgroundColor: colors.surface.info,
-                          fontSize: 14,
-                        }}
-                      >
-                        {unit.unit_name}
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
+            ))}
           </Box>
-          <Box sx={{ my: 4, display: "flex", gap: 2 }}>
-            <Button
-              type="button"
-              onClick={() =>
-                router.push(
-                  `/goals/${goalId}/tasks/new?draftTaskId=${draftTaskId}`,
-                )
-              }
-              sx={{
-                flex: 1,
-                backgroundColor: colors.border.subtle,
-                color: colors.text.primary,
-                p: 2,
-                fontSize: "large",
-                "&:hover": {
-                  backgroundColor: colors.border.muted,
-                },
-              }}
-            >
-              <Typography sx={{ fontSize: "large", textAlign: "center" }}>
-                キャンセル
-              </Typography>
-            </Button>
+        </FormSection>
 
-            <Button
-              type="submit"
-              sx={{
-                flex: 1,
-                backgroundColor: colors.brand.primary,
-                color: colors.text.inverse,
-                p: 2,
-                fontSize: "large",
-                "&:hover": {
-                  backgroundColor: colors.brand.primaryHover,
-                },
-              }}
-              onClick={handleRegister}
-            >
-              <Typography sx={{ fontSize: "large", textAlign: "center" }}>
-                登録する
-              </Typography>
-            </Button>
-          </Box>
+        <Box sx={{ mt: 4, mb: 2, display: "flex", gap: 1.25 }}>
+          <PrimaryCta
+            variant="outlined"
+            onClick={() =>
+              router.push(
+                `/goals/${goalId}/tasks/new?draftTaskId=${draftTaskId}`,
+              )
+            }
+            sx={{ flex: 1 }}
+          >
+            キャンセル
+          </PrimaryCta>
+          <PrimaryCta onClick={handleRegister} sx={{ flex: 1 }}>
+            登録する
+          </PrimaryCta>
         </Box>
+
         <Snackbar
           open={snackbar.open}
           autoHideDuration={3000}

@@ -118,6 +118,20 @@ describe("EditTaskPresenter", () => {
     expect(screen.getAllByRole("textbox")[1]).toHaveValue("単語帳1〜100");
   });
 
+  it("入力欄がラベルと関連付けられている", () => {
+    render(<Wrapper />);
+    expect(screen.getByLabelText("タスクタイトル")).toHaveValue(
+      "英単語100個を覚える",
+    );
+    expect(screen.getByLabelText("タスク内容")).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "優先度" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "教科選択" }),
+    ).toBeInTheDocument();
+  });
+
   it("goalIdがないとき戻るリンクが /tasks/[id] を指す", () => {
     render(<Wrapper />);
     expect(
@@ -130,6 +144,14 @@ describe("EditTaskPresenter", () => {
     expect(
       screen.getByRole("link", { name: /タスク詳細に戻る/ }),
     ).toHaveAttribute("href", "/goals/99/tasks/1");
+  });
+
+  it("キャンセルリンクがタスク詳細を指す", () => {
+    render(<Wrapper goalId={99} />);
+    expect(screen.getByRole("link", { name: "キャンセル" })).toHaveAttribute(
+      "href",
+      "/goals/99/tasks/1",
+    );
   });
 
   it("タイトルを空にして送信すると「タスク名を入力してください」が表示される", async () => {

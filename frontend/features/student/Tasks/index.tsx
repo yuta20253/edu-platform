@@ -5,9 +5,11 @@ import { useGetTasks } from "./hooks";
 import { Presenter } from "./Presenter";
 
 export const Tasks = () => {
-  const { data, page, setPage, loading, error } = useGetTasks();
+  const { data, page, setPage, status, setStatus, loading, error } =
+    useGetTasks();
 
-  if (loading) {
+  // 絞り込み切替の再取得中は前回のデータを残し、セグメントが消えないようにする
+  if (loading && !data) {
     return (
       <Box
         sx={{
@@ -39,5 +41,13 @@ export const Tasks = () => {
     );
   }
 
-  return <Presenter data={data} page={page} onPageChange={setPage} />;
+  return (
+    <Presenter
+      data={data}
+      page={page}
+      onPageChange={setPage}
+      status={status}
+      onStatusChange={setStatus}
+    />
+  );
 };

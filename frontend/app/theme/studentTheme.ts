@@ -11,6 +11,13 @@ export const radius = {
   lg: 20,
 } as const;
 
+/** 生徒UIの白いカード(角丸 + 薄い影) */
+export const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
+
 const studentTheme = createTheme(baseTheme, {
   palette: {
     primary: {

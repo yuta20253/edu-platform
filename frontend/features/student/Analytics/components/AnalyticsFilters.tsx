@@ -11,7 +11,7 @@ import {
 import { Course } from "@/types/tasks/course";
 import { Unit } from "@/types/tasks/unit";
 import { SubjectName } from "@/constants/subject";
-import { subjectLists } from "../../CreateTask/constants";
+import { subjectLists } from "@/constants/subject";
 import { needsCourse, needsUnit } from "../selectionRequirements";
 import { AnalyticsType } from "../types";
 
