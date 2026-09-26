@@ -71,6 +71,11 @@ describe("ConfirmDeleteDialog", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it("confirmTextが空文字の場合は未入力のままでも削除ボタンは無効", () => {
+    render(<ConfirmDeleteDialog {...defaultProps} confirmText="" />);
+    expect(screen.getByRole("button", { name: "削除する" })).toBeDisabled();
+  });
+
   it("openがfalseのとき何も表示されない", () => {
     render(<ConfirmDeleteDialog {...defaultProps} open={false} />);
     expect(screen.queryByText("管理者を削除")).not.toBeInTheDocument();
