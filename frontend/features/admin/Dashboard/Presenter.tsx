@@ -61,7 +61,12 @@ const kpiCards = (stats: DashboardData["stats"]) => [
 ];
 
 // 色はダッシュボード固有の表現。ラベルは共通の importStatusLabel を使う。
-const importStatusDefinitions: Record<ImportStatus, StatusBadgeDefinition> = {
+// constants/import_status.tsのimportStatusDefinitions（MUIのcolor
+// キーワード版）とは別物なので名前を変えて衝突を避ける。
+const dashboardImportStatusDefinitions: Record<
+  ImportStatus,
+  StatusBadgeDefinition
+> = {
   completed: {
     label: importStatusLabel.completed,
     color: colors.status.success,
@@ -185,7 +190,7 @@ export const Presenter = ({ data }: Props) => {
                       <TableCell>
                         <StatusBadge
                           status={item.status}
-                          definitions={importStatusDefinitions}
+                          definitions={dashboardImportStatusDefinitions}
                         />
                       </TableCell>
                     </TableRow>
