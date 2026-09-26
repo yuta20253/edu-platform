@@ -50,7 +50,9 @@ export const ConfirmDeleteDialog = ({
     if (!open) setInput("");
   }, [open]);
 
-  const canConfirm = input === confirmText && !loading;
+  // confirmTextが空文字だと未入力のinputと一致してしまい、確認なしで
+  // 削除できてしまうため、空文字のconfirmTextは常に無効として扱う。
+  const canConfirm = confirmText !== "" && input === confirmText && !loading;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
