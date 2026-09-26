@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useGetTasks } from "./hooks";
@@ -50,6 +50,31 @@ describe("useGetTasks", () => {
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/tasks", {
       params: { page: "1" },
     });
+  });
+
+  it("ステータスを切り替えると status 付き・1ページ目で再取得する", async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        tasks: [],
+        meta: { current_page: 1, total_pages: 0, total_count: 0, per_page: 5 },
+      },
+    });
+
+    const { result } = renderHook(() => useGetTasks());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => result.current.setPage(3));
+    await waitFor(() => expect(result.current.page).toBe(3));
+
+    act(() => result.current.setStatus("completed"));
+
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/tasks", {
+        params: { page: "1", status: "completed" },
+      }),
+    );
+    expect(result.current.page).toBe(1);
+    expect(result.current.status).toBe("completed");
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {

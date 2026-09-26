@@ -22,3 +22,6 @@ export type TasksData = {
   tasks: Task[];
   meta: TaskMeta;
 };
+
+/** "active" は status 未指定(API 既定: 未着手・進行中) */
+export type TaskStatusFilter = "active" | Status;

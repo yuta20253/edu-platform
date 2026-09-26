@@ -132,6 +132,14 @@ describe("EditTaskPresenter", () => {
     ).toHaveAttribute("href", "/goals/99/tasks/1");
   });
 
+  it("キャンセルリンクがタスク詳細を指す", () => {
+    render(<Wrapper goalId={99} />);
+    expect(screen.getByRole("link", { name: "キャンセル" })).toHaveAttribute(
+      "href",
+      "/goals/99/tasks/1",
+    );
+  });
+
   it("タイトルを空にして送信すると「タスク名を入力してください」が表示される", async () => {
     const onSubmit = vi.fn();
     render(<Wrapper onSubmit={onSubmit} />);

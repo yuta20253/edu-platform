@@ -7,6 +7,8 @@ export async function GET(req: NextRequest) {
   const page = searchParams.get("page") ?? "1";
 
   const params = new URLSearchParams({ page });
+  const taskStatus = searchParams.get("status");
+  if (taskStatus) params.set("status", taskStatus);
 
   try {
     const { status, data, setCookie } = await railsFetch(
