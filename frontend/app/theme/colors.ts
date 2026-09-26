@@ -5,6 +5,15 @@ export const colors = {
     secondary: "#F2A541",
     admin: "#e65100",
   },
+  // 生徒UI(Student App プロトタイプ)のアクセント。studentTheme の primary に使う
+  accent: {
+    100: "#eff6ff",
+    200: "#dae9ff",
+    300: "#b5d3ff",
+    600: "#0b66d6",
+    700: "#0047a2",
+    800: "#002f6e",
+  },
   text: {
     primary: "#0f172a",
     secondary: "#64748b",
