@@ -114,7 +114,8 @@ export const Presenter = ({
                   fullWidth
                   required
                   {...register("title", {
-                    required: "タイトルを入力してください",
+                    validate: (value) =>
+                      value.trim() !== "" || "タイトルを入力してください",
                     maxLength: {
                       value: TITLE_MAX_LENGTH,
                       message: `タイトルは${TITLE_MAX_LENGTH}文字以内で入力してください`,
@@ -130,7 +131,8 @@ export const Presenter = ({
                   multiline
                   minRows={10}
                   {...register("content", {
-                    required: "本文を入力してください",
+                    validate: (value) =>
+                      value.trim() !== "" || "本文を入力してください",
                     maxLength: {
                       value: CONTENT_MAX_LENGTH,
                       message: `本文は${CONTENT_MAX_LENGTH}文字以内で入力してください`,

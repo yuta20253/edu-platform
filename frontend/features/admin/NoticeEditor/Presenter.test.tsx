@@ -127,6 +127,25 @@ describe("NoticeEditorPresenter", () => {
     expect(onSaveDraft).not.toHaveBeenCalled();
   });
 
+  it("タイトル・本文が空白文字のみのとき下書き保存すると必須エラーが表示されonSaveDraftは呼ばれない", async () => {
+    const onSaveDraft = vi.fn();
+    render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
+      target: { value: "   " },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
+      target: { value: "\n  \n" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+    expect(
+      await screen.findByText("タイトルを入力してください"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("本文を入力してください")).toBeInTheDocument();
+    expect(onSaveDraft).not.toHaveBeenCalled();
+  });
+
   it("タイトルが255文字を超えるとエラーが表示される", async () => {
     render(<Presenter {...defaultProps} />);
     fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
