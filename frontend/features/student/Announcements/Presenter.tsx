@@ -1,9 +1,17 @@
 "use client";
 
-import { Box, Card, CardContent, Typography, Pagination } from "@mui/material";
+import { Box, Typography, Pagination } from "@mui/material";
 import Link from "next/link";
+import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
 import { AnnouncementsData } from "./types";
 import { formatPublishedAt } from "@/libs/ui/formatDate";
+
+const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
 
 type Props = {
   data: AnnouncementsData;
@@ -15,109 +23,92 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
   const { announcements, meta } = data;
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box>
-        <Typography
-          variant="h4"
-          component="p"
-          sx={{ fontWeight: "bold", my: 4, textAlign: "center" }}
-        >
-          お知らせ一覧
-        </Typography>
+    <Box sx={{ maxWidth: 600, mx: "auto" }}>
+      <Typography
+        variant="h5"
+        component="h1"
+        sx={{ fontWeight: 800, mt: 1, mb: 3 }}
+      >
+        お知らせ一覧
+      </Typography>
 
-        <Box display="flex" flexDirection="column" alignItems="center">
-          {!announcements || announcements.length === 0 ? (
-            <Typography sx={{ py: 4, textAlign: "center" }}>
-              お知らせが見つかりません
-            </Typography>
-          ) : (
-            <>
-              {announcements.map((announcement) => (
-                <Card
-                  key={announcement.id}
-                  component={Link}
-                  href={`/announcements/${announcement.id}`}
+      {!announcements || announcements.length === 0 ? (
+        <Box sx={{ ...cardSx, p: 3, textAlign: "center", fontSize: 13, color: "text.secondary" }}>
+          お知らせが見つかりません
+        </Box>
+      ) : (
+        <>
+          <Box sx={{ ...cardSx, overflow: "hidden" }}>
+            {announcements.map((announcement, index) => (
+              <Box
+                key={announcement.id}
+                component={Link}
+                href={`/announcements/${announcement.id}`}
+                sx={{
+                  display: "block",
+                  textDecoration: "none",
+                  color: "inherit",
+                  px: 2,
+                  py: 1.75,
+                  borderBottom:
+                    index === announcements.length - 1
+                      ? "none"
+                      : `1px solid ${colors.border.light}`,
+                }}
+              >
+                <Typography
                   sx={{
-                    width: "min(720px, 90vw)",
-                    textDecoration: "none",
-                    borderRadius: 3,
-                    boxShadow: 2,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    mb: 0.5,
                     overflow: "hidden",
-                    ":hover": { boxShadow: 4 },
-                    m: 1,
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  <CardContent
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                      p: 2,
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                        fontSize: 18,
-                      }}
-                    >
-                      {announcement.title}
-                    </Typography>
+                  {announcement.title}
+                </Typography>
 
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 2,
-                        mt: 1,
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: 12,
-                          color: "text.secondary",
-                        }}
-                      >
-                        発行者: {announcement.publisher.name}
-                      </Typography>
-
-                      <Typography
-                        sx={{
-                          fontSize: 12,
-                          color: "text.secondary",
-                        }}
-                      >
-                        {formatPublishedAt(announcement.published_at)}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {meta.total_pages > 1 && (
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "center",
-                    mt: 3,
-                    width: "100%",
-                    mb: 8,
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 2,
                   }}
                 >
-                  <Pagination
-                    count={meta.total_pages}
-                    page={page}
-                    onChange={(_, value) => onPageChange(value)}
-                    color="primary"
-                    shape="rounded"
-                  />
+                  <Typography sx={{ fontSize: 11, color: "text.secondary" }}>
+                    発行者: {announcement.publisher.name}
+                  </Typography>
+
+                  <Typography sx={{ fontSize: 11, color: "text.secondary" }}>
+                    {formatPublishedAt(announcement.published_at)}
+                  </Typography>
                 </Box>
-              )}
-            </>
+              </Box>
+            ))}
+          </Box>
+
+          {meta.total_pages > 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mt: 3,
+                mb: 3,
+              }}
+            >
+              <Pagination
+                count={meta.total_pages}
+                page={page}
+                onChange={(_, value) => onPageChange(value)}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
           )}
-        </Box>
-      </Box>
+        </>
+      )}
     </Box>
   );
 };

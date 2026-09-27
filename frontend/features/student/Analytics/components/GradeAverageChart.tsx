@@ -16,7 +16,7 @@ export const GradeAverageChart = ({ data }: Props) => {
         {
           label: "自分",
           data: [data.correct_rate.my, data.task_completion_rate.my],
-          color: colors.brand.primary,
+          color: colors.accent[600],
         },
         {
           label: "学年平均",
