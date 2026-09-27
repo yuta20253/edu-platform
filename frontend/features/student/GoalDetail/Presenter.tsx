@@ -104,42 +104,34 @@ export const Presenter = ({
         </Box>
       </Box>
 
+      <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+        <Button
+          component={Link}
+          href={`/goals/${goal.id}/edit`}
+          variant="outlined"
+          size="small"
+        >
+          目標を編集
+        </Button>
+        <Button
+          onClick={onDeleteClick}
+          variant="outlined"
+          size="small"
+          color="error"
+        >
+          目標を削除
+        </Button>
+      </Box>
+
       <Box sx={{ ...cardSx, p: 2, mb: 3 }}>
         <Typography sx={{ fontSize: 14, lineHeight: 1.7 }}>
           {goal.description || "説明はありません"}
         </Typography>
       </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 1,
-        }}
-      >
-        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-          タスク一覧
-        </Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            component={Link}
-            href={`/goals/${goal.id}/edit`}
-            variant="outlined"
-            size="small"
-          >
-            編集
-          </Button>
-          <Button
-            onClick={onDeleteClick}
-            variant="outlined"
-            size="small"
-            color="error"
-          >
-            削除
-          </Button>
-        </Box>
-      </Box>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+        タスク一覧
+      </Typography>
 
       {tasks.length === 0 ? (
         <Box

@@ -94,9 +94,9 @@ describe("GoalDetailPresenter", () => {
     );
   });
 
-  it("「編集」ボタンが /goals/[id]/edit を指している", () => {
+  it("「目標を編集」ボタンが /goals/[id]/edit を指している", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByRole("link", { name: "編集" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "目標を編集" })).toHaveAttribute(
       "href",
       "/goals/1/edit",
     );
@@ -114,10 +114,10 @@ describe("GoalDetailPresenter", () => {
     );
   });
 
-  it("「削除」ボタンをクリックするとonDeleteClickが呼ばれる", () => {
+  it("「目標を削除」ボタンをクリックするとonDeleteClickが呼ばれる", () => {
     const onDeleteClick = vi.fn();
     render(<Presenter {...defaultProps} onDeleteClick={onDeleteClick} />);
-    fireEvent.click(screen.getByRole("button", { name: "削除" }));
+    fireEvent.click(screen.getByRole("button", { name: "目標を削除" }));
     expect(onDeleteClick).toHaveBeenCalled();
   });
 
