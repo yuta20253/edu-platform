@@ -45,7 +45,7 @@ describe("Footer", () => {
       ["ホーム", "/"],
       ["タスク", "/tasks"],
       ["進捗", "/analytics"],
-      ["カレンダー", "#"],
+      ["カレンダー", "/calendar"],
       ["プロフィール", "/profile"],
     ];
     const links = screen.getAllByRole("link");

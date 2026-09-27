@@ -15,7 +15,7 @@ const items = [
   { label: "ホーム", icon: <HomeIcon />, href: "/" },
   { label: "タスク", icon: <FormatListBulletedIcon />, href: "/tasks" },
   { label: "進捗", icon: <AutoGraphIcon />, href: "/analytics" },
-  { label: "カレンダー", icon: <CalendarMonthIcon />, href: "#" },
+  { label: "カレンダー", icon: <CalendarMonthIcon />, href: "/calendar" },
   { label: "プロフィール", icon: <PersonIcon />, href: "/profile" },
 ];
 
