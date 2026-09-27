@@ -1,5 +1,6 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import { Alert, Box, TextField, Typography } from "@mui/material";
 import MarkEmailReadRoundedIcon from "@mui/icons-material/MarkEmailReadRounded";
 import Link from "next/link";
@@ -58,29 +59,27 @@ export const Presenter = ({
             </Box>
 
             <Box sx={{ textAlign: "center", mt: 3 }}>
-              <Link href="/login">ログインに戻る</Link>
+              <Link href="/login" style={{ color: colors.accent[600] }}>
+                ログインに戻る
+              </Link>
             </Box>
           </>
         ) : (
           <>
+            <Box sx={{ width: 40, height: 6, bgcolor: "primary.main" }} />
             <Typography
               variant="h4"
               component="h1"
               sx={{
-                fontWeight: "bold",
-                textAlign: "center",
+                fontWeight: 800,
+                mt: 2.25,
                 mb: 1,
               }}
             >
               パスワード再設定
             </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              textAlign="center"
-              sx={{ mb: 4 }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
               ご登録のメールアドレスを入力してください。
               <br />
               パスワード再設定用のリンクを送信します。
@@ -116,7 +115,9 @@ export const Presenter = ({
               <PrimaryCta type="submit">再設定リンクを送信</PrimaryCta>
 
               <Box sx={{ textAlign: "center", mt: 3 }}>
-                <Link href="/login">ログインへ戻る</Link>
+                <Link href="/login" style={{ color: colors.accent[600] }}>
+                  ログインへ戻る
+                </Link>
               </Box>
             </Box>
           </>

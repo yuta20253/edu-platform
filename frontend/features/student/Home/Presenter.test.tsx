@@ -7,10 +7,15 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    ...props
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 const mockGoals: GoalType[] = [
@@ -31,32 +36,30 @@ const mockGoals: GoalType[] = [
 ];
 
 describe("HomePresenter", () => {
-  it("目標一覧のタイトル見出しが表示される", () => {
+  it("目標セクションの見出しが表示される", () => {
     render(<Presenter initialGoals={mockGoals} />);
-    expect(screen.getByText("目標")).toBeInTheDocument();
-    expect(screen.getByText("達成度")).toBeInTheDocument();
-    expect(screen.getByText("期限")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "目標" })).toBeInTheDocument();
   });
 
-  it("initialGoals が行として正しくレンダリングされる", () => {
+  it("initialGoals がカードとして正しくレンダリングされる", () => {
     render(<Presenter initialGoals={mockGoals} />);
     expect(screen.getByText("数学の基礎を固める")).toBeInTheDocument();
     expect(screen.getByText("進行中")).toBeInTheDocument();
-    expect(screen.getByText("2025-07-01")).toBeInTheDocument();
+    expect(screen.getByText("期限 2025-07-01")).toBeInTheDocument();
     expect(screen.getByText("英単語1000語暗記")).toBeInTheDocument();
     expect(screen.getByText("完了")).toBeInTheDocument();
-    expect(screen.getByText("2025-08-01")).toBeInTheDocument();
+    expect(screen.getByText("期限 2025-08-01")).toBeInTheDocument();
   });
 
-  it("initialGoals が空でもエラーにならず一覧が表示される", () => {
+  it("initialGoals が空のとき空状態のメッセージが表示される", () => {
     render(<Presenter initialGoals={[]} />);
-    expect(screen.getByText("目標")).toBeInTheDocument();
+    expect(screen.getByText("目標がまだありません")).toBeInTheDocument();
     expect(screen.queryByText("数学の基礎を固める")).not.toBeInTheDocument();
   });
 
   it("initialGoals が null 相当でもクラッシュしない", () => {
     render(<Presenter initialGoals={null as unknown as GoalType[]} />);
-    expect(screen.getByText("目標")).toBeInTheDocument();
+    expect(screen.getByText("目標がまだありません")).toBeInTheDocument();
   });
 
   it("「目標一覧」リンクが /goals を指している", () => {
@@ -75,27 +78,28 @@ describe("HomePresenter", () => {
     );
   });
 
+  it("目標のタイトルが /goals/[id] へのリンクになっている", () => {
+    render(<Presenter initialGoals={mockGoals} />);
+    expect(
+      screen.getByRole("link", { name: "数学の基礎を固める" }),
+    ).toHaveAttribute("href", "/goals/1");
+    expect(
+      screen.getByRole("link", { name: "英単語1000語暗記" }),
+    ).toHaveAttribute("href", "/goals/2");
+  });
+
   it("編集リンクが /goals/[id]/edit を指している", () => {
     render(<Presenter initialGoals={mockGoals} />);
-    const editLinks = screen
-      .getAllByRole("link")
-      .filter((link) => link.getAttribute("href")?.includes("/edit"));
+    const editLinks = screen.getAllByRole("link", { name: "編集" });
     expect(editLinks[0]).toHaveAttribute("href", "/goals/1/edit");
     expect(editLinks[1]).toHaveAttribute("href", "/goals/2/edit");
   });
 
-  it("定期テスト管理・志望校管理・受験校管理へのリンクが表示される", () => {
+  it("学習分析へのリンクが表示される", () => {
     render(<Presenter initialGoals={mockGoals} />);
-    expect(
-      screen.getByRole("link", { name: "定期テスト管理" }),
-    ).toHaveAttribute("href", "/exams");
-    expect(screen.getByRole("link", { name: "志望校管理" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "学習分析" })).toHaveAttribute(
       "href",
-      "/desired-schools",
-    );
-    expect(screen.getByRole("link", { name: "受験校管理" })).toHaveAttribute(
-      "href",
-      "/exam-schools",
+      "/analytics",
     );
   });
 });

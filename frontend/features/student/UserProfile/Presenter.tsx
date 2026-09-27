@@ -2,6 +2,7 @@ import { Box, Button, Divider, Typography } from "@mui/material";
 import { MeUser } from "@/types/common/me";
 import { formatAddress, GenderLabel } from "./constants";
 import { GenderType } from "@/types/common/gender";
+import { ProfileMenu } from "./components/ProfileMenu";
 
 type Props = {
   user: MeUser;
@@ -113,6 +114,7 @@ export const Presenter = ({ user }: Props) => {
             </Box>
           </Box>
         </Box>
+        <ProfileMenu />
         <Box
           sx={{
             display: "flex",

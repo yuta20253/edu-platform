@@ -1,12 +1,12 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { PrimaryCta } from "@/components/PrimaryCta";
 import { User } from "@/types/signUp/user";
 import {
   Autocomplete,
   Alert,
   Box,
-  Button,
   IconButton,
   InputAdornment,
   TextField,
@@ -87,10 +87,11 @@ export const SignUp = ({
       }}
     >
       <Box sx={{ width: "100%", maxWidth: 600 }}>
+        <Box sx={{ width: 40, height: 6, bgcolor: "primary.main", mt: 8 }} />
         <Typography
           variant="h4"
-          component="p"
-          sx={{ fontWeight: "bold", mt: 8, textAlign: "center" }}
+          component="h1"
+          sx={{ fontWeight: 800, mt: 2.25 }}
         >
           新規登録({roleTitleMap[userRole]})
         </Typography>
@@ -99,7 +100,7 @@ export const SignUp = ({
             {errorMessage}
           </Alert>
         )}
-        <Box sx={{ padding: 2, width: "100%" }}>
+        <Box sx={{ py: 2, width: "100%" }}>
           <Box
             component="form"
             sx={{ width: "100%", maxWidth: 600, mx: "auto", mt: 5 }}
@@ -324,30 +325,22 @@ export const SignUp = ({
               />
             </Box>
             <Box sx={{ my: 4 }}>
-              <Button
-                type="submit"
-                sx={{
-                  width: "100%",
-                  backgroundColor: colors.brand.primary,
-                  color: colors.text.inverse,
-                  p: 2,
-                  fontSize: "large",
-                }}
-              >
-                <Typography sx={{ fontSize: "large", textAlign: "center" }}>
-                  登録
-                </Typography>
-              </Button>
+              <PrimaryCta type="submit">登録</PrimaryCta>
             </Box>
             <Box sx={{ width: "100%", textAlign: "center", mb: 2 }}>
-              <Link href="/login">すでに登録済みの方はこちら</Link>
+              <Link href="/login" style={{ color: colors.accent[600] }}>
+                すでに登録済みの方はこちら
+              </Link>
             </Box>
             {renderTabs(userRole).map(({ role, title }) => (
               <Box
                 key={role}
                 sx={{ width: "100%", textAlign: "center", mb: 4 }}
               >
-                <Link href={role === "student" ? "/signup" : `/${role}/signup`}>
+                <Link
+                  href={role === "student" ? "/signup" : `/${role}/signup`}
+                  style={{ color: colors.accent[600] }}
+                >
                   {title}の方はこちら
                 </Link>
               </Box>
