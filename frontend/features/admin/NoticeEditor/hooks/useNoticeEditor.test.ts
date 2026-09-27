@@ -191,7 +191,9 @@ describe("useNoticeEditor", () => {
         response: {
           status: 422,
           data: {
-            errors: ["ステータスはscheduledからdraftへは変更できません"],
+            // Rails側にstatus属性の日本語訳がなく、human_attribute_nameが
+            // "Status"にフォールバックするため、実際のfull_messagesはこの形になる
+            errors: ["Status scheduled から draft へは変更できません"],
           },
         },
       });
@@ -205,7 +207,7 @@ describe("useNoticeEditor", () => {
 
       await waitFor(() =>
         expect(result.current.submitError).toBe(
-          "ステータスはscheduledからdraftへは変更できません",
+          "Status scheduled から draft へは変更できません",
         ),
       );
       expect(apiClient.patch).toHaveBeenCalledWith("/api/admin/notices/1", {
