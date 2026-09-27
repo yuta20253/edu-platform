@@ -1,5 +1,6 @@
 import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -30,6 +31,28 @@ export async function GET(
       { message: "INTERNAL_SERVER_ERROR" },
       { status: 500 },
     );
+  }
+}
+
+export async function DELETE(
+  _: Request,
+  { params }: { params: Promise<{ goalId: string }> },
+) {
+  try {
+    const { goalId } = await params;
+
+    const { status, setCookie } = await railsFetch(
+      `/api/v1/student/goals/${goalId}`,
+      { method: "DELETE" },
+    );
+
+    const nextResponse = new NextResponse(null, { status });
+
+    if (setCookie) nextResponse.headers.set("set-cookie", setCookie);
+
+    return nextResponse;
+  } catch (error) {
+    return handleRailsRouteError(error, "目標の削除に失敗しました");
   }
 }
 

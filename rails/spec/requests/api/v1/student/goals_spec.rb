@@ -251,4 +251,89 @@ RSpec.describe 'Api::V1::Student::Goals', type: :request do
       end
     end
   end
+
+  describe 'DELETE /api/v1/student/goals/:id' do
+    subject { delete "/api/v1/student/goals/#{goal.id}", headers: headers.merge('Cookie' => cookie) }
+
+    let!(:goal) { create(:goal, user: user) }
+
+    context '正常系' do
+      it 'ステータス204が返される' do
+        subject
+
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it 'Goalが論理削除される' do
+        subject
+
+        expect(goal.reload.deleted_at).to be_present
+      end
+
+      it '一覧に表示されなくなる' do
+        subject
+
+        get '/api/v1/student/goals', headers: headers.merge('Cookie' => cookie)
+
+        goal_ids = response.parsed_body['goals'].pluck('id')
+        expect(goal_ids).not_to include(goal.id)
+      end
+    end
+
+    context '異常系' do
+      context '他人のGoalを削除する場合' do
+        let!(:other_goal) { create(:goal) }
+
+        it '404を返す' do
+          delete "/api/v1/student/goals/#{other_goal.id}", headers: headers.merge('Cookie' => cookie)
+
+          expect(response).to have_http_status(:not_found)
+          expect(other_goal.reload.deleted_at).to be_nil
+        end
+      end
+
+      context '進行中のタスクが紐づく場合' do
+        let!(:task) { create(:task, :in_progress, user: user, goal: goal) }
+
+        it '422を返す' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+
+        it '削除されない' do
+          subject
+
+          expect(goal.reload.deleted_at).to be_nil
+        end
+      end
+
+      context '完了済みのタスクが紐づく場合' do
+        let!(:task) { create(:task, :completed, user: user, goal: goal) }
+
+        it '422を返す' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+
+        it '削除されない' do
+          subject
+
+          expect(goal.reload.deleted_at).to be_nil
+        end
+      end
+
+      context '未着手のタスクのみ紐づく場合' do
+        let!(:task) { create(:task, user: user, goal: goal) }
+
+        it '削除できる' do
+          subject
+
+          expect(response).to have_http_status(:no_content)
+          expect(goal.reload.deleted_at).to be_present
+        end
+      end
+    end
+  end
 end

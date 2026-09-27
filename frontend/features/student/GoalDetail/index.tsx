@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { useGoal } from "./hooks";
+import { useGoal, useDeleteGoal } from "./hooks";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -10,6 +10,15 @@ type Props = {
 
 export const GoalDetail = ({ goalId }: Props) => {
   const { goal, loading, error } = useGoal(goalId);
+
+  const {
+    deleteDialogOpen,
+    deleting,
+    deleteError,
+    openDeleteDialog,
+    closeDeleteDialog,
+    confirmDelete,
+  } = useDeleteGoal({ goalId });
 
   if (loading) {
     return (
@@ -45,5 +54,15 @@ export const GoalDetail = ({ goalId }: Props) => {
     );
   }
 
-  return <Presenter goal={goal} />;
+  return (
+    <Presenter
+      goal={goal}
+      deleteDialogOpen={deleteDialogOpen}
+      deleting={deleting}
+      deleteError={deleteError}
+      onDeleteClick={openDeleteDialog}
+      onDeleteDialogClose={closeDeleteDialog}
+      onDeleteConfirm={confirmDelete}
+    />
+  );
 };
