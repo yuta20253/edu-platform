@@ -1,10 +1,26 @@
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Typography,
+} from "@mui/material";
 
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
 import { QuestionType } from "@/types/question/question";
 import { taskUnitPath } from "@/libs/path/taskUnitPath";
+
+const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
 
 type Props = {
   goalId?: number;
@@ -73,7 +89,7 @@ export const Presenter = ({
             }}
           >
             <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-            <Typography sx={{ fontSize: 14 }}>スタート画面へ</Typography>
+            <Typography sx={{ fontSize: 14 }}>中断する</Typography>
           </Box>
         </Link>
       </Box>
@@ -97,9 +113,7 @@ export const Presenter = ({
         <Card
           sx={{
             width: "min(720px, 90vw)",
-            borderRadius: 3,
-            boxShadow: 3,
-            bgcolor: colors.surface.white,
+            ...cardSx,
           }}
         >
           <CardContent sx={{ p: { xs: 3, md: 4 } }}>
@@ -123,39 +137,61 @@ export const Presenter = ({
                 gap: 2,
               }}
             >
-              {question.question_choices.map((choice) => (
-                <Button
-                  key={choice.id}
-                  fullWidth
-                  disabled={isSubmitting || isAnswered}
-                  onClick={() => onAnswer(choice.id)}
-                  sx={{
-                    justifyContent: "flex-start",
-                    textTransform: "none",
-                    p: 2,
-                    color: colors.text.primary,
-                    border: `1px solid ${
-                      isAnswered && choice.id === selectedChoiceId
-                        ? isCorrect
-                          ? colors.statusAnswer.correctBorder
-                          : colors.statusAnswer.incorrectBorder
-                        : colors.border.default
-                    }`,
+              {question.question_choices.map((choice) => {
+                const isSelected = isAnswered && choice.id === selectedChoiceId;
 
-                    bgcolor:
-                      isAnswered && choice.id === selectedChoiceId
+                return (
+                  <Button
+                    key={choice.id}
+                    fullWidth
+                    disabled={isSubmitting || isAnswered}
+                    onClick={() => onAnswer(choice.id)}
+                    sx={{
+                      justifyContent: "space-between",
+                      textTransform: "none",
+                      textAlign: "left",
+                      p: 2,
+                      color: colors.text.primary,
+                      border: `1px solid ${
+                        isSelected
+                          ? isCorrect
+                            ? colors.statusAnswer.correctBorder
+                            : colors.statusAnswer.incorrectBorder
+                          : colors.border.default
+                      }`,
+                      bgcolor: isSelected
                         ? isCorrect
                           ? colors.statusAnswer.correctBg
                           : colors.statusAnswer.incorrectBg
                         : "transparent",
-                    "&:hover": {
-                      bgcolor: isAnswered ? undefined : colors.surface.light,
-                    },
-                  }}
-                >
-                  {choice.choice_number}. {choice.choice_text}
-                </Button>
-              ))}
+                      "&:hover": {
+                        bgcolor: isAnswered ? undefined : colors.surface.light,
+                      },
+                      "&.Mui-disabled": {
+                        color: colors.text.primary,
+                        borderColor: isSelected
+                          ? isCorrect
+                            ? colors.statusAnswer.correctBorder
+                            : colors.statusAnswer.incorrectBorder
+                          : colors.border.default,
+                      },
+                    }}
+                  >
+                    <span>
+                      {choice.choice_number}. {choice.choice_text}
+                    </span>
+                    {isSelected && (
+                      <Chip
+                        size="small"
+                        icon={isCorrect ? <CheckCircleIcon /> : <CancelIcon />}
+                        label={isCorrect ? "正解" : "不正解"}
+                        color={isCorrect ? "success" : "error"}
+                        sx={{ ml: 1, flex: "none" }}
+                      />
+                    )}
+                  </Button>
+                );
+              })}
               <Box sx={{ mt: 3 }}>
                 {question.question_hints.map((hint) => (
                   <Box key={hint.id} sx={{ mb: 2 }}>
@@ -228,78 +264,26 @@ export const Presenter = ({
                   </Box>
                 ))}
               </Box>
-              {isAnswered && (
-                <Box sx={{ mt: 3, textAlign: "center" }}>
-                  <Typography
-                    sx={{
-                      fontWeight: "bold",
-                      color: isCorrect ? "success.main" : "error.main",
-                    }}
-                  >
-                    {isCorrect ? "正解！" : "不正解"}
-                  </Typography>
-                </Box>
-              )}
             </Box>
             <Box
               sx={{
                 mt: 4,
                 display: "flex",
-                justifyContent: "space-between",
-                gap: 2,
+                justifyContent: "flex-end",
               }}
             >
-              <Link href={startRef} style={{ textDecoration: "none" }}>
-                <Box
-                  sx={{
-                    px: 3,
-                    py: 1.2,
-                    borderRadius: 2,
-                    border: `1px solid ${colors.border.default}`,
-                    color: colors.text.primary,
-                    cursor: "pointer",
-                    "&:hover": {
-                      bgcolor: colors.surface.light,
-                    },
-                  }}
-                >
-                  中断する
-                </Box>
-              </Link>
               {isAnswered ? (
-                <Box
+                <Button
+                  variant="contained"
                   onClick={() => onNextQuestion()}
-                  sx={{
-                    px: 3,
-                    py: 1.2,
-                    borderRadius: 2,
-                    bgcolor: colors.brand.primary,
-                    color: colors.text.inverse,
-                    cursor: "pointer",
-                    "&:hover": {
-                      bgcolor: colors.brand.primaryHover,
-                    },
-                  }}
+                  sx={{ px: 3 }}
                 >
                   {isLastQuestion ? "結果を見る" : "次へ"}
-                </Box>
+                </Button>
               ) : (
-                <Box
-                  onClick={onSkip}
-                  sx={{
-                    px: 3,
-                    py: 1.2,
-                    borderRadius: 2,
-                    bgcolor: colors.brand.primary,
-                    color: colors.text.inverse,
-                    cursor: "pointer",
-                    "&:hover": {
-                      bgcolor: colors.brand.primaryHover,
-                    },
-                  }}
-                >
+                <Button variant="outlined" onClick={onSkip} sx={{ px: 3 }}>
                   スキップ
-                </Box>
+                </Button>
               )}
             </Box>
           </CardContent>

@@ -78,7 +78,7 @@ describe("QuestionPresenter", () => {
     expect(screen.getByText("1. 1").closest("button")).toBeDisabled();
   });
 
-  it("正解のとき「正解！」が表示される", () => {
+  it("正解のとき選択した選択肢に「正解」タグが表示される", () => {
     render(
       <Presenter
         {...defaultProps}
@@ -87,10 +87,10 @@ describe("QuestionPresenter", () => {
         selectedChoiceId={101}
       />,
     );
-    expect(screen.getByText("正解！")).toBeInTheDocument();
+    expect(screen.getByText("正解")).toBeInTheDocument();
   });
 
-  it("不正解のとき「不正解」が表示される", () => {
+  it("不正解のとき選択した選択肢に「不正解」タグが表示される", () => {
     render(
       <Presenter
         {...defaultProps}
@@ -123,15 +123,15 @@ describe("QuestionPresenter", () => {
     expect(onCloseHint).toHaveBeenCalledTimes(1);
   });
 
-  it("「スタート画面へ」リンクがgoalIdなしのタスクパスを指す", () => {
+  it("「中断する」リンクがgoalIdなしのタスクパスを指す", () => {
     render(<Presenter {...defaultProps} />);
-    const link = screen.getByRole("link", { name: /スタート画面へ/ });
+    const link = screen.getByRole("link", { name: /中断する/ });
     expect(link).toHaveAttribute("href", "/tasks/5/units/11");
   });
 
-  it("goalIdがあるとき「スタート画面へ」リンクがgoals配下のタスクパスを指す", () => {
+  it("goalIdがあるとき「中断する」リンクがgoals配下のタスクパスを指す", () => {
     render(<Presenter {...defaultProps} goalId={3} />);
-    const link = screen.getByRole("link", { name: /スタート画面へ/ });
+    const link = screen.getByRole("link", { name: /中断する/ });
     expect(link).toHaveAttribute("href", "/goals/3/tasks/5/units/11");
   });
 

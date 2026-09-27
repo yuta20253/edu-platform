@@ -1,9 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { Box, Button, Chip, Typography } from "@mui/material";
+import Link from "next/link";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
 import { UnitType } from "./types";
+
+const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
 
 type Props = {
   goalId?: number;
@@ -14,117 +22,74 @@ type Props = {
   isStarting: boolean;
 };
 
-export const Presenter = ({ unit, onStart, isStarting }: Props) => {
-  const router = useRouter();
+export const Presenter = ({
+  goalId,
+  taskId,
+  unit,
+  onStart,
+  isStarting,
+}: Props) => {
+  const taskHref = goalId
+    ? `/goals/${goalId}/tasks/${taskId}`
+    : `/tasks/${taskId}`;
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        p: 3,
-        bgcolor: colors.surface.default,
-      }}
-    >
-      <Box sx={{ mb: 3, textAlign: "center" }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{ fontWeight: "bold", color: colors.text.primary }}
+    <Box sx={{ maxWidth: 600, mx: "auto", p: { xs: 2, md: 0 } }}>
+      <Link href={taskHref} style={{ textDecoration: "none" }}>
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            color: "text.secondary",
+            mb: 2,
+            "&:hover": { color: "primary.main" },
+          }}
         >
-          ユニット学習画面
-        </Typography>
-      </Box>
+          <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+          <Typography sx={{ fontSize: 13 }}>タスク詳細へ戻る</Typography>
+        </Box>
+      </Link>
 
-      <Card
-        sx={{
-          width: "min(720px, 90vw)",
-          borderRadius: 3,
-          boxShadow: 3,
-          bgcolor: colors.surface.white,
-        }}
-      >
-        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-          <Box sx={{ mb: 3, textAlign: "center" }}>
-            <Typography
-              sx={{
-                fontSize: 18,
-                fontWeight: 600,
-                mb: 1,
-                color: colors.text.primary,
-              }}
-            >
-              {unit.course.level_name}レベル{unit.course.level_number}
-            </Typography>
-            <Typography
-              sx={{ fontSize: 16, color: colors.text.secondary, mb: 1 }}
-            >
-              単元: {unit.unit_name}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              bgcolor: colors.surface.light,
-              minHeight: 160,
-              mb: 4,
-            }}
+      <Box sx={{ ...cardSx, p: { xs: 3, md: 4 } }}>
+        <Chip
+          size="small"
+          label={`${unit.course.level_name}レベル${unit.course.level_number}`}
+          sx={{
+            bgcolor: colors.accent[100],
+            color: colors.accent[800],
+            mb: 1.5,
+          }}
+        />
+        <Typography sx={{ fontWeight: 800, fontSize: 20, mb: 3 }}>
+          {unit.unit_name}
+        </Typography>
+
+        <Box
+          sx={{
+            p: 2.5,
+            borderRadius: `${radius.sm}px`,
+            bgcolor: colors.surface.light,
+            mb: 4,
+          }}
+        >
+          <Typography
+            sx={{ fontSize: 14, lineHeight: 1.8, color: colors.text.primary }}
           >
-            <Typography
-              sx={{ fontSize: 14, lineHeight: 1.8, color: colors.text.primary }}
-            >
-              この画面から学習をスタートできます。
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
-            <Button
-              variant="contained"
-              size="large"
-              sx={{
-                borderRadius: 2,
-                minWidth: 140,
-                backgroundColor: colors.brand.primary,
-                color: colors.text.inverse,
-                "&:hover": {
-                  backgroundColor: colors.brand.primaryHover,
-                },
-              }}
-              onClick={onStart}
-              disabled={isStarting}
-            >
-              スタート
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              sx={{
-                borderRadius: 2,
-                minWidth: 140,
-                borderColor: colors.border.default,
-                color: colors.text.primary,
-                "&:hover": {
-                  backgroundColor: colors.surface.info,
-                  borderColor: colors.border.default,
-                },
-              }}
-              onClick={() => router.back()}
-            >
-              戻る
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
+            この画面から学習をスタートできます。
+          </Typography>
+        </Box>
+
+        <Button
+          variant="contained"
+          fullWidth
+          size="large"
+          onClick={onStart}
+          disabled={isStarting}
+        >
+          スタート
+        </Button>
+      </Box>
     </Box>
   );
 };
