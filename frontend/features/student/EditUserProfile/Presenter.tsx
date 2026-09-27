@@ -142,7 +142,10 @@ export const Presenter = ({
             <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
               生年月日
             </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={ja}
+            >
               <Controller
                 name="birthday"
                 control={control}
@@ -173,7 +176,11 @@ export const Presenter = ({
               control={control}
               render={({ field }) => (
                 <RadioGroup row {...field}>
-                  <FormControlLabel value="male" control={<Radio />} label="男" />
+                  <FormControlLabel
+                    value="male"
+                    control={<Radio />}
+                    label="男"
+                  />
                   <FormControlLabel
                     value="female"
                     control={<Radio />}
@@ -201,7 +208,9 @@ export const Presenter = ({
             >
               <TextField {...register("phone_number")} />
             </Box>
-            <Typography sx={{ color: colors.status.error, fontSize: 12, mt: 0.5 }}>
+            <Typography
+              sx={{ color: colors.status.error, fontSize: 12, mt: 0.5 }}
+            >
               ※ ハイフンなしで入力してください
             </Typography>
 
@@ -296,7 +305,9 @@ export const Presenter = ({
                     townOptions.find((option) => option.town === field.value) ||
                     null
                   }
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
                   getOptionLabel={(option) => option.town}
                   onChange={(_, value) => {
                     field.onChange(value?.town || "");

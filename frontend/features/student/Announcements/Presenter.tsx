@@ -33,7 +33,15 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
       </Typography>
 
       {!announcements || announcements.length === 0 ? (
-        <Box sx={{ ...cardSx, p: 3, textAlign: "center", fontSize: 13, color: "text.secondary" }}>
+        <Box
+          sx={{
+            ...cardSx,
+            p: 3,
+            textAlign: "center",
+            fontSize: 13,
+            color: "text.secondary",
+          }}
+        >
           お知らせが見つかりません
         </Box>
       ) : (

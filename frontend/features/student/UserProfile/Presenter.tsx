@@ -76,7 +76,9 @@ export const Presenter = ({ user }: Props) => {
             {user.name}
           </Typography>
           {subtitle && (
-            <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.25 }}>
+            <Typography
+              sx={{ fontSize: 12, color: "text.secondary", mt: 0.25 }}
+            >
               {subtitle}
             </Typography>
           )}
