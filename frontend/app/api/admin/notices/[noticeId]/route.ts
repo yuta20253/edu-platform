@@ -50,21 +50,3 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return handleRailsRouteError(error, "お知らせの更新に失敗しました");
   }
 }
-
-// お知らせの削除。配信済みのお知らせはRailsが422を返す。
-export async function DELETE(_: NextRequest, { params }: Params) {
-  const { noticeId } = await params;
-
-  try {
-    const { status, setCookie } = await railsFetch(
-      `/api/v1/admin/announcements/${noticeId}`,
-      { method: "DELETE" },
-    );
-
-    const res = new NextResponse(null, { status });
-    if (setCookie) res.headers.set("set-cookie", setCookie);
-    return res;
-  } catch (error) {
-    return handleRailsRouteError(error, "お知らせの削除に失敗しました");
-  }
-}
