@@ -105,7 +105,10 @@ export const Presenter = ({
 
           <Box>
             <Typography sx={fieldLabelSx}>期限</Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={ja}
+            >
               <Controller
                 name="due_date"
                 control={control}

@@ -62,7 +62,9 @@ describe("GoalDetailPresenter", () => {
   });
 
   it("説明が空のとき「説明はありません」と表示される", () => {
-    render(<Presenter {...defaultProps} goal={{ ...mockGoal, description: "" }} />);
+    render(
+      <Presenter {...defaultProps} goal={{ ...mockGoal, description: "" }} />,
+    );
     expect(screen.getByText("説明はありません")).toBeInTheDocument();
   });
 

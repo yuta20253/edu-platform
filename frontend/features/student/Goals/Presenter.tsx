@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Typography,
-  IconButton,
-  Chip,
-  Pagination,
-} from "@mui/material";
+import { Box, Typography, IconButton, Chip, Pagination } from "@mui/material";
 import Link from "next/link";
 import { GoalsData } from "./types";
 import { colors } from "@/app/theme/colors";
@@ -189,7 +183,9 @@ export const Presenter = ({
           })}
 
           {meta.total_pages > 1 && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 3, mb: 2 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "center", mt: 3, mb: 2 }}
+            >
               <Pagination
                 count={meta.total_pages}
                 page={page}

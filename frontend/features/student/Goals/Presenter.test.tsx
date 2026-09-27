@@ -100,10 +100,9 @@ describe("GoalsPresenter", () => {
 
   it("目標タイトルのリンクが /goals/[id] を指している", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByText("英単語1000語を覚える").closest("a")).toHaveAttribute(
-      "href",
-      "/goals/1",
-    );
+    expect(
+      screen.getByText("英単語1000語を覚える").closest("a"),
+    ).toHaveAttribute("href", "/goals/1");
     expect(screen.getByText("数学の基礎を固める").closest("a")).toHaveAttribute(
       "href",
       "/goals/2",

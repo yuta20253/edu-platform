@@ -50,7 +50,10 @@ export const DeleteGoalDialog = ({
           onClick={onConfirm}
           variant="contained"
           disabled={deleting}
-          sx={{ bgcolor: colors.status.error, "&:hover": { bgcolor: colors.status.error } }}
+          sx={{
+            bgcolor: colors.status.error,
+            "&:hover": { bgcolor: colors.status.error },
+          }}
           startIcon={
             deleting ? <CircularProgress size={16} color="inherit" /> : null
           }
