@@ -55,6 +55,11 @@ const studentTheme = createTheme(baseTheme, {
         root: { borderRadius: 999, fontWeight: 700 },
       },
     },
+    MuiPaginationItem: {
+      styleOverrides: {
+        root: { borderRadius: 999, fontWeight: 700 },
+      },
+    },
   },
 });
 
