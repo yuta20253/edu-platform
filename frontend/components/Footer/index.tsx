@@ -36,7 +36,7 @@ export const Footer = (): React.JSX.Element => {
         bottom: 0,
         left: 0,
         width: "100%",
-        bgcolor: colors.surface.white,
+        bgcolor: "primary.main",
         borderRadius: `${radius.lg}px ${radius.lg}px 0 0`,
         boxShadow: `0 -4px 16px ${colors.shadow.footer}`,
         display: "flex",
@@ -62,9 +62,10 @@ export const Footer = (): React.JSX.Element => {
               gap: "3px",
               pt: 1.25,
               pb: 1.5,
-              color: isActive ? "primary.main" : "text.primary",
+              color: colors.text.inverse,
+              opacity: isActive ? 1 : 0.6,
               textDecoration: "none",
-              "&:hover": { color: "primary.main" },
+              "&:hover": { opacity: 1 },
             }}
           >
             {item.icon}
