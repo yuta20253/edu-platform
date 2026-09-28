@@ -2,7 +2,6 @@
 
 import { colors } from "@/app/theme/colors";
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -15,47 +14,17 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import PeopleIcon from "@mui/icons-material/People";
-import SchoolIcon from "@mui/icons-material/School";
-import QuizIcon from "@mui/icons-material/Quiz";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { importStatusLabel } from "@/constants/import_status";
 import type { ImportStatus } from "@/types/common/import_history";
+import { KpiCards } from "./KpiCards";
 import type { DashboardData } from "./types";
 
 type Props = {
   data: DashboardData;
 };
-
-const kpiCards = (stats: DashboardData["stats"]) => [
-  {
-    label: "生徒数",
-    value: stats.student_count,
-    icon: <SchoolIcon />,
-    color: colors.kpi.blue,
-  },
-  {
-    label: "アクティブ生徒数",
-    value: stats.active_student_count,
-    icon: <TrendingUpIcon />,
-    color: colors.kpi.green,
-  },
-  {
-    label: "教師数",
-    value: stats.teacher_count,
-    icon: <PeopleIcon />,
-    color: colors.kpi.purple,
-  },
-  {
-    label: "総問題数",
-    value: stats.total_questions,
-    icon: <QuizIcon />,
-    color: colors.kpi.amber,
-  },
-];
 
 // 色はダッシュボード固有の表現。ラベルは共通の importStatusLabel を使う。
 const statusColor: Record<ImportStatus, string> = {
@@ -66,7 +35,7 @@ const statusColor: Record<ImportStatus, string> = {
 };
 
 export const Presenter = ({ data }: Props) => {
-  const { stats, recent_imports } = data;
+  const { stats, recent_imports, meta } = data;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -78,37 +47,10 @@ export const Presenter = ({ data }: Props) => {
         ダッシュボード
       </Typography>
 
-      {/* KPI カード */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        {kpiCards(stats).map((card) => (
-          <Card
-            key={card.label}
-            elevation={0}
-            sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
-          >
-            <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Avatar sx={{ bgcolor: card.color, width: 44, height: 44 }}>
-                {card.icon}
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  {card.label}
-                </Typography>
-                <Typography variant="h5" fontWeight={700}>
-                  {card.value}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+      <KpiCards
+        stats={stats}
+        activeStudentPeriodDays={meta.active_student_period_days}
+      />
 
       <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 3 }}>
         {/* CSVインポート履歴 */}
