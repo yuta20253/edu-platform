@@ -7,9 +7,12 @@ module Admin
   # question_histories / study_logs はDBに保存されている実データを直接集計し、
   # 常に空である user_overall_question_stats 系テーブルは参照しない。
   class AnalyticsQuery
+    include AnalyticsRankable
+
     MIN_ANSWER_COUNT = 20
     RANKING_LIMIT = 10
     MAX_RANGE_DAYS = 366
+    QUESTION_TEXT_TRUNCATE_LENGTH = 80
 
     attr_reader :from, :to, :high_school_id, :subject_id
 

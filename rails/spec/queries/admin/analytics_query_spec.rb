@@ -11,6 +11,29 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
     create(:study_log, user: user, task: create(:task, user: user), **attrs)
   end
 
+  # ワースト系ランキングはHAVING COUNT(*) >= MIN_ANSWER_COUNT(20件)のテストで
+  # 大量レコードが必要になる。question_historiesには
+  # [user_id, task_id, unit_id, question_id]のユニーク制約があるため、
+  # (同じ設問への複数回答を表現するため)行ごとに別タスクを割り当てて作る。
+  def bulk_create_histories(user:, unit:, question:, counts:, answered_at: Time.zone.local(2026, 8, 20, 10))
+    total, correct = counts
+    course = unit.course
+    choice = create(:question_choice, question: question)
+    goal = create(:goal, user: user)
+    tasks = create_list(:task, total, user: user, goal: goal)
+    now = Time.current
+
+    rows = tasks.each_with_index.map do |task, i|
+      {
+        user_id: user.id, course_id: course.id, unit_id: unit.id, question_id: question.id,
+        question_choice_id: choice.id, task_id: task.id, is_correct: i < correct,
+        explanation_viewed: false, time_spent_sec: 30, answer_text: 'A',
+        answered_at: answered_at, created_at: now, updated_at: now
+      }
+    end
+    QuestionHistory.insert_all!(rows)
+  end
+
   describe '#kpis' do
     subject(:kpis) { described_class.new(from: from, to: to).kpis }
 
@@ -249,6 +272,129 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
         row = daily_activity.find { |r| r[:date] == '2026-08-21' }
         expect(row).to include(answer_count: 1)
       end
+    end
+  end
+
+  describe '#low_accuracy_units' do
+    subject(:low_accuracy_units) { described_class.new(from: from, to: to).low_accuracy_units }
+
+    let(:from) { Date.new(2026, 8, 1) }
+    let(:to) { Date.new(2026, 8, 31) }
+    let!(:student) { create(:user) }
+    let!(:subject_record) { create(:subject) }
+    let!(:course) { create(:course, subject: subject_record) }
+
+    it '正答率の低い単元を昇順で返す' do
+      low_unit = create(:unit, course: course)
+      high_unit = create(:unit, course: course)
+      bulk_create_histories(user: student, unit: low_unit, question: create(:question, unit: low_unit),
+                            counts: [20, 5])
+      bulk_create_histories(user: student, unit: high_unit, question: create(:question, unit: high_unit),
+                            counts: [20, 15])
+
+      expect(low_accuracy_units.pluck(:unit_id)).to eq([low_unit.id, high_unit.id])
+    end
+
+    it '解答数・正答率・単元名・講座名・科目名を返す' do
+      unit = create(:unit, course: course)
+      bulk_create_histories(user: student, unit: unit, question: create(:question, unit: unit), counts: [20, 5])
+
+      expect(low_accuracy_units.first).to include(
+        unit_id: unit.id, unit_name: unit.unit_name, course_id: course.id,
+        course_name: course.level_name, subject_name: subject_record.name,
+        answer_count: 20, accuracy_rate: 25.0
+      )
+    end
+
+    it '解答数がMIN_ANSWER_COUNT未満の単元を除外する' do
+      unit = create(:unit, course: course)
+      bulk_create_histories(user: student, unit: unit, question: create(:question, unit: unit),
+                            counts: [Admin::AnalyticsQuery::MIN_ANSWER_COUNT - 1, 0])
+
+      expect(low_accuracy_units).to be_empty
+    end
+
+    it '上位RANKING_LIMIT件までに絞る' do
+      units = Array.new(Admin::AnalyticsQuery::RANKING_LIMIT + 1) { create(:unit, course: course) }
+      units.each_with_index do |unit, i|
+        bulk_create_histories(user: student, unit: unit, question: create(:question, unit: unit), counts: [20, i])
+      end
+
+      expect(low_accuracy_units.size).to eq(Admin::AnalyticsQuery::RANKING_LIMIT)
+      expect(low_accuracy_units.pluck(:unit_id)).not_to include(units.last.id)
+    end
+
+    it '期間外の解答は数えない' do
+      unit = create(:unit, course: course)
+      bulk_create_histories(user: student, unit: unit, question: create(:question, unit: unit), counts: [20, 5],
+                            answered_at: Time.zone.local(2026, 7, 1, 10))
+
+      expect(low_accuracy_units).to be_empty
+    end
+
+    context 'subject_idを指定した場合' do
+      subject(:low_accuracy_units) do
+        described_class.new(from: from, to: to, subject_id: subject_record.id).low_accuracy_units
+      end
+
+      it '他科目の単元を含めない' do
+        other_subject = create(:subject)
+        other_course = create(:course, subject: other_subject)
+        other_unit = create(:unit, course: other_course)
+        bulk_create_histories(user: student, unit: other_unit, question: create(:question, unit: other_unit),
+                              counts: [20, 5])
+
+        expect(low_accuracy_units).to be_empty
+      end
+    end
+  end
+
+  describe '#low_accuracy_questions' do
+    subject(:low_accuracy_questions) { described_class.new(from: from, to: to).low_accuracy_questions }
+
+    let(:from) { Date.new(2026, 8, 1) }
+    let(:to) { Date.new(2026, 8, 31) }
+    let!(:student) { create(:user) }
+    let!(:course) { create(:course) }
+    let!(:unit) { create(:unit, course: course) }
+
+    it '正答率の低い設問を昇順で返す' do
+      low_question = create(:question, unit: unit)
+      high_question = create(:question, unit: unit)
+      bulk_create_histories(user: student, unit: unit, question: low_question, counts: [20, 5])
+      bulk_create_histories(user: student, unit: unit, question: high_question, counts: [20, 15])
+
+      expect(low_accuracy_questions.pluck(:question_id)).to eq([low_question.id, high_question.id])
+    end
+
+    it '設問文・単元名・講座IDを返し、設問文は80文字に切り詰める' do
+      question = create(:question, unit: unit, question_text: 'あ' * 100)
+      bulk_create_histories(user: student, unit: unit, question: question, counts: [20, 5])
+
+      row = low_accuracy_questions.first
+      expect(row).to include(
+        question_id: question.id, unit_id: unit.id, unit_name: unit.unit_name,
+        course_id: course.id, answer_count: 20, accuracy_rate: 25.0
+      )
+      expect(row[:question_text]).to eq('あ' * 80)
+    end
+
+    it '解答数がMIN_ANSWER_COUNT未満の設問を除外する' do
+      question = create(:question, unit: unit)
+      bulk_create_histories(user: student, unit: unit, question: question,
+                            counts: [Admin::AnalyticsQuery::MIN_ANSWER_COUNT - 1, 0])
+
+      expect(low_accuracy_questions).to be_empty
+    end
+
+    it '上位RANKING_LIMIT件までに絞る' do
+      questions = Array.new(Admin::AnalyticsQuery::RANKING_LIMIT + 1) { create(:question, unit: unit) }
+      questions.each_with_index do |question, i|
+        bulk_create_histories(user: student, unit: unit, question: question, counts: [20, i])
+      end
+
+      expect(low_accuracy_questions.size).to eq(Admin::AnalyticsQuery::RANKING_LIMIT)
+      expect(low_accuracy_questions.pluck(:question_id)).not_to include(questions.last.id)
     end
   end
 end
