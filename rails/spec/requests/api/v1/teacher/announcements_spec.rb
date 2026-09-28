@@ -521,6 +521,205 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
     end
   end
 
+  describe 'GET /api/v1/teacher/announcements/new' do
+    let!(:high_school) { create(:high_school) }
+    let!(:grade1) { create(:grade, high_school: high_school, year: 1) }
+    let!(:grade2) { create(:grade, high_school: high_school, year: 2) }
+    let!(:guardian_role) { create(:user_role, :guardian) }
+
+    let!(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade1) }
+    let(:cookie) { login_and_get_cookie(teacher) }
+
+    let!(:student_in_grade1) do
+      create(:user, :student, high_school: high_school, grade: grade1,
+                              name: '山田太郎', name_kana: 'ヤマダタロウ')
+    end
+
+    let!(:student_in_grade2) do
+      create(:user, :student, high_school: high_school, grade: grade2,
+                              name: '鈴木花子', name_kana: 'スズキハナコ')
+    end
+
+    context 'all_gradesの教員の場合' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :all_grades) }
+
+      it '200が返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'grades/user_roles/students/own_grade_restrictionが返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json.keys).to include('grades', 'user_roles', 'students', 'own_grade_restriction')
+      end
+
+      it '高校の全学年が返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['grades'].pluck('id')).to contain_exactly(grade1.id, grade2.id)
+      end
+
+      it 'own_grade_restrictionはnullになる' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['own_grade_restriction']).to be_nil
+      end
+
+      it '全学年の生徒が返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        ids = response.parsed_body['students']['items'].pluck('id')
+
+        expect(ids).to contain_exactly(student_in_grade1.id, student_in_grade2.id)
+      end
+
+      it 'user_rolesにadminが含まれない' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        names = response.parsed_body['user_roles'].pluck('name')
+
+        expect(names).to match_array(%w[student teacher guardian])
+      end
+
+      it 'user_rolesにidが含まれる' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['user_roles'].first).to have_key('id')
+      end
+    end
+
+    context 'own_gradeの教員の場合' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :own_grade) }
+
+      it '自分の学年のみ返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['grades'].pluck('id')).to eq([grade1.id])
+      end
+
+      it 'own_grade_restrictionに自分の学年idが入る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['own_grade_restriction']).to eq(grade1.id)
+      end
+
+      it '自分の学年の生徒のみ返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        ids = response.parsed_body['students']['items'].pluck('id')
+
+        expect(ids).to contain_exactly(student_in_grade1.id)
+      end
+    end
+
+    context 'keywordを指定した場合' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :all_grades) }
+
+      it '名前で絞り込める' do
+        get '/api/v1/teacher/announcements/new',
+            params: { keyword: '山田' },
+            headers: headers.merge('Cookie' => cookie)
+
+        ids = response.parsed_body['students']['items'].pluck('id')
+
+        expect(ids).to contain_exactly(student_in_grade1.id)
+      end
+
+      it '名前カナで絞り込める' do
+        get '/api/v1/teacher/announcements/new',
+            params: { keyword: 'スズキ' },
+            headers: headers.merge('Cookie' => cookie)
+
+        ids = response.parsed_body['students']['items'].pluck('id')
+
+        expect(ids).to contain_exactly(student_in_grade2.id)
+      end
+
+      it '該当しない場合は空になる' do
+        get '/api/v1/teacher/announcements/new',
+            params: { keyword: '該当なし' },
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['students']['items']).to eq([])
+      end
+    end
+
+    context 'ページネーション' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :all_grades) }
+
+      it 'students.metaに総件数・現在ページ・1ページ件数が返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        meta = response.parsed_body['students']['meta']
+
+        expect(meta['total_count']).to eq(2)
+        expect(meta['current_page']).to eq(1)
+        expect(meta['per_page']).to eq(20)
+      end
+    end
+
+    context '別高校のデータの場合' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :all_grades) }
+      let!(:other_high_school) { create(:high_school) }
+      let!(:other_grade) { create(:grade, high_school: other_high_school) }
+      let!(:other_school_student) { create(:user, :student, high_school: other_high_school, grade: other_grade) }
+
+      it '別高校の学年は含まれない' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['grades'].pluck('id')).not_to include(other_grade.id)
+      end
+
+      it '別高校の生徒は含まれない' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        ids = response.parsed_body['students']['items'].pluck('id')
+
+        expect(ids).not_to include(other_school_student.id)
+      end
+    end
+
+    context '異常系 - 未認証' do
+      it '401が返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - teacher以外' do
+      let!(:student) { create(:user, :student) }
+      let(:cookie) { login_and_get_cookie(student) }
+
+      it '403が返る' do
+        get '/api/v1/teacher/announcements/new',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
   describe 'POST /api/v1/teacher/announcements' do
     let!(:high_school) { create(:high_school) }
 
