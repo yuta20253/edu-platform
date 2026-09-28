@@ -33,23 +33,17 @@ module Api
 
         def new
           restriction = current_user.own_grade_restriction
-          roles = assignable_roles
-          grades = restriction ? Grade.where(id: restriction) : current_user.high_school.grades
-          students = ::Teacher::StudentsQuery
-                     .new(current_user.high_school.users)
-                     .call(grade_id: restriction, keyword: params[:keyword])
-                     .page(sanitized_page)
-                     .per(sanitized_per_page)
 
           render json: {
             grades: ActiveModelSerializers::SerializableResource.new(
-              grades, each_serializer: GradeSerializer
+              target_grades(restriction), each_serializer: GradeSerializer
             ),
             user_roles: ActiveModelSerializers::SerializableResource.new(
-              roles, each_serializer: UserRoleSerializer
+              assignable_roles, each_serializer: UserRoleSerializer
             ),
             students: {
-              items: ActiveModelSerializers::SerializableResource.new(students, each_serializer: StudentSerializer),
+              items: ActiveModelSerializers::SerializableResource.new(target_students(restriction),
+                                                                      each_serializer: StudentSerializer),
               meta: {
                 current_page: students.current_page,
                 total_pages: students.total_pages,
@@ -106,6 +100,18 @@ module Api
 
         def assignable_roles
           UserRole.where.not(name: :admin)
+        end
+
+        def target_grades(restriction)
+          restriction ? Grade.where(id: restriction) : current_user.high_school.grades
+        end
+
+        def target_students(restriction)
+          ::Teacher::StudentsQuery
+            .new(current_user.high_school.users)
+            .call(grade_id: restriction, keyword: params[:keyword])
+            .page(sanitized_page)
+            .per(sanitized_per_page)
         end
 
         def serializer_class
