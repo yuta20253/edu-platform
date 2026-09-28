@@ -31,6 +31,26 @@ module Api
           render json: announcement, serializer: AnnouncementSerializer, status: :ok
         end
 
+        def new
+          restriction = current_user.own_grade_restriction
+          roles = find_roles!
+          grades = restriction ? Grade.where(id: restriction) : current_user.high_school.grades
+          students = ::Teacher::StudentsQuery.new(current_user.high_school.users).call(grade_id: restriction)
+
+          render json: {
+            grades: ActiveModelSerializers::SerializableResource.new(
+              grades, each_serializer: GradeSerializer
+            ),
+            user_roles: ActiveModelSerializers::SerializableResource.new(
+              roles, each_serializer: UserRoleSerializer
+            ),
+            students: ActiveModelSerializers::SerializableResource.new(
+              students, each_serializer: StudentSerializer
+            ),
+            own_grade_restriction: restriction
+          }
+        end
+
         def create
           form = ::Teacher::CreateAnnouncementForm.new(current_user: current_user,
                                                        **create_announcement_params.to_h.symbolize_keys)
@@ -72,6 +92,10 @@ module Api
           else
             Announcement.for_user(current_user).includes(:publisher).published
           end
+        end
+
+        def find_roles!
+          UserRole.all
         end
 
         def serializer_class
