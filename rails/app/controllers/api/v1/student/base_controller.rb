@@ -13,6 +13,7 @@ module Api
         rescue_from ::Student::AccountLinkService::HasDependentDataError, with: :bad_request
         rescue_from ::Student::AccountLinkService::InvalidFormatError, with: :bad_request
         rescue_from ::Student::AccountLinkService::SchoolMismatchError, with: :bad_request
+        rescue_from ::Goal::HasActiveTasksError, with: :unprocessable_entity_error
 
         private
 
@@ -22,6 +23,10 @@ module Api
 
         def bad_request(exception)
           render json: { errors: [exception.message] }, status: :bad_request
+        end
+
+        def unprocessable_entity_error(exception)
+          render json: { errors: [exception.message] }, status: :unprocessable_content
         end
       end
     end

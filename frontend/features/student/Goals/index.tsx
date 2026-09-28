@@ -2,10 +2,19 @@
 
 import { Box, CircularProgress } from "@mui/material";
 import { Presenter } from "./Presenter";
-import { useGetGoals } from "./hooks";
+import { useGetGoals, useDeleteGoal } from "./hooks";
 
 export const Goals = () => {
-  const { data, page, setPage, loading, error } = useGetGoals();
+  const { data, page, setPage, loading, error, refetch } = useGetGoals();
+
+  const {
+    deleteTarget,
+    deleting,
+    deleteError,
+    openDeleteDialog,
+    closeDeleteDialog,
+    confirmDelete,
+  } = useDeleteGoal({ onDeleted: refetch });
 
   if (loading) {
     return (
@@ -39,5 +48,17 @@ export const Goals = () => {
     );
   }
 
-  return <Presenter data={data} page={page} onPageChange={setPage} />;
+  return (
+    <Presenter
+      data={data}
+      page={page}
+      onPageChange={setPage}
+      onDeleteClick={openDeleteDialog}
+      deleteTarget={deleteTarget}
+      deleting={deleting}
+      deleteError={deleteError}
+      onDeleteDialogClose={closeDeleteDialog}
+      onDeleteConfirm={confirmDelete}
+    />
+  );
 };

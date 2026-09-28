@@ -7,8 +7,11 @@ module Api
         DEFAULT_PER_PAGE = 5
 
         def index
-          goals = GoalsQuery.new(current_user.goals).due_soon.paginate(page: sanitized_page,
-                                                                       per_page: sanitized_per_page).result
+          goals = GoalsQuery.new(current_user.goals)
+                            .due_soon
+                            .includes_tasks
+                            .paginate(page: sanitized_page, per_page: sanitized_per_page)
+                            .result
           render json: {
             goals: ActiveModelSerializers::SerializableResource.new(
               goals,
@@ -48,6 +51,13 @@ module Api
           else
             render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
+        end
+
+        def destroy
+          goal = GoalsQuery.new(current_user.goals).find(params[:id])
+          goal.soft_delete!
+
+          head :no_content
         end
 
         private

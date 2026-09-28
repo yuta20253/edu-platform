@@ -1,212 +1,207 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  LinearProgress,
-  Divider,
-} from "@mui/material";
+import { radius } from "@/app/theme/studentTheme";
+import { Box, Button, Chip, Typography } from "@mui/material";
 import Link from "next/link";
 import { Goal } from "./types";
 
 import { statusLabel } from "@/constants/status";
 import { TaskStatus } from "@/types/tasks/status";
+import { GoalStatus } from "@/types/goals/status";
 import { getProgressColor } from "@/libs/ui/progressColor";
 import { calcProgress } from "@/libs/domain/progress/calcProgress";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { DeleteGoalDialog } from "@/components/student/DeleteGoalDialog";
+
+const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
 
 type Props = {
   goal: Goal;
+  deleteDialogOpen: boolean;
+  deleting: boolean;
+  deleteError: string | null;
+  onDeleteClick: () => void;
+  onDeleteDialogClose: () => void;
+  onDeleteConfirm: () => void;
 };
 
-export const Presenter = ({ goal }: Props) => {
-  const progress = calcProgress(
-    (goal.tasks ?? []).map((t) => ({
-      status: t.completed_at ? "completed" : "not_started",
-    })),
-  );
-  const statusColor = colors.statusUi[goal.status];
+export const Presenter = ({
+  goal,
+  deleteDialogOpen,
+  deleting,
+  deleteError,
+  onDeleteClick,
+  onDeleteDialogClose,
+  onDeleteConfirm,
+}: Props) => {
+  const progress = calcProgress(goal.tasks ?? []);
+  const statusColor = colors.statusUi[goal.status as GoalStatus];
   const progressColor = getProgressColor(progress);
+  const tasks = goal.tasks ?? [];
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: "bold",
-          my: 4,
-          textAlign: "center",
-        }}
-      >
-        目標詳細
-      </Typography>
-      <Box sx={{ textAlign: "start", mb: 3 }}>
-        <Link href="/goals" style={{ textDecoration: "none" }}>
-          <Box
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.5,
-              color: "text.secondary",
-              cursor: "pointer",
-              "&:hover": {
-                color: "primary.main",
-              },
-            }}
-          >
-            <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
-            <Typography sx={{ fontSize: 14 }}>目標一覧へ戻る</Typography>
-          </Box>
-        </Link>
-      </Box>
-      <Box display="flex" justifyContent="center">
-        <Card
+    <Box sx={{ maxWidth: 600, mx: "auto" }}>
+      <Link href="/goals" style={{ textDecoration: "none" }}>
+        <Box
           sx={{
-            width: "min(720px, 90vw)",
-            borderRadius: 3,
-            boxShadow: 2,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            color: "text.secondary",
+            mb: 2,
+            "&:hover": { color: "primary.main" },
           }}
         >
-          <CardContent sx={{ p: 3 }}>
-            <Typography sx={{ fontWeight: "bold", fontSize: 20 }}>
-              {goal.title}
+          <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
+          <Typography sx={{ fontSize: 13 }}>目標一覧へ戻る</Typography>
+        </Box>
+      </Link>
+
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+        <Box
+          sx={{
+            position: "relative",
+            width: 84,
+            height: 84,
+            flex: "none",
+            borderRadius: "50%",
+            background: `conic-gradient(${progressColor} ${progress}%, ${colors.border.subtle} 0)`,
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 7,
+              borderRadius: "50%",
+              bgcolor: colors.surface.white,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography sx={{ fontWeight: 800, fontSize: 18 }}>
+              {progress}%
             </Typography>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mt: 1,
-                mb: 2,
-              }}
-            >
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                期限: {goal.due_date}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  px: 1,
-                  py: 0.3,
-                  borderRadius: 1,
-                  bgcolor: statusColor?.bg,
-                  color: statusColor?.text,
-                }}
-              >
-                {statusLabel[goal.status]}
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Box sx={{ flex: 1 }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={progress}
-                  sx={{
-                    height: 6,
-                    borderRadius: 3,
-                    backgroundColor: colors.border.subtle,
-                    "& .MuiLinearProgress-bar": {
-                      backgroundColor: progressColor,
-                    },
-                  }}
-                />
-              </Box>
-              <Typography sx={{ fontSize: 12, minWidth: 40 }}>
-                {progress}%
-              </Typography>
-            </Box>
-
-            <Divider sx={{ my: 1 }} />
-
-            <Typography
-              sx={{
-                lineHeight: 1.7,
-                p: 2,
-                mt: 1,
-                borderRadius: 2,
-                border: `1px solid ${colors.border.default}`,
-              }}
-            >
-              {goal.description || "説明はありません"}
-            </Typography>
-            <Box sx={{ textAlign: "end", mt: 3 }}>
-              <Button
-                component={Link}
-                href={`/goals/${goal.id}/edit`}
-                variant="outlined"
-                size="small"
-              >
-                編集
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
+          </Box>
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Chip
+            size="small"
+            label={statusLabel[goal.status as GoalStatus]}
+            sx={{ bgcolor: statusColor.bg, color: statusColor.text, mb: 0.75 }}
+          />
+          <Typography sx={{ fontWeight: 800, fontSize: 18 }}>
+            {goal.title}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.25 }}>
+            期限 {goal.due_date}
+          </Typography>
+        </Box>
       </Box>
 
-      <Box mt={5} display="flex" flexDirection="column" alignItems="center">
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-          タスク一覧
-        </Typography>
+      <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+        <Button
+          component={Link}
+          href={`/goals/${goal.id}/edit`}
+          variant="outlined"
+          size="small"
+        >
+          目標を編集
+        </Button>
+        <Button
+          onClick={onDeleteClick}
+          variant="outlined"
+          size="small"
+          color="error"
+        >
+          目標を削除
+        </Button>
+      </Box>
 
-        {!goal.tasks || goal.tasks.length === 0 ? (
-          <Typography color="text.secondary">タスクはまだありません</Typography>
-        ) : (
-          goal.tasks.map((task) => {
-            const statusColor = colors.statusUi[task.status as TaskStatus];
+      <Box sx={{ ...cardSx, p: 2, mb: 3 }}>
+        <Typography sx={{ fontSize: 14, lineHeight: 1.7 }}>
+          {goal.description || "説明はありません"}
+        </Typography>
+      </Box>
+
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+        タスク一覧
+      </Typography>
+
+      {tasks.length === 0 ? (
+        <Box
+          sx={{
+            ...cardSx,
+            p: 3,
+            textAlign: "center",
+            fontSize: 13,
+            color: "text.secondary",
+          }}
+        >
+          タスクはまだありません
+        </Box>
+      ) : (
+        <Box sx={{ ...cardSx, px: 2 }}>
+          {tasks.map((task, index) => {
+            const taskStatusColor = colors.statusUi[task.status as TaskStatus];
+
             return (
-              <Card
+              <Box
                 key={task.id}
                 component={Link}
                 href={`/goals/${goal.id}/tasks/${task.id}`}
                 sx={{
-                  width: "min(720px, 90vw)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 1.5,
+                  py: 1.5,
+                  borderBottom:
+                    index === tasks.length - 1
+                      ? "none"
+                      : `1px solid ${colors.border.light}`,
                   textDecoration: "none",
-                  borderRadius: 3,
-                  boxShadow: 1,
-                  mb: 2,
+                  color: "inherit",
                 }}
               >
-                <CardContent sx={{ p: 2 }}>
-                  <Typography sx={{ fontWeight: "bold" }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
                     {task.title}
                   </Typography>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mt: 1,
-                    }}
+                  <Typography
+                    sx={{ fontSize: 11, color: "text.secondary", mt: 0.25 }}
                   >
-                    <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-                      期限: {task.due_date}
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontSize: 12,
-                        px: 1,
-                        py: 0.3,
-                        borderRadius: 1,
-                        bgcolor: statusColor.bg,
-                        color: statusColor.text,
-                      }}
-                    >
-                      {statusLabel[task.status as TaskStatus]}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
+                    期限 {task.due_date}
+                  </Typography>
+                </Box>
+                <Chip
+                  size="small"
+                  label={statusLabel[task.status as TaskStatus]}
+                  sx={{
+                    bgcolor: taskStatusColor.bg,
+                    color: taskStatusColor.text,
+                    flex: "none",
+                  }}
+                />
+              </Box>
             );
-          })
-        )}
-      </Box>
+          })}
+        </Box>
+      )}
+
+      <DeleteGoalDialog
+        open={deleteDialogOpen}
+        goalTitle={goal.title}
+        onClose={onDeleteDialogClose}
+        onConfirm={onDeleteConfirm}
+        deleting={deleting}
+        error={deleteError}
+      />
     </Box>
   );
 };

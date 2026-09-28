@@ -18,6 +18,8 @@ module Student
   class GoalSerializer < ActiveModel::Serializer
     attributes :id, :title, :description, :status, :due_date
 
+    has_many :tasks, each_serializer: TaskSerializer
+
     def due_date
       object.due_date&.strftime('%Y/%m/%d')
     end

@@ -12,6 +12,21 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
 }));
 
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...rest
+  }: {
+    children: React.ReactNode;
+    href: string;
+  } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock("@mui/x-date-pickers/DatePicker", () => ({
   DatePicker: ({
     value,
@@ -45,11 +60,19 @@ describe("CreateGoal", () => {
 
   it("見出しと入力フィールドが表示される", () => {
     render(<CreateGoal />);
-    expect(screen.getByText("目標設定")).toBeInTheDocument();
+    expect(screen.getByText("目標を追加")).toBeInTheDocument();
     expect(screen.getByText("目標名")).toBeInTheDocument();
-    expect(screen.getByText("目標詳細")).toBeInTheDocument();
+    expect(screen.getByText("説明")).toBeInTheDocument();
     expect(screen.getByText("期限")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "次へ" })).toBeInTheDocument();
+  });
+
+  it("キャンセルリンクが /goals を指している", () => {
+    render(<CreateGoal />);
+    expect(screen.getByRole("link", { name: "キャンセル" })).toHaveAttribute(
+      "href",
+      "/goals",
+    );
   });
 
   it("未入力で送信すると目標名・期限のバリデーションエラーが表示される", async () => {
@@ -79,8 +102,11 @@ describe("CreateGoal", () => {
   });
 
   it("全項目を入力して送信するとonSubmitが正しい値で呼ばれ遷移する", async () => {
-    render(<CreateGoal />);
-    const [titleInput, descriptionInput] = screen.getAllByRole("textbox");
+    const { container } = render(<CreateGoal />);
+    const titleInput = screen.getAllByRole("textbox")[0];
+    const descriptionInput = container.querySelector(
+      "textarea",
+    ) as HTMLTextAreaElement;
     fireEvent.change(titleInput, { target: { value: "英単語1000語を覚える" } });
     fireEvent.change(descriptionInput, {
       target: { value: "毎日30分学習する" },

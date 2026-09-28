@@ -8,10 +8,15 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    ...rest
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+  } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@mui/x-date-pickers", () => ({
@@ -103,18 +108,26 @@ const Wrapper = ({
 describe("EditGoalPresenter", () => {
   it("見出しと目標の初期値が入力欄に表示される", () => {
     render(<Wrapper />);
-    expect(screen.getByText("目標編集")).toBeInTheDocument();
-    expect(screen.getAllByText("英単語1000語を覚える").length).toBeGreaterThan(
-      0,
-    );
+    expect(screen.getByText("目標を編集")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("英単語1000語を覚える"),
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue("毎日30分学習する")).toBeInTheDocument();
     expect(screen.getByLabelText("期限")).toHaveValue("2026-09-30");
+  });
+
+  it("キャンセルリンクが /goals/[id] を指している", () => {
+    render(<Wrapper />);
+    expect(screen.getByRole("link", { name: "キャンセル" })).toHaveAttribute(
+      "href",
+      "/goals/1",
+    );
   });
 
   it("紐づくタスクが行として正しくレンダリングされる", () => {
     render(<Wrapper />);
     expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
-    expect(screen.getByText("期限: 2026-09-10")).toBeInTheDocument();
+    expect(screen.getByText("期限 2026-09-10")).toBeInTheDocument();
     expect(screen.getByText("完了")).toBeInTheDocument();
   });
 
