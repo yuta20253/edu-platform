@@ -527,6 +527,19 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
     let!(:course) { create(:course) }
     let!(:student) { create(:user) }
 
+    it 'unitsへのSELECTが1本に保たれる(3値をまとめて1クエリで集計する)' do
+      create_list(:unit, 3, course: course)
+
+      queries = []
+      callback = lambda { |_n, _s, _f, _id, payload|
+        queries << payload[:sql] if payload[:name] != 'SCHEMA'
+      }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { content_coverage }
+
+      units_selects = queries.count { |sql| sql.match?(/SELECT.*FROM `units`/i) }
+      expect(units_selects).to eq(1)
+    end
+
     it '講座に属する単元の総数を返す' do
       create_list(:unit, 3, course: course)
 
