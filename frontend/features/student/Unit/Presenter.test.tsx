@@ -3,11 +3,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Presenter } from "./Presenter";
 import type { UnitType } from "./types";
 
-const pushMock = vi.fn();
-const backMock = vi.fn();
-const routerMock = { push: pushMock, back: backMock };
-vi.mock("next/navigation", () => ({
-  useRouter: () => routerMock,
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
 }));
 
 const mockUnit: UnitType = {
@@ -38,7 +41,7 @@ describe("UnitPresenter", () => {
   it("講座レベル・単元名が表示される", () => {
     render(<Presenter {...defaultProps} />);
     expect(screen.getByText("標準レベル1")).toBeInTheDocument();
-    expect(screen.getByText("単元: 二次関数")).toBeInTheDocument();
+    expect(screen.getByText("二次関数")).toBeInTheDocument();
   });
 
   it("「スタート」ボタンをクリックするとonStartが呼ばれる", () => {
@@ -53,9 +56,15 @@ describe("UnitPresenter", () => {
     expect(screen.getByRole("button", { name: "スタート" })).toBeDisabled();
   });
 
-  it("「戻る」ボタンでrouter.backが呼ばれる", () => {
+  it("「タスク詳細へ戻る」リンクがgoalIdなしのタスクパスを指す", () => {
     render(<Presenter {...defaultProps} />);
-    fireEvent.click(screen.getByRole("button", { name: "戻る" }));
-    expect(backMock).toHaveBeenCalledTimes(1);
+    const link = screen.getByRole("link", { name: /タスク詳細へ戻る/ });
+    expect(link).toHaveAttribute("href", "/tasks/5");
+  });
+
+  it("goalIdがあるとき「タスク詳細へ戻る」リンクがgoals配下のタスクパスを指す", () => {
+    render(<Presenter {...defaultProps} goalId={3} />);
+    const link = screen.getByRole("link", { name: /タスク詳細へ戻る/ });
+    expect(link).toHaveAttribute("href", "/goals/3/tasks/5");
   });
 });

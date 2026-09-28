@@ -7,6 +7,14 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { QuestionHistory } from "./types";
 import { taskUnitPath } from "@/libs/path/taskUnitPath";
+import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
+
+const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
 
 type Props = {
   goalId?: number;
@@ -35,10 +43,10 @@ export const Presenter = ({
         mx: "auto",
       }}
     >
-      <Box sx={{ textAlign: "start", my: 6 }} />
       <Box
         sx={{
           textAlign: "center",
+          mt: 4,
           mb: 5,
         }}
       >
@@ -109,11 +117,7 @@ export const Presenter = ({
               key={history.question_id}
               sx={{
                 p: { xs: 2.5, md: 3.5 },
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+                ...cardSx,
               }}
             >
               <Box
