@@ -100,7 +100,7 @@ module Api
         end
 
         def assignable_roles
-          UserRole.where.not(name: :admin)
+          UserRole.where.not(name: %i[admin guardian])
         end
 
         def target_grades(restriction)

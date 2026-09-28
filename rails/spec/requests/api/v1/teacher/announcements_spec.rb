@@ -584,13 +584,13 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(ids).to contain_exactly(student_in_grade1.id, student_in_grade2.id)
       end
 
-      it 'user_rolesにadminが含まれない' do
+      it 'user_rolesにadminとguardianが含まれない' do
         get '/api/v1/teacher/announcements/new',
             headers: headers.merge('Cookie' => cookie)
 
         names = response.parsed_body['user_roles'].pluck('name')
 
-        expect(names).to match_array(%w[student teacher guardian])
+        expect(names).to contain_exactly('student', 'teacher')
       end
 
       it 'user_rolesにidが含まれる' do
