@@ -9,8 +9,18 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
     create(:task, user: user, goal: create(:goal, user: user))
   end
 
+  # question_historiesファクトリの`association :question`/`:question_choice`は
+  # デフォルトでunitとは無関係な単元・講座を新規作成してしまう。#content_coverage は
+  # 単元・講座の総数を素で数えるため、そうした無関係なレコードが数値を汚染してしまう。
+  # そのため明示していない限りquestion/question_choiceを指定されたunitに揃える。
   def create_question_history_for(user, **attrs)
-    create(:question_history, user: user, task: create_task_for(user), **attrs)
+    unit = attrs[:unit] || create(:unit)
+    question = attrs[:question] || create(:question, unit: unit)
+    choice = attrs[:question_choice] || create(:question_choice, question: question)
+    course = attrs[:course] || unit.course
+
+    create(:question_history, user: user, task: create_task_for(user),
+                              **attrs.merge(unit: unit, question: question, question_choice: choice, course: course))
   end
 
   def create_study_log_for(user, **attrs)
@@ -505,6 +515,105 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
 
         row = high_school_usage.find { |r| r[:high_school_id] == school.id }
         expect(row).to include(answer_count: 1)
+      end
+    end
+  end
+
+  describe '#content_coverage' do
+    subject(:content_coverage) { described_class.new(from: from, to: to).content_coverage }
+
+    let(:from) { Date.new(2026, 8, 1) }
+    let(:to) { Date.new(2026, 8, 31) }
+    let!(:course) { create(:course) }
+    let!(:student) { create(:user) }
+
+    it '講座に属する単元の総数を返す' do
+      create_list(:unit, 3, course: course)
+
+      expect(content_coverage[:total_units]).to eq(3)
+    end
+
+    it '論理削除済みの単元・講座を総数に数えない' do
+      create(:unit, course: course, deleted_at: Time.current)
+      create(:unit, course: create(:course, deleted_at: Time.current))
+      create(:unit, course: course)
+
+      expect(content_coverage[:total_units]).to eq(1)
+    end
+
+    it '問題が0件の単元数を返す' do
+      create(:unit, course: course)
+      unit_with_question = create(:unit, course: course)
+      create(:question, unit: unit_with_question)
+
+      expect(content_coverage[:units_without_questions]).to eq(1)
+    end
+
+    it '論理削除済みの問題しかない単元は問題0件として数える' do
+      unit = create(:unit, course: course)
+      create(:question, unit: unit, deleted_at: Time.current)
+
+      expect(content_coverage[:units_without_questions]).to eq(1)
+    end
+
+    it '問題はあるが期間内の解答が無い単元数を返す' do
+      unit_with_answers = create(:unit, course: course)
+      unit_without_answers = create(:unit, course: course)
+      create(:question, unit: unit_with_answers)
+      create(:question, unit: unit_without_answers)
+      create_question_history_for(student, unit: unit_with_answers, course: course,
+                                           answered_at: Time.zone.local(2026, 8, 20, 10))
+
+      expect(content_coverage[:units_without_answers]).to eq(1)
+    end
+
+    it '問題が0件の単元はunits_without_answersに数えない(units_without_questionsとは排他)' do
+      create(:unit, course: course)
+
+      expect(content_coverage[:units_without_answers]).to eq(0)
+    end
+
+    it '期間外の解答しかない単元はunits_without_answersに数える' do
+      unit = create(:unit, course: course)
+      create(:question, unit: unit)
+      create_question_history_for(student, unit: unit, course: course,
+                                           answered_at: Time.zone.local(2026, 7, 1, 10))
+
+      expect(content_coverage[:units_without_answers]).to eq(1)
+    end
+
+    it '論理削除済みの解答は数えない(単元は解答0件として扱う)' do
+      unit = create(:unit, course: course)
+      create(:question, unit: unit)
+      create_question_history_for(student, unit: unit, course: course,
+                                           answered_at: Time.zone.local(2026, 8, 20, 10),
+                                           deleted_at: Time.current)
+
+      expect(content_coverage[:units_without_answers]).to eq(1)
+    end
+  end
+
+  describe '#meta' do
+    subject(:meta) { described_class.new(from: from, to: to).meta }
+
+    let(:from) { Date.new(2026, 8, 13) }
+    let(:to) { Date.new(2026, 9, 11) }
+
+    it '期間・前期間・定数を返す' do
+      expect(meta).to include(
+        from: from,
+        to: to,
+        previous_from: Date.new(2026, 7, 14),
+        previous_to: Date.new(2026, 8, 12),
+        min_answer_count: Admin::AnalyticsQuery::MIN_ANSWER_COUNT,
+        ranking_limit: Admin::AnalyticsQuery::RANKING_LIMIT,
+        max_range_days: Admin::AnalyticsQuery::MAX_RANGE_DAYS
+      )
+    end
+
+    it 'generated_atを返す' do
+      travel_to Time.zone.parse('2026-09-11 16:03:00') do
+        expect(meta[:generated_at]).to eq(Time.zone.parse('2026-09-11 16:03:00'))
       end
     end
   end
