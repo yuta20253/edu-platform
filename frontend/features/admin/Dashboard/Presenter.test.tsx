@@ -99,7 +99,44 @@ describe("DashboardPresenter", () => {
 
   it("「すべて見る」リンクが履歴一覧ページを指す", () => {
     render(<Presenter data={mockData} />);
-    const link = screen.getByRole("link", { name: "すべて見る" });
-    expect(link).toHaveAttribute("href", "/admin/csv-import/history");
+    // CSVインポート・お知らせ双方に同名リンクがあるため、対象のhrefを持つものを探す
+    const links = screen.getAllByRole("link", { name: "すべて見る" });
+    expect(
+      links.some(
+        (link) => link.getAttribute("href") === "/admin/csv-import/history",
+      ),
+    ).toBe(true);
+  });
+
+  it("最新お知らせが空のとき空状態とCTAが表示される", () => {
+    render(<Presenter data={mockData} />);
+    expect(screen.getByText("お知らせがまだありません")).toBeInTheDocument();
+    const links = screen.getAllByRole("link", { name: "お知らせを作成する" });
+    expect(links.length).toBeGreaterThanOrEqual(1);
+    links.forEach((link) =>
+      expect(link).toHaveAttribute("href", "/admin/notices/new"),
+    );
+  });
+
+  it("最新お知らせがあるとタイトルとステータスバッジが表示される", () => {
+    render(
+      <Presenter
+        data={{
+          ...mockData,
+          recent_announcements: [
+            {
+              id: 10,
+              title: "夏季休業のお知らせ",
+              status: "published",
+              published_at: "2026-03-18T01:30:00.000Z",
+              scheduled_at: null,
+              created_at: "2026-03-17T00:00:00.000Z",
+            },
+          ],
+        }}
+      />,
+    );
+    expect(screen.getByText("夏季休業のお知らせ")).toBeInTheDocument();
+    expect(screen.getByText("配信済み")).toBeInTheDocument();
   });
 });
