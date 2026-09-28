@@ -8,6 +8,7 @@ module Admin
   # 常に空である user_overall_question_stats 系テーブルは参照しない。
   class AnalyticsQuery
     include AnalyticsRankable
+    include AnalyticsHighSchoolUsable
 
     MIN_ANSWER_COUNT = 20
     RANKING_LIMIT = 10

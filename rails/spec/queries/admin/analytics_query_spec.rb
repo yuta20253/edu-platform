@@ -3,12 +3,18 @@
 require 'rails_helper'
 
 RSpec.describe Admin::AnalyticsQuery, type: :model do
+  # taskファクトリの`association :goal`はデフォルトで別の新規ユーザーを持つgoalを作る。
+  # 母集団の件数を厳密に検証するテストが汚染されるため、goalの持ち主を明示的に揃える。
+  def create_task_for(user)
+    create(:task, user: user, goal: create(:goal, user: user))
+  end
+
   def create_question_history_for(user, **attrs)
-    create(:question_history, user: user, task: create(:task, user: user), **attrs)
+    create(:question_history, user: user, task: create_task_for(user), **attrs)
   end
 
   def create_study_log_for(user, **attrs)
-    create(:study_log, user: user, task: create(:task, user: user), **attrs)
+    create(:study_log, user: user, task: create_task_for(user), **attrs)
   end
 
   # ワースト系ランキングはHAVING COUNT(*) >= MIN_ANSWER_COUNT(20件)のテストで
@@ -395,6 +401,111 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
 
       expect(low_accuracy_questions.size).to eq(Admin::AnalyticsQuery::RANKING_LIMIT)
       expect(low_accuracy_questions.pluck(:question_id)).not_to include(questions.last.id)
+    end
+  end
+
+  describe '#high_school_usage' do
+    subject(:high_school_usage) { described_class.new(from: from, to: to).high_school_usage }
+
+    let(:from) { Date.new(2026, 8, 1) }
+    let(:to) { Date.new(2026, 8, 31) }
+    let(:answered_at) { Time.zone.local(2026, 8, 20, 10) }
+
+    it 'アクティブ率の昇順で返す(使われていない高校が上)' do
+      inactive_school = create(:high_school)
+      active_school = create(:high_school)
+      create_list(:user, 4, high_school: inactive_school)
+      active_students = create_list(:user, 4, high_school: active_school)
+      create_question_history_for(active_students.first, answered_at: answered_at)
+
+      rows = high_school_usage
+      expect(rows.pluck(:high_school_id)).to eq([inactive_school.id, active_school.id])
+    end
+
+    it '在籍数・アクティブ数・アクティブ率・解答数・正答率を返す' do
+      school = create(:high_school)
+      students = create_list(:user, 4, high_school: school)
+      create_question_history_for(students.first, answered_at: answered_at, is_correct: true)
+      create_question_history_for(students.first, answered_at: answered_at, is_correct: false)
+      create_study_log_for(students.second, started_at: answered_at)
+
+      row = high_school_usage.find { |r| r[:high_school_id] == school.id }
+      expect(row).to include(
+        high_school_name: school.name, student_count: 4, active_student_count: 2,
+        active_rate: 50.0, answer_count: 2, accuracy_rate: 50.0
+      )
+    end
+
+    it '解答も学習ログもある生徒を二重に数えない' do
+      school = create(:high_school)
+      students = create_list(:user, 2, high_school: school)
+      create_question_history_for(students.first, answered_at: answered_at)
+      create_study_log_for(students.first, started_at: answered_at)
+
+      row = high_school_usage.find { |r| r[:high_school_id] == school.id }
+      expect(row).to include(active_student_count: 1)
+    end
+
+    it '在籍生徒が1人もいない高校は結果に含めない' do
+      empty_school = create(:high_school)
+
+      expect(high_school_usage.pluck(:high_school_id)).not_to include(empty_school.id)
+    end
+
+    it '教師を在籍生徒数に数えない' do
+      school = create(:high_school)
+      create(:user, high_school: school)
+      create(:user, :teacher, high_school: school)
+
+      row = high_school_usage.find { |r| r[:high_school_id] == school.id }
+      expect(row).to include(student_count: 1)
+    end
+
+    it '招待未受諾・論理削除済みの生徒を在籍生徒数に数えない' do
+      school = create(:high_school)
+      create(:user, high_school: school)
+      create(:user, :invitation_pending, high_school: school)
+      create(:user, high_school: school, deleted_at: Time.current)
+
+      row = high_school_usage.find { |r| r[:high_school_id] == school.id }
+      expect(row).to include(student_count: 1)
+    end
+
+    context 'high_school_idを指定した場合' do
+      subject(:high_school_usage) do
+        described_class.new(from: from, to: to, high_school_id: target_school.id).high_school_usage
+      end
+
+      let(:target_school) { create(:high_school) }
+
+      it '指定した高校の1行のみ返す' do
+        other_school = create(:high_school)
+        create(:user, high_school: target_school)
+        create(:user, high_school: other_school)
+
+        expect(high_school_usage.pluck(:high_school_id)).to eq([target_school.id])
+      end
+    end
+
+    context 'subject_idを指定した場合' do
+      subject(:high_school_usage) do
+        described_class.new(from: from, to: to, subject_id: target_subject.id).high_school_usage
+      end
+
+      let(:target_subject) { create(:subject) }
+      let(:other_subject) { create(:subject) }
+      let(:target_course) { create(:course, subject: target_subject) }
+      let(:other_course) { create(:course, subject: other_subject) }
+
+      it '指定した科目の解答のみ集計する' do
+        school = create(:high_school)
+        student = create(:user, high_school: school)
+        create_question_history_for(student, course: target_course, answered_at: answered_at)
+        create_question_history_for(student, course: other_course, answered_at: answered_at)
+
+        row = high_school_usage.find { |r| r[:high_school_id] == school.id }
+        expect(row).to include(answer_count: 1)
+      end
     end
   end
 end
