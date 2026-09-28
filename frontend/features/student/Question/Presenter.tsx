@@ -31,6 +31,7 @@ type Props = {
   totalCount: number;
   selectedChoiceId: number | null;
   isCorrect: boolean | null;
+  correctChoiceNumber: number | null;
   isAnswered: boolean;
   isLastQuestion: boolean;
   openedHintStep: number;
@@ -51,6 +52,7 @@ export const Presenter = ({
   totalCount,
   selectedChoiceId,
   isCorrect,
+  correctChoiceNumber,
   isAnswered,
   isLastQuestion,
   openedHintStep,
@@ -139,6 +141,18 @@ export const Presenter = ({
             >
               {question.question_choices.map((choice) => {
                 const isSelected = isAnswered && choice.id === selectedChoiceId;
+                // 不正解時は選択していない正しい選択肢も正解として強調する
+                const isCorrectChoice =
+                  isAnswered &&
+                  (isSelected
+                    ? isCorrect === true
+                    : choice.choice_number === correctChoiceNumber);
+                const isIncorrectChoice = isSelected && !isCorrectChoice;
+                const borderColor = isCorrectChoice
+                  ? colors.statusAnswer.correctBorder
+                  : isIncorrectChoice
+                    ? colors.statusAnswer.incorrectBorder
+                    : colors.border.default;
 
                 return (
                   <Button
@@ -152,40 +166,32 @@ export const Presenter = ({
                       textAlign: "left",
                       p: 2,
                       color: colors.text.primary,
-                      border: `1px solid ${
-                        isSelected
-                          ? isCorrect
-                            ? colors.statusAnswer.correctBorder
-                            : colors.statusAnswer.incorrectBorder
-                          : colors.border.default
-                      }`,
-                      bgcolor: isSelected
-                        ? isCorrect
-                          ? colors.statusAnswer.correctBg
-                          : colors.statusAnswer.incorrectBg
-                        : "transparent",
+                      border: `1px solid ${borderColor}`,
+                      bgcolor: isCorrectChoice
+                        ? colors.statusAnswer.correctBg
+                        : isIncorrectChoice
+                          ? colors.statusAnswer.incorrectBg
+                          : "transparent",
                       "&:hover": {
                         bgcolor: isAnswered ? undefined : colors.surface.light,
                       },
                       "&.Mui-disabled": {
                         color: colors.text.primary,
-                        borderColor: isSelected
-                          ? isCorrect
-                            ? colors.statusAnswer.correctBorder
-                            : colors.statusAnswer.incorrectBorder
-                          : colors.border.default,
+                        borderColor,
                       },
                     }}
                   >
                     <span>
                       {choice.choice_number}. {choice.choice_text}
                     </span>
-                    {isSelected && (
+                    {(isCorrectChoice || isIncorrectChoice) && (
                       <Chip
                         size="small"
-                        icon={isCorrect ? <CheckCircleIcon /> : <CancelIcon />}
-                        label={isCorrect ? "正解" : "不正解"}
-                        color={isCorrect ? "success" : "error"}
+                        icon={
+                          isCorrectChoice ? <CheckCircleIcon /> : <CancelIcon />
+                        }
+                        label={isCorrectChoice ? "正解" : "不正解"}
+                        color={isCorrectChoice ? "success" : "error"}
                         sx={{ ml: 1, flex: "none" }}
                       />
                     )}

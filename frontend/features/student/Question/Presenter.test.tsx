@@ -37,6 +37,7 @@ const defaultProps = {
   totalCount: 3,
   selectedChoiceId: null as number | null,
   isCorrect: null as boolean | null,
+  correctChoiceNumber: null as number | null,
   isAnswered: false,
   isLastQuestion: false,
   openedHintStep: 0,
@@ -96,10 +97,49 @@ describe("QuestionPresenter", () => {
         {...defaultProps}
         isAnswered
         isCorrect={false}
+        correctChoiceNumber={2}
         selectedChoiceId={101}
       />,
     );
     expect(screen.getByText("不正解")).toBeInTheDocument();
+  });
+
+  it("不正解のとき選択していない正しい選択肢にも「正解」タグが表示される", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        isAnswered
+        isCorrect={false}
+        correctChoiceNumber={2}
+        selectedChoiceId={101}
+      />,
+    );
+    const correctButton = screen.getByText("2. 2").closest("button");
+    const incorrectButton = screen.getByText("1. 1").closest("button");
+    expect(correctButton).toHaveTextContent("正解");
+    expect(correctButton).not.toHaveTextContent("不正解");
+    expect(incorrectButton).toHaveTextContent("不正解");
+  });
+
+  it("正解のとき他の選択肢に「正解」タグは表示されない", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        isAnswered
+        isCorrect
+        correctChoiceNumber={1}
+        selectedChoiceId={101}
+      />,
+    );
+    expect(screen.getAllByText("正解")).toHaveLength(1);
+    expect(screen.getByText("2. 2").closest("button")).not.toHaveTextContent(
+      "正解",
+    );
+  });
+
+  it("未回答のときは正しい選択肢を表示しない", () => {
+    render(<Presenter {...defaultProps} correctChoiceNumber={2} />);
+    expect(screen.queryByText("正解")).not.toBeInTheDocument();
   });
 
   it("ヒントを見るをクリックするとonOpenHintがstep_numberで呼ばれる", () => {

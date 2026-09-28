@@ -19,6 +19,7 @@ export const Question = ({ goalId, taskId, unitId, studyLogId }: Props) => {
     currentIndex,
     selectedChoiceId,
     isCorrect,
+    correctChoiceNumber,
     isAnswered,
     isLastQuestion,
     openedHintStep,
@@ -104,6 +105,7 @@ export const Question = ({ goalId, taskId, unitId, studyLogId }: Props) => {
       totalCount={questions.length}
       selectedChoiceId={selectedChoiceId}
       isCorrect={isCorrect}
+      correctChoiceNumber={correctChoiceNumber}
       isAnswered={isAnswered}
       isLastQuestion={isLastQuestion}
       openedHintStep={openedHintStep}

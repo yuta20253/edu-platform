@@ -45,7 +45,9 @@ describe("useQuestion", () => {
   });
 
   it("未回答の問題に回答するとapiClient.postが呼ばれ、結果がセットされる", async () => {
-    vi.mocked(apiClient.post).mockResolvedValue({ data: { is_correct: true } });
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { is_correct: true, correct_answer: 1 },
+    });
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
       useQuestion({ questions, taskId: 5, unitId: 11 }),
@@ -65,7 +67,31 @@ describe("useQuestion", () => {
     expect(apiClient.patch).not.toHaveBeenCalled();
     expect(result.current.selectedChoiceId).toBe(101);
     expect(result.current.isCorrect).toBe(true);
+    expect(result.current.correctChoiceNumber).toBe(1);
     expect(result.current.isAnswered).toBe(true);
+  });
+
+  it("不正解のときレスポンスの正解番号が保持され、次の問題へ進むとリセットされる", async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { is_correct: false, correct_answer: 2 },
+    });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+
+    expect(result.current.isCorrect).toBe(false);
+    expect(result.current.correctChoiceNumber).toBe(2);
+
+    act(() => {
+      result.current.handleNextQuestion();
+    });
+
+    expect(result.current.correctChoiceNumber).toBeNull();
   });
 
   it("解答中に端末時刻が巻き戻ってもtime_spent_secは0未満にならない", async () => {
