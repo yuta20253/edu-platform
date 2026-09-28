@@ -20,13 +20,20 @@
 #  updated_at         :datetime         not null
 #  task_id            :bigint           not null
 #
-class QuestionHistory < ApplicationRecord
-  belongs_to :user
-  belongs_to :course
-  belongs_to :unit
-  belongs_to :question
-  belongs_to :task
-  belongs_to :question_choice
+require 'rails_helper'
 
-  scope :active, -> { where(deleted_at: nil) }
+RSpec.describe QuestionHistory, type: :model do
+  def create_question_history(**attrs)
+    user = create(:user)
+    create(:question_history, user: user, task: create(:task, user: user), **attrs)
+  end
+
+  describe '.active' do
+    it '論理削除されていない解答履歴のみ返す' do
+      active_history = create_question_history
+      create_question_history(deleted_at: Time.current)
+
+      expect(described_class.active).to contain_exactly(active_history)
+    end
+  end
 end
