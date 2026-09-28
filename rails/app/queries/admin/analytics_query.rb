@@ -14,7 +14,9 @@ module Admin
 
     MIN_ANSWER_COUNT = 20
     RANKING_LIMIT = 10
-    MAX_RANGE_DAYS = 366
+    # 実際のバリデーション（422判定）はAnalyticsFilterFormが担う。ここではmetaに
+    # 反映するため参照するだけで、値の二重管理を避ける。
+    MAX_RANGE_DAYS = AnalyticsFilterForm::MAX_RANGE_DAYS
     QUESTION_TEXT_TRUNCATE_LENGTH = 80
 
     attr_reader :from, :to, :high_school_id, :subject_id
