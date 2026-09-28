@@ -105,7 +105,7 @@ module Api
         end
 
         def find_roles!
-          UserRole.all
+          UserRole.where.not(name: :admin)
         end
 
         def serializer_class
