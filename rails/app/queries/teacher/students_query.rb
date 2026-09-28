@@ -17,13 +17,24 @@ module Teacher
       self
     end
 
+    def search(keyword)
+      keyword = keyword.to_s
+      return self if keyword.blank?
+
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(keyword)}%"
+      @relation = @relation.where('users.name LIKE :p OR users.name_kana LIKE :p', p: pattern)
+
+      self
+    end
+
     def result
       @relation
     end
 
-    def call(grade_id: nil)
+    def call(grade_id: nil, keyword: nil)
       students
       my_grade(grade_id) if grade_id.present?
+      search(keyword) if keyword.present?
       result
     end
   end

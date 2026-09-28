@@ -35,7 +35,11 @@ module Api
           restriction = current_user.own_grade_restriction
           roles = find_roles!
           grades = restriction ? Grade.where(id: restriction) : current_user.high_school.grades
-          students = ::Teacher::StudentsQuery.new(current_user.high_school.users).call(grade_id: restriction)
+          students = ::Teacher::StudentsQuery
+                     .new(current_user.high_school.users)
+                     .call(grade_id: restriction, keyword: params[:keyword])
+                     .page(sanitized_page)
+                     .per(sanitized_per_page)
 
           render json: {
             grades: ActiveModelSerializers::SerializableResource.new(
@@ -44,9 +48,15 @@ module Api
             user_roles: ActiveModelSerializers::SerializableResource.new(
               roles, each_serializer: UserRoleSerializer
             ),
-            students: ActiveModelSerializers::SerializableResource.new(
-              students, each_serializer: StudentSerializer
-            ),
+            students: {
+              items: ActiveModelSerializers::SerializableResource.new(students, each_serializer: StudentSerializer),
+              meta: {
+                current_page: students.current_page,
+                total_pages: students.total_pages,
+                total_count: students.total_count,
+                per_page: students.limit_value
+              }
+            },
             own_grade_restriction: restriction
           }
         end
