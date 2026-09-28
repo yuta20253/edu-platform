@@ -93,7 +93,7 @@ module Admin
     end
 
     def population
-      scope = User.students.active.invitation_accepted
+      scope = User.accepted_students
       scope = scope.by_high_school(high_school_id) if high_school_id.present?
       scope
     end
