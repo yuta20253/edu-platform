@@ -33,6 +33,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { Prefecture } from "@/types/common/prefecture";
 import { ProfileForm } from "./types";
 import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 type Props = {
@@ -94,294 +95,280 @@ export const Presenter = ({
 }: Props) => {
   return (
     <>
-      <Box
-        sx={{
-          px: 2,
-          py: 4,
-          bgcolor: colors.surface.default,
-          minHeight: "100vh",
-        }}
-      >
+      <Box sx={{ maxWidth: 600, mx: "auto" }}>
         <Box
           sx={{
-            maxWidth: 800,
-            width: "100%",
+            bgcolor: colors.surface.white,
+            borderRadius: `${radius.md}px`,
+            boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+            p: 3,
           }}
         >
-          <Box
-            sx={{
-              bgcolor: "white",
-              borderRadius: 2,
-              p: 4,
-            }}
+          <Typography
+            variant="h5"
+            component="h1"
+            sx={{ fontWeight: 800, mb: 3 }}
           >
-            <Typography
-              variant="h4"
+            プロフィール編集
+          </Typography>
+
+          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+            <input type="hidden" {...register("address_id")} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              氏名
+            </Typography>
+            <TextField
+              fullWidth
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              氏名カナ
+            </Typography>
+            <TextField
+              fullWidth
+              {...register("name_kana")}
+              error={!!errors.name_kana}
+              helperText={errors.name_kana?.message}
+            />
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              生年月日
+            </Typography>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={ja}
+            >
+              <Controller
+                name="birthday"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    format="yyyy-MM-dd"
+                    value={field.value ? new Date(field.value) : null}
+                    onChange={(date) =>
+                      field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                    }
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      },
+                    }}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              性別
+            </Typography>
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup row {...field}>
+                  <FormControlLabel
+                    value="male"
+                    control={<Radio />}
+                    label="男"
+                  />
+                  <FormControlLabel
+                    value="female"
+                    control={<Radio />}
+                    label="女"
+                  />
+                  <FormControlLabel
+                    value="other"
+                    control={<Radio />}
+                    label="その他"
+                  />
+                </RadioGroup>
+              )}
+            />
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              電話番号
+            </Typography>
+            <Box
               sx={{
-                fontWeight: "bold",
-                mb: 4,
+                display: "flex",
+                gap: 1,
               }}
             >
-              ユーザー情報
+              <TextField {...register("phone_number")} />
+            </Box>
+            <Typography
+              sx={{ color: colors.status.error, fontSize: 12, mt: 0.5 }}
+            >
+              ※ ハイフンなしで入力してください
             </Typography>
 
-            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-              <input type="hidden" {...register("address_id")} />
+            <Divider sx={{ my: 2 }} />
 
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                氏名
-              </Typography>
-              <TextField
-                fullWidth
-                {...register("name")}
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              郵便番号
+            </Typography>
 
-              <Divider sx={{ my: 2 }} />
+            <TextField fullWidth {...register("postal_code")} />
 
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                氏名カナ
-              </Typography>
-              <TextField
-                fullWidth
-                {...register("name_kana")}
-                error={!!errors.name_kana}
-                helperText={errors.name_kana?.message}
-              />
+            <Divider sx={{ my: 2 }} />
 
-              <Divider sx={{ my: 2 }} />
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              都道府県
+            </Typography>
+            <Controller
+              name="prefecture_id"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  select
+                  fullWidth
+                  value={field.value ?? ""}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
 
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                生年月日
-              </Typography>
-              <LocalizationProvider
-                dateAdapter={AdapterDateFns}
-                adapterLocale={ja}
-              >
-                <Controller
-                  name="birthday"
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      format="yyyy-MM-dd"
-                      value={field.value ? new Date(field.value) : null}
-                      onChange={(date) =>
-                        field.onChange(date ? format(date, "yyyy-MM-dd") : "")
-                      }
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                        },
-                      }}
-                    />
+                    field.onChange(value);
+
+                    setValue("city", "");
+                    setValue("town", "");
+                    setValue("address_id", null);
+
+                    setCityOptions([]);
+                    setTownOptions([]);
+                  }}
+                >
+                  <MenuItem value="">選択してください</MenuItem>
+
+                  {prefectures.map((prefecture) => (
+                    <MenuItem key={prefecture.id} value={prefecture.id}>
+                      {prefecture.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              市区町村
+            </Typography>
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  disabled={!prefectureId}
+                  options={cityOptions}
+                  value={field.value || null}
+                  isOptionEqualToValue={(option, value) => option === value}
+                  getOptionLabel={(option) => option}
+                  onChange={(_, value) => {
+                    field.onChange(value || "");
+
+                    setValue("town", "");
+                    setValue("address_id", null);
+
+                    setTownOptions([]);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth placeholder="市区町村" />
                   )}
                 />
-              </LocalizationProvider>
+              )}
+            />
 
-              <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2 }} />
 
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              町名・丁目
+            </Typography>
+            <Controller
+              name="town"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  disabled={!city}
+                  options={townOptions}
+                  value={
+                    townOptions.find((option) => option.town === field.value) ||
+                    null
+                  }
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                  getOptionLabel={(option) => option.town}
+                  onChange={(_, value) => {
+                    field.onChange(value?.town || "");
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth placeholder="町名・丁目" />
+                  )}
+                />
+              )}
+            />
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+              番地・号等
+            </Typography>
+            <TextField fullWidth {...register("street_address")} />
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box>
               <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                性別
+                在籍高校
               </Typography>
-              <Controller
-                name="gender"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup row {...field}>
-                    <FormControlLabel
-                      value="male"
-                      control={<Radio />}
-                      label="男"
-                    />
-                    <FormControlLabel
-                      value="female"
-                      control={<Radio />}
-                      label="女"
-                    />
-                    <FormControlLabel
-                      value="other"
-                      control={<Radio />}
-                      label="その他"
-                    />
-                  </RadioGroup>
-                )}
-              />
+              <Typography>{user.high_school?.name ?? "未設定"}</Typography>
+            </Box>
 
-              <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2 }} />
 
+            <Box>
               <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                電話番号
+                学年
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                }}
-              >
-                <TextField {...register("phone_number")} />
-              </Box>
-              <Typography sx={{ color: "red" }}>
-                ※ ハイフンなしで入力してください
-              </Typography>
+              <Typography>{user.grade?.display_name ?? "未設定"}</Typography>
+            </Box>
 
-              <Divider sx={{ my: 2 }} />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+                mt: 3,
+              }}
+            >
+              <Button variant="outlined" onClick={() => setOpenConfirm(true)}>
+                戻る
+              </Button>
 
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                郵便番号
-              </Typography>
-
-              <TextField fullWidth {...register("postal_code")} />
-
-              <Divider sx={{ my: 2 }} />
-
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                都道府県
-              </Typography>
-              <Controller
-                name="prefecture_id"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    select
-                    fullWidth
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-
-                      field.onChange(value);
-
-                      setValue("city", "");
-                      setValue("town", "");
-                      setValue("address_id", null);
-
-                      setCityOptions([]);
-                      setTownOptions([]);
-                    }}
-                  >
-                    <MenuItem value="">選択してください</MenuItem>
-
-                    {prefectures.map((prefecture) => (
-                      <MenuItem key={prefecture.id} value={prefecture.id}>
-                        {prefecture.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-
-              <Divider sx={{ my: 2 }} />
-
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                市区町村
-              </Typography>
-              <Controller
-                name="city"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    disabled={!prefectureId}
-                    options={cityOptions}
-                    value={field.value || null}
-                    isOptionEqualToValue={(option, value) => option === value}
-                    getOptionLabel={(option) => option}
-                    onChange={(_, value) => {
-                      field.onChange(value || "");
-
-                      setValue("town", "");
-                      setValue("address_id", null);
-
-                      setTownOptions([]);
-                    }}
-                    renderInput={(params) => (
-                      <TextField {...params} fullWidth placeholder="市区町村" />
-                    )}
-                  />
-                )}
-              />
-
-              <Divider sx={{ my: 2 }} />
-
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                町名・丁目
-              </Typography>
-              <Controller
-                name="town"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    disabled={!city}
-                    options={townOptions}
-                    value={
-                      townOptions.find(
-                        (option) => option.town === field.value,
-                      ) || null
-                    }
-                    isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
-                    }
-                    getOptionLabel={(option) => option.town}
-                    onChange={(_, value) => {
-                      field.onChange(value?.town || "");
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        placeholder="町名・丁目"
-                      />
-                    )}
-                  />
-                )}
-              />
-
-              <Divider sx={{ my: 2 }} />
-
-              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                番地・号等
-              </Typography>
-              <TextField fullWidth {...register("street_address")} />
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box>
-                <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                  在籍高校
-                </Typography>
-                <Typography>{user.high_school?.name ?? "未設定"}</Typography>
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box>
-                <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                  学年
-                </Typography>
-                <Typography>{user.grade?.display_name ?? "未設定"}</Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: 2,
-                  mt: 3,
-                }}
-              >
-                <Button variant="outlined" onClick={() => setOpenConfirm(true)}>
-                  戻る
-                </Button>
-
-                <Button type="submit" variant="contained">
-                  更新
-                </Button>
-              </Box>
+              <Button type="submit" variant="contained">
+                更新
+              </Button>
             </Box>
           </Box>
         </Box>
       </Box>
 
-      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
+      <Dialog
+        open={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        sx={{ "& .MuiDialog-paper": { borderRadius: `${radius.md}px` } }}
+      >
         <DialogTitle>確認</DialogTitle>
         <DialogContent>
           変更内容が保存されませんが、よろしいですか？

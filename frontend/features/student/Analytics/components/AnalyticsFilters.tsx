@@ -49,8 +49,8 @@ export const AnalyticsFilters = ({
   units,
 }: Props) => {
   return (
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
-      <FormControl sx={{ minWidth: 200 }}>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+      <FormControl size="small" sx={{ minWidth: 180 }}>
         <InputLabel id="analytics-type-label">表示切替</InputLabel>
         <Select
           labelId="analytics-type-label"
@@ -69,7 +69,7 @@ export const AnalyticsFilters = ({
       </FormControl>
 
       {needsCourse(type) && (
-        <FormControl sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="analytics-subject-label">教科</InputLabel>
           <Select
             labelId="analytics-subject-label"
@@ -89,7 +89,7 @@ export const AnalyticsFilters = ({
       )}
 
       {needsCourse(type) && subject !== null && courses !== null && (
-        <FormControl sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="analytics-course-label">コース</InputLabel>
           <Select
             labelId="analytics-course-label"
@@ -109,7 +109,7 @@ export const AnalyticsFilters = ({
       )}
 
       {needsUnit(type) && courseId !== null && (
-        <FormControl sx={{ minWidth: 160 }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="analytics-unit-label">単元</InputLabel>
           <Select
             labelId="analytics-unit-label"

@@ -1,10 +1,18 @@
 "use client";
 
-import { Box, Card, CardContent, Divider, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Link from "next/link";
+import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
 import { Announcement } from "@/types/announcement/announcement";
 import { formatPublishedAt } from "@/libs/ui/formatDate";
+
+const cardSx = {
+  bgcolor: colors.surface.white,
+  borderRadius: `${radius.md}px`,
+  boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+} as const;
 
 type Props = {
   announcement: Announcement;
@@ -12,28 +20,12 @@ type Props = {
 
 export const Presenter = ({ announcement }: Props) => {
   return (
-    <Box
-      sx={{
-        p: 3,
-      }}
-    >
-      <Typography
-        variant="h4"
-        component="p"
-        sx={{
-          fontWeight: "bold",
-          my: 4,
-          textAlign: "center",
-        }}
-      >
-        お知らせ詳細{" "}
-      </Typography>
-
+    <Box sx={{ maxWidth: 600, mx: "auto" }}>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          mb: 3,
+          mb: 2,
         }}
       >
         <Link
@@ -60,78 +52,68 @@ export const Presenter = ({ announcement }: Props) => {
           </Box>
         </Link>
       </Box>
-      <Box display="flex" justifyContent="center">
-        <Card
+
+      <Box sx={{ ...cardSx, p: 3 }}>
+        <Typography
           sx={{
-            width: "min(720px, 90vw)",
-            borderRadius: 3,
-            boxShadow: 3,
+            fontWeight: 800,
+            fontSize: 20,
+            mb: 2,
+            lineHeight: 1.4,
           }}
         >
-          <CardContent sx={{ p: 4 }}>
-            <Typography
-              sx={{
-                fontWeight: "bold",
-                fontSize: 22,
-                mb: 2,
-                lineHeight: 1.4,
-              }}
-            >
-              {announcement.title}
-            </Typography>
+          {announcement.title}
+        </Typography>
 
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 0.5,
-                mb: 3,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  color: "text.secondary",
-                }}
-              >
-                公開日時：{formatPublishedAt(announcement.published_at)}
-              </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.5,
+            mb: 2,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 12,
+              color: "text.secondary",
+            }}
+          >
+            公開日時：{formatPublishedAt(announcement.published_at)}
+          </Typography>
 
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  color: "text.secondary",
-                }}
-              >
-                発行者：{announcement.publisher.name}
-              </Typography>
-            </Box>
+          <Typography
+            sx={{
+              fontSize: 12,
+              color: "text.secondary",
+            }}
+          >
+            発行者：{announcement.publisher.name}
+          </Typography>
+        </Box>
 
-            <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 2 }} />
 
-            <Box
-              sx={{
-                mt: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: "#f9f9f9",
-                minHeight: 120,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: 14,
-                  lineHeight: 1.8,
-                  whiteSpace: "pre-wrap",
-                  overflowWrap: "break-word",
-                  color: "text.primary",
-                }}
-              >
-                {announcement.content || "内容はまだ入力されていません。"}
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: `${radius.sm}px`,
+            bgcolor: colors.surface.default,
+            minHeight: 120,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              lineHeight: 1.8,
+              whiteSpace: "pre-wrap",
+              overflowWrap: "break-word",
+              color: "text.primary",
+            }}
+          >
+            {announcement.content || "内容はまだ入力されていません。"}
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );

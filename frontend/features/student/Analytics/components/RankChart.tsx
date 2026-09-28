@@ -39,10 +39,11 @@ export const RankChart = ({ data }: Props) => {
         valueMax={100}
         text={() => `${data.rank}位`}
         sx={{
-          [`& .${gaugeClasses.valueArc}`]: { fill: colors.brand.primary },
+          [`& .${gaugeClasses.valueArc}`]: { fill: colors.accent[600] },
+          [`& .${gaugeClasses.valueText}`]: { fontSize: 22, fontWeight: 800 },
         }}
       />
-      <Typography>
+      <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
         {data.total_users}人中 {data.rank}位
       </Typography>
     </Box>
