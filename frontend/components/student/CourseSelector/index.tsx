@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { FormLabel, FormSection } from ".";
+import { FormLabel, FormSection } from "@/components/student/Form";
 
 type Props = {
   courses: Course[] | null;

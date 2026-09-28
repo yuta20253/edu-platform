@@ -1,7 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { FormSection } from "@/components/StudentForm";
+import { FormSection } from "@/components/student/Form";
 import { PrimaryCta } from "@/components/PrimaryCta";
 import {
   Box,

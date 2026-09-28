@@ -1,7 +1,7 @@
 "use client";
 
-import { CourseSelector } from "@/components/StudentForm/CourseSelector";
-import { FormLabel } from "@/components/StudentForm";
+import { CourseSelector } from "@/components/student/CourseSelector";
+import { FormLabel } from "@/components/student/Form";
 import { PrimaryCta } from "@/components/PrimaryCta";
 import {
   Box,

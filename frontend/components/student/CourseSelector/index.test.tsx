@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Course } from "@/types/tasks/course";
-import { CourseSelector } from "./CourseSelector";
+import { CourseSelector } from "./index";
 
 const course = (id: number): Course => ({
   id,
