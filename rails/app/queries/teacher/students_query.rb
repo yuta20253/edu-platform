@@ -34,7 +34,7 @@ module Teacher
     def call(grade_id: nil, keyword: nil)
       students
       my_grade(grade_id) if grade_id.present?
-      search(keyword) if keyword.present?
+      search(keyword)
       result
     end
   end
