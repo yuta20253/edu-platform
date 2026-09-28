@@ -184,4 +184,71 @@ RSpec.describe Admin::AnalyticsQuery, type: :model do
       end
     end
   end
+
+  describe '#daily_activity' do
+    subject(:daily_activity) { described_class.new(from: from, to: to).daily_activity }
+
+    let(:from) { Date.new(2026, 8, 20) }
+    let(:to) { Date.new(2026, 8, 22) }
+    let!(:student) { create(:user) }
+
+    it 'from..toの全日分を返す' do
+      expect(daily_activity.pluck(:date)).to eq(%w[2026-08-20 2026-08-21 2026-08-22])
+    end
+
+    it '記録の無い日を0で埋める' do
+      expect(daily_activity).to all(include(active_student_count: 0, answer_count: 0, accuracy_rate: 0))
+    end
+
+    it '日別の解答数・アクティブ生徒数・正答率を返す' do
+      create_question_history_for(student, answered_at: Time.zone.local(2026, 8, 21, 10), is_correct: true)
+      create_question_history_for(student, answered_at: Time.zone.local(2026, 8, 21, 11), is_correct: false)
+
+      row = daily_activity.find { |r| r[:date] == '2026-08-21' }
+      expect(row).to include(active_student_count: 1, answer_count: 2, accuracy_rate: 50.0)
+    end
+
+    it '同日に複数生徒が解答してもactive_student_countは重複排除される' do
+      other_student = create(:user)
+      create_question_history_for(student, answered_at: Time.zone.local(2026, 8, 21, 10))
+      create_question_history_for(student, answered_at: Time.zone.local(2026, 8, 21, 11))
+      create_question_history_for(other_student, answered_at: Time.zone.local(2026, 8, 21, 12))
+
+      row = daily_activity.find { |r| r[:date] == '2026-08-21' }
+      expect(row).to include(active_student_count: 2, answer_count: 3)
+    end
+
+    it 'JST日付でバケットする(UTC 15:00以降の解答は翌日のJST日付に入る)' do
+      create_question_history_for(student, answered_at: Time.utc(2026, 8, 20, 15, 0, 0))
+
+      row_on_20th = daily_activity.find { |r| r[:date] == '2026-08-20' }
+      row_on_21st = daily_activity.find { |r| r[:date] == '2026-08-21' }
+      expect(row_on_20th).to include(answer_count: 0)
+      expect(row_on_21st).to include(answer_count: 1)
+    end
+
+    it '論理削除済みの解答履歴を数えない' do
+      create_question_history_for(student, answered_at: Time.zone.local(2026, 8, 21, 10), deleted_at: Time.current)
+
+      row = daily_activity.find { |r| r[:date] == '2026-08-21' }
+      expect(row).to include(answer_count: 0)
+    end
+
+    context 'subject_idを指定した場合' do
+      subject(:daily_activity) { described_class.new(from: from, to: to, subject_id: target_subject.id).daily_activity }
+
+      let(:target_subject) { create(:subject) }
+      let(:other_subject) { create(:subject) }
+      let(:target_course) { create(:course, subject: target_subject) }
+      let(:other_course) { create(:course, subject: other_subject) }
+
+      it '指定した科目の講座に属する解答のみ集計する' do
+        create_question_history_for(student, course: target_course, answered_at: Time.zone.local(2026, 8, 21, 10))
+        create_question_history_for(student, course: other_course, answered_at: Time.zone.local(2026, 8, 21, 10))
+
+        row = daily_activity.find { |r| r[:date] == '2026-08-21' }
+        expect(row).to include(answer_count: 1)
+      end
+    end
+  end
 end
