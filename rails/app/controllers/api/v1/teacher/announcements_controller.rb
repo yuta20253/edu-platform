@@ -33,6 +33,7 @@ module Api
 
         def new
           restriction = current_user.own_grade_restriction
+          students = target_students(restriction)
 
           render json: {
             grades: ActiveModelSerializers::SerializableResource.new(
@@ -42,7 +43,7 @@ module Api
               assignable_roles, each_serializer: UserRoleSerializer
             ),
             students: {
-              items: ActiveModelSerializers::SerializableResource.new(target_students(restriction),
+              items: ActiveModelSerializers::SerializableResource.new(students,
                                                                       each_serializer: StudentSerializer),
               meta: {
                 current_page: students.current_page,
