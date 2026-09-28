@@ -58,6 +58,10 @@ export const Presenter = ({ data }: Props) => {
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" },
           gap: 3,
+          // グリッドトラックは既定でmin-width:autoのため、noWrapする
+          // お知らせタイトルの内容幅に1fr列が引っ張られ、2fr:1frの比率が
+          // 崩れる。minWidth:0で内容幅を無視させ、意図した比率を守る。
+          "& > *": { minWidth: 0 },
         }}
       >
         {/* CSVインポート履歴 */}
