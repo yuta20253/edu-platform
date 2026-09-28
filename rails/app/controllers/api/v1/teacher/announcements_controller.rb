@@ -33,7 +33,7 @@ module Api
 
         def new
           restriction = current_user.own_grade_restriction
-          roles = find_roles!
+          roles = assignable_roles
           grades = restriction ? Grade.where(id: restriction) : current_user.high_school.grades
           students = ::Teacher::StudentsQuery
                      .new(current_user.high_school.users)
@@ -104,7 +104,7 @@ module Api
           end
         end
 
-        def find_roles!
+        def assignable_roles
           UserRole.where.not(name: :admin)
         end
 
