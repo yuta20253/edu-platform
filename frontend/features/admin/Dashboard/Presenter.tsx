@@ -18,7 +18,7 @@ import {
 import PeopleIcon from "@mui/icons-material/People";
 import SchoolIcon from "@mui/icons-material/School";
 import QuizIcon from "@mui/icons-material/Quiz";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
@@ -38,6 +38,12 @@ const kpiCards = (stats: DashboardData["stats"]) => [
     color: colors.kpi.blue,
   },
   {
+    label: "アクティブ生徒数",
+    value: stats.active_student_count,
+    icon: <TrendingUpIcon />,
+    color: colors.kpi.green,
+  },
+  {
     label: "教師数",
     value: stats.teacher_count,
     icon: <PeopleIcon />,
@@ -48,12 +54,6 @@ const kpiCards = (stats: DashboardData["stats"]) => [
     value: stats.total_questions,
     icon: <QuizIcon />,
     color: colors.kpi.amber,
-  },
-  {
-    label: "管理者数",
-    value: stats.admin_count,
-    icon: <AdminPanelSettingsIcon />,
-    color: colors.kpi.green,
   },
 ];
 
@@ -136,12 +136,18 @@ export const Presenter = ({ data }: Props) => {
               </Typography>
             </Box>
             {recent_imports.length === 0 ? (
-              <Typography
-                color="text.secondary"
-                sx={{ py: 2, textAlign: "center" }}
-              >
-                CSVインポート履歴がありません
-              </Typography>
+              <Box sx={{ py: 3, textAlign: "center" }}>
+                <Typography color="text.secondary" sx={{ mb: 2 }}>
+                  まだCSVインポートを実行していません
+                </Typography>
+                <Button
+                  variant="outlined"
+                  component={Link}
+                  href="/admin/csv-import"
+                >
+                  CSVインポートを実行する
+                </Button>
+              </Box>
             ) : (
               <Table size="small">
                 <TableHead>

@@ -6,9 +6,12 @@ import type { DashboardData } from "./types";
 const mockData: DashboardData = {
   stats: {
     student_count: 120,
+    active_student_count: 87,
     teacher_count: 8,
     admin_count: 3,
     total_questions: 450,
+    pending_student_count: 5,
+    pending_teacher_count: 1,
   },
   recent_imports: [
     {
@@ -30,12 +33,22 @@ const mockData: DashboardData = {
       created_at: "2026-03-19T09:00:00.000Z",
     },
   ],
+  recent_announcements: [],
+  meta: {
+    active_student_period_days: 30,
+    generated_at: "2026-03-20T12:00:00.000Z",
+  },
 };
 
 describe("DashboardPresenter", () => {
   it("KPI: 生徒数が正しく表示される", () => {
     render(<Presenter data={mockData} />);
     expect(screen.getByText("120")).toBeInTheDocument();
+  });
+
+  it("KPI: アクティブ生徒数が正しく表示される", () => {
+    render(<Presenter data={mockData} />);
+    expect(screen.getByText("87")).toBeInTheDocument();
   });
 
   it("KPI: 教師数が正しく表示される", () => {
@@ -48,9 +61,9 @@ describe("DashboardPresenter", () => {
     expect(screen.getByText("450")).toBeInTheDocument();
   });
 
-  it("KPI: 管理者数が正しく表示される", () => {
+  it("KPI: 管理者数のカードは表示されない", () => {
     render(<Presenter data={mockData} />);
-    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.queryByText("管理者数")).not.toBeInTheDocument();
   });
 
   it("CSVインポート履歴が表示される", () => {
@@ -69,11 +82,19 @@ describe("DashboardPresenter", () => {
     expect(screen.getByText("失敗")).toBeInTheDocument();
   });
 
-  it("インポート履歴が空のとき「CSVインポート履歴がありません」が表示される", () => {
+  it("インポート履歴が空のとき空状態とCTAが表示される", () => {
     render(<Presenter data={{ ...mockData, recent_imports: [] }} />);
     expect(
-      screen.getByText("CSVインポート履歴がありません"),
+      screen.getByText("まだCSVインポートを実行していません"),
     ).toBeInTheDocument();
+    // クイックアクションにも同名のリンクがあるため複数ヒットする
+    const links = screen.getAllByRole("link", {
+      name: "CSVインポートを実行する",
+    });
+    expect(links.length).toBeGreaterThanOrEqual(1);
+    links.forEach((link) =>
+      expect(link).toHaveAttribute("href", "/admin/csv-import"),
+    );
   });
 
   it("「すべて見る」リンクが履歴一覧ページを指す", () => {
