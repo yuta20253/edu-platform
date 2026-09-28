@@ -21,7 +21,7 @@ describe("GET /api/student/tasks", () => {
     });
   });
 
-  it("page のみのときは status を付けずに Rails へ転送する", async () => {
+  it("page のみのときは status を付けずにバックエンドへ転送する", async () => {
     await get("?page=2");
     expect(railsFetch).toHaveBeenCalledWith("/api/v1/student/tasks?page=2");
   });
@@ -31,14 +31,14 @@ describe("GET /api/student/tasks", () => {
     expect(railsFetch).toHaveBeenCalledWith("/api/v1/student/tasks?page=1");
   });
 
-  it("status を Rails へ転送する", async () => {
+  it("status をバックエンドへ転送する", async () => {
     await get("?page=1&status=completed");
     expect(railsFetch).toHaveBeenCalledWith(
       "/api/v1/student/tasks?page=1&status=completed",
     );
   });
 
-  it("Rails のレスポンスをそのまま返す", async () => {
+  it("バックエンドのレスポンスをそのまま返す", async () => {
     const res = await get("?page=1");
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ tasks: [] });
