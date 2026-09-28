@@ -75,6 +75,7 @@ Rails.application.routes.draw do
 
       namespace :admin do
         resource :dashboard, only: :show
+        resource :analytics, only: :show
         resources :admins, only: [:index, :show, :create, :update, :destroy]
         resources :announcements, only: [:index, :show, :create, :update, :destroy] do
           post :publish, on: :member
