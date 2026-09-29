@@ -16,7 +16,7 @@ disable-model-invocation: true
 
 - `$ARGUMENTS` が空、または Notion の URL でなければ停止して URL を求める。
 - `gh auth status` が成功すること。失敗したら `gh auth login` を案内して停止。
-- Notion MCP のツール（`notion-fetch` / `notion-update-page` など。サーバー名によって `mcp__notion__notion-fetch` 等の名前になる）が使えること。無ければ `claude mcp add --transport http notion https://mcp.notion.com/mcp` での接続を案内して停止。
+- Notion MCP のツール（`notion-fetch` / `notion-update-page` など。サーバー名によって `mcp__notion__notion-fetch` 等の名前になる）が使えること。サーバー定義はリポジトリ直下の `.mcp.json` に含まれているため追加は不要。ツールが使えない場合は未認証なので、`/mcp` から `notion` を選んで Notion アカウントで認証するよう案内して停止。
 - `git status --porcelain` が空であること。未コミットの変更があれば停止して確認。
 
 ## 1. チケット読み込み
