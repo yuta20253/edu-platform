@@ -17,5 +17,7 @@ class QuestionExplanation < ApplicationRecord
 
   BASIC = '基本解説'
 
+  default_scope { where(deleted_at: nil) }
+
   scope :active, -> { where(deleted_at: nil) }
 end
