@@ -4,6 +4,8 @@ module Api
   module V1
     module Teacher
       class AnnouncementsController < Api::V1::Teacher::BaseController
+        include TeacherStudentsScope
+
         before_action :set_announcement, only: :update
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
@@ -33,7 +35,9 @@ module Api
 
         def new
           restriction = current_user.own_grade_restriction
-          students = target_students(restriction)
+          students = students_scope(grade_id: restriction, keyword: params[:keyword])
+                     .page(sanitized_page)
+                     .per(sanitized_per_page)
 
           render json: {
             grades: ActiveModelSerializers::SerializableResource.new(
@@ -105,14 +109,6 @@ module Api
 
         def target_grades(restriction)
           restriction ? Grade.where(id: restriction) : current_user.high_school.grades
-        end
-
-        def target_students(restriction)
-          ::Teacher::StudentsQuery
-            .new(current_user.high_school.users)
-            .call(grade_id: restriction, keyword: params[:keyword])
-            .page(sanitized_page)
-            .per(sanitized_per_page)
         end
 
         def serializer_class
