@@ -72,6 +72,39 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
         expect(body['unit_name']).to eq('単元A')
       end
 
+      context '論理削除済みの問題・子レコードがある場合' do
+        let!(:question) { create(:question, unit: unit) }
+        let!(:deleted_question) { create(:question, unit: unit, deleted_at: Time.current) }
+        let!(:choice) { create(:question_choice, question: question, choice_number: 1) }
+        let!(:deleted_choice) do
+          create(:question_choice, question: question, choice_number: 2, deleted_at: Time.current)
+        end
+        let!(:hint) { create(:question_hint, question: question, step_number: 1) }
+        let!(:deleted_hint) do
+          create(:question_hint, question: question, step_number: 2, deleted_at: Time.current)
+        end
+        let!(:explanation) { create(:question_explanation, question: question) }
+        let!(:deleted_explanation) { create(:question_explanation, question: question, deleted_at: Time.current) }
+
+        before { subject }
+
+        it '削除済みの問題は返されない' do
+          expect(response.parsed_body['questions'].pluck('id')).to contain_exactly(question.id)
+        end
+
+        it '削除済みの選択肢は返されない' do
+          expect(response.parsed_body['questions'].first['choices'].pluck('id')).to contain_exactly(choice.id)
+        end
+
+        it '削除済みのヒントは返されない' do
+          expect(response.parsed_body['questions'].first['hints'].pluck('id')).to contain_exactly(hint.id)
+        end
+
+        it '削除済みの解説は返されない' do
+          expect(response.parsed_body['questions'].first['explanations'].pluck('id')).to contain_exactly(explanation.id)
+        end
+      end
+
       context 'questions が存在する場合' do
         let!(:question1) do
           create(:question, unit: unit, question_text: '問題1', correct_answer: '2')

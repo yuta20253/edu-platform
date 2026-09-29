@@ -55,6 +55,47 @@ RSpec.describe 'Api::V1::Student::Questions', type: :request do
       end
     end
 
+    context '論理削除済みのデータがある場合' do
+      let!(:prefecture) { create(:prefecture, name: '東京都') }
+      let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+      let!(:user) { create(:user, high_school: high_school) }
+      let!(:goal) { create(:goal, user: user) }
+      let!(:course) { create(:course) }
+      let!(:task) { create(:task, user: user, goal: goal) }
+      let!(:unit) { create(:unit, course: course) }
+      let!(:task_unit) { create(:task_unit, task: task, unit: unit) }
+
+      let!(:question) { create(:question, unit: unit) }
+      let!(:deleted_question) { create(:question, unit: unit, deleted_at: Time.current) }
+      let!(:choice) { create(:question_choice, question: question, choice_number: 1) }
+      let!(:deleted_choice) do
+        create(:question_choice, question: question, choice_number: 2, deleted_at: Time.current)
+      end
+      let!(:hint) { create(:question_hint, question: question, step_number: 1) }
+      let!(:deleted_hint) do
+        create(:question_hint, question: question, step_number: 2, deleted_at: Time.current)
+      end
+
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      before do
+        get "/api/v1/student/tasks/#{task.id}/units/#{unit.id}/questions",
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      it '削除済みの問題は返されない' do
+        expect(response.parsed_body.pluck('id')).to contain_exactly(question.id)
+      end
+
+      it '削除済みの選択肢は返されない' do
+        expect(response.parsed_body.first['question_choices'].pluck('id')).to contain_exactly(choice.id)
+      end
+
+      it '削除済みのヒントは返されない' do
+        expect(response.parsed_body.first['question_hints'].pluck('id')).to contain_exactly(hint.id)
+      end
+    end
+
     context '異常系 - 未認証アクセス' do
       it '401が返される' do
         get '/api/v1/student/tasks/1/units/1/questions',

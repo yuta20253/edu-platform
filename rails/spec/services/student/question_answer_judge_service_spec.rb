@@ -99,5 +99,18 @@ RSpec.describe Student::QuestionAnswerJudgeService, type: :model do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
+
+    context '選択肢が論理削除されている場合' do
+      let!(:question) { create(:question, unit: unit, correct_answer: 1) }
+      let!(:deleted_choice) do
+        create(:question_choice, question: question, choice_number: 1, deleted_at: Time.current)
+      end
+
+      it 'ActiveRecord::RecordNotFoundを送出する' do
+        service = described_class.new(question: question, question_choice_id: deleted_choice.id)
+
+        expect { service.call }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
   end
 end
