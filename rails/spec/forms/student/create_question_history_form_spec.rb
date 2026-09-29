@@ -38,6 +38,24 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
     }
   end
 
+  describe '#save (論理削除済みデータへの回答)' do
+    context '問題が論理削除されている場合' do
+      before { question.update_columns(deleted_at: Time.current) }
+
+      it 'falseを返し履歴は作成されない' do
+        expect { expect(form.save).to be false }.not_to change(QuestionHistory, :count)
+      end
+    end
+
+    context '選択肢が論理削除されている場合' do
+      before { question_choice.update_columns(deleted_at: Time.current) }
+
+      it 'falseを返し履歴は作成されない' do
+        expect { expect(form.save).to be false }.not_to change(QuestionHistory, :count)
+      end
+    end
+  end
+
   describe '#save' do
     context '正常系' do
       it 'QuestionHistoryが作成される' do
