@@ -1,165 +1,160 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { radius } from "@/app/theme/studentTheme";
 import { statusLabel } from "@/constants/status";
-import { Box, Card, CardContent, Pagination, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Pagination,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import Link from "next/link";
-import { TasksData } from "./types";
+import { Task, TasksData, TaskStatusFilter } from "./types";
 
 type Props = {
   data: TasksData;
   page: number;
   onPageChange: (page: number) => void;
+  status: TaskStatusFilter;
+  onStatusChange: (status: TaskStatusFilter) => void;
 };
 
-export const Presenter = ({ data, page, onPageChange }: Props) => {
-  const { tasks, meta } = data;
+const filters: { value: TaskStatusFilter; label: string }[] = [
+  { value: "active", label: "未完了" },
+  { value: "not_started", label: statusLabel.not_started },
+  { value: "in_progress", label: statusLabel.in_progress },
+  { value: "completed", label: statusLabel.completed },
+];
+
+const TaskRow = ({ task }: { task: Task }) => {
+  const statusColor = colors.statusUi[task.status];
 
   return (
     <Box
+      component={Link}
+      href={`/tasks/${task.id}`}
       sx={{
-        p: 3,
-        maxWidth: 900,
-        mx: "auto",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 1.25,
+        py: 1.75,
+        borderBottom: `1px solid ${colors.border.light}`,
       }}
     >
-      <Typography
-        variant="h4"
-        component="p"
+      <Box sx={{ minWidth: 0 }}>
+        <Typography
+          sx={{
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration:
+              task.status === "completed" ? "line-through" : "none",
+          }}
+        >
+          {task.title}
+        </Typography>
+        <Typography sx={{ fontSize: 11, color: "text.secondary", mt: 0.5 }}>
+          期限 {task.due_date}
+        </Typography>
+      </Box>
+      <Chip
+        size="small"
+        label={statusLabel[task.status]}
         sx={{
-          fontWeight: "bold",
-          mt: 2,
-          mb: 4,
-          textAlign: "center",
-          letterSpacing: 1,
+          flex: "none",
+          bgcolor: statusColor.bg,
+          color: statusColor.text,
         }}
+      />
+    </Box>
+  );
+};
+
+export const Presenter = ({
+  data,
+  page,
+  onPageChange,
+  status,
+  onStatusChange,
+}: Props) => {
+  const { tasks, meta } = data;
+
+  return (
+    <Box sx={{ maxWidth: 600, mx: "auto" }}>
+      <Typography
+        variant="h5"
+        component="h1"
+        sx={{ fontWeight: 800, mt: 1, mb: 2 }}
       >
-        タスク一覧
+        タスク
       </Typography>
 
-      <Box
+      <ToggleButtonGroup
+        exclusive
+        fullWidth
+        size="small"
+        value={status}
+        onChange={(_, value: TaskStatusFilter | null) => {
+          if (value) onStatusChange(value);
+        }}
+        aria-label="ステータスで絞り込み"
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          bgcolor: colors.surface.light,
+          borderRadius: `${radius.sm}px`,
+          p: 0.5,
+          gap: 0.5,
+          "& .MuiToggleButtonGroup-grouped": {
+            border: 0,
+            borderRadius: `${radius.sm - 2}px !important`,
+            fontSize: 12,
+            fontWeight: 700,
+            color: "text.secondary",
+            "&.Mui-selected, &.Mui-selected:hover": {
+              bgcolor: colors.surface.white,
+              color: "primary.main",
+              boxShadow: `0 1px 3px ${colors.shadow.footer}`,
+            },
+          },
         }}
       >
+        {filters.map((f) => (
+          <ToggleButton key={f.value} value={f.value}>
+            {f.label}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+
+      <Box sx={{ mt: 1 }}>
         {!tasks || tasks.length === 0 ? (
           <Typography
             sx={{
-              py: 6,
+              py: 8,
               textAlign: "center",
+              fontSize: 13,
               color: "text.secondary",
             }}
           >
             タスクが見つかりません
           </Typography>
         ) : (
-          <>
-            {tasks.map((task) => {
-              const statusColor = colors.statusUi[task.status];
-
-              return (
-                <Link
-                  key={task.id}
-                  href={`/tasks/${task.id}`}
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    textDecoration: "none",
-                  }}
-                >
-                  <Card
-                    sx={{
-                      width: "min(720px, 90vw)",
-                      borderRadius: 3,
-                      boxShadow: 2,
-                      overflow: "hidden",
-                      transition: "0.2s",
-                      m: 1,
-                      "&:hover": {
-                        boxShadow: 4,
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                  >
-                    <CardContent
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 1.5,
-                        p: 2.5,
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontWeight: "bold",
-                          fontSize: 18,
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {task.title}
-                      </Typography>
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          flexWrap: "wrap",
-                          gap: 1,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: 12,
-                            color: "text.secondary",
-                          }}
-                        >
-                          期限：{task.due_date}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 12,
-                            px: 1.2,
-                            py: 0.4,
-                            borderRadius: 1,
-                            bgcolor: statusColor.bg,
-                            color: statusColor.text,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {statusLabel[task.status]}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-
-            {meta.total_pages > 1 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mt: 3,
-                }}
-              >
-                <Pagination
-                  count={meta.total_pages}
-                  page={page}
-                  onChange={(_, value) => onPageChange(value)}
-                  color="primary"
-                  shape="rounded"
-                />
-              </Box>
-            )}
-          </>
+          tasks.map((task) => <TaskRow key={task.id} task={task} />)
         )}
       </Box>
+
+      {meta.total_pages > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination
+            count={meta.total_pages}
+            page={page}
+            onChange={(_, value) => onPageChange(value)}
+            color="primary"
+            shape="rounded"
+          />
+        </Box>
+      )}
     </Box>
   );
 };
