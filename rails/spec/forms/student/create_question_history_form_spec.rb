@@ -74,7 +74,7 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
 
       it '本日の回答数カウンターが1増える' do
         expect { form.save }
-          .to change { Student::TodayAnswerCounterService.new(user: user).fetch }.by(1)
+          .to change { Student::TodayAnswerCountQuery.new(user: user).fetch }.by(1)
       end
     end
 

@@ -53,7 +53,7 @@ module Student
         answered_at: Time.current
       )
 
-      ::Student::TodayAnswerCounterService.new(user: @current_user).increment
+      ::Student::IncrementTodayAnswerCountService.new(user: @current_user).call
 
       result
     rescue ActiveRecord::RecordInvalid => e

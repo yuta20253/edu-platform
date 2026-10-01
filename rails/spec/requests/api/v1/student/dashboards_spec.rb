@@ -48,8 +48,8 @@ RSpec.describe 'Api::V1::Student::Dashboards', type: :request do
       end
 
       it '本日回答済みの場合はその件数が返る' do
-        Student::TodayAnswerCounterService.new(user: user).increment
-        Student::TodayAnswerCounterService.new(user: user).increment
+        Student::IncrementTodayAnswerCountService.new(user: user).call
+        Student::IncrementTodayAnswerCountService.new(user: user).call
 
         subject
 
