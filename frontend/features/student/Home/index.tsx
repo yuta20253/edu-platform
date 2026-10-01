@@ -13,7 +13,8 @@ export const Home = async (): Promise<JSX.Element> => {
     .join("; ");
 
   try {
-    const { goals, today_answer_count } = await getStudentDashboard(cookieHeader);
+    const { goals, today_answer_count } =
+      await getStudentDashboard(cookieHeader);
 
     return (
       <Presenter initialGoals={goals} todayAnswerCount={today_answer_count} />
