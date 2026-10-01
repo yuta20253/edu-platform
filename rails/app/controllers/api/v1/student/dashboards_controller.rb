@@ -6,7 +6,7 @@ module Api
       class DashboardsController < Api::V1::Student::BaseController
         def show
           goals = GoalsQuery.new(current_user.goals).due_soon.limit_five.result
-          today_answer_count = ::Student::TodayAnswerCounter.new(user: current_user).fetch
+          today_answer_count = ::Student::TodayAnswerCounterService.new(user: current_user).fetch
 
           render json: {
             goals: ActiveModelSerializers::SerializableResource.new(

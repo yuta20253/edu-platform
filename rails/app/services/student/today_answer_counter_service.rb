@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Student
-  class TodayAnswerCounter
+  class TodayAnswerCounterService
     TTL_BUFFER = 5.minutes
 
     def initialize(user:)
@@ -12,13 +12,13 @@ module Student
       redis.incr(key)
       redis.expireat(key, ttl_at.to_i)
     rescue Redis::BaseError => e
-      Rails.logger.error("[TodayAnswerCounter] increment failed: #{e.message}")
+      Rails.logger.error("[TodayAnswerCounterService] increment failed: #{e.message}")
     end
 
     def fetch
       redis.get(key).to_i
     rescue Redis::BaseError => e
-      Rails.logger.error("[TodayAnswerCounter] fetch failed: #{e.message}")
+      Rails.logger.error("[TodayAnswerCounterService] fetch failed: #{e.message}")
       0
     end
 

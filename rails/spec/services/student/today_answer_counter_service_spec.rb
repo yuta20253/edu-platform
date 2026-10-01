@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Student::TodayAnswerCounter, type: :model do
+RSpec.describe Student::TodayAnswerCounterService, type: :model do
   subject(:counter) { described_class.new(user: user) }
 
   let!(:prefecture) { create(:prefecture, name: '東京都') }
