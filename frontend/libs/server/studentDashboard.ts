@@ -8,7 +8,7 @@ export type GoalType = {
   due_date: string;
 };
 
-export type StudentDashboardType = {
+type StudentDashboardType = {
   goals: GoalType[];
   today_answer_count: number;
 };
