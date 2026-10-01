@@ -71,6 +71,11 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
         expect(history.explanation_viewed).to be false
         expect(history.answered_at).to be_present
       end
+
+      it '本日の回答数カウンターが1増える' do
+        expect { form.save }
+          .to change { Student::TodayAnswerCounter.new(user: user).fetch }.by(1)
+      end
     end
 
     context '異常系 - task_idが空' do

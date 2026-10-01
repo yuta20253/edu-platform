@@ -20,10 +20,13 @@ const cardSx = {
 
 export const Presenter = ({
   initialGoals,
+  todayAnswerCount,
 }: {
   initialGoals: GoalType[];
+  todayAnswerCount: number;
 }): JSX.Element => {
   const goals = useMemo(() => initialGoals ?? [], [initialGoals]);
+  const answerCount = todayAnswerCount ?? 0;
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto" }}>
@@ -34,6 +37,25 @@ export const Presenter = ({
       >
         今日もはじめよう
       </Typography>
+
+      <Box
+        sx={{
+          ...cardSx,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          px: 2,
+          py: 1.75,
+          mb: 3,
+        }}
+      >
+        <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+          本日の回答数
+        </Typography>
+        <Typography sx={{ fontSize: 20, fontWeight: 800 }}>
+          {answerCount}問
+        </Typography>
+      </Box>
 
       <Box
         sx={{

@@ -8,9 +8,14 @@ export type GoalType = {
   due_date: string;
 };
 
+export type StudentDashboardType = {
+  goals: GoalType[];
+  today_answer_count: number;
+};
+
 export const getStudentDashboard = async (
   cookieHeader: string,
-): Promise<GoalType[]> => {
+): Promise<StudentDashboardType> => {
   const response = await fetch(`${API_ORIGIN}/api/v1/student/dashboard`, {
     method: "GET",
     headers: {
@@ -27,7 +32,7 @@ export const getStudentDashboard = async (
     throw new Error(`dashboard fetch error: ${response.status}`);
   }
 
-  const data = (await response.json()) as GoalType[];
+  const data = (await response.json()) as StudentDashboardType;
 
   return data;
 };

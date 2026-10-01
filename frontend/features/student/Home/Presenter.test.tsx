@@ -37,12 +37,12 @@ const mockGoals: GoalType[] = [
 
 describe("HomePresenter", () => {
   it("目標セクションの見出しが表示される", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     expect(screen.getByRole("heading", { name: "目標" })).toBeInTheDocument();
   });
 
   it("initialGoals がカードとして正しくレンダリングされる", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     expect(screen.getByText("数学の基礎を固める")).toBeInTheDocument();
     expect(screen.getByText("進行中")).toBeInTheDocument();
     expect(screen.getByText("期限 2025-07-01")).toBeInTheDocument();
@@ -52,18 +52,23 @@ describe("HomePresenter", () => {
   });
 
   it("initialGoals が空のとき空状態のメッセージが表示される", () => {
-    render(<Presenter initialGoals={[]} />);
+    render(<Presenter initialGoals={[]} todayAnswerCount={0} />);
     expect(screen.getByText("目標がまだありません")).toBeInTheDocument();
     expect(screen.queryByText("数学の基礎を固める")).not.toBeInTheDocument();
   });
 
   it("initialGoals が null 相当でもクラッシュしない", () => {
-    render(<Presenter initialGoals={null as unknown as GoalType[]} />);
+    render(
+      <Presenter
+        initialGoals={null as unknown as GoalType[]}
+        todayAnswerCount={0}
+      />,
+    );
     expect(screen.getByText("目標がまだありません")).toBeInTheDocument();
   });
 
   it("「目標一覧」リンクが /goals を指している", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     expect(screen.getByRole("link", { name: "目標一覧" })).toHaveAttribute(
       "href",
       "/goals",
@@ -71,7 +76,7 @@ describe("HomePresenter", () => {
   });
 
   it("「目標追加」リンクが /goals/new を指している", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     expect(screen.getByRole("link", { name: "目標追加" })).toHaveAttribute(
       "href",
       "/goals/new",
@@ -79,7 +84,7 @@ describe("HomePresenter", () => {
   });
 
   it("目標のタイトルが /goals/[id] へのリンクになっている", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     expect(
       screen.getByRole("link", { name: "数学の基礎を固める" }),
     ).toHaveAttribute("href", "/goals/1");
@@ -89,17 +94,28 @@ describe("HomePresenter", () => {
   });
 
   it("編集リンクが /goals/[id]/edit を指している", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     const editLinks = screen.getAllByRole("link", { name: "編集" });
     expect(editLinks[0]).toHaveAttribute("href", "/goals/1/edit");
     expect(editLinks[1]).toHaveAttribute("href", "/goals/2/edit");
   });
 
   it("学習分析へのリンクが表示される", () => {
-    render(<Presenter initialGoals={mockGoals} />);
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
     expect(screen.getByRole("link", { name: "学習分析" })).toHaveAttribute(
       "href",
       "/analytics",
     );
+  });
+
+  it("本日の回答数が表示される", () => {
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={5} />);
+    expect(screen.getByText("本日の回答数")).toBeInTheDocument();
+    expect(screen.getByText("5問")).toBeInTheDocument();
+  });
+
+  it("本日の回答数が0件でも表示される", () => {
+    render(<Presenter initialGoals={mockGoals} todayAnswerCount={0} />);
+    expect(screen.getByText("0問")).toBeInTheDocument();
   });
 });
