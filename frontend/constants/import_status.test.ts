@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   importModeLabel,
   importStatusColor,
+  importStatusDefinitions,
   importStatusLabel,
 } from "./import_status";
 
@@ -20,6 +21,27 @@ describe("importStatusColor", () => {
     expect(importStatusColor.processing).toBe("info");
     expect(importStatusColor.completed).toBe("success");
     expect(importStatusColor.failed).toBe("error");
+  });
+});
+
+describe("importStatusDefinitions", () => {
+  it("StatusBadge用にlabel/colorを1つのテーブルにまとめて返す", () => {
+    expect(importStatusDefinitions.pending).toEqual({
+      label: "待機中",
+      color: "warning",
+    });
+    expect(importStatusDefinitions.processing).toEqual({
+      label: "処理中",
+      color: "info",
+    });
+    expect(importStatusDefinitions.completed).toEqual({
+      label: "完了",
+      color: "success",
+    });
+    expect(importStatusDefinitions.failed).toEqual({
+      label: "失敗",
+      color: "error",
+    });
   });
 });
 
