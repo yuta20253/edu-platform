@@ -72,10 +72,6 @@ module Admin
            .count
     end
 
-    def accepted_users
-      User.active.invitation_accepted.joins(:user_role)
-    end
-
     def recent_study_log_user_ids
       StudyLog.where(deleted_at: nil, started_at: active_since..).select(:user_id)
     end
