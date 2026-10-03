@@ -77,12 +77,17 @@ describe("TargetPicker", () => {
     expect(screen.getByRole("combobox", { name: "学年" })).toBeInTheDocument();
   });
 
-  it("配信先の種類で「権限別」を選ぶと権限のセレクトが表示される", () => {
+  it("配信先の種類で「権限別」を選ぶと権限のセレクトが日本語ラベルで表示される", () => {
     render(<Host defaultValues={baseValues} />);
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
     fireEvent.click(screen.getByRole("option", { name: "権限別" }));
 
     expect(screen.getByRole("combobox", { name: "権限" })).toBeInTheDocument();
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "権限" }));
+    expect(screen.getByRole("option", { name: "生徒" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "教員" })).toBeInTheDocument();
+    expect(screen.queryByText("student")).not.toBeInTheDocument();
+    expect(screen.queryByText("teacher")).not.toBeInTheDocument();
   });
 
   it("配信先の種類で「個人」を選ぶと生徒検索欄が表示され、入力するとonStudentKeywordChangeが呼ばれる", () => {
