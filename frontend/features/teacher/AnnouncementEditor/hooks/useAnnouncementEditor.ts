@@ -32,11 +32,11 @@ export const useAnnouncementEditor = () => {
 
         if (status === 401) {
           router.push("/login");
-          return undefined;
+          return;
         }
 
         setSubmitError(buildErrorMessage(errors, fallback));
-        return undefined;
+        return;
       } finally {
         setSubmitting(false);
       }
