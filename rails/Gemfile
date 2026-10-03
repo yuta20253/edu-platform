@@ -47,6 +47,8 @@ gem 'kaminari'
 gem 'sidekiq'
 gem 'sidekiq-cron'
 
+gem 'redis'
+
 gem 'rack-attack'
 
 group :development, :test do
