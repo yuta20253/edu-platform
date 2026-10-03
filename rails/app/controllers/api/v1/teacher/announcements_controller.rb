@@ -4,6 +4,8 @@ module Api
   module V1
     module Teacher
       class AnnouncementsController < Api::V1::Teacher::BaseController
+        include TeacherStudentsScope
+
         before_action :set_announcement, only: :update
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
@@ -29,6 +31,33 @@ module Api
           announcement = Announcement.for_user(current_user).published.find(params[:id])
 
           render json: announcement, serializer: AnnouncementSerializer, status: :ok
+        end
+
+        def new
+          restriction = current_user.own_grade_restriction
+          students = students_scope(grade_id: restriction, keyword: params[:keyword])
+                     .page(sanitized_page)
+                     .per(sanitized_per_page)
+
+          render json: {
+            grades: ActiveModelSerializers::SerializableResource.new(
+              target_grades(restriction), each_serializer: GradeSerializer
+            ),
+            user_roles: ActiveModelSerializers::SerializableResource.new(
+              assignable_roles, each_serializer: UserRoleSerializer
+            ),
+            students: {
+              items: ActiveModelSerializers::SerializableResource.new(students,
+                                                                      each_serializer: StudentSerializer),
+              meta: {
+                current_page: students.current_page,
+                total_pages: students.total_pages,
+                total_count: students.total_count,
+                per_page: students.limit_value
+              }
+            },
+            own_grade_restriction: restriction
+          }
         end
 
         def create
@@ -72,6 +101,14 @@ module Api
           else
             Announcement.for_user(current_user).includes(:publisher).published
           end
+        end
+
+        def assignable_roles
+          UserRole.where.not(name: %i[admin guardian])
+        end
+
+        def target_grades(restriction)
+          restriction ? Grade.where(id: restriction) : current_user.high_school.grades
         end
 
         def serializer_class

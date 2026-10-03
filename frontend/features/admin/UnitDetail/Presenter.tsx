@@ -25,8 +25,8 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { importStatusLabel } from "@/constants/import_status";
-import type { ImportStatus } from "@/types/common/import_history";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { importStatusDefinitions } from "@/constants/import_status";
 import Link from "next/link";
 import type { UnitDetail } from "./types";
 
@@ -41,16 +41,6 @@ const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
 type Props = {
   unit: UnitDetail;
   courseId: number;
-};
-
-const IMPORT_STATUS_COLOR: Record<
-  ImportStatus,
-  "default" | "info" | "success" | "error"
-> = {
-  pending: "default",
-  processing: "info",
-  completed: "success",
-  failed: "error",
 };
 
 export const Presenter = ({ unit, courseId }: Props) => {
@@ -351,10 +341,10 @@ export const Presenter = ({ unit, courseId }: Props) => {
                     >
                       <TableCell>{history.file_name}</TableCell>
                       <TableCell>
-                        <Chip
-                          label={importStatusLabel[history.status]}
+                        <StatusBadge
+                          status={history.status}
+                          definitions={importStatusDefinitions}
                           size="small"
-                          color={IMPORT_STATUS_COLOR[history.status]}
                           variant="outlined"
                         />
                       </TableCell>

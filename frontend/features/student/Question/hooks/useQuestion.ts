@@ -25,6 +25,9 @@ export const useQuestion = ({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [correctChoiceNumber, setCorrectChoiceNumber] = useState<number | null>(
+    null,
+  );
   const [isAnswered, setIsAnswered] = useState(false);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<number>>(
     new Set(),
@@ -59,6 +62,7 @@ export const useQuestion = ({
 
     setSelectedChoiceId(null);
     setIsCorrect(null);
+    setCorrectChoiceNumber(null);
     setIsAnswered(false);
 
     setOpenedHintStep(0);
@@ -104,6 +108,7 @@ export const useQuestion = ({
       setAnsweredQuestionIds(updatedIds);
 
       setIsCorrect(res.data.is_correct);
+      setCorrectChoiceNumber(res.data.correct_answer);
       setIsAnswered(true);
 
       setOpenedHintStep(0);
@@ -128,6 +133,7 @@ export const useQuestion = ({
     currentIndex,
     selectedChoiceId,
     isCorrect,
+    correctChoiceNumber,
     isAnswered,
     isLastQuestion,
     openedHintStep,
