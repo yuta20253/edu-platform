@@ -47,12 +47,14 @@ RSpec.describe InterviewRequestsQuery, type: :model do
   end
 
   describe '#within_period' do
+    # NOTE: 同一student/teacherペアで進行中(active)の面談は1件までという制約があるため、
+    # 1件を除いてstatus: :completedにして制約を回避している(scheduled_atの絞り込み検証が目的のため、statusの値自体は無関係)
     let!(:request_before_range) do
-      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher,
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :completed,
                                                           scheduled_at: Time.zone.local(2026, 2, 28, 23, 59))
     end
     let!(:request_at_from) do
-      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher,
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :completed,
                                                           scheduled_at: Time.zone.local(2026, 3, 1, 0, 0))
     end
     let!(:request_within_range) do
@@ -60,15 +62,16 @@ RSpec.describe InterviewRequestsQuery, type: :model do
                                                           scheduled_at: Time.zone.local(2026, 3, 15, 10, 0))
     end
     let!(:request_at_to) do
-      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher,
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :completed,
                                                           scheduled_at: Time.zone.local(2026, 3, 31, 23, 59))
     end
     let!(:request_after_range) do
-      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher,
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :completed,
                                                           scheduled_at: Time.zone.local(2026, 4, 1, 0, 0))
     end
     let!(:request_without_scheduled_at) do
-      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, scheduled_at: nil)
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher, status: :completed,
+                                                          scheduled_at: nil)
     end
 
     it '期間内のscheduled_atを持つ面談のみ返る(境界値は含む)' do
