@@ -84,7 +84,9 @@ RSpec.describe 'Api::V1::Admin::Units', type: :request do
           create(:question_hint, question: question, step_number: 2, deleted_at: Time.current)
         end
         let!(:explanation) { create(:question_explanation, question: question) }
-        let!(:deleted_explanation) { create(:question_explanation, question: question, deleted_at: Time.current) }
+        let!(:deleted_explanation) do
+          create(:question_explanation, question: question, explanation_type: '補足解説', deleted_at: Time.current)
+        end
 
         before { subject }
 
