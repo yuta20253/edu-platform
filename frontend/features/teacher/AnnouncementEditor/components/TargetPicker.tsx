@@ -12,10 +12,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useEffect } from "react";
 import {
   Controller,
+  useController,
   useFieldArray,
-  useWatch,
   type Control,
 } from "react-hook-form";
 import type {
@@ -31,13 +32,24 @@ type Props = {
   onStudentKeywordChange: (keyword: string) => void;
 };
 
-const TARGET_TYPE_OPTIONS: { value: TargetType; label: string }[] = [
+const ALL_TARGET_TYPE_OPTIONS: { value: TargetType; label: string }[] = [
   { value: "all_users", label: "全員" },
   { value: "by_role", label: "権限別" },
   { value: "by_grade", label: "学年別" },
   { value: "by_school", label: "学校全体" },
   { value: "by_user", label: "個人" },
 ];
+
+// 学年別・個人以外は学年による絞り込みを行わないため、own_grade_restriction
+// がある教員がこれらを選ぶと自分の学年外にも配信できてしまう。
+// Rails側のgrade_scope_validationはby_gradeタイプのみ検証するため、
+// UI側でも選択肢自体を絞ってこれを防ぐ。
+const GRADE_RESTRICTED_TARGET_TYPE_OPTIONS: {
+  value: TargetType;
+  label: string;
+}[] = ALL_TARGET_TYPE_OPTIONS.filter(
+  (opt) => opt.value === "by_grade" || opt.value === "by_user",
+);
 
 type RowProps = {
   control: Control<AnnouncementFormValues>;
@@ -56,10 +68,24 @@ const TargetRow = ({
   onStudentKeywordChange,
   onRemove,
 }: RowProps) => {
-  const targetType = useWatch({
+  const { field: targetTypeField } = useController({
     control,
     name: `targets.${index}.target_type`,
   });
+  const targetType = targetTypeField.value;
+
+  const targetTypeOptions =
+    options?.own_grade_restriction != null
+      ? GRADE_RESTRICTED_TARGET_TYPE_OPTIONS
+      : ALL_TARGET_TYPE_OPTIONS;
+
+  // own_grade_restrictionの有無はAPIレスポンス取得後に確定するため、
+  // マウント時のデフォルト値(全員)が後から選択不可になるケースがある。
+  // その場合は選択可能な種類の先頭へ自動的に補正する。
+  useEffect(() => {
+    if (targetTypeOptions.some((opt) => opt.value === targetType)) return;
+    targetTypeField.onChange(targetTypeOptions[0].value);
+  }, [targetType, targetTypeOptions, targetTypeField]);
 
   return (
     <Stack
@@ -68,24 +94,18 @@ const TargetRow = ({
       alignItems="flex-start"
       flexWrap="wrap"
     >
-      <Controller
-        name={`targets.${index}.target_type`}
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            select
-            label="配信先の種類"
-            sx={{ minWidth: 160 }}
-          >
-            {TARGET_TYPE_OPTIONS.map((opt) => (
-              <MenuItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-      />
+      <TextField
+        {...targetTypeField}
+        select
+        label="配信先の種類"
+        sx={{ minWidth: 160 }}
+      >
+        {targetTypeOptions.map((opt) => (
+          <MenuItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </MenuItem>
+        ))}
+      </TextField>
 
       {targetType === "by_grade" && (
         <Controller
