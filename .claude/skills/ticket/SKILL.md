@@ -23,21 +23,25 @@ disable-model-invocation: true
 
 - Notion MCP の fetch ツールで `$ARGUMENTS` のページを取得する。
 - 以下を抽出して、ユーザーに箇条書きで要約を提示する:
-  - タイトル / チケットID（あれば）/ 現在の Status
+  - タイトル / **ID プロパティ**（`unique_id` 型。`プレフィックス-番号` 形式で、例 `TSK-139`）/ 現在の Status
   - 背景・目的
   - やること・受け入れ条件
   - 対象（Next.js / Rails / 両方）
 - 親データベース（カンバン）のスキーマから **ステータス用プロパティ**（`status` 型、無ければ `select` 型で名前が Status/ステータス のもの）と、その選択肢に `In progress` / `In review` があるかを確認しておく（大文字小文字・空白の差は無視して一致させる）。見つからなければここで停止して確認。
+- ID プロパティが見つからない、または値が空の場合は、ブランチ名を推測せず停止してユーザーに確認する。
 - 要件に曖昧な点があれば、実装前にここで質問する。
 
 ## 2. featureブランチ作成
 
-- チケットタイトルを英訳し、**英小文字の snake_case（2〜4語程度）** のスラッグを作る。例: 「管理者お知らせ作成・編集画面」→ `admin_notice_editor`
-- 同名ブランチがローカル/リモートに無いことを確認（`git branch -a --list "*feature/<slug>"`）。衝突したらユーザーに確認。
+- ブランチ名は **`feature/{ID}_{概要}`** とする。
+  - `{ID}`: 手順1で取得した Notion の ID プロパティの値をそのまま使う（大文字・ハイフンを保つ）。例: `TSK-139`
+  - `{概要}`: チケットタイトルを英訳した **英小文字の snake_case（2〜4語程度）**。例: `admin_notice_editor`
+  - 例: 「管理者お知らせ作成・編集画面」（TSK-139）→ `feature/TSK-139_admin_notice_editor`
+- 同じ ID のブランチがローカル/リモートに無いことを確認（`git branch -a --list "*feature/<ID>_*"`）。既にあればユーザーに確認。
 - 作成:
   ```bash
   git fetch origin main
-  git switch -c feature/<slug> origin/main
+  git switch -c feature/<ID>_<概要> origin/main
   ```
 
 ## 3. Notion を In progress に移行
@@ -100,7 +104,7 @@ disable-model-invocation: true
 
 ## 7. push & PR 作成
 
-- `git push -u origin feature/<slug>`
+- `git push -u origin feature/<ID>_<概要>`
 - `.github/pull_request_template.md` を読み、**その見出し構成のまま** 本文を作成して一時ファイルに書く:
   - `## 概要`: NotionチケットのURL、背景・目的
   - `## 詳細`: 変更内容、レビュアーに重点的に見てほしい点・疑問に思いそうな点への補足（**セルフレビューで直した点は記載しない**）
@@ -112,7 +116,7 @@ disable-model-invocation: true
 - タイトルは既存PRに合わせて `[Next.js] <チケットタイトル>` / `[Rails] <チケットタイトル>`（両方なら `[Next.js/Rails]`）。
 - 作成（assignee は実行者自身）:
   ```bash
-  gh pr create --base main --head feature/<slug> \
+  gh pr create --base main --head feature/<ID>_<概要> \
     --title "<タイトル>" --body-file <一時ファイル> --assignee @me
   ```
 - 作成後 `gh pr view --json assignees,url` で assignee が自分になっていることを確認する。
