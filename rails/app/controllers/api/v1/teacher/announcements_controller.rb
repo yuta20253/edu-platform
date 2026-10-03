@@ -65,7 +65,8 @@ module Api
                                                        **create_announcement_params.to_h.symbolize_keys)
 
           if form.save
-            render json: { message: 'お知らせを下書きで作成しました。' }, status: :created
+            render json: { message: 'お知らせを下書きで作成しました。', announcement_id: form.announcement.id },
+                   status: :created
           else
             render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
