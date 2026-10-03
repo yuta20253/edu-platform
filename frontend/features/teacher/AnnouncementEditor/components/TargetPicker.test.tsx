@@ -106,6 +106,28 @@ describe("TargetPicker", () => {
     ).toHaveLength(2);
   });
 
+  it("own_grade_restrictionがある場合、配信先の種類は「学年別」「個人」のみ選択できる", () => {
+    render(
+      <Host
+        defaultValues={baseValues}
+        opts={{ ...options, own_grade_restriction: 1 }}
+      />,
+    );
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
+
+    expect(screen.getByRole("option", { name: "学年別" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "個人" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "全員" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "権限別" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "学校全体" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("行の「削除」ボタンで行が減る", () => {
     render(
       <Host
