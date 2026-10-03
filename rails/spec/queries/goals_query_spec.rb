@@ -37,16 +37,16 @@ RSpec.describe GoalsQuery, type: :model do
 
     it '期間内のgoalのみ返る(境界値は含む)' do
       result = described_class.new(user.goals)
-                               .within_period(from: Date.new(2026, 3, 1), to: Date.new(2026, 3, 31))
-                               .result
+                              .within_period(from: Date.new(2026, 3, 1), to: Date.new(2026, 3, 31))
+                              .result
 
       expect(result).to contain_exactly(goal_at_from, goal_within_range, goal_at_to)
     end
 
     it 'due_dateがnilのgoalは除外される' do
       result = described_class.new(user.goals)
-                               .within_period(from: Date.new(2026, 1, 1), to: Date.new(2026, 12, 31))
-                               .result
+                              .within_period(from: Date.new(2026, 1, 1), to: Date.new(2026, 12, 31))
+                              .result
 
       expect(result).not_to include(goal_without_due_date)
     end
