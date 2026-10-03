@@ -15,5 +15,7 @@
 class QuestionHint < ApplicationRecord
   belongs_to :question
 
+  default_scope { where(deleted_at: nil) }
+
   scope :active, -> { where(deleted_at: nil) }
 end

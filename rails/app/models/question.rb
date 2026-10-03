@@ -19,5 +19,7 @@ class Question < ApplicationRecord
   has_many :question_hints, dependent: :destroy
   has_many :question_explanations, dependent: :destroy
 
+  default_scope { where(deleted_at: nil) }
+
   scope :active, -> { where(deleted_at: nil) }
 end
