@@ -1,3 +1,4 @@
+import type { StatusBadgeDefinition } from "@/components/ui/StatusBadge";
 import { AnnouncementStatus } from "@/types/common/announcement";
 
 // お知らせステータスの日本語ラベル。
@@ -15,4 +16,23 @@ export const announcementStatusColor: Record<
   draft: "default",
   scheduled: "info",
   published: "success",
+};
+
+// StatusBadge用にlabel/colorを1つのテーブルにまとめたもの。
+export const announcementStatusDefinitions: Record<
+  AnnouncementStatus,
+  StatusBadgeDefinition
+> = {
+  draft: {
+    label: announcementStatusLabel.draft,
+    color: announcementStatusColor.draft,
+  },
+  scheduled: {
+    label: announcementStatusLabel.scheduled,
+    color: announcementStatusColor.scheduled,
+  },
+  published: {
+    label: announcementStatusLabel.published,
+    color: announcementStatusColor.published,
+  },
 };

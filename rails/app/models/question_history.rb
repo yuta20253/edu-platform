@@ -24,9 +24,10 @@ class QuestionHistory < ApplicationRecord
   belongs_to :user
   belongs_to :course
   belongs_to :unit
-  belongs_to :question
+  # 論理削除済みの問題・選択肢でも履歴は参照できるようdefault_scopeを外す
+  belongs_to :question, -> { unscope(where: :deleted_at) }, inverse_of: :question_histories
   belongs_to :task
-  belongs_to :question_choice
+  belongs_to :question_choice, -> { unscope(where: :deleted_at) }, inverse_of: :question_histories
 
   scope :active, -> { where(deleted_at: nil) }
 end

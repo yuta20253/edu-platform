@@ -55,7 +55,7 @@ Rails.application.routes.draw do
         resources :colleagues, controller: "teachers"
         resources :students
         resources :permissions, only: [:index, :show, :update]
-        resources :announcements, only: [:index, :show, :create, :update]
+        resources :announcements, only: [:index, :show, :create, :update, :new]
         resources :teacher_notifications
         resources :teacher_notification_results
         resources :grades, only: :index

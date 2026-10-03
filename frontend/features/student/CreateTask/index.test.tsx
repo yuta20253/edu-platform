@@ -45,6 +45,18 @@ describe("CreateTask", () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: 100 });
   });
 
+  it("入力欄がラベルと関連付けられている", () => {
+    render(<CreateTask goalId={1} draftTaskId={0} />);
+    expect(screen.getByLabelText("タスクタイトル")).toBeInTheDocument();
+    expect(screen.getByLabelText("タスク内容")).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "優先度" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "教科選択" }),
+    ).toBeInTheDocument();
+  });
+
   it("見出し「タスク作成」とフォーム項目が表示される", () => {
     render(<CreateTask goalId={1} draftTaskId={0} />);
     expect(screen.getByText("タスク作成")).toBeInTheDocument();

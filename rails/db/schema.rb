@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_18_165552) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_03_000002) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -267,6 +267,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_18_165552) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["question_id", "choice_number"], name: "index_question_choices_unique_choice_number", unique: true
     t.index ["question_id"], name: "index_question_choices_on_question_id"
   end
 
@@ -278,6 +279,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_18_165552) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["explanation_type"], name: "index_question_explanations_on_explanation_type"
+    t.index ["question_id", "explanation_type"], name: "index_question_explanations_unique_type", unique: true
     t.index ["question_id"], name: "index_question_explanations_on_question_id"
   end
 

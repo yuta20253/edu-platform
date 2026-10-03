@@ -20,7 +20,7 @@ export const UnderstandingScoreChart = ({ data }: Props) => {
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
       {data.subjects.map((subject) => (
         <Box key={subject.subject_name}>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          <Typography sx={{ fontWeight: 800, fontSize: 16 }}>
             {subject.subject_name}
           </Typography>
           {subject.courses.map((course, courseIndex) => (
@@ -28,7 +28,7 @@ export const UnderstandingScoreChart = ({ data }: Props) => {
               key={`${subject.subject_name}-${course.level_name}-${course.level_number}-${courseIndex}`}
               sx={{ mt: 2 }}
             >
-              <Typography sx={{ mb: 1, fontWeight: "bold" }}>
+              <Typography sx={{ mb: 1, fontWeight: 700, fontSize: 13 }}>
                 {buildCourseLabel(course)}
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
@@ -41,10 +41,10 @@ export const UnderstandingScoreChart = ({ data }: Props) => {
                         gap: 1,
                       }}
                     >
-                      <Typography sx={{ fontSize: 14 }}>
+                      <Typography sx={{ fontSize: 13 }}>
                         {unit.unit_name}
                       </Typography>
-                      <Typography sx={{ fontSize: 14, whiteSpace: "nowrap" }}>
+                      <Typography sx={{ fontSize: 13, whiteSpace: "nowrap" }}>
                         {unit.score}%
                       </Typography>
                     </Box>
@@ -52,11 +52,12 @@ export const UnderstandingScoreChart = ({ data }: Props) => {
                       variant="determinate"
                       value={unit.score}
                       sx={{
-                        height: 8,
-                        borderRadius: 4,
+                        height: 6,
+                        borderRadius: 999,
                         backgroundColor: colors.border.subtle,
                         "& .MuiLinearProgress-bar": {
-                          backgroundColor: colors.brand.primary,
+                          borderRadius: 999,
+                          backgroundColor: colors.accent[600],
                         },
                       }}
                     />

@@ -37,6 +37,7 @@ const defaultProps = {
   totalCount: 3,
   selectedChoiceId: null as number | null,
   isCorrect: null as boolean | null,
+  correctChoiceNumber: null as number | null,
   isAnswered: false,
   isLastQuestion: false,
   openedHintStep: 0,
@@ -78,7 +79,7 @@ describe("QuestionPresenter", () => {
     expect(screen.getByText("1. 1").closest("button")).toBeDisabled();
   });
 
-  it("正解のとき「正解！」が表示される", () => {
+  it("正解のとき選択した選択肢に「正解」タグが表示される", () => {
     render(
       <Presenter
         {...defaultProps}
@@ -87,19 +88,58 @@ describe("QuestionPresenter", () => {
         selectedChoiceId={101}
       />,
     );
-    expect(screen.getByText("正解！")).toBeInTheDocument();
+    expect(screen.getByText("正解")).toBeInTheDocument();
   });
 
-  it("不正解のとき「不正解」が表示される", () => {
+  it("不正解のとき選択した選択肢に「不正解」タグが表示される", () => {
     render(
       <Presenter
         {...defaultProps}
         isAnswered
         isCorrect={false}
+        correctChoiceNumber={2}
         selectedChoiceId={101}
       />,
     );
     expect(screen.getByText("不正解")).toBeInTheDocument();
+  });
+
+  it("不正解のとき選択していない正しい選択肢にも「正解」タグが表示される", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        isAnswered
+        isCorrect={false}
+        correctChoiceNumber={2}
+        selectedChoiceId={101}
+      />,
+    );
+    const correctButton = screen.getByText("2. 2").closest("button");
+    const incorrectButton = screen.getByText("1. 1").closest("button");
+    expect(correctButton).toHaveTextContent("正解");
+    expect(correctButton).not.toHaveTextContent("不正解");
+    expect(incorrectButton).toHaveTextContent("不正解");
+  });
+
+  it("正解のとき他の選択肢に「正解」タグは表示されない", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        isAnswered
+        isCorrect
+        correctChoiceNumber={1}
+        selectedChoiceId={101}
+      />,
+    );
+    expect(screen.getAllByText("正解")).toHaveLength(1);
+    expect(screen.getByText("2. 2").closest("button")).not.toHaveTextContent(
+      "正解",
+    );
+  });
+
+  it("未回答のときは正しい選択肢を表示しない", () => {
+    render(<Presenter {...defaultProps} correctChoiceNumber={2} />);
+    expect(screen.queryByText("正解")).not.toBeInTheDocument();
   });
 
   it("ヒントを見るをクリックするとonOpenHintがstep_numberで呼ばれる", () => {
@@ -123,15 +163,15 @@ describe("QuestionPresenter", () => {
     expect(onCloseHint).toHaveBeenCalledTimes(1);
   });
 
-  it("「スタート画面へ」リンクがgoalIdなしのタスクパスを指す", () => {
+  it("「中断する」リンクがgoalIdなしのタスクパスを指す", () => {
     render(<Presenter {...defaultProps} />);
-    const link = screen.getByRole("link", { name: /スタート画面へ/ });
+    const link = screen.getByRole("link", { name: /中断する/ });
     expect(link).toHaveAttribute("href", "/tasks/5/units/11");
   });
 
-  it("goalIdがあるとき「スタート画面へ」リンクがgoals配下のタスクパスを指す", () => {
+  it("goalIdがあるとき「中断する」リンクがgoals配下のタスクパスを指す", () => {
     render(<Presenter {...defaultProps} goalId={3} />);
-    const link = screen.getByRole("link", { name: /スタート画面へ/ });
+    const link = screen.getByRole("link", { name: /中断する/ });
     expect(link).toHaveAttribute("href", "/goals/3/tasks/5/units/11");
   });
 

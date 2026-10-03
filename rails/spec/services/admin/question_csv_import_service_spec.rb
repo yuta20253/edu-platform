@@ -82,6 +82,68 @@ RSpec.describe Admin::QuestionCsvImportService do
       end
     end
 
+    context 'activeなquestionにchoice_numberが同じ論理削除済みchoiceがある場合' do
+      # question_choices は (question_id, choice_number) が UNIQUE で deleted_at を含まない。
+      # .active だけで find すると論理削除済みchoiceを見落とし、新規INSERTでUNIQUE違反になる。
+      let!(:existing_question) do
+        create(:question, unit: unit, question_text: '1+1は？', correct_answer: 2)
+      end
+      let!(:deleted_choice) do
+        create(
+          :question_choice,
+          question: existing_question,
+          choice_number: 1,
+          choice_text: '古い選択肢',
+          deleted_at: Time.current
+        )
+      end
+
+      it 'UNIQUE制約違反を起こさずにインポートできる' do
+        expect { service_call }.not_to raise_error
+      end
+
+      it 'choice_number=1 のactiveなchoiceが1件存在する' do
+        service_call
+
+        expect(QuestionChoice.active.where(question_id: existing_question.id, choice_number: 1).count).to eq(1)
+      end
+
+      it '復活したchoiceの内容が更新される' do
+        service_call
+
+        expect(deleted_choice.reload.choice_text).to eq('1')
+        expect(deleted_choice.reload.deleted_at).to be_nil
+      end
+    end
+
+    context 'activeなquestionにexplanation_typeが同じ論理削除済みexplanationがある場合' do
+      # question_explanations は (question_id, explanation_type) が UNIQUE で deleted_at を含まない。
+      # .active だけで find すると論理削除済みexplanationを見落とし、新規INSERTでUNIQUE違反になる。
+      let!(:existing_question) do
+        create(:question, unit: unit, question_text: '1+1は？', correct_answer: 2)
+      end
+      let!(:deleted_explanation) do
+        create(
+          :question_explanation,
+          question: existing_question,
+          explanation_type: QuestionExplanation::BASIC,
+          explanation_text: '古い解説',
+          deleted_at: Time.current
+        )
+      end
+
+      it 'UNIQUE制約違反を起こさずにインポートできる' do
+        expect { service_call }.not_to raise_error
+      end
+
+      it '復活したexplanationの内容が更新される' do
+        service_call
+
+        expect(deleted_explanation.reload.explanation_text).to eq('1+1=2です')
+        expect(deleted_explanation.reload.deleted_at).to be_nil
+      end
+    end
+
     context 'activeなquestionにstep_numberが同じ論理削除済みhintがある場合' do
       # question_hints は (question_id, step_number) が UNIQUE で deleted_at を含まない。
       # .active だけで find すると論理削除済みhintを見落とし、新規INSERTでUNIQUE違反になる。

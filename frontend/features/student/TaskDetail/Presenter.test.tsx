@@ -57,6 +57,16 @@ describe("TaskDetailPresenter", () => {
     );
   });
 
+  it("見出しにタスク名が表示され、手動の完了ボタンは表示されない", () => {
+    render(<Presenter task={mockTask} />);
+    expect(
+      screen.getByRole("heading", { name: "英単語100個を覚える", level: 1 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "完了にする" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("units が空のとき「紐づく単元はありません」が表示される", () => {
     render(<Presenter task={{ ...mockTask, units: [] }} />);
     expect(screen.getByText("紐づく単元はありません")).toBeInTheDocument();

@@ -24,10 +24,11 @@ export const TaskCompletionChart = ({ data }: Props) => {
         valueMax={100}
         text={({ value }) => `${value ?? 0}%`}
         sx={{
-          [`& .${gaugeClasses.valueArc}`]: { fill: colors.brand.primary },
+          [`& .${gaugeClasses.valueArc}`]: { fill: colors.accent[600] },
+          [`& .${gaugeClasses.valueText}`]: { fontSize: 24, fontWeight: 800 },
         }}
       />
-      <Typography>
+      <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
         完了タスク数: {data.completed_count} / {data.total_count}
       </Typography>
     </Box>

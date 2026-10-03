@@ -4,9 +4,12 @@ module Api
   module V1
     module Teacher
       class StudentsController < Api::V1::Teacher::BaseController
+        include TeacherStudentsScope
+
         DEFAULT_PER_PAGE = 10
+
         def index
-          students = students_query.order(:name_kana).page(sanitized_page).per(sanitized_per_page)
+          students = students_scope.page(sanitized_page).per(sanitized_per_page)
           render json: {
             students: ActiveModelSerializers::SerializableResource.new(
               students, each_serializer: StudentSerializer
@@ -21,7 +24,7 @@ module Api
         end
 
         def show
-          student = students_query.find(params[:id])
+          student = students_scope.find(params[:id])
           render json: student, serializer: StudentSerializer, status: :ok
         end
 
@@ -40,14 +43,6 @@ module Api
         end
 
         private
-
-        def students_query
-          ::Teacher::StudentsQuery.new(current_user.high_school.users).call(grade_id: filter_grade_id)
-        end
-
-        def filter_grade_id
-          current_user.own_grade_restriction
-        end
 
         def create_student_params
           params.require(:user).permit(:name, :name_kana, :email, :grade_id, :school_class_id)

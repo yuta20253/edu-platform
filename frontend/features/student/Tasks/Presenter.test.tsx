@@ -48,22 +48,56 @@ const defaultProps = {
   data: mockData,
   page: 1,
   onPageChange: vi.fn(),
+  status: "active" as const,
+  onStatusChange: vi.fn(),
 };
 
 describe("TasksPresenter", () => {
-  it("見出し「タスク一覧」が表示される", () => {
+  it("見出し「タスク」が表示される", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByText("タスク一覧")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "タスク", level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it("ステータスのセグメントが4つ表示され、現在の絞り込みが選択状態になる", () => {
+    render(<Presenter {...defaultProps} status="in_progress" />);
+    const labels = ["未完了", "未着手", "進行中", "完了"];
+    labels.forEach((label) =>
+      expect(screen.getByRole("button", { name: label })).toBeInTheDocument(),
+    );
+    expect(screen.getByRole("button", { name: "進行中" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "未完了" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+  });
+
+  it("セグメントをクリックすると onStatusChange が呼ばれる", () => {
+    const onStatusChange = vi.fn();
+    render(<Presenter {...defaultProps} onStatusChange={onStatusChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "完了" }));
+    expect(onStatusChange).toHaveBeenCalledWith("completed");
+  });
+
+  it("選択中のセグメントを再クリックしても onStatusChange は呼ばれない", () => {
+    const onStatusChange = vi.fn();
+    render(<Presenter {...defaultProps} onStatusChange={onStatusChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "未完了" }));
+    expect(onStatusChange).not.toHaveBeenCalled();
   });
 
   it("tasks データがカードとして正しくレンダリングされる", () => {
     render(<Presenter {...defaultProps} />);
     expect(screen.getByText("英単語100個を覚える")).toBeInTheDocument();
-    expect(screen.getByText("期限：2026-09-01")).toBeInTheDocument();
-    expect(screen.getByText("未着手")).toBeInTheDocument();
+    expect(screen.getByText("期限 2026-09-01")).toBeInTheDocument();
+    expect(screen.getAllByText("未着手").length).toBeGreaterThan(0);
     expect(screen.getByText("数学の宿題を終わらせる")).toBeInTheDocument();
-    expect(screen.getByText("期限：2026-09-05")).toBeInTheDocument();
-    expect(screen.getByText("完了")).toBeInTheDocument();
+    expect(screen.getByText("期限 2026-09-05")).toBeInTheDocument();
+    expect(screen.getAllByText("完了").length).toBeGreaterThan(0);
   });
 
   it("各カードのリンクが /tasks/[id] を指している", () => {
