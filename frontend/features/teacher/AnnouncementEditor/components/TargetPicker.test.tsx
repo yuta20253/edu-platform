@@ -128,6 +128,19 @@ describe("TargetPicker", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("own_grade_restrictionがある場合、選択できない種類(初期値の全員)は自動的に学年別へ補正される", () => {
+    render(
+      <Host
+        defaultValues={baseValues}
+        opts={{ ...options, own_grade_restriction: 1 }}
+      />,
+    );
+
+    expect(screen.getByRole("combobox", { name: "配信先の種類" })).toHaveTextContent(
+      "学年別",
+    );
+  });
+
   it("行の「削除」ボタンで行が減る", () => {
     render(
       <Host
