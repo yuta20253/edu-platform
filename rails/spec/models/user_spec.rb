@@ -206,4 +206,30 @@ RSpec.describe User, type: :model do
       expect(described_class.jwt_revoked?(payload, user)).to be(true)
     end
   end
+
+  describe '.accepted_students' do
+    it '有効かつ招待受諾済みの生徒のみ返す' do
+      accepted_student = create(:user, user_role: student_role, high_school:, grade:)
+
+      expect(described_class.accepted_students).to contain_exactly(accepted_student)
+    end
+
+    it '教師を含めない' do
+      create(:user, user_role: teacher_role, high_school:)
+
+      expect(described_class.accepted_students).to be_empty
+    end
+
+    it '論理削除済みの生徒を含めない' do
+      create(:user, user_role: student_role, high_school:, grade:, deleted_at: Time.current)
+
+      expect(described_class.accepted_students).to be_empty
+    end
+
+    it '招待未受諾（password_reset_required）の生徒を含めない' do
+      create(:user, user_role: student_role, high_school:, grade:, password_reset_required: true)
+
+      expect(described_class.accepted_students).to be_empty
+    end
+  end
 end

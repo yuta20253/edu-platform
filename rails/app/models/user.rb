@@ -141,6 +141,9 @@ class User < ApplicationRecord
   scope :invitation_pending, -> { where(password_reset_required: true) }
   scope :invitation_accepted, -> { where(password_reset_required: false) }
   scope :active, -> { where(deleted_at: nil) }
+  # 管理者向け集計（Admin::DashboardQuery / Admin::AnalyticsQuery）の母集団定義。
+  # 両クエリで独立に組み立てると基準が食い違いかねないため、ここに集約する。
+  scope :accepted_students, -> { students.active.invitation_accepted }
 
   def generate_student_number
     raise "生徒以外(#{user_role&.name})にstudent_numberは発行できません" unless student?

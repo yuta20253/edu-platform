@@ -28,4 +28,6 @@ class QuestionHistory < ApplicationRecord
   belongs_to :question, -> { unscope(where: :deleted_at) }, inverse_of: :question_histories
   belongs_to :task
   belongs_to :question_choice, -> { unscope(where: :deleted_at) }, inverse_of: :question_histories
+
+  scope :active, -> { where(deleted_at: nil) }
 end

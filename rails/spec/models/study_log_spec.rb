@@ -16,15 +16,20 @@
 #  unit_id          :bigint           not null
 #  status           :integer          default(0), not null
 #
-class StudyLog < ApplicationRecord
-  belongs_to :user
-  belongs_to :task
-  belongs_to :unit
+require 'rails_helper'
 
-  enum status: {
-    studying: 0,
-    completed: 1
-  }
+RSpec.describe StudyLog, type: :model do
+  def create_study_log(**attrs)
+    user = create(:user)
+    create(:study_log, user: user, task: create(:task, user: user), **attrs)
+  end
 
-  scope :active, -> { where(deleted_at: nil) }
+  describe '.active' do
+    it '論理削除されていない学習ログのみ返す' do
+      active_log = create_study_log
+      create_study_log(deleted_at: Time.current)
+
+      expect(described_class.active).to contain_exactly(active_log)
+    end
+  end
 end
