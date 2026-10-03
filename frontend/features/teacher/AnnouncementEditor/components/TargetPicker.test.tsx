@@ -14,7 +14,14 @@ const options: AnnouncementTargetOptions = {
     { id: 2, name: "teacher" },
   ],
   students: {
-    items: [{ id: 10, name: "山田太郎", name_kana: "ヤマダタロウ", grade: { display_name: "1年" } }],
+    items: [
+      {
+        id: 10,
+        name: "山田太郎",
+        name_kana: "ヤマダタロウ",
+        grade: { display_name: "1年" },
+      },
+    ],
     meta: { current_page: 1, total_pages: 1, total_count: 1, per_page: 20 },
   },
   own_grade_restriction: null,
@@ -51,9 +58,9 @@ const baseValues: AnnouncementFormValues = {
 describe("TargetPicker", () => {
   it("初期状態で1行表示され、配信先の種類は「全員」になっている", () => {
     render(<Host defaultValues={baseValues} />);
-    expect(screen.getByRole("combobox", { name: "配信先の種類" })).toHaveTextContent(
-      "全員",
-    );
+    expect(
+      screen.getByRole("combobox", { name: "配信先の種類" }),
+    ).toHaveTextContent("全員");
   });
 
   it("配信先の種類で「学年別」を選ぶと学年のセレクトが表示される", () => {

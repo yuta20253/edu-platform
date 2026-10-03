@@ -9,7 +9,9 @@ vi.mock("@/libs/server/rails/railsFetch", () => ({
 }));
 
 const get = (query = "") =>
-  GET(new NextRequest(`http://localhost/api/teacher/announcements/new${query}`));
+  GET(
+    new NextRequest(`http://localhost/api/teacher/announcements/new${query}`),
+  );
 
 describe("GET /api/teacher/announcements/new", () => {
   beforeEach(() => {

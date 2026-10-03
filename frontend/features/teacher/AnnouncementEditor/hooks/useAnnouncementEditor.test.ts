@@ -131,9 +131,7 @@ describe("useAnnouncementEditor", () => {
       });
     });
 
-    expect(result.current.submitError).toBe(
-      "予約日時は未来を指定してください",
-    );
+    expect(result.current.submitError).toBe("予約日時は未来を指定してください");
     expect(pushMock).not.toHaveBeenCalledWith("/teacher/announcements");
   });
 

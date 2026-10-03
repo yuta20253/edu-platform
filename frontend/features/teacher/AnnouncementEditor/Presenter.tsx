@@ -22,7 +22,11 @@ import { ja } from "date-fns/locale";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { TargetPicker } from "./components/TargetPicker";
-import type { AnnouncementFormValues, AnnouncementTargetOptions, DeliveryTiming } from "./types";
+import type {
+  AnnouncementFormValues,
+  AnnouncementTargetOptions,
+  DeliveryTiming,
+} from "./types";
 
 const CONTENT_MAX_LENGTH = 10_000;
 

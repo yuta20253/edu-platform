@@ -20,7 +20,10 @@ export const useAnnouncementEditor = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const runRequest = useCallback(
-    async <T>(request: () => Promise<T>, fallback: string): Promise<T | undefined> => {
+    async <T>(
+      request: () => Promise<T>,
+      fallback: string,
+    ): Promise<T | undefined> => {
       setSubmitting(true);
       setSubmitError(null);
 
@@ -89,7 +92,10 @@ export const useAnnouncementEditor = () => {
   );
 
   const schedule = useCallback(
-    async (values: AnnouncementFormValues, scheduledAt: Date): Promise<void> => {
+    async (
+      values: AnnouncementFormValues,
+      scheduledAt: Date,
+    ): Promise<void> => {
       const created = await runRequest(
         () => createDraft(values),
         "お知らせの作成に失敗しました",

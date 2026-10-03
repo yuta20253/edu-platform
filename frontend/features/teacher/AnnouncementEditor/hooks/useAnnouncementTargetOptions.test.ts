@@ -31,9 +31,7 @@ describe("useAnnouncementTargetOptions", () => {
     };
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockData });
 
-    const { result } = renderHook(() =>
-      useAnnouncementTargetOptions("", 1),
-    );
+    const { result } = renderHook(() => useAnnouncementTargetOptions("", 1));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.data).toEqual(mockData);
@@ -50,7 +48,12 @@ describe("useAnnouncementTargetOptions", () => {
         user_roles: [],
         students: {
           items: [],
-          meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 20 },
+          meta: {
+            current_page: 1,
+            total_pages: 1,
+            total_count: 0,
+            per_page: 20,
+          },
         },
         own_grade_restriction: null,
       },
@@ -76,7 +79,12 @@ describe("useAnnouncementTargetOptions", () => {
         user_roles: [],
         students: {
           items: [],
-          meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 20 },
+          meta: {
+            current_page: 1,
+            total_pages: 1,
+            total_count: 0,
+            per_page: 20,
+          },
         },
         own_grade_restriction: null,
       },
@@ -96,7 +104,10 @@ describe("useAnnouncementTargetOptions", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith(
         "/api/teacher/announcements/new",
-        { params: { page: "1", keyword: "sato" }, signal: expect.any(AbortSignal) },
+        {
+          params: { page: "1", keyword: "sato" },
+          signal: expect.any(AbortSignal),
+        },
       ),
     );
   });
@@ -114,9 +125,7 @@ describe("useAnnouncementTargetOptions", () => {
   it("リクエストがキャンセルされた場合はエラー扱いしない", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(new axios.CanceledError());
 
-    const { result } = renderHook(() =>
-      useAnnouncementTargetOptions("", 1),
-    );
+    const { result } = renderHook(() => useAnnouncementTargetOptions("", 1));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(pushMock).not.toHaveBeenCalled();

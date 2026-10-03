@@ -30,10 +30,10 @@ describe("PATCH /api/teacher/announcements/[announcementId]", () => {
   it("リクエストボディを announcement キーでラップしてバックエンドへ転送する", async () => {
     const body = { status: "published" };
     await patch("1", body);
-    expect(railsFetch).toHaveBeenCalledWith(
-      "/api/v1/teacher/announcements/1",
-      { method: "PATCH", body: { announcement: body } },
-    );
+    expect(railsFetch).toHaveBeenCalledWith("/api/v1/teacher/announcements/1", {
+      method: "PATCH",
+      body: { announcement: body },
+    });
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {
