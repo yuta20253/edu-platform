@@ -48,6 +48,8 @@ type Props = {
   options: AnnouncementTargetOptions | null;
   studentKeyword: string;
   onStudentKeywordChange: (keyword: string) => void;
+  studentPage: number;
+  onStudentPageChange: (page: number) => void;
   submitting: boolean;
   submitError: string | null;
   onSaveDraft: (values: AnnouncementFormValues) => void;
@@ -58,6 +60,8 @@ export const Presenter = ({
   options,
   studentKeyword,
   onStudentKeywordChange,
+  studentPage,
+  onStudentPageChange,
   submitting,
   submitError,
   onSaveDraft,
@@ -159,6 +163,8 @@ export const Presenter = ({
             options={options}
             studentKeyword={studentKeyword}
             onStudentKeywordChange={onStudentKeywordChange}
+            studentPage={studentPage}
+            onStudentPageChange={onStudentPageChange}
           />
         </Stack>
 

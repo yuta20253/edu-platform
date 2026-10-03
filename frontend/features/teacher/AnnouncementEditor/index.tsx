@@ -7,15 +7,26 @@ import { useAnnouncementTargetOptions } from "./hooks/useAnnouncementTargetOptio
 
 export const AnnouncementEditor = () => {
   const [studentKeyword, setStudentKeyword] = useState("");
-  const { data: options } = useAnnouncementTargetOptions(studentKeyword, 1);
+  const [studentPage, setStudentPage] = useState(1);
+  const { data: options } = useAnnouncementTargetOptions(
+    studentKeyword,
+    studentPage,
+  );
   const { submitting, submitError, onSaveDraft, onDeliver } =
     useAnnouncementEditor();
+
+  const handleStudentKeywordChange = (keyword: string) => {
+    setStudentKeyword(keyword);
+    setStudentPage(1);
+  };
 
   return (
     <Presenter
       options={options}
       studentKeyword={studentKeyword}
-      onStudentKeywordChange={setStudentKeyword}
+      onStudentKeywordChange={handleStudentKeywordChange}
+      studentPage={studentPage}
+      onStudentPageChange={setStudentPage}
       submitting={submitting}
       submitError={submitError}
       onSaveDraft={onSaveDraft}

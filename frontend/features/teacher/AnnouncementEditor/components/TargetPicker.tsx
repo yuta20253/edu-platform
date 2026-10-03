@@ -30,6 +30,8 @@ type Props = {
   options: AnnouncementTargetOptions | null;
   studentKeyword: string;
   onStudentKeywordChange: (keyword: string) => void;
+  studentPage: number;
+  onStudentPageChange: (page: number) => void;
 };
 
 const ALL_TARGET_TYPE_OPTIONS: { value: TargetType; label: string }[] = [
@@ -57,6 +59,8 @@ type RowProps = {
   options: AnnouncementTargetOptions | null;
   studentKeyword: string;
   onStudentKeywordChange: (keyword: string) => void;
+  studentPage: number;
+  onStudentPageChange: (page: number) => void;
   onRemove: () => void;
 };
 
@@ -66,6 +70,8 @@ const TargetRow = ({
   options,
   studentKeyword,
   onStudentKeywordChange,
+  studentPage,
+  onStudentPageChange,
   onRemove,
 }: RowProps) => {
   const { field: targetTypeField } = useController({
@@ -177,6 +183,29 @@ const TargetRow = ({
               </TextField>
             )}
           />
+          {(options?.students.meta.total_pages ?? 1) > 1 && (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Button
+                size="small"
+                disabled={studentPage <= 1}
+                onClick={() => onStudentPageChange(studentPage - 1)}
+              >
+                前へ
+              </Button>
+              <Typography variant="body2" sx={{ color: colors.text.muted }}>
+                {studentPage} / {options?.students.meta.total_pages}
+              </Typography>
+              <Button
+                size="small"
+                disabled={
+                  studentPage >= (options?.students.meta.total_pages ?? 1)
+                }
+                onClick={() => onStudentPageChange(studentPage + 1)}
+              >
+                次へ
+              </Button>
+            </Stack>
+          )}
         </Stack>
       )}
 
@@ -192,6 +221,8 @@ export const TargetPicker = ({
   options,
   studentKeyword,
   onStudentKeywordChange,
+  studentPage,
+  onStudentPageChange,
 }: Props) => {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -216,6 +247,8 @@ export const TargetPicker = ({
               options={options}
               studentKeyword={studentKeyword}
               onStudentKeywordChange={onStudentKeywordChange}
+              studentPage={studentPage}
+              onStudentPageChange={onStudentPageChange}
               onRemove={() => remove(index)}
             />
           ))}

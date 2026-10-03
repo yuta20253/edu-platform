@@ -142,9 +142,9 @@ describe("TargetPicker", () => {
       />,
     );
 
-    expect(screen.getByRole("combobox", { name: "配信先の種類" })).toHaveTextContent(
-      "学年別",
-    );
+    expect(
+      screen.getByRole("combobox", { name: "配信先の種類" }),
+    ).toHaveTextContent("学年別");
   });
 
   it("生徒が複数ページある場合、「個人」選択時に次へ/前へボタンが表示される", () => {
@@ -180,7 +180,9 @@ describe("TargetPicker", () => {
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
     fireEvent.click(screen.getByRole("option", { name: "個人" }));
 
-    expect(screen.queryByRole("button", { name: "次へ" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "次へ" }),
+    ).not.toBeInTheDocument();
   });
 
   it("行の「削除」ボタンで行が減る", () => {
