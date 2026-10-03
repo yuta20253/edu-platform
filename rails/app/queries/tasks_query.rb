@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TasksQuery
   def initialize(relation)
     @relation = relation

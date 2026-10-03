@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InterviewRequestsQuery
   def initialize(relation)
     @relation = relation
