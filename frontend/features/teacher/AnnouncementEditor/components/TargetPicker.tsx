@@ -22,6 +22,7 @@ import {
 import {
   ALL_TARGET_TYPE_OPTIONS,
   GRADE_RESTRICTED_TARGET_TYPE_OPTIONS,
+  USER_ROLE_LABEL,
 } from "../constants";
 import type {
   AnnouncementFormValues,
@@ -133,7 +134,7 @@ const TargetRow = ({
             >
               {(options?.user_roles ?? []).map((role) => (
                 <MenuItem key={role.id} value={role.id}>
-                  {role.name}
+                  {USER_ROLE_LABEL[role.name] ?? role.name}
                 </MenuItem>
               ))}
             </TextField>

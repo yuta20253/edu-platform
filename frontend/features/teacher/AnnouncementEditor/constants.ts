@@ -39,3 +39,12 @@ export const DEFAULT_ANNOUNCEMENT_FORM_VALUES: AnnouncementFormValues = {
   deliveryTiming: "draft",
   scheduledAt: null,
 };
+
+// UserRole#nameはenumのキー文字列(admin/student/teacher/guardian)をそのまま
+// 返すため、表示用の日本語ラベルに変換する。未知の値は元の文字列をそのまま表示する。
+export const USER_ROLE_LABEL: Record<string, string> = {
+  admin: "管理者",
+  student: "生徒",
+  teacher: "教員",
+  guardian: "保護者",
+};
