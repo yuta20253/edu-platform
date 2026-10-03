@@ -1,4 +1,8 @@
-import type { TargetType } from "./types";
+import type {
+  AnnouncementFormValues,
+  DeliveryTiming,
+  TargetType,
+} from "./types";
 
 export const ALL_TARGET_TYPE_OPTIONS: { value: TargetType; label: string }[] = [
   { value: "all_users", label: "全員" },
@@ -18,3 +22,20 @@ export const GRADE_RESTRICTED_TARGET_TYPE_OPTIONS: {
 }[] = ALL_TARGET_TYPE_OPTIONS.filter(
   (opt) => opt.value === "by_grade" || opt.value === "by_user",
 );
+
+export const DELIVERY_TIMING_OPTIONS: {
+  value: DeliveryTiming;
+  label: string;
+}[] = [
+  { value: "draft", label: "下書き保存" },
+  { value: "immediate", label: "即時公開" },
+  { value: "scheduled", label: "予約投稿" },
+];
+
+export const DEFAULT_ANNOUNCEMENT_FORM_VALUES: AnnouncementFormValues = {
+  title: "",
+  content: "",
+  targets: [{ target_type: "all_users" }],
+  deliveryTiming: "draft",
+  scheduledAt: null,
+};

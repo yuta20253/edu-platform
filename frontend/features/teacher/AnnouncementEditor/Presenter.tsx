@@ -22,27 +22,16 @@ import { ja } from "date-fns/locale";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { TargetPicker } from "./components/TargetPicker";
+import {
+  DEFAULT_ANNOUNCEMENT_FORM_VALUES,
+  DELIVERY_TIMING_OPTIONS,
+} from "./constants";
 import type {
   AnnouncementFormValues,
   AnnouncementTargetOptions,
-  DeliveryTiming,
 } from "./types";
 
 const CONTENT_MAX_LENGTH = 10_000;
-
-const DELIVERY_TIMING_OPTIONS: { value: DeliveryTiming; label: string }[] = [
-  { value: "draft", label: "下書き保存" },
-  { value: "immediate", label: "即時公開" },
-  { value: "scheduled", label: "予約投稿" },
-];
-
-const DEFAULT_VALUES: AnnouncementFormValues = {
-  title: "",
-  content: "",
-  targets: [{ target_type: "all_users" }],
-  deliveryTiming: "draft",
-  scheduledAt: null,
-};
 
 type Props = {
   options: AnnouncementTargetOptions | null;
@@ -74,7 +63,9 @@ export const Presenter = ({
     watch,
     setError,
     formState: { errors },
-  } = useForm<AnnouncementFormValues>({ defaultValues: DEFAULT_VALUES });
+  } = useForm<AnnouncementFormValues>({
+    defaultValues: DEFAULT_ANNOUNCEMENT_FORM_VALUES,
+  });
 
   const deliveryTiming = watch("deliveryTiming");
 
