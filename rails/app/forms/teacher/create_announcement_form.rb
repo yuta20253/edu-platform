@@ -24,7 +24,7 @@ module Teacher
     validate :users_must_belong_to_same_high_school
     validate :grades_must_belong_to_same_high_school
 
-    attr_reader :current_user
+    attr_reader :current_user, :announcement
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -34,7 +34,7 @@ module Teacher
     def save
       return false unless valid?
 
-      ::Common::AnnouncementCreateService.new(
+      @announcement = ::Common::AnnouncementCreateService.new(
         publisher: current_user,
         title: title,
         content: content,

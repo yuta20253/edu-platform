@@ -806,6 +806,16 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(json['message']).to eq('お知らせを下書きで作成しました。')
       end
 
+      it '作成されたお知らせのannouncement_idが返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['announcement_id']).to eq(Announcement.last.id)
+      end
+
       it 'titleが保存される' do
         post '/api/v1/teacher/announcements',
              params: params.to_json,
