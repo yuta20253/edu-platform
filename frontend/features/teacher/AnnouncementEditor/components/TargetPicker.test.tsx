@@ -30,11 +30,15 @@ const options: AnnouncementTargetOptions = {
 const Host = ({
   defaultValues,
   onStudentKeywordChange = vi.fn(),
+  onStudentPageChange = vi.fn(),
   opts = options,
+  studentPage = 1,
 }: {
   defaultValues: AnnouncementFormValues;
   onStudentKeywordChange?: (keyword: string) => void;
+  onStudentPageChange?: (page: number) => void;
   opts?: AnnouncementTargetOptions | null;
+  studentPage?: number;
 }) => {
   const { control } = useForm<AnnouncementFormValues>({ defaultValues });
   return (
@@ -43,6 +47,8 @@ const Host = ({
       options={opts}
       studentKeyword=""
       onStudentKeywordChange={onStudentKeywordChange}
+      studentPage={studentPage}
+      onStudentPageChange={onStudentPageChange}
     />
   );
 };
@@ -139,6 +145,42 @@ describe("TargetPicker", () => {
     expect(screen.getByRole("combobox", { name: "配信先の種類" })).toHaveTextContent(
       "学年別",
     );
+  });
+
+  it("生徒が複数ページある場合、「個人」選択時に次へ/前へボタンが表示される", () => {
+    const onStudentPageChange = vi.fn();
+    render(
+      <Host
+        defaultValues={baseValues}
+        onStudentPageChange={onStudentPageChange}
+        opts={{
+          ...options,
+          students: {
+            ...options.students,
+            meta: {
+              current_page: 1,
+              total_pages: 2,
+              total_count: 21,
+              per_page: 20,
+            },
+          },
+        }}
+      />,
+    );
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
+    fireEvent.click(screen.getByRole("option", { name: "個人" }));
+
+    expect(screen.getByRole("button", { name: "前へ" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "次へ" }));
+    expect(onStudentPageChange).toHaveBeenCalledWith(2);
+  });
+
+  it("生徒が1ページのみの場合、次へ/前へボタンは表示されない", () => {
+    render(<Host defaultValues={baseValues} />);
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
+    fireEvent.click(screen.getByRole("option", { name: "個人" }));
+
+    expect(screen.queryByRole("button", { name: "次へ" })).not.toBeInTheDocument();
   });
 
   it("行の「削除」ボタンで行が減る", () => {
