@@ -25,17 +25,17 @@ RSpec.describe 'Api::V1::Student::Calendars', type: :request do
   end
 
   describe 'GET /api/v1/student/calendar' do
-    let(:params) { { from: '2026-03-01', to: '2026-03-31' } }
-
     subject(:request) do
       get '/api/v1/student/calendar', params: params, headers: headers.merge('Cookie' => cookie)
     end
+
+    let(:params) { { from: '2026-03-01', to: '2026-03-31' } }
 
     context '正常系' do
       let!(:goal) { create(:goal, user: student, title: 'ゴールA', due_date: Date.new(2026, 3, 10)) }
       let!(:task) do
         create(:task, user: student, goal: create(:goal, user: student), title: 'タスクA',
-                       due_date: Date.new(2026, 3, 5))
+                      due_date: Date.new(2026, 3, 5))
       end
       let!(:other_goal) { create(:goal, user: other_student, due_date: Date.new(2026, 3, 12)) }
 

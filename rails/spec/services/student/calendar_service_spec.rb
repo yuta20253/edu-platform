@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe Student::CalendarService, type: :model do
+  subject(:call) { described_class.new(user: user, from_date: from_date, to_date: to_date).call }
+
   let(:user) { create(:user, :student) }
   let(:other_user) { create(:user, :student) }
   let(:from_date) { Date.new(2026, 3, 1) }
   let(:to_date) { Date.new(2026, 3, 31) }
-
-  subject(:call) { described_class.new(user: user, from_date: from_date, to_date: to_date).call }
 
   describe '#call' do
     let!(:task_in_range) do
@@ -18,16 +18,18 @@ RSpec.describe Student::CalendarService, type: :model do
     let!(:teacher) { create(:user, :teacher) }
     let!(:interview_request_in_range) do
       create(:interview_request, :initiated_by_student, student: user, teacher: teacher,
-                                                          reason_detail: '進路について相談したい',
-                                                          scheduled_at: Time.zone.local(2026, 3, 20, 10, 0))
+                                                        reason_detail: '進路について相談したい',
+                                                        scheduled_at: Time.zone.local(2026, 3, 20, 10, 0))
     end
 
     let!(:goal_out_of_range) { create(:goal, user: user, due_date: Date.new(2026, 4, 1)) }
-    let!(:task_out_of_range) { create(:task, user: user, goal: create(:goal, user: user), due_date: Date.new(2026, 2, 1)) }
+    let!(:task_out_of_range) do
+      create(:task, user: user, goal: create(:goal, user: user), due_date: Date.new(2026, 2, 1))
+    end
     let!(:other_teacher) { create(:user, :teacher) }
     let!(:interview_request_out_of_range) do
       create(:interview_request, :initiated_by_student, student: user, teacher: other_teacher,
-                                                          scheduled_at: Time.zone.local(2026, 4, 10, 10, 0))
+                                                        scheduled_at: Time.zone.local(2026, 4, 10, 10, 0))
     end
 
     let!(:goal_other_user) { create(:goal, user: other_user, due_date: Date.new(2026, 3, 12)) }
@@ -36,13 +38,13 @@ RSpec.describe Student::CalendarService, type: :model do
     end
     let!(:interview_request_other_user) do
       create(:interview_request, :initiated_by_student, student: other_user, teacher: teacher,
-                                                          scheduled_at: Time.zone.local(2026, 3, 22, 10, 0))
+                                                        scheduled_at: Time.zone.local(2026, 3, 22, 10, 0))
     end
 
     let!(:unscheduled_teacher) { create(:user, :teacher) }
     let!(:interview_request_unscheduled) do
       create(:interview_request, :initiated_by_student, student: user, teacher: unscheduled_teacher,
-                                                          scheduled_at: nil)
+                                                        scheduled_at: nil)
     end
 
     it '期間内のgoal・task・interview_requestのみを日付昇順でまとめた配列を返す' do
