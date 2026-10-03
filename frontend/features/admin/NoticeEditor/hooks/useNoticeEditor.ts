@@ -1,6 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
 import { extractApiError } from "@/libs/http/extractApiError";
 import type {
   AdminNoticeDetail,
@@ -15,9 +16,6 @@ type UseNoticeEditorParams = {
   // 未指定なら新規作成、指定されていれば編集対象のお知らせID
   noticeId?: number;
 };
-
-const buildErrorMessage = (errors: string[] | undefined, fallback: string) =>
-  errors && errors.length > 0 ? errors.join("\n") : fallback;
 
 // お知らせ作成・編集画面のデータ取得・保存を行うフック。
 // - 編集時は既存データを取得し、配信済みなら一覧へリダイレクトする

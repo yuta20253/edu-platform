@@ -1,13 +1,11 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
 import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import type { AnnouncementFormValues } from "../types";
-
-const buildErrorMessage = (errors: string[] | undefined, fallback: string) =>
-  errors && errors.length > 0 ? errors.join("\n") : fallback;
 
 // お知らせ新規作成画面の保存・配信を行うフック。
 // Rails側の仕様上、新規作成は常にdraftで作成されるため
