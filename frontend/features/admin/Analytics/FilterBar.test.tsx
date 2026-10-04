@@ -196,6 +196,16 @@ describe("FilterBar", () => {
       expect(alert).toHaveTextContent("別のエラー");
     });
 
+    it("同じ文言が複数あっても重複keyの警告を出さずすべて表示する", () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      render(
+        <FilterBar {...defaultProps} validationErrors={["同じ", "同じ"]} />,
+      );
+      expect(screen.getAllByText("同じ")).toHaveLength(2);
+      expect(errorSpy).not.toHaveBeenCalled();
+      errorSpy.mockRestore();
+    });
+
     it("エラーが無いときはアラートを表示しない", () => {
       render(<FilterBar {...defaultProps} />);
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();

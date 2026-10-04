@@ -165,8 +165,8 @@ export const FilterBar = ({
 
       {validationErrors.length > 0 && (
         <Alert severity="error" sx={{ mt: 1 }}>
-          {validationErrors.map((message) => (
-            <div key={message}>{message}</div>
+          {validationErrors.map((message, index) => (
+            <div key={`${index}-${message}`}>{message}</div>
           ))}
         </Alert>
       )}
