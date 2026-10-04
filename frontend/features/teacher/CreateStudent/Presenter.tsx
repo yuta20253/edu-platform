@@ -50,7 +50,7 @@ export const Presenter = ({
   }, [gradeId, setValue]);
 
   return (
-    <Box sx={{ p: 3, maxWidth: 480 }}>
+    <Box sx={{ p: 3, maxWidth: 480, mx: "auto" }}>
       <Typography
         variant="h5"
         fontWeight={700}
