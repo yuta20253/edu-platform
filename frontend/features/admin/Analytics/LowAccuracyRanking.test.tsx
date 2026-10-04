@@ -164,4 +164,13 @@ describe("LowAccuracyRanking", () => {
       within(unitCard()).getByText("解答数20件以上の単元のみ集計"),
     ).toBeVisible();
   });
+
+  it("ランキングの各行はリスト項目(li)の中にリンクを持つ", () => {
+    renderRanking();
+    const items = within(unitCard()).getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    for (const item of items) {
+      expect(within(item).getByRole("link")).toBeInTheDocument();
+    }
+  });
 });

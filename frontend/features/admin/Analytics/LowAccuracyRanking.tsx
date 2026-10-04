@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   List,
+  ListItem,
   ListItemButton,
   Typography,
 } from "@mui/material";
@@ -99,25 +100,26 @@ export const LowAccuracyRanking = ({
       isEmpty={units.length === 0}
     >
       {units.map((unit) => (
-        <ListItemButton
-          key={unit.unit_id}
-          component={Link}
-          href={unitDetailPath(unit.course_id, unit.unit_id)}
-          sx={rowSx}
-        >
-          <Box sx={{ minWidth: 0 }}>
-            <Typography variant="body2" fontWeight={600} noWrap>
-              {unit.unit_name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {unit.course_name}
-            </Typography>
-          </Box>
-          <Stats
-            answerCount={unit.answer_count}
-            accuracyRate={unit.accuracy_rate}
-          />
-        </ListItemButton>
+        <ListItem key={unit.unit_id} disablePadding>
+          <ListItemButton
+            component={Link}
+            href={unitDetailPath(unit.course_id, unit.unit_id)}
+            sx={rowSx}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={600} noWrap>
+                {unit.unit_name}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {unit.course_name}
+              </Typography>
+            </Box>
+            <Stats
+              answerCount={unit.answer_count}
+              accuracyRate={unit.accuracy_rate}
+            />
+          </ListItemButton>
+        </ListItem>
       ))}
     </RankingCard>
 
@@ -127,25 +129,26 @@ export const LowAccuracyRanking = ({
       isEmpty={questions.length === 0}
     >
       {questions.map((question) => (
-        <ListItemButton
-          key={question.question_id}
-          component={Link}
-          href={unitDetailPath(question.course_id, question.unit_id)}
-          sx={rowSx}
-        >
-          <Box sx={{ minWidth: 0 }}>
-            <Typography variant="body2" fontWeight={600} noWrap>
-              {question.question_text}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {question.unit_name}
-            </Typography>
-          </Box>
-          <Stats
-            answerCount={question.answer_count}
-            accuracyRate={question.accuracy_rate}
-          />
-        </ListItemButton>
+        <ListItem key={question.question_id} disablePadding>
+          <ListItemButton
+            component={Link}
+            href={unitDetailPath(question.course_id, question.unit_id)}
+            sx={rowSx}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={600} noWrap>
+                {question.question_text}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {question.unit_name}
+              </Typography>
+            </Box>
+            <Stats
+              answerCount={question.answer_count}
+              accuracyRate={question.accuracy_rate}
+            />
+          </ListItemButton>
+        </ListItem>
       ))}
     </RankingCard>
   </Box>
