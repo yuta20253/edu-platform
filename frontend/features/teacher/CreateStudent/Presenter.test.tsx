@@ -59,7 +59,10 @@ describe("CreateStudent Presenter", () => {
 
   it("学年未選択のときは学級選択が無効", () => {
     render(<TestWrapper />);
-    expect(screen.getByRole("combobox", { name: "学級" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "学級" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("学年を選択するとその学年の学級だけが選択できる", () => {
