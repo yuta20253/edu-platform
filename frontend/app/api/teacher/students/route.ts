@@ -1,3 +1,4 @@
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { NextRequest, NextResponse } from "next/server";
@@ -27,5 +28,22 @@ export async function GET(req: NextRequest) {
       { message: "INTERNAL_SERVER_ERROR" },
       { status: 500 },
     );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  try {
+    const { status, data, setCookie } = await railsFetch(
+      "/api/v1/teacher/students",
+      { method: "POST", body },
+    );
+
+    const res = NextResponse.json(data, { status });
+    if (setCookie) res.headers.set("set-cookie", setCookie);
+    return res;
+  } catch (error) {
+    return handleRailsRouteError(error, "生徒の新規作成に失敗しました");
   }
 }
