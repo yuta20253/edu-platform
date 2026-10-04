@@ -6,10 +6,12 @@ import { useFetchAnalytics } from "./useFetchAnalytics";
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
+// 実際の useRouter は安定した参照を返すため、モックも同一オブジェクトにする
+const routerMock = { push: pushMock, replace: replaceMock };
 let searchParamsMock = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock, replace: replaceMock }),
+  useRouter: () => routerMock,
   usePathname: () => "/admin/analytics",
   useSearchParams: () => searchParamsMock,
 }));
@@ -25,7 +27,10 @@ const mockApi = (
 ) => {
   vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
     const override = overrides[url];
-    if (override instanceof Error || (override && "response" in (override as object))) {
+    if (
+      override instanceof Error ||
+      (override && "response" in (override as object))
+    ) {
       throw override;
     }
     if (override !== undefined) return { data: override };
@@ -55,9 +60,9 @@ const mockApi = (
 };
 
 const analyticsCalls = () =>
-  vi.mocked(apiClient.get).mock.calls.filter(
-    ([url]) => url === "/api/admin/analytics",
-  );
+  vi
+    .mocked(apiClient.get)
+    .mock.calls.filter(([url]) => url === "/api/admin/analytics");
 
 describe("useFetchAnalytics", () => {
   beforeEach(() => {
@@ -194,7 +199,9 @@ describe("useFetchAnalytics", () => {
       },
     });
     const { result, rerender } = renderHook(() => useFetchAnalytics());
-    await waitFor(() => expect(result.current.validationErrors).toHaveLength(1));
+    await waitFor(() =>
+      expect(result.current.validationErrors).toHaveLength(1),
+    );
 
     mockApi();
     searchParamsMock = new URLSearchParams("from=2026-09-01&to=2026-09-30");
