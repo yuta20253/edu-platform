@@ -22,7 +22,9 @@ describe("GET /api/admin/schools", () => {
 
   it("page 未指定のときは 1 ページ目として転送する", async () => {
     await get("");
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/admin/high_schools?page=1");
+    expect(railsFetch).toHaveBeenCalledWith(
+      "/api/v1/admin/high_schools?page=1",
+    );
   });
 
   it("prefecture_id をバックエンドへ転送する", async () => {
