@@ -6,6 +6,7 @@ import {
   Box,
   Card,
   CardContent,
+  IconButton,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -131,10 +132,13 @@ export const KpiCards = ({ kpis }: Props) => (
                 {card.label}
               </Typography>
               {card.definition && (
+                // キーボードでも定義を確認できるよう、フォーカス可能なボタンで包む
                 <Tooltip title={card.definition} arrow>
-                  <InfoOutlinedIcon
-                    sx={{ fontSize: 16, color: colors.text.muted }}
-                  />
+                  <IconButton size="small" sx={{ p: 0.25 }}>
+                    <InfoOutlinedIcon
+                      sx={{ fontSize: 16, color: colors.text.muted }}
+                    />
+                  </IconButton>
                 </Tooltip>
               )}
             </Box>

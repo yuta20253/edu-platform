@@ -99,4 +99,17 @@ describe("KpiCards", () => {
       ),
     ).toBeVisible();
   });
+
+  it("アクティブ生徒数の定義はキーボード操作(フォーカス)でも確認できる", async () => {
+    const user = userEvent.setup();
+    render(<KpiCards kpis={kpis} />);
+
+    await user.tab();
+
+    expect(
+      await screen.findByText(
+        "期間内に解答または学習記録がある生徒（ログイン履歴は記録していません）",
+      ),
+    ).toBeVisible();
+  });
 });
