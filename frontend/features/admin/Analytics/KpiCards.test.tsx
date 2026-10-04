@@ -11,8 +11,7 @@ const kpis: AnalyticsKpis = {
   study_minutes: { current: 5820, previous: 5820 },
 };
 
-const card = (label: string) =>
-  screen.getByRole("group", { name: label });
+const card = (label: string) => screen.getByRole("group", { name: label });
 
 describe("KpiCards", () => {
   it("4つのKPIカードのラベルが表示される", () => {
