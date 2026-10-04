@@ -1,6 +1,6 @@
 export type GradeScope = "own_grade" | "all_grades";
 
-export type SchoolClassOption = {
+type SchoolClassOption = {
   id: number;
   name: string;
 };
