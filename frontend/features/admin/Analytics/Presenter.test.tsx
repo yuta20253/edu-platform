@@ -108,7 +108,9 @@ describe("AnalyticsPresenter", () => {
 
   it("データ取得後は6つのセクションをすべて表示する", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByRole("group", { name: "アクティブ生徒数" })).toBeVisible();
+    expect(
+      screen.getByRole("group", { name: "アクティブ生徒数" }),
+    ).toBeVisible();
     expect(screen.getByText("日別の学習推移")).toBeVisible();
     expect(
       screen.getByRole("region", { name: "正答率が低い単元 ワースト10" }),
