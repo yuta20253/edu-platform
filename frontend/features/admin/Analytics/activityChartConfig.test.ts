@@ -30,10 +30,7 @@ describe("buildActivityChart", () => {
 
   it("既定では日別アクティブ生徒数と日別解答数の2系列を返す", () => {
     const { series } = buildActivityChart(daily, false);
-    expect(series.map((s) => s.label)).toEqual([
-      "アクティブ生徒数",
-      "解答数",
-    ]);
+    expect(series.map((s) => s.label)).toEqual(["アクティブ生徒数", "解答数"]);
     expect(series[0].data).toEqual([40, 0]);
     expect(series[1].data).toEqual([380, 0]);
   });
