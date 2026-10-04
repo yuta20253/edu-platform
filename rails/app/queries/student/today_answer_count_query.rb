@@ -22,7 +22,7 @@ module Student
     end
 
     def key
-      "student:today_answer_count:#{user.id}:#{Time.current.to_date.iso8601}"
+      ::Student::TodayAnswerCountKey.build(user)
     end
   end
 end

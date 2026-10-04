@@ -9,8 +9,12 @@ module Student
     end
 
     def call
-      redis.incr(key)
-      redis.expireat(key, ttl_at.to_i)
+      redis.pipelined do |pipeline|
+        pipeline.incr(key)
+        # NX: 既にTTLが付いているキーへの再設定(無駄な通信・日付境界のズレ)を避ける。
+        # INCRでキーが新規作成された直後だけTTLなしなので、そのときだけ実際に設定される。
+        pipeline.expireat(key, ttl_at.to_i, nx: true)
+      end
     rescue Redis::BaseError => e
       Rails.logger.error("[IncrementTodayAnswerCountService] failed: #{e.message}")
     end
@@ -24,7 +28,7 @@ module Student
     end
 
     def key
-      "student:today_answer_count:#{user.id}:#{Time.current.to_date.iso8601}"
+      ::Student::TodayAnswerCountKey.build(user)
     end
 
     def ttl_at

@@ -31,8 +31,17 @@ RSpec.describe Student::IncrementTodayAnswerCountService, type: :model do
       expect(redis.ttl(key)).to be_positive
     end
 
+    it 'TTLが既についている場合は上書きしない(NX)' do
+      service.call
+      redis.expire(key, 60)
+
+      service.call
+
+      expect(redis.ttl(key)).to be <= 60
+    end
+
     context 'Redis接続エラーが発生する場合' do
-      before { allow(redis).to receive(:incr).and_raise(Redis::BaseConnectionError) }
+      before { allow(redis).to receive(:pipelined).and_raise(Redis::BaseConnectionError) }
 
       it '例外を発生させない' do
         expect { service.call }.not_to raise_error
