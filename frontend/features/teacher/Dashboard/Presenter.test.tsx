@@ -78,7 +78,10 @@ describe("TeacherDashboardPresenter", () => {
     render(<Presenter data={mockData} />);
     expect(
       screen.getByRole("link", { name: "教員を追加する" }),
-    ).toHaveAttribute("href", "/teacher/announcements/new");
+    ).toHaveAttribute("href", "/teacher/colleagues");
+    expect(
+      screen.getByRole("link", { name: "生徒を追加する" }),
+    ).toHaveAttribute("href", "/teacher/students/new");
     expect(
       screen.getByRole("link", { name: "お知らせを作成する" }),
     ).toHaveAttribute("href", "/teacher/announcements/new");
