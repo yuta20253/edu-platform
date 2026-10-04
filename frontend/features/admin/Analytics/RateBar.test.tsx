@@ -8,11 +8,11 @@ describe("RateBar", () => {
     expect(screen.getByText("38.1%")).toBeVisible();
   });
 
-  it("バーの値がアクセシビリティ属性に反映される", () => {
+  it("バーの値がアクセシビリティ属性に反映される(MUIの仕様で整数に丸められる)", () => {
     render(<RateBar value={38.1} label="正答率" />);
     expect(screen.getByRole("progressbar", { name: "正答率" })).toHaveAttribute(
       "aria-valuenow",
-      "38.1",
+      "38",
     );
   });
 
