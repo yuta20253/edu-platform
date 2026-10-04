@@ -4,6 +4,10 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Users', type: :request do
   describe 'GET /api/v1/me' do
+    subject do
+      get '/api/v1/me', headers: headers.merge('Cookie' => cookie)
+    end
+
     let(:headers) do
       {
         'Content-Type' => 'application/json',
@@ -24,10 +28,6 @@ RSpec.describe 'Api::V1::Users', type: :request do
            headers: headers
 
       response.headers['Set-Cookie']&.split(';')&.first
-    end
-
-    subject do
-      get '/api/v1/me', headers: headers.merge('Cookie' => cookie)
     end
 
     it '教員のteacher_permission(grade_scope)を含めて返すこと' do
