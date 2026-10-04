@@ -64,4 +64,17 @@ describe("useCurrentTeacher", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
+
+  it("401以外のエラー時はerrorがtrueになり学年制限を不明なまま扱わない", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 500 },
+    });
+
+    const { result } = renderHook(() => useCurrentTeacher());
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBe(true);
+    expect(pushMock).not.toHaveBeenCalled();
+  });
 });
