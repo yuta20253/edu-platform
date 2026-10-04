@@ -119,9 +119,7 @@ describe("LowAccuracyRanking", () => {
     renderRanking();
     const card = questionCard();
     expect(
-      within(card).getByText(
-        "二次関数 y=ax^2+bx+c のグラフの頂点を求めなさい",
-      ),
+      within(card).getByText("二次関数 y=ax^2+bx+c のグラフの頂点を求めなさい"),
     ).toBeVisible();
     expect(within(card).getByText("二次関数")).toBeVisible();
     expect(within(card).getByText("96件")).toBeVisible();
