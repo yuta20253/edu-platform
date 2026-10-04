@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { Alert, Box, CircularProgress } from "@mui/material";
 import { useCreateStudent } from "./hooks/useCreateStudent";
 import { useCreateStudentForm } from "./hooks/useCreateStudentForm";
 import { useCurrentTeacher } from "./hooks/useCurrentTeacher";
@@ -8,7 +8,11 @@ import { useGradeOptions } from "./hooks/useGradeOptions";
 import { Presenter } from "./Presenter";
 
 export const CreateStudent = () => {
-  const { restrictedGradeId, loading: teacherLoading } = useCurrentTeacher();
+  const {
+    restrictedGradeId,
+    loading: teacherLoading,
+    error: teacherError,
+  } = useCurrentTeacher();
   const gradeOptions = useGradeOptions(restrictedGradeId);
   const form = useCreateStudentForm();
   const { creating, createErrors, handleCreate } = useCreateStudent();
@@ -24,6 +28,16 @@ export const CreateStudent = () => {
         }}
       >
         <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (teacherError) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">
+          教員情報の取得に失敗しました。再読み込みしてください。
+        </Alert>
       </Box>
     );
   }

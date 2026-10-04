@@ -18,6 +18,7 @@ export const useCurrentTeacher = () => {
     null,
   );
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,10 +36,13 @@ export const useCurrentTeacher = () => {
       .catch((err) => {
         if (err.response?.status === 401) {
           router.push("/login");
+          return;
         }
+
+        setError(true);
       })
       .finally(() => setLoading(false));
   }, [router]);
 
-  return { gradeScope, restrictedGradeId, loading };
+  return { gradeScope, restrictedGradeId, loading, error };
 };
