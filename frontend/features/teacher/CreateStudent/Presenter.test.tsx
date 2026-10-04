@@ -49,12 +49,8 @@ describe("CreateStudent Presenter", () => {
     expect(
       screen.getByRole("textbox", { name: "メールアドレス" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("combobox", { name: "学年" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("combobox", { name: "学級" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "学年" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "学級" })).toBeInTheDocument();
   });
 
   it("学年未選択のときは学級選択が無効", () => {
@@ -89,7 +85,9 @@ describe("CreateStudent Presenter", () => {
     fireEvent.click(screen.getByRole("option", { name: "2年" }));
 
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "学級" }));
-    expect(screen.queryByRole("option", { name: "B組" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "B組" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("option", { name: "A組" })).toBeInTheDocument();
   });
 

@@ -28,7 +28,9 @@ export const useCurrentTeacher = () => {
         const scope = teacher_permission?.grade_scope ?? null;
 
         setGradeScope(scope);
-        setRestrictedGradeId(scope === "own_grade" ? grade?.id ?? null : null);
+        setRestrictedGradeId(
+          scope === "own_grade" ? (grade?.id ?? null) : null,
+        );
       })
       .catch((err) => {
         if (err.response?.status === 401) {
