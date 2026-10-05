@@ -1,5 +1,5 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { act, renderHook } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useSubmit } from "./useSubmit";
 
@@ -15,9 +15,14 @@ vi.mock("@/libs/http/apiClient", () => ({
 describe("useSubmit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
-  it("送信成功時、紐付けAPIを呼び出しホームへ遷移する", async () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("送信成功時、紐付けAPIを呼び出し成功メッセージを表示してからホームへ遷移する", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({
       data: { message: "アカウントの紐付けが成功しました" },
     });
@@ -33,7 +38,18 @@ describe("useSubmit", () => {
     expect(apiClient.post).toHaveBeenCalledWith("/api/student/account-link", {
       student_number: "AB12-CD3456",
     });
-    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/"));
+    expect(result.current.toast).toEqual({
+      open: true,
+      message: "アカウントの紐付けが完了しました",
+      severity: "success",
+    });
+    expect(pushMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/");
   });
 
   it("生徒番号が見つからない場合(404)、専用のエラーメッセージをセットする", async () => {
