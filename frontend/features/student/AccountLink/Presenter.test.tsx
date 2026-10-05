@@ -7,9 +7,11 @@ import { AccountLinkForm } from "./types";
 const Wrapper = ({
   errorMessage = "",
   onSubmit = vi.fn(),
+  isSubmitting = false,
 }: {
   errorMessage?: string;
   onSubmit?: () => void;
+  isSubmitting?: boolean;
 }) => {
   const {
     register,
@@ -25,6 +27,7 @@ const Wrapper = ({
       onSubmit={handleSubmit(onSubmit)}
       toast={{ open: false, message: "", severity: "success" }}
       closeToast={vi.fn()}
+      isSubmitting={isSubmitting}
     />
   );
 };
@@ -53,5 +56,10 @@ describe("Presenter", () => {
     expect(
       screen.getByText("入力された生徒コードが見つかりません"),
     ).toBeInTheDocument();
+  });
+
+  it("送信中は送信ボタンがdisabledになり二重送信を防ぐ", () => {
+    render(<Wrapper isSubmitting={true} />);
+    expect(screen.getByRole("button", { name: "紐付ける" })).toBeDisabled();
   });
 });
