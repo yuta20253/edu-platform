@@ -9,7 +9,7 @@ export const AccountLink = (): React.JSX.Element => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<AccountLinkForm>();
   const { onSubmit, errorMessage, toast, closeToast } = useSubmit();
 
@@ -21,6 +21,7 @@ export const AccountLink = (): React.JSX.Element => {
       onSubmit={handleSubmit(onSubmit)}
       toast={toast}
       closeToast={closeToast}
+      isSubmitting={isSubmitting}
     />
   );
 };

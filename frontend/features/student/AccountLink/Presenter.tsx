@@ -24,6 +24,7 @@ type Props = {
   onSubmit: () => void;
   toast: Toast;
   closeToast: () => void;
+  isSubmitting: boolean;
 };
 
 export const Presenter = ({
@@ -33,6 +34,7 @@ export const Presenter = ({
   onSubmit,
   toast,
   closeToast,
+  isSubmitting,
 }: Props): React.JSX.Element => {
   return (
     <Box sx={{ maxWidth: 480, mx: "auto" }}>
@@ -69,7 +71,12 @@ export const Presenter = ({
             helperText={errors.student_number?.message}
           />
         </Box>
-        <Button type="submit" variant="contained" fullWidth>
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isSubmitting}
+        >
           紐付ける
         </Button>
       </Box>
