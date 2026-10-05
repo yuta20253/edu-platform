@@ -1,29 +1,14 @@
 "use client";
 
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { AccountLinkForm } from "./types";
-
-type Toast = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
-};
 
 type Props = {
   register: UseFormRegister<AccountLinkForm>;
   errors: FieldErrors<AccountLinkForm>;
   errorMessage: string;
   onSubmit: () => void;
-  toast: Toast;
-  closeToast: () => void;
   isSubmitting: boolean;
 };
 
@@ -32,8 +17,6 @@ export const Presenter = ({
   errors,
   errorMessage,
   onSubmit,
-  toast,
-  closeToast,
   isSubmitting,
 }: Props): React.JSX.Element => {
   return (
@@ -80,22 +63,6 @@ export const Presenter = ({
           紐付ける
         </Button>
       </Box>
-
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={4000}
-        onClose={closeToast}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={closeToast}
-          severity={toast.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

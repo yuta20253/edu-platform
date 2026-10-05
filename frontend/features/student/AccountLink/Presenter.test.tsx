@@ -25,8 +25,6 @@ const Wrapper = ({
       errors={errors}
       errorMessage={errorMessage}
       onSubmit={handleSubmit(onSubmit)}
-      toast={{ open: false, message: "", severity: "success" }}
-      closeToast={vi.fn()}
       isSubmitting={isSubmitting}
     />
   );
