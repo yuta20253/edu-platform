@@ -54,4 +54,24 @@ describe("useSubmit", () => {
     );
     expect(pushMock).not.toHaveBeenCalled();
   });
+
+  it("重複などRails側のバリデーションエラー(400)のメッセージをセットする", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: {
+        status: 400,
+        data: { errors: ["既に紐付けられています"] },
+      },
+    });
+    const { result } = renderHook(() => useSubmit());
+
+    await act(async () => {
+      await result.current.onSubmit(
+        { student_number: "AB12-CD3456" },
+        undefined as never,
+      );
+    });
+
+    expect(result.current.errorMessage).toBe("既に紐付けられています");
+    expect(pushMock).not.toHaveBeenCalled();
+  });
 });
