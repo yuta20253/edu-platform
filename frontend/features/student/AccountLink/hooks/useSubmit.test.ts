@@ -35,4 +35,23 @@ describe("useSubmit", () => {
     });
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/"));
   });
+
+  it("生徒番号が見つからない場合(404)、専用のエラーメッセージをセットする", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 404, data: { message: "Userが見つかりません" } },
+    });
+    const { result } = renderHook(() => useSubmit());
+
+    await act(async () => {
+      await result.current.onSubmit(
+        { student_number: "NOT-EXIST" },
+        undefined as never,
+      );
+    });
+
+    expect(result.current.errorMessage).toBe(
+      "入力された生徒コードが見つかりません",
+    );
+    expect(pushMock).not.toHaveBeenCalled();
+  });
 });
