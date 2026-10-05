@@ -12,6 +12,11 @@ vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { post: vi.fn() },
 }));
 
+const showToastMock = vi.fn();
+vi.mock("@/components/ui/ToastProvider", () => ({
+  useToast: () => ({ show: showToastMock }),
+}));
+
 describe("useSubmit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -38,8 +43,7 @@ describe("useSubmit", () => {
     expect(apiClient.post).toHaveBeenCalledWith("/api/student/account-link", {
       student_number: "AB12-CD3456",
     });
-    expect(result.current.toast).toEqual({
-      open: true,
+    expect(showToastMock).toHaveBeenCalledWith({
       message: "アカウントの紐付けが完了しました",
       severity: "success",
     });
