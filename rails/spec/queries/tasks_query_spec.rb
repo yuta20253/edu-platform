@@ -29,5 +29,15 @@ RSpec.describe TasksQuery, type: :model do
 
       expect(result).not_to include(task_without_due_date)
     end
+
+    it '論理削除済み(deleted_atがある)taskは除外される' do
+      task_deleted = create(:task, user: user, goal: goal, due_date: Date.new(2026, 3, 15), deleted_at: Time.current)
+
+      result = described_class.new(user.tasks)
+                              .within_period(from: Date.new(2026, 3, 1), to: Date.new(2026, 3, 31))
+                              .result
+
+      expect(result).not_to include(task_deleted)
+    end
   end
 end

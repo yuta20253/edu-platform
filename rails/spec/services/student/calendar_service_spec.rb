@@ -47,6 +47,18 @@ RSpec.describe Student::CalendarService, type: :model do
                                                         scheduled_at: nil)
     end
 
+    let!(:cancelled_teacher) { create(:user, :teacher) }
+    let!(:interview_request_cancelled) do
+      create(:interview_request, :initiated_by_student, student: user, teacher: cancelled_teacher,
+                                                        status: :cancelled,
+                                                        scheduled_at: Time.zone.local(2026, 3, 18, 10, 0))
+    end
+
+    let!(:task_deleted) do
+      create(:task, user: user, goal: create(:goal, user: user), due_date: Date.new(2026, 3, 8),
+                     deleted_at: Time.current)
+    end
+
     it '期間内のgoal・task・interview_requestのみを日付昇順でまとめた配列を返す' do
       expect(call.pluck(:type)).to eq(%w[task goal interview_request])
     end
@@ -101,6 +113,14 @@ RSpec.describe Student::CalendarService, type: :model do
 
     it 'scheduled_atが未確定の面談は含まれない' do
       expect(call.pluck(:id)).not_to include(interview_request_unscheduled.id)
+    end
+
+    it 'cancelledの面談は含まれない' do
+      expect(call.pluck(:id)).not_to include(interview_request_cancelled.id)
+    end
+
+    it '論理削除済みのtaskは含まれない' do
+      expect(call.pluck(:id)).not_to include(task_deleted.id)
     end
   end
 

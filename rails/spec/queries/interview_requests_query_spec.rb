@@ -92,4 +92,26 @@ RSpec.describe InterviewRequestsQuery, type: :model do
       expect(result).not_to include(request_without_scheduled_at)
     end
   end
+
+  describe '#exclude_cancelled' do
+    let!(:cancelled_teacher) { create(:user, :teacher) }
+    let!(:cancelled_request) do
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: cancelled_teacher,
+                                                        status: :cancelled,
+                                                        scheduled_at: Time.zone.local(2026, 3, 15, 10, 0))
+    end
+    let!(:active_request) do
+      create(:interview_request, :initiated_by_teacher, student: student, teacher: teacher,
+                                                        scheduled_at: Time.zone.local(2026, 3, 16, 10, 0))
+    end
+
+    it 'cancelledの面談は除外される' do
+      result = described_class.new(InterviewRequest.all)
+                              .for_participant(student)
+                              .exclude_cancelled
+                              .result
+
+      expect(result).to contain_exactly(active_request)
+    end
+  end
 end
