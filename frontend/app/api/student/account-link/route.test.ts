@@ -1,7 +1,10 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { RailsFetchError } from "@/libs/server/rails/railsError";
+import {
+  RailsFetchError,
+  RailsUnauthorizedError,
+} from "@/libs/server/rails/railsError";
 import { POST } from "./route";
 
 vi.mock("@/libs/server/rails/railsFetch", () => ({
@@ -68,5 +71,14 @@ describe("POST /api/student/account-link", () => {
 
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ message: "Userが見つかりません" });
+  });
+
+  it("未ログインのとき401を返す", async () => {
+    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+
+    const res = await post({ student_number: "AB12-CD3456" });
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
   });
 });
