@@ -130,7 +130,7 @@ export const Presenter = ({ user }: Props) => {
         </Button>
       </Box>
 
-      <ProfileMenu />
+      <ProfileMenu accountLinked={user.account_linked} />
     </Box>
   );
 };

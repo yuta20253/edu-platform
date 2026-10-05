@@ -24,6 +24,7 @@ const mockUser: MeUser = {
   high_school: { name: "テスト高校" },
   name_kana: "",
   profile_completed: false,
+  account_linked: null,
   user_personal_info: {
     id: 0,
     phone_number: "",
