@@ -4,7 +4,12 @@ import { AccountLink } from "./index";
 
 const onSubmitMock = vi.fn();
 vi.mock("./hooks/useSubmit", () => ({
-  useSubmit: () => ({ onSubmit: onSubmitMock, errorMessage: "" }),
+  useSubmit: () => ({
+    onSubmit: onSubmitMock,
+    errorMessage: "",
+    toast: { open: false, message: "", severity: "success" },
+    closeToast: vi.fn(),
+  }),
 }));
 
 describe("AccountLink", () => {

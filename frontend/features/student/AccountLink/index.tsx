@@ -11,7 +11,7 @@ export const AccountLink = (): React.JSX.Element => {
     handleSubmit,
     formState: { errors },
   } = useForm<AccountLinkForm>();
-  const { onSubmit, errorMessage } = useSubmit();
+  const { onSubmit, errorMessage, toast, closeToast } = useSubmit();
 
   return (
     <Presenter
@@ -19,6 +19,8 @@ export const AccountLink = (): React.JSX.Element => {
       errors={errors}
       errorMessage={errorMessage}
       onSubmit={handleSubmit(onSubmit)}
+      toast={toast}
+      closeToast={closeToast}
     />
   );
 };

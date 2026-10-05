@@ -7,9 +7,18 @@ import { useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import { AccountLinkForm } from "../types";
 
+type ToastType = "success" | "error";
+
+const initialToast = {
+  open: false,
+  message: "",
+  severity: "success" as ToastType,
+};
+
 export const useSubmit = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
+  const [toast, setToast] = useState(initialToast);
 
   const onSubmit: SubmitHandler<AccountLinkForm> = async (data) => {
     setErrorMessage("");
@@ -19,7 +28,15 @@ export const useSubmit = () => {
         student_number: data.student_number,
       });
 
-      router.push("/");
+      setToast({
+        open: true,
+        message: "アカウントの紐付けが完了しました",
+        severity: "success",
+      });
+
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     } catch (error) {
       const { status, errors } = extractApiError(error);
 
@@ -37,5 +54,7 @@ export const useSubmit = () => {
     }
   };
 
-  return { onSubmit, errorMessage };
+  const closeToast = () => setToast((prev) => ({ ...prev, open: false }));
+
+  return { onSubmit, errorMessage, toast, closeToast };
 };
