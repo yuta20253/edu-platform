@@ -7,6 +7,8 @@ module Student
     include ActiveModel::Validations
 
     MAX_RANGE_DAYS = 92
+    DATE_FORMAT = /\A\d{4}-\d{2}-\d{2}\z/
+    DATE_STRPTIME_FORMAT = '%Y-%m-%d'
 
     attribute :from, :string
     attribute :to, :string
@@ -55,9 +57,9 @@ module Student
 
     def parse_date(value)
       return nil unless value.is_a?(String)
-      return nil if value.blank?
+      return nil unless value.match?(DATE_FORMAT)
 
-      Date.parse(value)
+      Date.strptime(value, DATE_STRPTIME_FORMAT)
     rescue ArgumentError
       nil
     end

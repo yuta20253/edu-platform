@@ -29,6 +29,15 @@ RSpec.describe Student::CalendarForm, type: :model do
         expect(form.errors[:from]).to include('は正しい日付を入力してください')
       end
     end
+
+    context 'YYYY-MM-DD以外の形式の場合' do
+      let(:params) { { from: '2026/02/01', to: '2026-02-28' } }
+
+      it '無効になる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:from]).to include('は正しい日付を入力してください')
+      end
+    end
   end
 
   describe 'to' do
