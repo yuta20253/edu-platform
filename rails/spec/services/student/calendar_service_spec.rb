@@ -103,4 +103,24 @@ RSpec.describe Student::CalendarService, type: :model do
       expect(call.pluck(:id)).not_to include(interview_request_unscheduled.id)
     end
   end
+
+  describe '同じ日付の要素が複数ある場合' do
+    let!(:goal_a) { create(:goal, user: user, due_date: Date.new(2026, 3, 15)) }
+    let!(:goal_b) { create(:goal, user: user, due_date: Date.new(2026, 3, 15)) }
+    let!(:task_same_date) do
+      create(:task, user: user, goal: create(:goal, user: user), due_date: Date.new(2026, 3, 15))
+    end
+
+    it 'type、idの順で決定的に並ぶ' do
+      items = call.select { |item| item[:date] == '2026/03/15' }
+
+      expect(items.map { |item| [item[:type], item[:id]] }).to eq(
+        [
+          ['goal', goal_a.id],
+          ['goal', goal_b.id],
+          ['task', task_same_date.id]
+        ]
+      )
+    end
+  end
 end

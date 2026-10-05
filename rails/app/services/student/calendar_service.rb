@@ -10,7 +10,7 @@ module Student
 
     def call
       (goal_items + task_items + interview_request_items)
-        .sort_by { |item| item[:date] }
+        .sort_by { |item| [item[:date], item[:type], item[:id]] }
         .map { |item| item.merge(date: item[:date].strftime('%Y/%m/%d')) }
     end
 
