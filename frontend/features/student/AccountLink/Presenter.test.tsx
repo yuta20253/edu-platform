@@ -30,9 +30,7 @@ const Wrapper = ({
 describe("Presenter", () => {
   it("見出し・入力フィールド・送信ボタンが表示される", () => {
     render(<Wrapper />);
-    expect(
-      screen.getByText("アカウント紐付け"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("アカウント紐付け")).toBeInTheDocument();
     expect(screen.getByText("生徒コード")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "紐付ける" }),

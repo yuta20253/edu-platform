@@ -15,9 +15,12 @@ describe("AccountLink", () => {
   it("入力して送信するとonSubmitが正しい値で呼ばれる", async () => {
     render(<AccountLink />);
 
-    fireEvent.change(screen.getByPlaceholderText("生徒コードを入力してください"), {
-      target: { value: "AB12-CD3456" },
-    });
+    fireEvent.change(
+      screen.getByPlaceholderText("生徒コードを入力してください"),
+      {
+        target: { value: "AB12-CD3456" },
+      },
+    );
     fireEvent.click(screen.getByRole("button", { name: "紐付ける" }));
 
     await waitFor(() =>
