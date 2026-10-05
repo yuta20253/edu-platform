@@ -23,6 +23,11 @@ export const useSubmit = () => {
     } catch (error) {
       const { status, errors } = extractApiError(error);
 
+      if (status === 401) {
+        router.push("/login");
+        return;
+      }
+
       if (status === 404) {
         setErrorMessage("入力された生徒コードが見つかりません");
         return;
