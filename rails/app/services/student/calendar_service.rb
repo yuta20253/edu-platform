@@ -47,6 +47,7 @@ module Student
                               from: @from_date,
                               to: @to_date
                             )
+                            .exclude_cancelled
                             .result
                             .map do |interview_request|
                               {

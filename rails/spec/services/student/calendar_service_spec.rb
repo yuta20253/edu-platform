@@ -56,7 +56,7 @@ RSpec.describe Student::CalendarService, type: :model do
 
     let!(:task_deleted) do
       create(:task, user: user, goal: create(:goal, user: user), due_date: Date.new(2026, 3, 8),
-                     deleted_at: Time.current)
+                    deleted_at: Time.current)
     end
 
     it '期間内のgoal・task・interview_requestのみを日付昇順でまとめた配列を返す' do

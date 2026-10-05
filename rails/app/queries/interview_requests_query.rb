@@ -15,6 +15,11 @@ class InterviewRequestsQuery
     self
   end
 
+  def exclude_cancelled
+    @relation = @relation.where.not(status: :cancelled)
+    self
+  end
+
   def result
     @relation
   end
