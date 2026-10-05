@@ -20,15 +20,11 @@ module Student
     validate :validate_period_within_max_range
 
     def from_date
-      return if parsed_from.nil?
-
-      @from_date ||= parsed_from
+      @from_date ||= parse_date(from)
     end
 
     def to_date
-      return if parsed_to.nil?
-
-      @to_date ||= parsed_to
+      @to_date ||= parse_date(to)
     end
 
     private
@@ -36,17 +32,13 @@ module Student
     def from_must_be_valid_date
       return if from.blank?
 
-      Date.parse(from)
-    rescue ArgumentError, TypeError
-      errors.add(:from, 'は正しい日付を入力してください')
+      errors.add(:from, 'は正しい日付を入力してください') if from_date.nil?
     end
 
     def to_must_be_valid_date
       return if to.blank?
 
-      Date.parse(to)
-    rescue ArgumentError, TypeError
-      errors.add(:to, 'は正しい日付を入力してください')
+      errors.add(:to, 'は正しい日付を入力してください') if to_date.nil?
     end
 
     def validate_from_before_to
@@ -59,18 +51,6 @@ module Student
       return if from_date.nil? || to_date.nil?
 
       errors.add(:base, '取得期間は92日以内で指定してください') if (to_date - from_date).to_i > MAX_RANGE_DAYS - 1
-    end
-
-    def parsed_from
-      return @parsed_from if defined?(@parsed_from)
-
-      @parsed_from = parse_date(from)
-    end
-
-    def parsed_to
-      return @parsed_to if defined?(@parsed_to)
-
-      @parsed_to = parse_date(to)
     end
 
     def parse_date(value)
