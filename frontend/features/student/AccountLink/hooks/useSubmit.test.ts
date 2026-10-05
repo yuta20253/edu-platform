@@ -74,4 +74,20 @@ describe("useSubmit", () => {
     expect(result.current.errorMessage).toBe("既に紐付けられています");
     expect(pushMock).not.toHaveBeenCalled();
   });
+
+  it("未ログインの場合(401)、ログイン画面へ遷移する", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 401, data: { message: "UNAUTHORIZED" } },
+    });
+    const { result } = renderHook(() => useSubmit());
+
+    await act(async () => {
+      await result.current.onSubmit(
+        { student_number: "AB12-CD3456" },
+        undefined as never,
+      );
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/login");
+  });
 });
