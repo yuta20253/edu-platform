@@ -27,7 +27,7 @@ export const useSubmit = () => {
       });
 
       setTimeout(() => {
-        router.push("/");
+        router.push("/profile");
       }, 1000);
     } catch (error) {
       const { status, errors } = extractApiError(error);

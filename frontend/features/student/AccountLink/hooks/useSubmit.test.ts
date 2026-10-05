@@ -53,7 +53,7 @@ describe("useSubmit", () => {
       vi.advanceTimersByTime(1000);
     });
 
-    expect(pushMock).toHaveBeenCalledWith("/");
+    expect(pushMock).toHaveBeenCalledWith("/profile");
   });
 
   it("生徒番号が見つからない場合(404)、専用のエラーメッセージをセットする", async () => {
