@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { CanceledError, type AxiosRequestConfig } from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { useCalendar } from "./useCalendar";
 import type { CalendarEvent } from "../types";
@@ -13,6 +14,14 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn() },
 }));
+
+// axios と同じく、signal が中断されたら CanceledError で reject する応答
+const pendingUntilAborted = (_url: string, config?: AxiosRequestConfig) =>
+  new Promise((_, reject) => {
+    config?.signal?.addEventListener?.("abort", () =>
+      reject(new CanceledError()),
+    );
+  });
 
 const octoberEvents: CalendarEvent[] = [
   {
@@ -46,6 +55,7 @@ describe("useCalendar", () => {
     expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/calendar", {
       params: { from: "2026-09-27", to: "2026-10-31" },
+      signal: expect.any(AbortSignal),
     });
   });
 
@@ -79,6 +89,7 @@ describe("useCalendar", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/calendar", {
         params: { from: "2026-11-01", to: "2026-12-05" },
+        signal: expect.any(AbortSignal),
       }),
     );
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -94,6 +105,7 @@ describe("useCalendar", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/calendar", {
         params: { from: "2026-08-30", to: "2026-10-03" },
+        signal: expect.any(AbortSignal),
       }),
     );
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -122,8 +134,7 @@ describe("useCalendar", () => {
     expect(result.current.events).toEqual([]);
   });
 
-  it("月切り替え中に前の月のレスポンスが遅れて返っても反映しない", async () => {
-    let resolveOctober: (value: { data: CalendarEvent[] }) => void = () => {};
+  it("月を切り替えると前の月のリクエストを中断し、新しい月の結果だけを反映する", async () => {
     const novemberEvents: CalendarEvent[] = [
       {
         type: "task",
@@ -134,18 +145,27 @@ describe("useCalendar", () => {
       },
     ];
     vi.mocked(apiClient.get)
-      .mockImplementationOnce(
-        () => new Promise((resolve) => (resolveOctober = resolve)),
-      )
+      .mockImplementationOnce(pendingUntilAborted)
       .mockResolvedValueOnce({ data: novemberEvents });
 
     const { result } = renderHook(() => useCalendar());
     act(() => result.current.goNextMonth());
-    await waitFor(() => expect(result.current.events).toEqual(novemberEvents));
 
-    await act(async () => resolveOctober({ data: octoberEvents }));
-
+    const octoberSignal = vi.mocked(apiClient.get).mock.calls[0][1]?.signal;
+    expect(octoberSignal?.aborted).toBe(true);
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.events).toEqual(novemberEvents);
+    expect(result.current.error).toBe(false);
+  });
+
+  it("アンマウント時にリクエストを中断する", () => {
+    vi.mocked(apiClient.get).mockImplementationOnce(pendingUntilAborted);
+
+    const { unmount } = renderHook(() => useCalendar());
+    unmount();
+
+    const signal = vi.mocked(apiClient.get).mock.calls[0][1]?.signal;
+    expect(signal?.aborted).toBe(true);
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {
