@@ -11,6 +11,10 @@ import type { CalendarEvent } from "./types";
 
 const DAYS_IN_WEEK = 7;
 
+// 表示月は常に月初(1日)で持つ。日付のまま月を送ると、addMonths が
+// 存在しない日(2/31 など)を月末に丸めて日付がずれていくため
+export const getThisMonth = () => startOfMonth(new Date());
+
 const gridStart = (month: Date) => startOfWeek(startOfMonth(month));
 const gridEnd = (month: Date) => endOfWeek(endOfMonth(month));
 
