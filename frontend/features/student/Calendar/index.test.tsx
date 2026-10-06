@@ -21,7 +21,7 @@ const hookResult = (overrides: Partial<ReturnType<typeof useCalendar>>) => ({
   month: new Date(2026, 9, 1),
   events: [],
   isLoading: false,
-  error: null,
+  error: false,
   goPrevMonth: vi.fn(),
   goNextMonth: vi.fn(),
   goThisMonth: vi.fn(),
@@ -41,9 +41,7 @@ describe("Calendar", () => {
   });
 
   it("取得エラー時はエラーメッセージを表示する", () => {
-    vi.mocked(useCalendar).mockReturnValue(
-      hookResult({ error: new Error("failed") }),
-    );
+    vi.mocked(useCalendar).mockReturnValue(hookResult({ error: true }));
     render(<Calendar />);
     expect(screen.getByRole("alert")).toHaveTextContent(
       "データの取得に失敗しました",

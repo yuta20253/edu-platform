@@ -43,7 +43,7 @@ describe("useCalendar", () => {
     expect(result.current.month.getFullYear()).toBe(2026);
     expect(result.current.month.getMonth()).toBe(9);
     expect(result.current.events).toEqual(octoberEvents);
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/calendar", {
       params: { from: "2026-09-27", to: "2026-10-31" },
     });
@@ -154,15 +154,15 @@ describe("useCalendar", () => {
     const { result } = renderHook(() => useCalendar());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).toBe(false);
   });
 
-  it("401以外のエラー時はerrorにセットする", async () => {
+  it("401以外のエラー時はerrorをtrueにする", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
 
     const { result } = renderHook(() => useCalendar());
 
-    await waitFor(() => expect(result.current.error).not.toBeNull());
+    await waitFor(() => expect(result.current.error).toBe(true));
     expect(pushMock).not.toHaveBeenCalled();
   });
 });
