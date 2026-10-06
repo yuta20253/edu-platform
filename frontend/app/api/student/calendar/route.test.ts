@@ -82,4 +82,25 @@ describe("GET /api/student/calendar", () => {
       errors: ["Toはfrom以降の日付を指定してください"],
     });
   });
+
+  it.each([
+    ["from が無い", "?to=2026-11-07"],
+    ["to が無い", "?from=2026-09-27"],
+    ["from が空文字", "?from=&to=2026-11-07"],
+    ["from が YYYY-MM-DD 形式でない", "?from=2026/09/27&to=2026-11-07"],
+    ["to が YYYY-MM-DD 形式でない", "?from=2026-09-27&to=20261107"],
+    ["from に余計な文字が含まれる", "?from=2026-09-27x&to=2026-11-07"],
+  ])("%s ときはバックエンドへ問い合わせず 400 を返す", async (_, query) => {
+    const res = await get(query);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+    expect(railsFetch).not.toHaveBeenCalled();
+  });
+
+  it("形式が正しければ実在しない日付でもバックエンドへ転送する(日付の妥当性は Rails で判定する)", async () => {
+    await get("?from=2026-02-30&to=2026-03-31");
+    expect(railsFetch).toHaveBeenCalledWith(
+      "/api/v1/student/calendar?from=2026-02-30&to=2026-03-31",
+    );
+  });
 });
