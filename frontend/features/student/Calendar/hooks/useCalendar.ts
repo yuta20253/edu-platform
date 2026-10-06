@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addMonths, startOfMonth, subMonths } from "date-fns";
+import { addMonths, subMonths } from "date-fns";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import { getFetchRange } from "../calendarUtils";
+import { getFetchRange, getThisMonth } from "../calendarUtils";
 import { CALENDAR_EVENT_TYPES, type CalendarEvent } from "../types";
 
 // Rails 側で種別が追加されても、表示定義の無い種別で画面がクラッシュしないよう除外する
@@ -13,7 +13,7 @@ const isKnownEventType = (event: { type: string }) =>
   (CALENDAR_EVENT_TYPES as readonly string[]).includes(event.type);
 
 export const useCalendar = () => {
-  const [month, setMonth] = useState(() => startOfMonth(new Date()));
+  const [month, setMonth] = useState(getThisMonth);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
@@ -55,7 +55,7 @@ export const useCalendar = () => {
 
   const goPrevMonth = () => setMonth((current) => subMonths(current, 1));
   const goNextMonth = () => setMonth((current) => addMonths(current, 1));
-  const goThisMonth = () => setMonth(startOfMonth(new Date()));
+  const goThisMonth = () => setMonth(getThisMonth());
 
   return {
     month,
