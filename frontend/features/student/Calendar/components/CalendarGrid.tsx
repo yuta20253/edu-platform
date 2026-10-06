@@ -7,7 +7,7 @@ import { colors } from "@/app/theme/colors";
 import { cardSx, radius } from "@/app/theme/studentTheme";
 import { formatDayLabel, toDateKey } from "../calendarFormat";
 import { buildMonthWeeks } from "../calendarUtils";
-import { eventTypeMeta } from "../eventTypeMeta";
+import { eventTypeMeta } from "../constants";
 import type { CalendarEvent } from "../types";
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];

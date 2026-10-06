@@ -9,7 +9,7 @@ import { cardSx, radius } from "@/app/theme/studentTheme";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDayLabelWithWeekday } from "../calendarFormat";
 import { calendarEventHref } from "../calendarUtils";
-import { eventTypeMeta, statusDefinitionsByType } from "../eventTypeMeta";
+import { eventTypeMeta, statusDefinitionsByType } from "../constants";
 import type { CalendarEvent } from "../types";
 
 type Props = {

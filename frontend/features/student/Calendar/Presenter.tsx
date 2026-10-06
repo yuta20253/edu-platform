@@ -9,7 +9,7 @@ import { formatMonthLabel, toDateKey } from "./calendarFormat";
 import { groupEventsByDate } from "./calendarUtils";
 import { CalendarGrid } from "./components/CalendarGrid";
 import { DayEventList } from "./components/DayEventList";
-import { eventTypeMeta } from "./eventTypeMeta";
+import { eventTypeMeta } from "./constants";
 import type { CalendarEvent } from "./types";
 
 type Props = {
