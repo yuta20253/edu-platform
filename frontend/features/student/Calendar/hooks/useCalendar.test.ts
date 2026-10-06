@@ -61,6 +61,7 @@ describe("useCalendar", () => {
         params: { from: "2026-11-01", to: "2026-12-05" },
       }),
     );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 
   it("goPrevMonth で前月の範囲を再取得する", async () => {
@@ -75,6 +76,7 @@ describe("useCalendar", () => {
         params: { from: "2026-08-30", to: "2026-10-03" },
       }),
     );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 
   it("goThisMonth で今月に戻る", async () => {
@@ -86,6 +88,7 @@ describe("useCalendar", () => {
     act(() => result.current.goThisMonth());
 
     expect(result.current.month.getMonth()).toBe(9);
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 
   it("月切り替え後、取得完了までは前の月のイベントを返さない", async () => {
