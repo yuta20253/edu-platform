@@ -88,6 +88,17 @@ describe("useCalendar", () => {
     expect(result.current.month.getMonth()).toBe(9);
   });
 
+  it("月切り替え後、取得完了までは前の月のイベントを返さない", async () => {
+    const { result } = renderHook(() => useCalendar());
+    await waitFor(() => expect(result.current.events).toEqual(octoberEvents));
+    vi.mocked(apiClient.get).mockReturnValueOnce(new Promise(() => {}));
+
+    act(() => result.current.goNextMonth());
+
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.events).toEqual([]);
+  });
+
   it("月切り替え中に前の月のレスポンスが遅れて返っても反映しない", async () => {
     let resolveOctober: (value: { data: CalendarEvent[] }) => void = () => {};
     const novemberEvents: CalendarEvent[] = [
