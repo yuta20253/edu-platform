@@ -20,12 +20,12 @@ describe("buildMonthWeeks", () => {
   });
 
   it("月末が土曜でない月は翌月の日付で最終週を埋める", () => {
-    // 2026/11/30 は月曜
-    const weeks = buildMonthWeeks(new Date(2026, 10, 1));
+    // 2026/08/01 は土曜、2026/08/31 は月曜
+    const weeks = buildMonthWeeks(new Date(2026, 7, 1));
 
     expect(weeks).toHaveLength(6);
-    expect(toDateKey(weeks[0][0])).toBe("2026/11/01");
-    expect(toDateKey(weeks[5][6])).toBe("2026/12/05");
+    expect(toDateKey(weeks[0][0])).toBe("2026/07/26");
+    expect(toDateKey(weeks[5][6])).toBe("2026/09/05");
   });
 });
 
