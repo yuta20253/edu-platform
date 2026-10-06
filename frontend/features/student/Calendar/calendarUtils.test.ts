@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildMonthWeeks,
   calendarEventHref,
   getFetchRange,
+  getThisMonth,
   groupEventsByDate,
 } from "./calendarUtils";
 import { toDateKey } from "./calendarFormat";
@@ -107,5 +108,18 @@ describe("calendarEventHref", () => {
         status: "confirmed",
       }),
     ).toBe("/interviews/30");
+  });
+});
+
+describe("getThisMonth", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("現在日時に関わらず、今月1日の0時を返す", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 9, 31, 23, 59, 59));
+
+    expect(getThisMonth()).toEqual(new Date(2026, 9, 1, 0, 0, 0, 0));
   });
 });
