@@ -49,6 +49,26 @@ describe("useCalendar", () => {
     });
   });
 
+  it("未知の種別のイベントは除外する", async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: [
+        ...octoberEvents,
+        {
+          type: "announcement",
+          id: 9,
+          date: "2026/10/11",
+          title: "お知らせ",
+          status: "scheduled",
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useCalendar());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.events).toEqual(octoberEvents);
+  });
+
   it("goNextMonth で翌月の範囲を再取得する", async () => {
     const { result } = renderHook(() => useCalendar());
     await waitFor(() => expect(result.current.isLoading).toBe(false));

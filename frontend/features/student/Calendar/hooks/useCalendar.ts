@@ -5,7 +5,11 @@ import { addMonths, startOfMonth, subMonths } from "date-fns";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
 import { getFetchRange } from "../calendarUtils";
-import type { CalendarEvent } from "../types";
+import { CALENDAR_EVENT_TYPES, type CalendarEvent } from "../types";
+
+// Rails 側で種別が追加されても、表示定義の無い種別で画面がクラッシュしないよう除外する
+const isKnownEventType = (event: { type: string }) =>
+  (CALENDAR_EVENT_TYPES as readonly string[]).includes(event.type);
 
 export const useCalendar = () => {
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
@@ -27,7 +31,7 @@ export const useCalendar = () => {
       })
       .then((res) => {
         if (ignore) return;
-        setEvents(res.data);
+        setEvents(res.data.filter(isKnownEventType));
         setError(null);
       })
       .catch((err) => {

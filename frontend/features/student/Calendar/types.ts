@@ -1,6 +1,12 @@
 import { Status } from "@/types/common/status";
 
-export type CalendarEventType = "goal" | "task" | "interview_request";
+export const CALENDAR_EVENT_TYPES = [
+  "goal",
+  "task",
+  "interview_request",
+] as const;
+
+export type CalendarEventType = (typeof CALENDAR_EVENT_TYPES)[number];
 
 export type InterviewRequestStatus =
   | "requested"
