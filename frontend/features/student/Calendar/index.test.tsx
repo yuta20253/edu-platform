@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Calendar } from "./index";
 import { useCalendar } from "./hooks/useCalendar";
 
@@ -31,6 +31,13 @@ const hookResult = (overrides: Partial<ReturnType<typeof useCalendar>>) => ({
 describe("Calendar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // 「今日」が表示月に含まれると選択日の初期値が変わるため、実行日に依存しないよう固定する
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 9, 6));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("取得エラー時はエラーメッセージを表示する", () => {
