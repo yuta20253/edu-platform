@@ -15,7 +15,7 @@ export const useCalendar = () => {
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const useCalendar = () => {
       .then((res) => {
         if (ignore) return;
         setEvents(res.data.filter(isKnownEventType));
-        setError(null);
+        setError(false);
       })
       .catch((err) => {
         if (ignore) return;
@@ -40,7 +40,7 @@ export const useCalendar = () => {
           router.push("/login");
           return;
         }
-        setError(err);
+        setError(true);
       })
       .finally(() => {
         if (!ignore) setIsLoading(false);
