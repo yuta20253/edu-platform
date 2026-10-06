@@ -2,17 +2,14 @@ import {
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
-  format,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
 import { chunk } from "lodash";
+import { toApiDate } from "./calendarFormat";
 import type { CalendarEvent } from "./types";
 
 const DAYS_IN_WEEK = 7;
-
-// Rails のレスポンス(date: "YYYY/MM/DD")と突き合わせるためのキー
-export const toDateKey = (date: Date) => format(date, "yyyy/MM/dd");
 
 const gridStart = (month: Date) => startOfWeek(startOfMonth(month));
 const gridEnd = (month: Date) => endOfWeek(endOfMonth(month));
@@ -26,8 +23,8 @@ export const buildMonthWeeks = (month: Date): Date[][] =>
 
 // 見切れ日の予定も表示するため、グリッド全体を取得範囲にする(最大6週=42日)
 export const getFetchRange = (month: Date) => ({
-  from: format(gridStart(month), "yyyy-MM-dd"),
-  to: format(gridEnd(month), "yyyy-MM-dd"),
+  from: toApiDate(gridStart(month)),
+  to: toApiDate(gridEnd(month)),
 });
 
 export const groupEventsByDate = (events: CalendarEvent[]) =>

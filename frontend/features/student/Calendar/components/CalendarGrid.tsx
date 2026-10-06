@@ -2,10 +2,11 @@
 
 import { Box, ButtonBase, LinearProgress, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { format, isSameDay, isSameMonth } from "date-fns";
+import { isSameDay, isSameMonth } from "date-fns";
 import { colors } from "@/app/theme/colors";
 import { cardSx, radius } from "@/app/theme/studentTheme";
-import { buildMonthWeeks, toDateKey } from "../calendarUtils";
+import { formatDayLabel, toDateKey } from "../calendarFormat";
+import { buildMonthWeeks } from "../calendarUtils";
 import { eventTypeMeta } from "../eventTypeMeta";
 import type { CalendarEvent } from "../types";
 
@@ -89,7 +90,7 @@ export const CalendarGrid = ({
                 key={toDateKey(day)}
                 onClick={() => onSelectDate(day)}
                 aria-pressed={isSelected}
-                aria-label={`${format(day, "M月d日")} ${
+                aria-label={`${formatDayLabel(day)} ${
                   dayEvents.length > 0
                     ? `予定${dayEvents.length}件`
                     : "予定なし"
@@ -131,7 +132,7 @@ export const CalendarGrid = ({
                     color: isToday ? colors.text.inverse : "text.primary",
                   }}
                 >
-                  {format(day, "d")}
+                  {day.getDate()}
                 </Box>
 
                 {/* 予定の中身は aria-label と下の予定一覧で伝えるため、セル内の表示は装飾扱いにする */}

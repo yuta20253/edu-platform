@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { format, isSameMonth } from "date-fns";
-import { groupEventsByDate, toDateKey } from "./calendarUtils";
+import { isSameMonth } from "date-fns";
+import { formatMonthLabel, toDateKey } from "./calendarFormat";
+import { groupEventsByDate } from "./calendarUtils";
 import { CalendarGrid } from "./components/CalendarGrid";
 import { DayEventList } from "./components/DayEventList";
 import { eventTypeMeta } from "./eventTypeMeta";
@@ -69,7 +70,7 @@ export const Presenter = ({
               textAlign: "center",
             }}
           >
-            {format(month, "yyyy年M月")}
+            {formatMonthLabel(month)}
           </Typography>
           <IconButton aria-label="次の月" onClick={onNextMonth} size="small">
             <ChevronRightIcon />

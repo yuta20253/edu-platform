@@ -1,7 +1,7 @@
 "use client";
 
-import { format } from "date-fns";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { toMonthKey } from "./calendarFormat";
 import { useCalendar } from "./hooks/useCalendar";
 import { Presenter } from "./Presenter";
 
@@ -21,7 +21,7 @@ export const Calendar = () => {
   return (
     <Presenter
       // 月が変わったら選択日をその月の初期値に戻すため、月ごとに再マウントする
-      key={format(month, "yyyy-MM")}
+      key={toMonthKey(month)}
       month={month}
       today={new Date()}
       events={events}

@@ -4,11 +4,10 @@ import { useId } from "react";
 import { Box, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Link from "next/link";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
 import { colors } from "@/app/theme/colors";
 import { cardSx, radius } from "@/app/theme/studentTheme";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatDayLabelWithWeekday } from "../calendarFormat";
 import { calendarEventHref } from "../calendarUtils";
 import { eventTypeMeta, statusDefinitionsByType } from "../eventTypeMeta";
 import type { CalendarEvent } from "../types";
@@ -28,7 +27,7 @@ export const DayEventList = ({ date, events }: Props) => {
         component="h2"
         sx={{ fontSize: 15, fontWeight: 700, mb: 1.5 }}
       >
-        {format(date, "M月d日(E)", { locale: ja })}の予定
+        {formatDayLabelWithWeekday(date)}の予定
       </Typography>
 
       <Box sx={{ ...cardSx, overflow: "hidden" }}>

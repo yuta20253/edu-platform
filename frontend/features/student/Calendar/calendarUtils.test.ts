@@ -4,8 +4,8 @@ import {
   calendarEventHref,
   getFetchRange,
   groupEventsByDate,
-  toDateKey,
 } from "./calendarUtils";
+import { toDateKey } from "./calendarFormat";
 import type { CalendarEvent } from "./types";
 
 describe("buildMonthWeeks", () => {
