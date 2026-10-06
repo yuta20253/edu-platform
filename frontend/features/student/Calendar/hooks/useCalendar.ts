@@ -18,6 +18,8 @@ export const useCalendar = () => {
     // 月を素早く切り替えたときに、前の月の遅れたレスポンスで上書きしないようにする
     let ignore = false;
     setIsLoading(true);
+    // 前の月のイベントが新しい月のグリッドに一瞬表示されないようにクリアする
+    setEvents([]);
 
     apiClient
       .get<CalendarEvent[]>("/api/student/calendar", {
