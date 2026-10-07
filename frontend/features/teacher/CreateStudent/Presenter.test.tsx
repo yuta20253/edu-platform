@@ -139,6 +139,62 @@ describe("CreateStudent Presenter", () => {
     });
   });
 
+  it("メールアドレスの形式が不正なときはエラーが表示される", async () => {
+    const onCreate = vi.fn();
+    render(<TestWrapper onCreate={onCreate} />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
+      target: { value: "invalid-email" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "作成" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("メールアドレスの形式が正しくありません"),
+      ).toBeInTheDocument();
+    });
+    expect(onCreate).not.toHaveBeenCalled();
+  });
+
+  it("氏名(カナ)が未入力のときはエラーが表示される", async () => {
+    const onCreate = vi.fn();
+    render(<TestWrapper onCreate={onCreate} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "作成" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("氏名(カナ)を入力してください"),
+      ).toBeInTheDocument();
+    });
+    expect(onCreate).not.toHaveBeenCalled();
+  });
+
+  it("学級が未選択のときはエラーが表示される", async () => {
+    const onCreate = vi.fn();
+    render(<TestWrapper onCreate={onCreate} />);
+
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "学年" }));
+    fireEvent.click(screen.getByRole("option", { name: "1年" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "作成" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("学級を選択してください")).toBeInTheDocument();
+    });
+    expect(onCreate).not.toHaveBeenCalled();
+  });
+
+  it("担当学年制限で学年が1つだけの場合はその学年のみ選択できる", () => {
+    render(<TestWrapper gradeOptions={[mockGradeOptions[0]]} />);
+
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "学年" }));
+    expect(screen.getByRole("option", { name: "1年" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "2年" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("createErrors が Alert で表示される", () => {
     render(
       <TestWrapper createErrors={["メールアドレスは既に使用されています"]} />,

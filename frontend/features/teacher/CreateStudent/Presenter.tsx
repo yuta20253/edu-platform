@@ -96,7 +96,6 @@ export const Presenter = ({
               />
               <TextField
                 label="メールアドレス"
-                type="email"
                 fullWidth
                 {...register("email", {
                   required: "メールアドレスを入力してください",
