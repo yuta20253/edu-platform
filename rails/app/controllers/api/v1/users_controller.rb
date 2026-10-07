@@ -7,6 +7,7 @@ module Api
         user = User
                .includes(
                  :user_personal_info,
+                 :teacher_permission,
                  :user_role,
                  :high_school,
                  address: :prefecture

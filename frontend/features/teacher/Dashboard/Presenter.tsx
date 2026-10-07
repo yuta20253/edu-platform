@@ -164,10 +164,10 @@ export const Presenter = ({ data }: Props) => {
                 variant="outlined"
                 fullWidth
                 component={Link}
-                href="/teacher/announcements/new"
+                href="/teacher/students/new"
                 sx={{ justifyContent: "flex-start" }}
               >
-                教員を追加する
+                生徒を追加する
               </Button>
               <Button
                 variant="outlined"

@@ -106,4 +106,12 @@ describe("StudentsPresenter", () => {
     expect(screen.getByText("氏名")).toBeInTheDocument();
     expect(screen.queryAllByRole("row")).toHaveLength(1);
   });
+
+  it("「新規作成」リンクが /teacher/students/new を指している", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.getByRole("link", { name: "新規作成" })).toHaveAttribute(
+      "href",
+      "/teacher/students/new",
+    );
+  });
 });
