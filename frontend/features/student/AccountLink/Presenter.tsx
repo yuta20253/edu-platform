@@ -60,7 +60,7 @@ export const Presenter = ({
           fullWidth
           disabled={isSubmitting}
         >
-          紐付ける
+          次へ
         </Button>
       </Box>
     </Box>

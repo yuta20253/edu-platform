@@ -13,13 +13,13 @@ vi.mock("@/libs/server/rails/railsFetch", () => ({
 
 const post = (body: unknown) =>
   POST(
-    new NextRequest("http://localhost/api/student/account-link", {
+    new NextRequest("http://localhost/api/student/account-link/preview", {
       method: "POST",
       body: JSON.stringify(body),
     }),
   );
 
-describe("POST /api/student/account-link", () => {
+describe("POST /api/student/account-link/preview", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -27,38 +27,32 @@ describe("POST /api/student/account-link", () => {
   it("student_numberをRailsへ転送し、成功時のレスポンスをそのまま返す", async () => {
     vi.mocked(railsFetch).mockResolvedValue({
       status: 200,
-      data: { message: "アカウントの紐付けが成功しました" },
+      data: {
+        high_school_name: "北海道札幌西高等学校",
+        grade_display_name: "高1生",
+        school_class_name: "A組",
+      },
       setCookie: null,
     });
 
     const res = await post({ student_number: "AB12-CD3456" });
 
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/student/account_link", {
-      method: "POST",
-      body: { student_number: "AB12-CD3456" },
-    });
+    expect(railsFetch).toHaveBeenCalledWith(
+      "/api/v1/student/account_link/preview",
+      {
+        method: "POST",
+        body: { student_number: "AB12-CD3456" },
+      },
+    );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({
-      message: "アカウントの紐付けが成功しました",
+      high_school_name: "北海道札幌西高等学校",
+      grade_display_name: "高1生",
+      school_class_name: "A組",
     });
   });
 
-  it("Rails側のバリデーションエラー(400)をそのまま転送する", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
-        400,
-        "Rails request failed: 400",
-        JSON.stringify({ errors: ["既に紐付けられています"] }),
-      ),
-    );
-
-    const res = await post({ student_number: "AB12-CD3456" });
-
-    expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ errors: ["既に紐付けられています"] });
-  });
-
-  it("生徒番号が見つからない場合(404)のレスポンスをそのまま転送する", async () => {
+  it("Rails側のエラー(400/404など)をそのまま転送する", async () => {
     vi.mocked(railsFetch).mockRejectedValue(
       new RailsFetchError(
         404,
