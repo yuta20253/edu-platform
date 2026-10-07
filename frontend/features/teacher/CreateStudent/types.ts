@@ -16,6 +16,6 @@ export type CreateStudentInput = {
   name: string;
   name_kana: string;
   email: string;
-  grade_id: number;
-  school_class_id: number;
+  grade_id: number | "";
+  school_class_id: number | "";
 };

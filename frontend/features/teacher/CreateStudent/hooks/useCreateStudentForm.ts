@@ -7,8 +7,8 @@ const defaultValues: CreateStudentInput = {
   name: "",
   name_kana: "",
   email: "",
-  grade_id: 0,
-  school_class_id: 0,
+  grade_id: "",
+  school_class_id: "",
 };
 
 export const useCreateStudentForm = () => {

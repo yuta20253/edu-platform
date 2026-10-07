@@ -46,7 +46,7 @@ export const Presenter = ({
     gradeOptions.find((grade) => grade.id === gradeId)?.school_classes ?? [];
 
   useEffect(() => {
-    setValue("school_class_id", 0);
+    setValue("school_class_id", "");
   }, [gradeId, setValue]);
 
   return (
@@ -113,7 +113,9 @@ export const Presenter = ({
                 name="grade_id"
                 control={control}
                 rules={{
-                  validate: (value) => value > 0 || "学年を選択してください",
+                  validate: (value) =>
+                    (typeof value === "number" && value > 0) ||
+                    "学年を選択してください",
                 }}
                 render={({ field }) => (
                   <TextField
@@ -122,7 +124,11 @@ export const Presenter = ({
                     label="学年"
                     fullWidth
                     onChange={(event) =>
-                      field.onChange(Number(event.target.value || 0))
+                      field.onChange(
+                        event.target.value === ""
+                          ? ""
+                          : Number(event.target.value),
+                      )
                     }
                     error={!!errors.grade_id}
                     helperText={errors.grade_id?.message}
@@ -140,7 +146,9 @@ export const Presenter = ({
                 name="school_class_id"
                 control={control}
                 rules={{
-                  validate: (value) => value > 0 || "学級を選択してください",
+                  validate: (value) =>
+                    (typeof value === "number" && value > 0) ||
+                    "学級を選択してください",
                 }}
                 render={({ field }) => (
                   <TextField
@@ -150,7 +158,11 @@ export const Presenter = ({
                     fullWidth
                     disabled={schoolClassOptions.length === 0}
                     onChange={(event) =>
-                      field.onChange(Number(event.target.value || 0))
+                      field.onChange(
+                        event.target.value === ""
+                          ? ""
+                          : Number(event.target.value),
+                      )
                     }
                     error={!!errors.school_class_id}
                     helperText={errors.school_class_id?.message}
