@@ -157,6 +157,42 @@ describe("CalendarPresenter", () => {
     ).toBeInTheDocument();
   });
 
+  describe("スマホ幅のドット表示", () => {
+    const eventsOn = (date: string, count: number): CalendarEvent[] =>
+      Array.from({ length: count }, (_, i) => ({
+        type: "task" as const,
+        id: 100 + i,
+        date,
+        title: `タスク${i + 1}`,
+        status: "not_started" as const,
+      }));
+
+    const dotsOf = (cellName: string) =>
+      within(screen.getByRole("button", { name: cellName })).getByTestId(
+        "calendar-dots",
+      );
+
+    it("4件以上ある日はドットを3つまで表示し、残りを+Nで示す", () => {
+      render(
+        <Presenter {...defaultProps} events={eventsOn("2026/10/20", 5)} />,
+      );
+      const dots = dotsOf("10月20日 予定5件");
+
+      expect(within(dots).getAllByTestId("calendar-dot")).toHaveLength(3);
+      expect(within(dots).getByText("+2")).toBeInTheDocument();
+    });
+
+    it("3件以下の日は+Nを表示しない", () => {
+      render(
+        <Presenter {...defaultProps} events={eventsOn("2026/10/20", 3)} />,
+      );
+      const dots = dotsOf("10月20日 予定3件");
+
+      expect(within(dots).getAllByTestId("calendar-dot")).toHaveLength(3);
+      expect(within(dots).queryByText(/^\+/)).not.toBeInTheDocument();
+    });
+  });
+
   it("読み込み中はプログレスバーが表示される", () => {
     render(<Presenter {...defaultProps} isLoading />);
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
