@@ -32,9 +32,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-
   try {
+    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       "/api/v1/teacher/students",
       { method: "POST", body },
