@@ -49,14 +49,21 @@ describe("useCalendar", () => {
     const { result } = renderHook(() => useCalendar());
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(result.current.month.getFullYear()).toBe(2026);
-    expect(result.current.month.getMonth()).toBe(9);
+    expect(result.current.month?.getFullYear()).toBe(2026);
+    expect(result.current.month?.getMonth()).toBe(9);
     expect(result.current.events).toEqual(octoberEvents);
     expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/calendar", {
       params: { from: "2026-09-27", to: "2026-10-31" },
       signal: expect.any(AbortSignal),
     });
+  });
+
+  it("マウント後に今日の日付を today として返す", async () => {
+    const { result } = renderHook(() => useCalendar());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.today).toEqual(new Date(2026, 9, 6, 12, 0, 0));
   });
 
   it("未知の種別のイベントは除外する", async () => {
@@ -85,7 +92,7 @@ describe("useCalendar", () => {
 
     act(() => result.current.goNextMonth());
 
-    expect(result.current.month.getMonth()).toBe(10);
+    expect(result.current.month?.getMonth()).toBe(10);
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/calendar", {
         params: { from: "2026-11-01", to: "2026-12-05" },
@@ -101,7 +108,7 @@ describe("useCalendar", () => {
 
     act(() => result.current.goPrevMonth());
 
-    expect(result.current.month.getMonth()).toBe(8);
+    expect(result.current.month?.getMonth()).toBe(8);
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/calendar", {
         params: { from: "2026-08-30", to: "2026-10-03" },
@@ -119,7 +126,7 @@ describe("useCalendar", () => {
     act(() => result.current.goNextMonth());
     act(() => result.current.goThisMonth());
 
-    expect(result.current.month.getMonth()).toBe(9);
+    expect(result.current.month?.getMonth()).toBe(9);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 
@@ -199,7 +206,7 @@ describe("useCalendar", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.error).toBe(false);
     expect(result.current.events).toEqual(octoberEvents);
-    expect(result.current.month.getMonth()).toBe(9);
+    expect(result.current.month?.getMonth()).toBe(9);
     expect(apiClient.get).toHaveBeenCalledTimes(2);
     expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/calendar", {
       params: { from: "2026-09-27", to: "2026-10-31" },

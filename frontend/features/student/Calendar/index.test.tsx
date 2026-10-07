@@ -19,6 +19,7 @@ vi.mock("next/link", () => ({
 
 const hookResult = (overrides: Partial<ReturnType<typeof useCalendar>>) => ({
   month: new Date(2026, 9, 1),
+  today: new Date(2026, 9, 6),
   events: [],
   isLoading: false,
   error: false,
@@ -39,6 +40,27 @@ describe("Calendar", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("今日と表示月が決まるまでは読み込み中を表示する", () => {
+    vi.mocked(useCalendar).mockReturnValue(
+      hookResult({ month: null, today: null }),
+    );
+    render(<Calendar />);
+
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    expect(screen.queryByRole("region")).not.toBeInTheDocument();
+  });
+
+  it("フックが返す today を今日として選択する", () => {
+    vi.mocked(useCalendar).mockReturnValue(
+      hookResult({ today: new Date(2026, 9, 15) }),
+    );
+    render(<Calendar />);
+
+    expect(
+      screen.getByRole("region", { name: "10月15日(木)の予定" }),
+    ).toBeInTheDocument();
   });
 
   it("取得エラー時はエラーメッセージを表示する", () => {
