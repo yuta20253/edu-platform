@@ -5,7 +5,6 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { chunk } from "lodash";
 import { toApiDate } from "./calendarFormat";
 import type { CalendarEvent } from "./types";
 
@@ -19,11 +18,16 @@ const gridStart = (month: Date) => startOfWeek(startOfMonth(month));
 const gridEnd = (month: Date) => endOfWeek(endOfMonth(month));
 
 // 日曜始まりで、前後月の見切れ日を含めた週単位の日付配列を返す
-export const buildMonthWeeks = (month: Date): Date[][] =>
-  chunk(
-    eachDayOfInterval({ start: gridStart(month), end: gridEnd(month) }),
-    DAYS_IN_WEEK,
+export const buildMonthWeeks = (month: Date): Date[][] => {
+  const days = eachDayOfInterval({
+    start: gridStart(month),
+    end: gridEnd(month),
+  });
+
+  return Array.from({ length: days.length / DAYS_IN_WEEK }, (_, week) =>
+    days.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK),
   );
+};
 
 // 見切れ日の予定も表示するため、グリッド全体を取得範囲にする(最大6週=42日)
 export const getFetchRange = (month: Date) => ({
