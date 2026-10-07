@@ -13,7 +13,10 @@ const isKnownEventType = (event: { type: string }) =>
   (CALENDAR_EVENT_TYPES as readonly string[]).includes(event.type);
 
 export const useCalendar = () => {
-  const [month, setMonth] = useState(getThisMonth);
+  // 今日と表示月はブラウザでの描画後に決める。サーバー(例: UTC)とブラウザ(JST)で
+  // 日付がずれるとハイドレーションエラーになるため、サーバー描画では null のままにする
+  const [today, setToday] = useState<Date | null>(null);
+  const [month, setMonth] = useState<Date | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
@@ -21,7 +24,14 @@ export const useCalendar = () => {
   // 実行中の取得。月の切り替え・再試行・アンマウント時に前の取得を中断するために持つ
   const controllerRef = useRef<AbortController | null>(null);
 
+  useEffect(() => {
+    setToday(new Date());
+    setMonth(getThisMonth());
+  }, []);
+
   const fetchEvents = useCallback(() => {
+    if (!month) return;
+
     // 月を素早く切り替えたときに古いリクエストをキャンセルして、
     // 前の月の遅れたレスポンスで新しい月の結果を上書きしないようにする
     controllerRef.current?.abort();
@@ -61,12 +71,15 @@ export const useCalendar = () => {
     };
   }, [fetchEvents]);
 
-  const goPrevMonth = () => setMonth((current) => subMonths(current, 1));
-  const goNextMonth = () => setMonth((current) => addMonths(current, 1));
+  const goPrevMonth = () =>
+    setMonth((current) => current && subMonths(current, 1));
+  const goNextMonth = () =>
+    setMonth((current) => current && addMonths(current, 1));
   const goThisMonth = () => setMonth(getThisMonth());
 
   return {
     month,
+    today,
     events,
     isLoading,
     error,
