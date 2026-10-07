@@ -35,5 +35,28 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
       expect(response.parsed_body.dig('user', 'teacher_permission', 'grade_scope')).to eq('own_grade')
     end
+
+    context 'all_gradesの教員の場合' do
+      let!(:teacher_permission) do
+        create(:teacher_permission, user: teacher, grade_scope: :all_grades)
+      end
+
+      it 'grade_scopeがall_gradesで返ること' do
+        subject
+
+        expect(response.parsed_body.dig('user', 'teacher_permission', 'grade_scope')).to eq('all_grades')
+      end
+    end
+
+    context '生徒などteacher_permissionを持たないユーザーの場合' do
+      let!(:student) { create(:user, :student, high_school: high_school) }
+      let!(:cookie) { login_and_get_cookie(student) }
+
+      it 'teacher_permissionがnullで返ること' do
+        subject
+
+        expect(response.parsed_body.dig('user', 'teacher_permission')).to be_nil
+      end
+    end
   end
 end
