@@ -55,6 +55,25 @@ describe("useCurrentTeacher", () => {
     expect(result.current.restrictedGradeId).toBeNull();
   });
 
+  it("teacher_permissionがnullの場合はgradeScope/restrictedGradeIdともにnullになる", async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        user: {
+          grade: { id: 5, year: 1, display_name: "1年" },
+          teacher_permission: null,
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useCurrentTeacher());
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.gradeScope).toBeNull();
+    expect(result.current.restrictedGradeId).toBeNull();
+    expect(result.current.error).toBe(false);
+  });
+
   it("401エラー時はログイン画面へリダイレクトする", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({
       response: { status: 401 },
