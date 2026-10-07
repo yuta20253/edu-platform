@@ -9,6 +9,11 @@ class GoalsQuery
     @relation = @relation.find(id)
   end
 
+  def within_period(from:, to:)
+    @relation = @relation.where(due_date: from..to)
+    self
+  end
+
   def due_soon
     @relation = @relation.order(due_date: :asc)
     self

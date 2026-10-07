@@ -49,6 +49,23 @@ export const Presenter = ({ data, page, onPageChange }: Props) => {
         <Typography variant="body2" sx={{ color: colors.text.muted }}>
           {meta.total_count}件
         </Typography>
+
+        <Button
+          component={Link}
+          href="/teacher/students/new"
+          variant="outlined"
+          size="small"
+          sx={{
+            ml: "auto",
+            minWidth: 110,
+            height: 36,
+            borderRadius: 2,
+            textTransform: "none",
+            fontWeight: 600,
+          }}
+        >
+          新規作成
+        </Button>
       </Box>
 
       <Card
