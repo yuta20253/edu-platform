@@ -240,7 +240,7 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
-    context '統合処理の途中で保存エラーが発生した場合' do
+    context '統合処理の途中で保存エラーが発生した場合', db_clean: :truncation do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,
                student_number: 'ROLL-000001', high_school: user.high_school)
@@ -284,7 +284,7 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
-    context '想定外のバグ(NoMethodErrorなど)が発生した場合' do
+    context '想定外のバグ(NoMethodErrorなど)が発生した場合', db_clean: :truncation do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,
                student_number: 'BUG-000001', high_school: user.high_school)
@@ -303,7 +303,7 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
-    context 'DB接続断などのインフラ障害が発生した場合' do
+    context 'DB接続断などのインフラ障害が発生した場合', db_clean: :truncation do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,
                student_number: 'INFRA-00001', high_school: user.high_school)
