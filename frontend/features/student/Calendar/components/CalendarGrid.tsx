@@ -84,6 +84,7 @@ export const CalendarGrid = ({
             const isToday = isSameDay(day, today);
             const inMonth = isSameMonth(day, month);
             const hiddenCount = dayEvents.length - MAX_VISIBLE_EVENTS;
+            const hiddenDotCount = dayEvents.length - MAX_VISIBLE_DOTS;
 
             return (
               <ButtonBase
@@ -179,15 +180,18 @@ export const CalendarGrid = ({
                 </Box>
                 <Box
                   aria-hidden
+                  data-testid="calendar-dots"
                   sx={{
                     display: { xs: "flex", sm: "none" },
                     justifyContent: "center",
+                    alignItems: "center",
                     gap: 0.375,
                   }}
                 >
                   {dayEvents.slice(0, MAX_VISIBLE_DOTS).map((event) => (
                     <Box
                       key={`${event.type}-${event.id}`}
+                      data-testid="calendar-dot"
                       sx={{
                         width: 6,
                         height: 6,
@@ -196,6 +200,18 @@ export const CalendarGrid = ({
                       }}
                     />
                   ))}
+                  {hiddenDotCount > 0 && (
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: 9,
+                        lineHeight: 1,
+                        color: "text.secondary",
+                      }}
+                    >
+                      +{hiddenDotCount}
+                    </Box>
+                  )}
                 </Box>
               </ButtonBase>
             );
