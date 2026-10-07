@@ -185,4 +185,25 @@ describe("useCalendar", () => {
     await waitFor(() => expect(result.current.error).toBe(true));
     expect(pushMock).not.toHaveBeenCalled();
   });
+
+  it("refetch で表示中の月を再取得し、成功すれば error を false に戻す", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({ data: octoberEvents });
+
+    const { result } = renderHook(() => useCalendar());
+    await waitFor(() => expect(result.current.error).toBe(true));
+
+    act(() => result.current.refetch());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.error).toBe(false);
+    expect(result.current.events).toEqual(octoberEvents);
+    expect(result.current.month.getMonth()).toBe(9);
+    expect(apiClient.get).toHaveBeenCalledTimes(2);
+    expect(apiClient.get).toHaveBeenLastCalledWith("/api/student/calendar", {
+      params: { from: "2026-09-27", to: "2026-10-31" },
+      signal: expect.any(AbortSignal),
+    });
+  });
 });

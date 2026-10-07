@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Calendar } from "./index";
 import { useCalendar } from "./hooks/useCalendar";
@@ -25,6 +25,7 @@ const hookResult = (overrides: Partial<ReturnType<typeof useCalendar>>) => ({
   goPrevMonth: vi.fn(),
   goNextMonth: vi.fn(),
   goThisMonth: vi.fn(),
+  refetch: vi.fn(),
   ...overrides,
 });
 
@@ -46,6 +47,18 @@ describe("Calendar", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "データの取得に失敗しました",
     );
+  });
+
+  it("取得エラー時は再試行ボタンで再取得できる", () => {
+    const refetch = vi.fn();
+    vi.mocked(useCalendar).mockReturnValue(
+      hookResult({ error: true, refetch }),
+    );
+    render(<Calendar />);
+
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it("表示月が変わると選択日がその月の初期値にリセットされる", () => {
