@@ -65,6 +65,15 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
 
           expect(response).to have_http_status(:not_found)
         end
+
+        it '見つからない/既に使用済みを区別しない問い合わせ導線つきメッセージを返す' do
+          subject
+
+          body = response.parsed_body
+          expect(body['errors']).to eq(
+            ['見つからないか、すでに使用されています。心当たりがある場合は学校へお問い合わせください']
+          )
+        end
       end
 
       context 'student_numberが空の場合' do
@@ -80,6 +89,21 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
       context '自分自身が既に紐付け済みのstudent_numberを指定した場合' do
         let!(:user) { create(:user, :student, student_number: 'SELF-000001') }
         let(:params) { { student_number: 'SELF-000001' } }
+
+        it '400を返す' do
+          subject
+
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'ログイン中Userが既に別のstudent_numberで紐付け済みの場合' do
+        let!(:user) { create(:user, :student, student_number: 'ALREADY-000001') }
+        let!(:target_user) do
+          create(:user, :student, :invitation_pending, :with_school_class,
+                 student_number: 'NEWTARGET-01', high_school: user.high_school)
+        end
+        let(:params) { { student_number: 'NEWTARGET-01' } }
 
         it '400を返す' do
           subject
@@ -175,6 +199,121 @@ RSpec.describe 'Api::V1::Student::AccountLinks', type: :request do
           request_account_link
           expect(response).not_to have_http_status(:too_many_requests)
         end
+      end
+    end
+  end
+
+  describe 'POST /api/v1/student/account_link/preview' do
+    subject do
+      post '/api/v1/student/account_link/preview',
+           params: params.to_json,
+           headers: headers.merge('Cookie' => cookie)
+    end
+
+    context '正常系' do
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'AB12-CD3456', high_school: user.high_school)
+      end
+      let(:params) { { student_number: 'AB12-CD3456' } }
+
+      it 'ステータス200で学校・学年・学級名を返す(氏名は含まない)' do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        body = response.parsed_body
+        expect(body).to eq(
+          'high_school_name' => target_user.high_school.name,
+          'grade_display_name' => target_user.grade.display_name,
+          'school_class_name' => target_user.school_class.name
+        )
+        expect(response.body).not_to include(target_user.name)
+      end
+
+      it '仮Userが削除されない(確定処理は行わない)' do
+        subject
+
+        target_user.reload
+        expect(target_user.deleted_at).to be_nil
+        expect(target_user.student_number).to eq('AB12-CD3456')
+      end
+
+      it 'ログイン中Userが更新されない' do
+        subject
+
+        user.reload
+        expect(user.student_number).to be_nil
+      end
+    end
+
+    context '異常系' do
+      context '存在しないstudent_numberを指定した場合' do
+        let(:params) { { student_number: 'ZZ99-NOTFOUND1' } }
+
+        it '404を返す' do
+          subject
+
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it '見つからない/既に使用済みを区別しない問い合わせ導線つきメッセージを返す' do
+          subject
+
+          body = response.parsed_body
+          expect(body['errors']).to eq(
+            ['見つからないか、すでに使用されています。心当たりがある場合は学校へお問い合わせください']
+          )
+        end
+      end
+
+      context '既に有効化済みのUserのstudent_numberを指定した場合' do
+        let!(:target_user) do
+          create(:user, :student, :invitation_completed, :with_school_class, student_number: 'ACT-000001')
+        end
+        let(:params) { { student_number: 'ACT-000001' } }
+
+        it '400を返す' do
+          subject
+
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context '生徒以外のロールでアクセスした場合' do
+        let!(:teacher) { create(:user, :teacher) }
+        let!(:cookie) { login_and_get_cookie(teacher) }
+        let(:params) { { student_number: 'AB12-CD3456' } }
+
+        it '403を返す' do
+          subject
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
+    context 'レート制限' do
+      let(:params) { { student_number: 'ZZ99-NOTFOUND1' } }
+
+      def request_preview
+        post '/api/v1/student/account_link/preview',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+      end
+
+      def request_account_link
+        post '/api/v1/student/account_link',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+      end
+
+      before { Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new }
+
+      it 'previewとaccount_linkは同じ制限回数(5回/10分)を共有する' do
+        3.times { request_preview }
+        3.times { request_account_link }
+
+        expect(response).to have_http_status(:too_many_requests)
       end
     end
   end
