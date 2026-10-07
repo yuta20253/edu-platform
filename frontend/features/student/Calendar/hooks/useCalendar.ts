@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { addMonths, subMonths } from "date-fns";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -17,14 +17,16 @@ export const useCalendar = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
-  // 同じ月のまま再取得するためのカウンタ。refetch で増やすと useEffect が再実行される
-  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
+  // 実行中の取得。月の切り替え・再試行・アンマウント時に前の取得を中断するために持つ
+  const controllerRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
+  const fetchEvents = useCallback(() => {
     // 月を素早く切り替えたときに古いリクエストをキャンセルして、
     // 前の月の遅れたレスポンスで新しい月の結果を上書きしないようにする
+    controllerRef.current?.abort();
     const controller = new AbortController();
+    controllerRef.current = controller;
 
     setIsLoading(true);
     setError(false);
@@ -49,16 +51,19 @@ export const useCalendar = () => {
         if (controller.signal.aborted) return;
         setIsLoading(false);
       });
+  }, [month, router]);
+
+  useEffect(() => {
+    fetchEvents();
 
     return () => {
-      controller.abort();
+      controllerRef.current?.abort();
     };
-  }, [month, reloadKey, router]);
+  }, [fetchEvents]);
 
   const goPrevMonth = () => setMonth((current) => subMonths(current, 1));
   const goNextMonth = () => setMonth((current) => addMonths(current, 1));
   const goThisMonth = () => setMonth(getThisMonth());
-  const refetch = () => setReloadKey((current) => current + 1);
 
   return {
     month,
@@ -68,6 +73,6 @@ export const useCalendar = () => {
     goPrevMonth,
     goNextMonth,
     goThisMonth,
-    refetch,
+    refetch: fetchEvents,
   };
 };
