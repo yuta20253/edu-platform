@@ -17,6 +17,8 @@ export const useCalendar = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
+  // 同じ月のまま再取得するためのカウンタ。refetch で増やすと useEffect が再実行される
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,11 +53,12 @@ export const useCalendar = () => {
     return () => {
       controller.abort();
     };
-  }, [month, router]);
+  }, [month, reloadKey, router]);
 
   const goPrevMonth = () => setMonth((current) => subMonths(current, 1));
   const goNextMonth = () => setMonth((current) => addMonths(current, 1));
   const goThisMonth = () => setMonth(getThisMonth());
+  const refetch = () => setReloadKey((current) => current + 1);
 
   return {
     month,
@@ -65,5 +68,6 @@ export const useCalendar = () => {
     goPrevMonth,
     goNextMonth,
     goThisMonth,
+    refetch,
   };
 };

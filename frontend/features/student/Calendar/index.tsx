@@ -14,9 +14,10 @@ export const Calendar = () => {
     goPrevMonth,
     goNextMonth,
     goThisMonth,
+    refetch,
   } = useCalendar();
 
-  if (error) return <ErrorState />;
+  if (error) return <ErrorState onRetry={refetch} />;
 
   return (
     <Presenter
