@@ -4,14 +4,6 @@ import { colors } from "@/app/theme/colors";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Pagination,
-  Select,
-  type SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -23,12 +15,12 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import {
-  PER_PAGE_OPTIONS,
-  type CoursesData,
-  type CourseOrder,
-  type CourseSort,
-} from "./types";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PaginationBar } from "@/components/ui/PaginationBar";
+import { PerPageSelect } from "@/components/ui/PerPageSelect";
+import { TableCard } from "@/components/ui/TableCard";
+import { PER_PAGE_OPTIONS } from "@/constants/pagination";
+import type { CoursesData, CourseOrder, CourseSort } from "./types";
 
 type Props = {
   data: CoursesData;
@@ -56,10 +48,6 @@ export const Presenter = ({
   onPageChange,
 }: Props) => {
   const { courses, meta } = data;
-
-  const handlePerPageChange = (e: SelectChangeEvent<string>) => {
-    onPerPageChange(Number(e.target.value));
-  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -93,108 +81,85 @@ export const Presenter = ({
           onChange={(e) => onSearchChange(e.target.value)}
           sx={{ minWidth: 240 }}
         />
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>表示件数</InputLabel>
-          <Select
-            label="表示件数"
-            value={String(perPage)}
-            onChange={handlePerPageChange}
-          >
-            {PER_PAGE_OPTIONS.map((option) => (
-              <MenuItem key={option} value={String(option)}>
-                {option}件
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <PerPageSelect
+          value={perPage}
+          options={PER_PAGE_OPTIONS}
+          onChange={onPerPageChange}
+        />
       </Box>
 
       {/* テーブル */}
-      <Card
-        elevation={0}
-        sx={{
-          border: `1px solid ${colors.border.light}`,
-          borderRadius: 2,
-          mb: 3,
-        }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          {courses.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: "center" }}>
-              <Typography color="text.secondary" sx={{ mb: 2 }}>
-                講座が見つかりません
-              </Typography>
+      <TableCard>
+        {courses.length === 0 ? (
+          <EmptyState
+            message="講座が見つかりません"
+            action={
               <Button variant="outlined" size="small" disabled>
                 新規作成（準備中）
               </Button>
-            </Box>
-          ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: colors.surface.light }}>
-                    <TableCell sx={{ fontWeight: 600 }}>科目</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>
-                      <TableSortLabel
-                        active={sort === "level_name"}
-                        direction={sort === "level_name" ? order : "asc"}
-                        onClick={() => onSortChange("level_name")}
+            }
+          />
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: colors.surface.light }}>
+                  <TableCell sx={{ fontWeight: 600 }}>科目</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>
+                    <TableSortLabel
+                      active={sort === "level_name"}
+                      direction={sort === "level_name" ? order : "asc"}
+                      onClick={() => onSortChange("level_name")}
+                    >
+                      講座名
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    単元数
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    問題数
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {courses.map((course) => (
+                  <TableRow
+                    key={course.id}
+                    hover
+                    sx={{ "&:last-child td": { border: 0 } }}
+                  >
+                    <TableCell>{course.subject?.name ?? "-"}</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/admin/courses/${course.id}`}
+                        style={{
+                          color: colors.brand.primary,
+                          textDecoration: "none",
+                          fontWeight: 600,
+                        }}
                       >
-                        講座名
-                      </TableSortLabel>
+                        {course.level_name}レベル{course.level_number}
+                      </Link>
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
-                      単元数
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
-                      問題数
+                    <TableCell align="right">{course.units_count}</TableCell>
+                    <TableCell align="right">
+                      {course.questions_count}
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {courses.map((course) => (
-                    <TableRow
-                      key={course.id}
-                      hover
-                      sx={{ "&:last-child td": { border: 0 } }}
-                    >
-                      <TableCell>{course.subject?.name ?? "-"}</TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/admin/courses/${course.id}`}
-                          style={{
-                            color: colors.brand.primary,
-                            textDecoration: "none",
-                            fontWeight: 600,
-                          }}
-                        >
-                          {course.level_name}レベル{course.level_number}
-                        </Link>
-                      </TableCell>
-                      <TableCell align="right">{course.units_count}</TableCell>
-                      <TableCell align="right">
-                        {course.questions_count}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </TableCard>
 
       {/* ページネーション */}
-      {meta.total_pages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-            count={meta.total_pages}
-            page={page}
-            onChange={(_, value) => onPageChange(value)}
-            color="primary"
-          />
-        </Box>
-      )}
+      <PaginationBar
+        totalPages={meta.total_pages}
+        page={page}
+        onChange={onPageChange}
+      />
     </Box>
   );
 };
