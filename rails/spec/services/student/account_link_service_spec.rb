@@ -99,6 +99,34 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
+    context 'ログイン中Userが既に別のstudent_numberで紐付け済みの場合' do
+      let(:user) { create(:user, :student, student_number: 'ALREADY-000001') }
+      let!(:target_user) do
+        create(:user, :student, :invitation_pending, :with_school_class,
+               student_number: 'NEWTARGET-01', high_school: user.high_school)
+      end
+      let(:student_number) { 'NEWTARGET-01' }
+
+      it 'AlreadyLinkedErrorが発生する' do
+        expect { call }.to raise_error(Student::AccountLinkService::AlreadyLinkedError)
+      end
+
+      it 'ログイン中Userの既存の紐付け情報が上書きされない' do
+        expect { call }.to raise_error(StandardError)
+
+        user.reload
+        expect(user.student_number).to eq('ALREADY-000001')
+      end
+
+      it '新しいstudent_number側のUserが変更・削除されない' do
+        expect { call }.to raise_error(StandardError)
+
+        target_user.reload
+        expect(target_user.deleted_at).to be_nil
+        expect(target_user.student_number).to eq('NEWTARGET-01')
+      end
+    end
+
     context '既に有効化済みのUserのstudent_numberを指定した場合' do
       let!(:target_user) do
         create(:user, :student, :invitation_completed, :with_school_class, student_number: 'ACT-000001')
@@ -212,7 +240,7 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
-    context '統合処理の途中で保存エラーが発生した場合' do
+    context '統合処理の途中で保存エラーが発生した場合', db_clean: :truncation do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,
                student_number: 'ROLL-000001', high_school: user.high_school)
@@ -256,7 +284,7 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
-    context '想定外のバグ(NoMethodErrorなど)が発生した場合' do
+    context '想定外のバグ(NoMethodErrorなど)が発生した場合', db_clean: :truncation do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,
                student_number: 'BUG-000001', high_school: user.high_school)
@@ -275,7 +303,7 @@ RSpec.describe Student::AccountLinkService, type: :service do
       end
     end
 
-    context 'DB接続断などのインフラ障害が発生した場合' do
+    context 'DB接続断などのインフラ障害が発生した場合', db_clean: :truncation do
       let!(:target_user) do
         create(:user, :student, :invitation_pending, :with_school_class,
                student_number: 'INFRA-00001', high_school: user.high_school)

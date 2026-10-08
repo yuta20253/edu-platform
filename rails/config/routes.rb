@@ -49,7 +49,9 @@ Rails.application.routes.draw do
           resources :messages, only: [:index, :create], controller: 'interview_request_messages'
         end
         resource :calendar, only: :show
-        resource :account_link, only: :create
+        resource :account_link, only: :create do
+          post :preview, on: :member
+        end
       end
 
       namespace :teacher do

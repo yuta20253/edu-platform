@@ -4,6 +4,8 @@ export type MeUser = {
   name_kana: string;
   email: string;
   profile_completed: boolean;
+  // 学校発行アカウントとの紐付け状態。生徒以外は null
+  account_linked: boolean | null;
 
   user_personal_info?: {
     id: number;
