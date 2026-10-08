@@ -34,9 +34,13 @@ type Props = {
   onChange: (patch: Partial<AnalyticsFilters>) => void;
 };
 
-// 入力途中のInvalid Dateをフィルタへ反映しないよう、確定した値のみ通す
-// （ImportHistory と同じ扱い）。
-const isCommittedDate = (date: Date | null) => !date || isValid(date);
+// 入力途中の日付をフィルタへ反映しないよう、確定した値のみ通す。
+// - Invalid Date（ImportHistory と同じ）
+// - 年を「2026」と打つ途中にできる「0020年」「0202年」のような不完全な年。
+//   反映すると366日超の期間として 422 が一瞬表示され、無駄な取得も走る。
+const MIN_COMMITTED_YEAR = 1000;
+const isCommittedDate = (date: Date | null) =>
+  !date || (isValid(date) && date.getFullYear() >= MIN_COMMITTED_YEAR);
 
 const compactFieldSx = {
   "& .MuiOutlinedInput-root": { borderRadius: "2px", fontSize: "0.8125rem" },

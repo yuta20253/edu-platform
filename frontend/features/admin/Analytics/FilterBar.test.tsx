@@ -120,6 +120,28 @@ describe("FilterBar", () => {
       expect(onChange).toHaveBeenCalledWith({ from: "2026-09-01" });
     });
 
+    it("既に日付が入っている欄で年を打ち直す途中の不完全な年(0020年など)は onChange に渡さない", async () => {
+      // 年を「2026」と打つ途中で「0020」「0202」のような妥当な Date が一瞬できる。
+      // これをそのままフィルタに反映すると、366日超の期間として 422 が一瞬表示される。
+      const onChange = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <FilterBar
+          {...defaultProps}
+          filters={{ ...emptyFilters, from: "2026-10-02", to: "2026-10-08" }}
+          onChange={onChange}
+        />,
+      );
+
+      await user.click(screen.getByRole("group", { name: /開始日/ }));
+      await user.keyboard("2026");
+
+      const years = onChange.mock.calls.map(([patch]) =>
+        Number(String(patch.from).slice(0, 4)),
+      );
+      expect(years.every((year) => year >= 1000)).toBe(true);
+    });
+
     it("終了日が開始日より前のとき、エラーメッセージが表示される", () => {
       render(
         <FilterBar
