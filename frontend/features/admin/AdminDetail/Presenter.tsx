@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Alert,
   Box,
   Breadcrumbs,
   Button,
@@ -10,19 +9,18 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
-import HistoryIcon from "@mui/icons-material/History";
 import Link from "next/link";
 import { useState } from "react";
 import { format } from "date-fns";
 import type { Prefecture } from "@/types/common/prefecture";
 import { colors } from "@/app/theme/colors";
-import { DeleteConfirmDialog } from "./components/DeleteConfirmDialog";
+import { ConfirmDeleteDialog } from "@/components/ui/ConfirmDeleteDialog";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ProfileEditForm } from "./components/ProfileEditForm";
-import type { AdminDetail, SnackbarState, UpdateAdminInput } from "./types";
+import type { AdminDetail, UpdateAdminInput } from "./types";
 import { GenderLabel } from "@/constants/gender";
 import type { GenderType } from "@/types/common/gender";
 
@@ -59,10 +57,6 @@ type Props = {
   onDeleteConfirm: () => void;
   deleting: boolean;
   deleteErrors: string[];
-
-  // 完了スナックバー
-  snackbar: SnackbarState;
-  onSnackbarClose: () => void;
 };
 
 export const Presenter = ({
@@ -80,8 +74,6 @@ export const Presenter = ({
   onDeleteConfirm,
   deleting,
   deleteErrors,
-  snackbar,
-  onSnackbarClose,
 }: Props) => {
   const [editing, setEditing] = useState(false);
 
@@ -252,25 +244,7 @@ export const Presenter = ({
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                   アクティビティログ
                 </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 1,
-                    py: 4,
-                  }}
-                >
-                  <HistoryIcon
-                    sx={{ fontSize: 40, color: colors.text.muted }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{ color: colors.text.secondary }}
-                  >
-                    アクティビティはまだありません
-                  </Typography>
-                </Box>
+                <EmptyState message="アクティビティがまだありません" py={4} />
               </CardContent>
             </Card>
 
@@ -322,29 +296,25 @@ export const Presenter = ({
         </Grid>
       </Grid>
 
-      <DeleteConfirmDialog
+      <ConfirmDeleteDialog
         open={deleteDialogOpen}
-        expectedEmail={admin.email}
+        title="管理者を削除"
+        description={
+          <>
+            この操作は取り消せません。削除するには対象のメールアドレス
+            <Typography component="span" fontWeight={700}>
+              {` ${admin.email} `}
+            </Typography>
+            を入力してください。
+          </>
+        }
+        confirmText={admin.email}
+        inputLabel="メールアドレスを入力"
         onClose={onDeleteDialogClose}
         onConfirm={onDeleteConfirm}
-        deleting={deleting}
-        deleteErrors={deleteErrors}
+        loading={deleting}
+        errors={deleteErrors}
       />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={onSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={onSnackbarClose}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };
