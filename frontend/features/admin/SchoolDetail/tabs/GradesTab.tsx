@@ -1,7 +1,9 @@
 "use client";
 
-import { Box, Chip, CircularProgress, Stack, Typography } from "@mui/material";
-import { colors } from "@/app/theme/colors";
+import { Chip, Stack } from "@mui/material";
+import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { useFetchGrades } from "../hooks/useFetchGrades";
 
 type Props = {
@@ -9,24 +11,18 @@ type Props = {
 };
 
 export const GradesTab = ({ schoolId }: Props) => {
-  const { grades, loading } = useFetchGrades(schoolId);
+  const { grades, loading, error, refetch } = useFetchGrades(schoolId);
 
   if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <CardSkeleton lines={2} />;
+  }
+
+  if (error) {
+    return <ErrorState onRetry={refetch} />;
   }
 
   if (grades.length === 0) {
-    return (
-      <Box sx={{ py: 6, textAlign: "center" }}>
-        <Typography variant="body1" sx={{ color: colors.text.secondary }}>
-          学年が登録されていません
-        </Typography>
-      </Box>
-    );
+    return <EmptyState message="学年がまだありません" />;
   }
 
   return (
