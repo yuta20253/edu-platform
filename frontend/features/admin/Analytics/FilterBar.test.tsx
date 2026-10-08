@@ -150,6 +150,24 @@ describe("FilterBar", () => {
       expect(years.every((year) => year >= 1000)).toBe(true);
     });
 
+    it("既に日付が入っている欄でも、打ち直した日付が最終的に onChange に渡される", async () => {
+      // 途中の不完全な年を握りつぶしても、入力欄の編集自体は妨げない。
+      const onChange = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <FilterBar
+          {...defaultProps}
+          filters={{ ...emptyFilters, from: "2026-10-02", to: "2026-10-08" }}
+          onChange={onChange}
+        />,
+      );
+
+      await user.click(screen.getByRole("group", { name: /開始日/ }));
+      await user.keyboard("20260901");
+
+      expect(onChange).toHaveBeenLastCalledWith({ from: "2026-09-01" });
+    });
+
     it("終了日が開始日より前のとき、エラーメッセージが表示される", () => {
       render(
         <FilterBar

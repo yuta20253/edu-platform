@@ -48,6 +48,60 @@ const compactFieldSx = {
   "& .MuiInputLabel-root": { fontSize: "0.8125rem" },
 };
 
+type DateFieldProps = {
+  label: string;
+  // URL クエリ由来の確定値（yyyy-MM-dd。未指定は空文字）
+  value: string;
+  minDate?: Date;
+  maxDate?: Date;
+  error?: boolean;
+  helperText?: string;
+  onCommit: (value: string) => void;
+};
+
+// 入力欄が編集中の値を保てるよう、表示用の下書きをローカルで持つ。
+// 確定していない値(isCommittedDate でないもの)は onCommit に渡さない。
+// 下書きを持たず親の値だけで制御すると、不完全な年を握りつぶした時点で
+// 入力欄が元の値に戻され、打ち直しができなくなる。
+const DateField = ({
+  label,
+  value,
+  minDate,
+  maxDate,
+  error,
+  helperText,
+  onCommit,
+}: DateFieldProps) => {
+  const [draft, setDraft] = useState<Date | null>(dateToInput(value));
+
+  useEffect(() => {
+    setDraft(dateToInput(value));
+  }, [value]);
+
+  return (
+    <DatePicker
+      label={label}
+      format="yyyy/MM/dd"
+      value={draft}
+      minDate={minDate}
+      maxDate={maxDate}
+      onChange={(date) => {
+        setDraft(date);
+        if (isCommittedDate(date)) onCommit(dateToParam(date));
+      }}
+      slotProps={{
+        textField: {
+          size: "small",
+          error,
+          helperText,
+          sx: { width: { xs: "100%", sm: 180 }, ...compactFieldSx },
+        },
+        field: { clearable: true },
+      }}
+    />
+  );
+};
+
 export const FilterBar = ({
   filters,
   highSchoolOptions,
@@ -101,41 +155,23 @@ export const FilterBar = ({
             jaJP.components.MuiLocalizationProvider.defaultProps.localeText
           }
         >
-          <DatePicker
+          <DateField
             label="開始日"
-            format="yyyy/MM/dd"
-            value={fromDate}
+            value={filters.from}
             maxDate={toDate ?? undefined}
-            onChange={(date) => {
-              if (isCommittedDate(date)) onChange({ from: dateToParam(date) });
-            }}
-            slotProps={{
-              textField: {
-                size: "small",
-                sx: { width: { xs: "100%", sm: 180 }, ...compactFieldSx },
-              },
-              field: { clearable: true },
-            }}
+            onCommit={(from) => onChange({ from })}
           />
-          <DatePicker
+          <DateField
             label="終了日"
-            format="yyyy/MM/dd"
-            value={toDate}
+            value={filters.to}
             minDate={fromDate ?? undefined}
-            onChange={(date) => {
-              if (isCommittedDate(date)) onChange({ to: dateToParam(date) });
-            }}
-            slotProps={{
-              textField: {
-                size: "small",
-                error: dateRangeInvalid,
-                helperText: dateRangeInvalid
-                  ? "終了日は開始日以降の日付を指定してください"
-                  : undefined,
-                sx: { width: { xs: "100%", sm: 180 }, ...compactFieldSx },
-              },
-              field: { clearable: true },
-            }}
+            error={dateRangeInvalid}
+            helperText={
+              dateRangeInvalid
+                ? "終了日は開始日以降の日付を指定してください"
+                : undefined
+            }
+            onCommit={(to) => onChange({ to })}
           />
         </LocalizationProvider>
 
