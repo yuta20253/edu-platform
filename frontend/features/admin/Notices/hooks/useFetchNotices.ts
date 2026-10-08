@@ -14,6 +14,7 @@ export const useFetchNotices = () => {
   const [data, setData] = useState<NoticesData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -78,7 +79,9 @@ export const useFetchNotices = () => {
     return () => {
       controller.abort();
     };
-  }, [page, debouncedQuery, status, router]);
+  }, [page, debouncedQuery, status, router, reloadKey]);
+
+  const handleRetry = () => setReloadKey((prev) => prev + 1);
 
   return {
     data,
@@ -90,5 +93,6 @@ export const useFetchNotices = () => {
     status,
     onQueryChange: handleQueryChange,
     onStatusChange: handleStatusChange,
+    onRetry: handleRetry,
   };
 };
