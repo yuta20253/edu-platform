@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilterBar } from "./FilterBar";
 import type { AnalyticsFilters } from "./types";
@@ -86,6 +87,13 @@ describe("FilterBar", () => {
           "false",
         );
       }
+    });
+
+    it("サーバー描画(初回)では「今日」に依存するチップの選択状態を出さない", () => {
+      // 「今日」はブラウザの日付で決まり、サーバー(UTC)とずれると
+      // ハイドレーション不一致になるため、マウント後に選択状態を決める。
+      const html = renderToString(<FilterBar {...defaultProps} />);
+      expect(html).not.toContain('aria-pressed="true"');
     });
 
     it("チップのクリックで当日を含む期間が onChange に渡される", () => {

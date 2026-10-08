@@ -16,6 +16,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { jaJP } from "@mui/x-date-pickers/locales";
 import { isValid } from "date-fns";
 import { ja } from "date-fns/locale";
+import { useEffect, useState } from "react";
 import { dateToInput, dateToParam } from "../ImportHistory/dateUtils";
 import { detectPreset, presetRange } from "./filters";
 import {
@@ -54,7 +55,13 @@ export const FilterBar = ({
   validationErrors,
   onChange,
 }: Props) => {
-  const preset = detectPreset(filters);
+  // 「今日」はブラウザの日付で決まり、サーバー描画(UTC)とずれるとハイドレーション
+  // 不一致になる。プリセットの選択状態はマウント後に決める。
+  const [today, setToday] = useState<Date | null>(null);
+  useEffect(() => {
+    setToday(new Date());
+  }, []);
+  const preset = today ? detectPreset(filters, today) : null;
   const fromDate = dateToInput(filters.from);
   const toDate = dateToInput(filters.to);
   const dateRangeInvalid = !!fromDate && !!toDate && fromDate > toDate;
@@ -72,7 +79,7 @@ export const FilterBar = ({
           border: `1px solid ${colors.border.light}`,
         }}
       >
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1}>
           {PERIOD_PRESETS.map((days) => (
             <Chip
               key={days}
@@ -105,7 +112,7 @@ export const FilterBar = ({
             slotProps={{
               textField: {
                 size: "small",
-                sx: { width: 180, ...compactFieldSx },
+                sx: { width: { xs: "100%", sm: 180 }, ...compactFieldSx },
               },
               field: { clearable: true },
             }}
@@ -125,14 +132,17 @@ export const FilterBar = ({
                 helperText: dateRangeInvalid
                   ? "終了日は開始日以降の日付を指定してください"
                   : undefined,
-                sx: { width: 180, ...compactFieldSx },
+                sx: { width: { xs: "100%", sm: 180 }, ...compactFieldSx },
               },
               field: { clearable: true },
             }}
           />
         </LocalizationProvider>
 
-        <FormControl size="small" sx={{ minWidth: 160, ...compactFieldSx }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: { xs: "100%", sm: 160 }, ...compactFieldSx }}
+        >
           <InputLabel id="analytics-high-school-label">高校</InputLabel>
           <Select
             labelId="analytics-high-school-label"
@@ -149,7 +159,10 @@ export const FilterBar = ({
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: 140, ...compactFieldSx }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: { xs: "100%", sm: 140 }, ...compactFieldSx }}
+        >
           <InputLabel id="analytics-subject-label">科目</InputLabel>
           <Select
             labelId="analytics-subject-label"
