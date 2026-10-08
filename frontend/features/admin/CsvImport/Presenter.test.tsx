@@ -45,8 +45,12 @@ const buildState = (overrides: Partial<CsvImportState>): CsvImportState => ({
 const baseProps = {
   courses,
   coursesLoading: false,
+  coursesError: false,
+  onRetryCourses: vi.fn(),
   units,
   unitsLoading: false,
+  unitsError: false,
+  onRetryUnits: vi.fn(),
   handleCourseChange: vi.fn(),
   handleUnitChange: vi.fn(),
   handleFileSelect: vi.fn(),

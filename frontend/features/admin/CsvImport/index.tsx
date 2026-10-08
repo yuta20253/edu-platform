@@ -12,16 +12,23 @@ type Props = {
 
 export const CsvImport = ({ presetCourseId, presetUnitId }: Props) => {
   const wizard = useCsvImport({ presetCourseId, presetUnitId });
-  const { courses, coursesLoading } = useFetchCourseOptions();
-  const { units, unitsLoading } = useFetchUnitOptions(wizard.state.courseId);
+  const { courses, coursesLoading, coursesError, retryCourses } =
+    useFetchCourseOptions();
+  const { units, unitsLoading, unitsError, retryUnits } = useFetchUnitOptions(
+    wizard.state.courseId,
+  );
 
   return (
     <Presenter
       state={wizard.state}
       courses={courses}
       coursesLoading={coursesLoading}
+      coursesError={coursesError}
+      onRetryCourses={retryCourses}
       units={units}
       unitsLoading={unitsLoading}
+      unitsError={unitsError}
+      onRetryUnits={retryUnits}
       handleCourseChange={wizard.handleCourseChange}
       handleUnitChange={wizard.handleUnitChange}
       handleFileSelect={wizard.handleFileSelect}
