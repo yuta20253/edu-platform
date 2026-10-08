@@ -8,11 +8,7 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
   IconButton,
-  Pagination,
-  Snackbar,
   Stack,
   Table,
   TableBody,
@@ -26,8 +22,11 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PaginationBar } from "@/components/ui/PaginationBar";
+import { TableCard } from "@/components/ui/TableCard";
 import { AdminCreateDrawer } from "./components/AdminCreateDrawer";
-import type { AdminsData, CreateAdminInput, SnackbarState } from "./types";
+import type { AdminsData, CreateAdminInput } from "./types";
 
 type Props = {
   data: AdminsData;
@@ -41,8 +40,6 @@ type Props = {
   onCreate: (input: CreateAdminInput) => void;
   creating: boolean;
   createErrors: string[];
-  snackbar: SnackbarState;
-  onSnackbarClose: () => void;
 };
 
 export const Presenter = ({
@@ -57,8 +54,6 @@ export const Presenter = ({
   onCreate,
   creating,
   createErrors,
-  snackbar,
-  onSnackbarClose,
 }: Props) => {
   const { admins, meta } = data;
 
@@ -112,99 +107,74 @@ export const Presenter = ({
       </Box>
 
       {/* テーブル */}
-      <Card
-        elevation={0}
-        sx={{
-          border: `1px solid ${colors.border.light}`,
-          borderRadius: 2,
-          mb: 3,
-        }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          {admins.length === 0 ? (
-            <Typography
-              color="text.secondary"
-              sx={{ py: 4, textAlign: "center" }}
-            >
-              管理者が見つかりません
-            </Typography>
-          ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: colors.surface.light }}>
-                    <TableCell sx={{ fontWeight: 600 }}>名前</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>
-                      メールアドレス
+      <TableCard>
+        {admins.length === 0 ? (
+          <EmptyState message="管理者が見つかりません" />
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: colors.surface.light }}>
+                  <TableCell sx={{ fontWeight: 600 }}>名前</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>メールアドレス</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>登録日</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>
+                    詳細
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {admins.map((admin) => (
+                  <TableRow
+                    key={admin.id}
+                    hover
+                    sx={{ "&:last-child td": { border: 0 } }}
+                  >
+                    <TableCell>
+                      <Stack direction="row" alignItems="center" spacing={1.5}>
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            fontSize: "0.875rem",
+                            bgcolor: colors.brand.primary,
+                          }}
+                        >
+                          {admin.name.charAt(0)}
+                        </Avatar>
+                        <span>{admin.name}</span>
+                      </Stack>
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>登録日</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>
-                      詳細
+                    <TableCell>{admin.email}</TableCell>
+                    <TableCell>
+                      {format(new Date(admin.created_at), "yyyy/MM/dd")}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Tooltip title="詳細">
+                        <IconButton
+                          component={Link}
+                          href={`/admin/admins/${admin.id}`}
+                          size="small"
+                          aria-label={`${admin.name}の詳細`}
+                        >
+                          <ChevronRightIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {admins.map((admin) => (
-                    <TableRow
-                      key={admin.id}
-                      hover
-                      sx={{ "&:last-child td": { border: 0 } }}
-                    >
-                      <TableCell>
-                        <Stack
-                          direction="row"
-                          alignItems="center"
-                          spacing={1.5}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 32,
-                              height: 32,
-                              fontSize: "0.875rem",
-                              bgcolor: colors.brand.primary,
-                            }}
-                          >
-                            {admin.name.charAt(0)}
-                          </Avatar>
-                          <span>{admin.name}</span>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>{admin.email}</TableCell>
-                      <TableCell>
-                        {format(new Date(admin.created_at), "yyyy/MM/dd")}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Tooltip title="詳細">
-                          <IconButton
-                            component={Link}
-                            href={`/admin/admins/${admin.id}`}
-                            size="small"
-                            aria-label={`${admin.name}の詳細`}
-                          >
-                            <ChevronRightIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </TableCard>
 
       {/* ページネーション */}
-      {meta.total_pages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-            count={meta.total_pages}
-            page={page}
-            onChange={(_, value) => onPageChange(value)}
-            color="primary"
-          />
-        </Box>
-      )}
+      <PaginationBar
+        totalPages={meta.total_pages}
+        page={page}
+        onChange={onPageChange}
+      />
 
       {/* 管理者を追加ドロワー */}
       <AdminCreateDrawer
@@ -214,22 +184,6 @@ export const Presenter = ({
         creating={creating}
         createErrors={createErrors}
       />
-
-      {/* 成功・失敗のスナックバー */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={onSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={onSnackbarClose}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

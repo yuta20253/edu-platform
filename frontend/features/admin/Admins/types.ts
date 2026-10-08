@@ -1,3 +1,5 @@
+import type { PaginationMeta } from "@/types/common/pagination";
+
 type Admin = {
   id: number;
   name: string;
@@ -5,25 +7,12 @@ type Admin = {
   created_at: string;
 };
 
-type AdminMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
 export type AdminsData = {
   admins: Admin[];
-  meta: AdminMeta;
+  meta: PaginationMeta;
 };
 
 export type CreateAdminInput = {
   name: string;
   email: string;
-};
-
-export type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
 };
