@@ -5,17 +5,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { extractApiError } from "@/libs/http/extractApiError";
-import type {
-  DetailTabValue,
-  ImportHistoryDetailData,
-  SnackbarState,
-} from "../types";
-
-const INITIAL_SNACKBAR: SnackbarState = {
-  open: false,
-  message: "",
-  severity: "success",
-};
+import { useToast } from "@/components/ui/ToastProvider";
+import type { DetailTabValue, ImportHistoryDetailData } from "../types";
 
 // Content-Disposition から filename を取り出す。
 // RFC5987 形式（filename*=UTF-8''...）と素の filename の両方に対応する。
@@ -42,8 +33,9 @@ export const useFetchHistoryDetail = (historyId: number) => {
   const [error, setError] = useState(false);
   const [activeTab, setActiveTab] = useState<DetailTabValue>("errors");
   const [exporting, setExporting] = useState(false);
-  const [snackbar, setSnackbar] = useState<SnackbarState>(INITIAL_SNACKBAR);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     // 履歴を素早く切り替えた際、古いリクエストのレスポンスが新しい
@@ -74,7 +66,7 @@ export const useFetchHistoryDetail = (historyId: number) => {
     return () => {
       controller.abort();
     };
-  }, [historyId, router]);
+  }, [historyId, router, reloadKey]);
 
   const handleExport = async () => {
     setExporting(true);
@@ -105,8 +97,7 @@ export const useFetchHistoryDetail = (historyId: number) => {
         router.push("/login");
         return;
       }
-      setSnackbar({
-        open: true,
+      toast.show({
         message: "CSVのダウンロードに失敗しました",
         severity: "error",
       });
@@ -115,8 +106,8 @@ export const useFetchHistoryDetail = (historyId: number) => {
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
+  const handleRetry = () => {
+    setReloadKey((prev) => prev + 1);
   };
 
   return {
@@ -124,9 +115,8 @@ export const useFetchHistoryDetail = (historyId: number) => {
     error,
     activeTab,
     exporting,
-    snackbar,
     onTabChange: setActiveTab,
     onExport: handleExport,
-    onSnackbarClose: handleSnackbarClose,
+    onRetry: handleRetry,
   };
 };
