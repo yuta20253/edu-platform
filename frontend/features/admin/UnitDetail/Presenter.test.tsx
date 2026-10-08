@@ -151,6 +151,8 @@ describe("UnitDetailPresenter", () => {
         courseId={7}
       />,
     );
-    expect(screen.getByText("インポート履歴はありません")).toBeInTheDocument();
+    expect(
+      screen.getByText("インポート履歴がまだありません"),
+    ).toBeInTheDocument();
   });
 });

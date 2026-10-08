@@ -9,8 +9,9 @@ import type { UnitDetail } from "../types";
 
 export const useFetchUnitDetail = (courseId: number, unitId: number) => {
   const [unit, setUnit] = useState<UnitDetail | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -45,7 +46,9 @@ export const useFetchUnitDetail = (courseId: number, unitId: number) => {
     return () => {
       controller.abort();
     };
-  }, [courseId, unitId, router]);
+  }, [courseId, unitId, router, reloadKey]);
 
-  return { unit, loading, error };
+  const retry = () => setReloadKey((prev) => prev + 1);
+
+  return { unit, loading, error, retry };
 };
