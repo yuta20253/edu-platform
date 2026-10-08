@@ -4,12 +4,9 @@ import { colors } from "@/app/theme/colors";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   FormControl,
   InputLabel,
   MenuItem,
-  Pagination,
   Select,
   type SelectChangeEvent,
   Table,
@@ -21,6 +18,9 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PaginationBar } from "@/components/ui/PaginationBar";
+import { TableCard } from "@/components/ui/TableCard";
 import type { SchoolsData } from "./types";
 import { Prefecture } from "@/types/common/prefecture";
 
@@ -85,76 +85,57 @@ export const Presenter = ({
       </Box>
 
       {/* テーブル */}
-      <Card
-        elevation={0}
-        sx={{
-          border: `1px solid ${colors.border.light}`,
-          borderRadius: 2,
-          mb: 3,
-        }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          {schools.length === 0 ? (
-            <Typography
-              color="text.secondary"
-              sx={{ py: 4, textAlign: "center" }}
-            >
-              高校が見つかりません
-            </Typography>
-          ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: colors.surface.light }}>
-                    <TableCell sx={{ fontWeight: 600 }}>高校名</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>都道府県</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>生徒数</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>教師数</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>詳細</TableCell>
+      <TableCard>
+        {schools.length === 0 ? (
+          <EmptyState message="高校が見つかりません" />
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: colors.surface.light }}>
+                  <TableCell sx={{ fontWeight: 600 }}>高校名</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>都道府県</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>生徒数</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>教師数</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>詳細</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {schools.map((school) => (
+                  <TableRow
+                    key={school.id}
+                    hover
+                    sx={{ "&:last-child td": { border: 0 } }}
+                  >
+                    <TableCell>{school.name}</TableCell>
+                    <TableCell>{school.prefecture_name}</TableCell>
+                    <TableCell>{school.student_count}</TableCell>
+                    <TableCell>{school.teacher_count}</TableCell>
+                    <TableCell>
+                      <Button
+                        component={Link}
+                        href={`/admin/schools/${school.id}`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: "0.75rem" }}
+                      >
+                        詳細
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {schools.map((school) => (
-                    <TableRow
-                      key={school.id}
-                      hover
-                      sx={{ "&:last-child td": { border: 0 } }}
-                    >
-                      <TableCell>{school.name}</TableCell>
-                      <TableCell>{school.prefecture_name}</TableCell>
-                      <TableCell>{school.student_count}</TableCell>
-                      <TableCell>{school.teacher_count}</TableCell>
-                      <TableCell>
-                        <Button
-                          component={Link}
-                          href={`/admin/schools/${school.id}`}
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontSize: "0.75rem" }}
-                        >
-                          詳細
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </TableCard>
 
       {/* ページネーション */}
-      {meta.total_pages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-            count={meta.total_pages}
-            page={page}
-            onChange={(_, value) => onPageChange(value)}
-            color="primary"
-          />
-        </Box>
-      )}
+      <PaginationBar
+        totalPages={meta.total_pages}
+        page={page}
+        onChange={onPageChange}
+      />
     </Box>
   );
 };
