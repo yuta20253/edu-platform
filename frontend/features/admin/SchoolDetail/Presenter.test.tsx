@@ -19,6 +19,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => routerMock,
 }));
 
+vi.mock("@/components/ui/ToastProvider", () => ({
+  useToast: () => ({ show: vi.fn() }),
+}));
+
 vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
