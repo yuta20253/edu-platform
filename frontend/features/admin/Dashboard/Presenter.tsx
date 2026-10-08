@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import {
@@ -103,18 +104,19 @@ export const Presenter = ({ data }: Props) => {
               </Typography>
             </Box>
             {recent_imports.length === 0 ? (
-              <Box sx={{ py: 3, textAlign: "center" }}>
-                <Typography color="text.secondary" sx={{ mb: 2 }}>
-                  まだCSVインポートを実行していません
-                </Typography>
-                <Button
-                  variant="outlined"
-                  component={Link}
-                  href="/admin/csv-import"
-                >
-                  CSVインポートを実行する
-                </Button>
-              </Box>
+              <EmptyState
+                message="CSVインポート履歴がまだありません"
+                py={3}
+                action={
+                  <Button
+                    variant="outlined"
+                    component={Link}
+                    href="/admin/csv-import"
+                  >
+                    CSVインポートを実行する
+                  </Button>
+                }
+              />
             ) : (
               <Box sx={{ overflowX: "auto" }}>
                 <Table size="small">

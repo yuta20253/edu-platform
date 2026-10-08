@@ -45,7 +45,7 @@ describe("Dashboard", () => {
     expect(screen.getAllByTestId("kpi-card-skeleton")).toHaveLength(4);
   });
 
-  it("エラー時はメッセージと再読み込みボタンを表示する", () => {
+  it("エラー時はメッセージと再試行ボタンを表示する", () => {
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: null,
       loading: false,
@@ -57,12 +57,10 @@ describe("Dashboard", () => {
     expect(
       screen.getByText("ダッシュボードの取得に失敗しました"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "再読み込み" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "再試行" })).toBeInTheDocument();
   });
 
-  it("再読み込みボタンを押すとrefetchが呼ばれる", async () => {
+  it("再試行ボタンを押すとrefetchが呼ばれる", async () => {
     const refetch = vi.fn();
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: null,
@@ -72,7 +70,7 @@ describe("Dashboard", () => {
     });
 
     render(<Dashboard />);
-    await userEvent.click(screen.getByRole("button", { name: "再読み込み" }));
+    await userEvent.click(screen.getByRole("button", { name: "再試行" }));
 
     expect(refetch).toHaveBeenCalledTimes(1);
   });
