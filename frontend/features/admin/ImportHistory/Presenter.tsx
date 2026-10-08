@@ -1,7 +1,11 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PaginationBar } from "@/components/ui/PaginationBar";
+import { PerPageSelect } from "@/components/ui/PerPageSelect";
 import { TableCard } from "@/components/ui/TableCard";
+import { PER_PAGE_OPTIONS } from "@/constants/pagination";
 import {
   Box,
   Button,
@@ -11,7 +15,6 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  Pagination,
   Select,
   Table,
   TableBody,
@@ -32,7 +35,6 @@ import {
   importStatusLabel,
 } from "@/constants/import_status";
 import {
-  PER_PAGE_OPTIONS,
   type CourseOption,
   type ImportHistoriesData,
   type ImportHistoryFilters,
@@ -71,7 +73,7 @@ type Props = {
   onToChange: (to: string) => void;
   onSortChange: (sort: ImportHistorySort) => void;
   onPageChange: (page: number) => void;
-  onPerPageChange: (perPage: string) => void;
+  onPerPageChange: (perPage: number) => void;
   onClearFilters: () => void;
   onRowClick: (id: number) => void;
 };
@@ -361,31 +363,17 @@ export const Presenter = ({
 
       {/* 表示件数（常にテーブル右上に固定） */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1.5 }}>
-        <FormControl size="small" sx={{ minWidth: 90, ...compactFieldSx }}>
-          <InputLabel id="import-history-per-page-label">表示件数</InputLabel>
-          <Select
-            labelId="import-history-per-page-label"
-            label="表示件数"
-            value={String(perPage)}
-            onChange={(e) => onPerPageChange(e.target.value)}
-          >
-            {PER_PAGE_OPTIONS.map((option) => (
-              <MenuItem key={option} value={String(option)}>
-                {option}件
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <PerPageSelect
+          value={perPage}
+          options={PER_PAGE_OPTIONS}
+          onChange={onPerPageChange}
+        />
       </Box>
 
       {/* テーブル */}
       <TableCard density="compact">
         {histories.length === 0 ? (
-          <Box sx={{ py: 6, textAlign: "center" }}>
-            <Typography color="text.secondary">
-              インポート履歴が見つかりません
-            </Typography>
-          </Box>
+          <EmptyState message="インポート履歴が見つかりません" />
         ) : (
           <TableContainer>
             <Table size="small">
@@ -394,7 +382,7 @@ export const Presenter = ({
                   <TableCell sx={{ fontWeight: 600 }}>
                     <TableSortLabel
                       active={sort === "created_at"}
-                      direction={sort === "created_at" ? order : "desc"}
+                      direction={sort === "created_at" ? order : "asc"}
                       onClick={() => onSortChange("created_at")}
                     >
                       日時
@@ -479,16 +467,11 @@ export const Presenter = ({
       </TableCard>
 
       {/* ページネーション */}
-      {meta.total_pages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-            count={meta.total_pages}
-            page={page}
-            onChange={(_, value) => onPageChange(value)}
-            color="primary"
-          />
-        </Box>
-      )}
+      <PaginationBar
+        totalPages={meta.total_pages}
+        page={page}
+        onChange={onPageChange}
+      />
     </Box>
   );
 };

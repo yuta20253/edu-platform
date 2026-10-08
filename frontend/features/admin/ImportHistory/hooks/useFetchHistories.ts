@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
+import { DEFAULT_PER_PAGE } from "@/constants/pagination";
 import { useSortToggle } from "@/hooks/useSortToggle";
 import type {
   CourseOption,
@@ -31,6 +32,7 @@ const INITIAL_FILTERS: ImportHistoryFilters = {
 export const useFetchHistories = () => {
   const [data, setData] = useState<ImportHistoriesData | null>(null);
   const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [courseOptions, setCourseOptions] = useState<CourseOption[]>([]);
   const [unitOptions, setUnitOptions] = useState<UnitOption[]>([]);
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
@@ -38,7 +40,7 @@ export const useFetchHistories = () => {
   const { sort, order, toggleSort } =
     useSortToggle<ImportHistorySort>("created_at");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
+  const [perPage, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const router = useRouter();
 
   useEffect(() => {
@@ -139,7 +141,7 @@ export const useFetchHistories = () => {
     return () => {
       controller.abort();
     };
-  }, [page, perPage, sort, order, filters, router]);
+  }, [page, perPage, sort, order, filters, router, reloadKey]);
 
   const updateFilters = (patch: Partial<ImportHistoryFilters>) => {
     setFilters((prev) => ({ ...prev, ...patch }));
@@ -175,14 +177,18 @@ export const useFetchHistories = () => {
     setPage(1);
   };
 
-  const handlePerPageChange = (nextPerPage: string) => {
-    setPerPage(Number(nextPerPage));
+  const handlePerPageChange = (nextPerPage: number) => {
+    setPerPage(nextPerPage);
     setPage(1);
   };
 
   const handleSortChange = (nextSort: ImportHistorySort) => {
     toggleSort(nextSort);
     setPage(1);
+  };
+
+  const handleRetry = () => {
+    setReloadKey((prev) => prev + 1);
   };
 
   const handleRowClick = (id: number) => {
@@ -211,5 +217,6 @@ export const useFetchHistories = () => {
     onPerPageChange: handlePerPageChange,
     onClearFilters: handleClearFilters,
     onRowClick: handleRowClick,
+    onRetry: handleRetry,
   };
 };
