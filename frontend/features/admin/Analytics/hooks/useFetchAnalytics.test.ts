@@ -137,6 +137,22 @@ describe("useFetchAnalytics", () => {
     );
   });
 
+  it("URLへの反映が間に合う前に続けて変更しても、直前の変更を取りこぼさない", async () => {
+    // router.replace は非同期で、searchParams が更新されるまで時間がかかる。
+    // 開始日→終了日と続けて入力したとき、終了日の更新で開始日が元に戻ってはいけない。
+    const { result } = renderHook(() => useFetchAnalytics());
+    await waitFor(() => expect(result.current.data).not.toBeNull());
+
+    act(() => {
+      result.current.onFiltersChange({ from: "2026-09-01" });
+      result.current.onFiltersChange({ to: "2026-09-30" });
+    });
+
+    expect(replaceMock).toHaveBeenLastCalledWith(
+      "/admin/analytics?from=2026-09-01&to=2026-09-30",
+    );
+  });
+
   it("フィルタがすべて空になったらクエリなしのパスに更新する", async () => {
     searchParamsMock = new URLSearchParams("subject_id=2");
     const { result } = renderHook(() => useFetchAnalytics());

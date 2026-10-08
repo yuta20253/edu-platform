@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
@@ -138,12 +138,22 @@ export const useFetchAnalytics = () => {
     };
   }, [requestKey, reloadKey, router]);
 
+  // router.replace は非同期で、searchParams に反映されるまで時間がかかる。
+  // 開始日→終了日のように続けて変更したとき、描画済みの filters を元にすると
+  // 直前の変更が元に戻ってしまうため、反映待ちの最新値を ref に持つ。
+  const latestFilters = useRef(filters);
+  useEffect(() => {
+    latestFilters.current = filters;
+  }, [filters]);
+
   const onFiltersChange = useCallback(
     (patch: Partial<AnalyticsFilters>) => {
-      const query = filtersToSearchParams({ ...filters, ...patch }).toString();
+      const next = { ...latestFilters.current, ...patch };
+      latestFilters.current = next;
+      const query = filtersToSearchParams(next).toString();
       router.replace(query ? `${pathname}?${query}` : pathname);
     },
-    [filters, pathname, router],
+    [pathname, router],
   );
 
   const onRetry = useCallback(() => setReloadKey((key) => key + 1), []);
