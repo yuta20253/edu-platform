@@ -40,8 +40,7 @@ module Student
 
     def answered_count
       @answered_count ||= question_histories
-                          .joins(:question)
-                          .where(questions: { deleted_at: nil })
+                          .on_active_questions
                           .select(:question_id)
                           .distinct
                           .count
