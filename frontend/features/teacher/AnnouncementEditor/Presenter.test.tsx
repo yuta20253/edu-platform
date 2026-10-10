@@ -53,6 +53,7 @@ const defaultProps = {
   options,
   submitting: false,
   submitError: null,
+  optionsError: null,
   onSaveDraft: vi.fn(),
   onDeliver: vi.fn(),
 };
@@ -292,6 +293,26 @@ describe("AnnouncementEditorPresenter", () => {
     expect(
       screen.getByText("お知らせの作成に失敗しました"),
     ).toBeInTheDocument();
+  });
+
+  it("配信先の選択肢を読み込むまでは保存・配信できない", () => {
+    render(<Presenter {...defaultProps} options={null} />);
+    fireEvent.click(screen.getByLabelText("即時公開"));
+
+    expect(screen.getByRole("button", { name: "下書き保存" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "配信する" })).toBeDisabled();
+  });
+
+  it("配信先の選択肢の取得に失敗するとエラーが表示される", () => {
+    render(
+      <Presenter
+        {...defaultProps}
+        options={null}
+        optionsError="配信先の取得に失敗しました"
+      />,
+    );
+
+    expect(screen.getByText("配信先の取得に失敗しました")).toBeInTheDocument();
   });
 
   it("「キャンセル」は一覧へのリンクになっている", () => {

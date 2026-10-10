@@ -122,6 +122,20 @@ describe("useAnnouncementTargetOptions", () => {
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
 
+  it("401以外のエラー時はerrorにメッセージが入る", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 500 },
+    });
+
+    const { result } = renderHook(() => useAnnouncementTargetOptions("", 1));
+
+    await waitFor(() =>
+      expect(result.current.error).toBe("配信先の取得に失敗しました"),
+    );
+    expect(result.current.data).toBeNull();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
   it("リクエストがキャンセルされた場合はエラー扱いしない", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(new axios.CanceledError());
 
@@ -129,5 +143,6 @@ describe("useAnnouncementTargetOptions", () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(pushMock).not.toHaveBeenCalled();
+    expect(result.current.error).toBeNull();
   });
 });
