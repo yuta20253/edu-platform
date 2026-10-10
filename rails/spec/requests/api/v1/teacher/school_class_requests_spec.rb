@@ -112,6 +112,38 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         end
       end
 
+      it '件数によらずクエリ件数が増えない(N+1にならない)' do
+        request_headers = headers.merge('Cookie' => cookie)
+
+        count_queries = lambda do
+          queries = []
+          callback = ->(_n, _s, _f, _id, payload) { queries << payload[:sql] if payload[:name] != 'SCHEMA' }
+          ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+            get '/api/v1/teacher/school_class_requests', headers: request_headers
+          end
+          queries.size
+        end
+
+        # 申請者・承認者・学級・学年がそれぞれ別のレコードになる申請を作る
+        create_processed_request = lambda do |i|
+          applicant = create(:user, :teacher, high_school: high_school)
+          approver = create(:user, :teacher, high_school: high_school)
+          extra_grade = create(:grade, high_school: high_school)
+          extra_school_class = create(:school_class, grade: extra_grade, name: "追加#{i}組")
+          create(:school_class_request, applicant: applicant, approver: approver, grade: extra_grade,
+                                        school_class: extra_school_class, action: :modification,
+                                        status: :approved, name: "変更#{i}組")
+        end
+
+        # 承認者・学級が1件も無いとpreloadのクエリ自体が省かれるため、比較の基準にも1件含めておく
+        create_processed_request.call(0)
+        base_count = count_queries.call
+
+        (1..3).each { |i| create_processed_request.call(i) }
+
+        expect(count_queries.call).to eq(base_count)
+      end
+
       context '存在しないstatusを指定した場合' do
         it '申請が1件も返らない' do
           get '/api/v1/teacher/school_class_requests',
