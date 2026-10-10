@@ -16,7 +16,8 @@ module Api
 
           render json: {
             school_class_requests: ActiveModelSerializers::SerializableResource.new(
-              school_class_requests, each_serializer: ::Teacher::SchoolClassRequestSerializer
+              school_class_requests, each_serializer: ::Teacher::SchoolClassRequestSerializer,
+              current_user: current_user,
             ),
             meta: {
               current_page: school_class_requests.current_page,
@@ -30,7 +31,7 @@ module Api
         def show
           school_class_request = school_class_requests_scope.find(params[:id])
 
-          render json: school_class_request, serializer: ::Teacher::SchoolClassRequestSerializer , status: :ok
+          render json: school_class_request, serializer: ::Teacher::SchoolClassRequestSerializer, current_user: current_user , status: :ok
         end
 
         def create
