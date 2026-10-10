@@ -63,7 +63,9 @@ module Api
           if result
             render json: { message: UPDATE_SUCCESS_MESSAGES.fetch(update_school_class_params[:status]) }, status: :ok
           else
-            render json: { message: '申請が却下されました' }, status: :ok
+            # 画面を開いた後に他の教員が承認/却下した、または申請者が取り消した場合。
+            # lock_versionの競合(StaleObjectError)と同じく、再読み込みを促す409にする
+            render json: { errors: ['この申請はすでに処理されています。再読み込みしてください'] }, status: :conflict
           end
         end
 
