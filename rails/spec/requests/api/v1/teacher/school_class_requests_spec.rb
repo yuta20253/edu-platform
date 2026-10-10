@@ -74,6 +74,22 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         expect(request_ids).to contain_exactly(own_request.id, other_teacher_request.id)
       end
     end
+
+    context '承認権限がない場合' do
+      before { teacher_permission.update!(manage_other_teachers: false) }
+
+      it '200が返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '自分の申請だけが返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to contain_exactly(own_request.id)
+      end
+    end
   end
 
   describe 'POST /api/v1/teacher/school_class_requests' do
