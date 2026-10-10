@@ -816,6 +816,42 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
 
+    context 'lock_versionを指定しない場合' do
+      let(:request_params) { { school_class_request: { status: 'approved' } } }
+
+      it '422が返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'エラーメッセージが返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response.parsed_body['errors']).to include('lock_versionは必須です')
+      end
+
+      it '申請が更新されない' do
+        expect do
+          patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                params: request_params.to_json,
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to(change { school_class_request.reload.status })
+      end
+
+      it '学級が作成されない' do
+        expect do
+          patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                params: request_params.to_json,
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to change(SchoolClass, :count)
+      end
+    end
+
     context '承認権限がない場合' do
       before do
         teacher.teacher_permission.update!(manage_other_teachers: false)
