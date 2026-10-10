@@ -11,7 +11,7 @@ import { useId } from "react";
 
 type Props = {
   value: number;
-  options: number[];
+  options: readonly number[];
   onChange: (value: number) => void;
   label?: string;
 };

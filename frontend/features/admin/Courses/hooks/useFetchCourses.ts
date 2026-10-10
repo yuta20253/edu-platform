@@ -2,19 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { DEFAULT_PER_PAGE } from "@/constants/pagination";
+import { useSortToggle } from "@/hooks/useSortToggle";
 import { apiClient } from "@/libs/http/apiClient";
-import type { CoursesData, CourseOrder, CourseSort } from "../types";
+import type { CoursesData, CourseSort } from "../types";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
 export const useFetchCourses = () => {
   const [data, setData] = useState<CoursesData | null>(null);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
+  const [perPage, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
-  const [sort, setSort] = useState<CourseSort>("created_at");
-  const [order, setOrder] = useState<CourseOrder>("desc");
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const { sort, order, toggleSort } = useSortToggle<CourseSort>("created_at");
   const router = useRouter();
 
   // 検索ワードを debounce して過剰なリクエストを抑制する
@@ -38,15 +41,18 @@ export const useFetchCourses = () => {
       params.q = debouncedQ;
     }
 
+    setError(false);
     apiClient
       .get<CoursesData>("/api/admin/courses", { params })
       .then((res) => setData(res.data))
       .catch((err) => {
         if (err.response?.status === 401) {
           router.push("/login");
+          return;
         }
+        setError(true);
       });
-  }, [page, perPage, debouncedQ, sort, order, router]);
+  }, [page, perPage, debouncedQ, sort, order, router, reloadKey]);
 
   const handleSearchChange = (value: string) => {
     setQ(value);
@@ -58,17 +64,17 @@ export const useFetchCourses = () => {
   };
 
   const handleSortChange = (nextSort: CourseSort) => {
-    if (sort === nextSort) {
-      setOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSort(nextSort);
-      setOrder("asc");
-    }
+    toggleSort(nextSort);
     setPage(1);
+  };
+
+  const handleRetry = () => {
+    setReloadKey((prev) => prev + 1);
   };
 
   return {
     data,
+    error,
     q,
     perPage,
     sort,
@@ -78,5 +84,6 @@ export const useFetchCourses = () => {
     onPerPageChange: handlePerPageChange,
     onSortChange: handleSortChange,
     onPageChange: setPage,
+    onRetry: handleRetry,
   };
 };

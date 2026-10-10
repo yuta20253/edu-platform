@@ -1,3 +1,4 @@
+import type { PaginationMeta } from "@/types/common/pagination";
 import type { Subject } from "@/types/common/subject";
 
 export type AdminCourse = {
@@ -10,20 +11,11 @@ export type AdminCourse = {
   created_at: string;
 };
 
-export type AdminCourseMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
 export type CoursesData = {
   courses: AdminCourse[];
-  meta: AdminCourseMeta;
+  meta: PaginationMeta;
 };
 
 export type CourseSort = "level_name" | "created_at" | "id";
 
 export type CourseOrder = "asc" | "desc";
-
-export const PER_PAGE_OPTIONS = [20, 50, 100] as const;
