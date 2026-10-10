@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Chip,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -14,6 +13,8 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { TableCard } from "@/components/ui/TableCard";
+import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import type { DryRunResult, DryRunRowSeverity } from "../types";
 
 type Props = {
@@ -23,6 +24,16 @@ type Props = {
   onBack: () => void;
   onNext: () => void;
 };
+
+const TableHeadRow = () => (
+  <TableHead>
+    <TableRow>
+      <TableCell>行番号</TableCell>
+      <TableCell>種別</TableCell>
+      <TableCell>メッセージ</TableCell>
+    </TableRow>
+  </TableHead>
+);
 
 const SEVERITY_COLOR: Record<DryRunRowSeverity, "error" | "warning"> = {
   error: "error",
@@ -42,9 +53,14 @@ export const Step2Preview = ({
   return (
     <Box>
       {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
+        <TableCard>
+          <TableContainer>
+            <Table size="small">
+              <TableHeadRow />
+              <TableSkeleton rows={3} columns={3} />
+            </Table>
+          </TableContainer>
+        </TableCard>
       )}
 
       {!loading && error && <Alert severity="error">{error}</Alert>}
@@ -67,32 +83,28 @@ export const Step2Preview = ({
           )}
 
           {hasErrorRows && (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>行番号</TableCell>
-                    <TableCell>種別</TableCell>
-                    <TableCell>メッセージ</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {result.rows.map((row) => (
-                    <TableRow key={row.row_number}>
-                      <TableCell>{row.row_number}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.severity}
-                          size="small"
-                          color={SEVERITY_COLOR[row.severity]}
-                        />
-                      </TableCell>
-                      <TableCell>{row.message}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <TableCard>
+              <TableContainer>
+                <Table size="small">
+                  <TableHeadRow />
+                  <TableBody>
+                    {result.rows.map((row) => (
+                      <TableRow key={row.row_number}>
+                        <TableCell>{row.row_number}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={row.severity}
+                            size="small"
+                            color={SEVERITY_COLOR[row.severity]}
+                          />
+                        </TableCell>
+                        <TableCell>{row.message}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </TableCard>
           )}
         </Box>
       )}

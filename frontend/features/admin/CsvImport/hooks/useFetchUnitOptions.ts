@@ -15,16 +15,20 @@ type CourseDetailResponse = {
 export const useFetchUnitOptions = (courseId: number | null) => {
   const [units, setUnits] = useState<UnitOption[]>([]);
   const [unitsLoading, setUnitsLoading] = useState<boolean>(false);
+  const [unitsError, setUnitsError] = useState<boolean>(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     if (courseId == null) {
       setUnits((prev) => (prev.length === 0 ? prev : []));
+      setUnitsError(false);
       return;
     }
 
     const controller = new AbortController();
     setUnitsLoading(true);
+    setUnitsError(false);
 
     apiClient
       .get<CourseDetailResponse>(`/api/admin/courses/${courseId}`, {
@@ -45,6 +49,7 @@ export const useFetchUnitOptions = (courseId: number | null) => {
           return;
         }
         setUnits([]);
+        setUnitsError(true);
       })
       .finally(() => {
         if (controller.signal.aborted) return;
@@ -54,7 +59,9 @@ export const useFetchUnitOptions = (courseId: number | null) => {
     return () => {
       controller.abort();
     };
-  }, [courseId, router]);
+  }, [courseId, router, reloadKey]);
 
-  return { units, unitsLoading };
+  const retryUnits = () => setReloadKey((prev) => prev + 1);
+
+  return { units, unitsLoading, unitsError, retryUnits };
 };

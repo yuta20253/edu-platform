@@ -18,8 +18,12 @@ const csvFile = (name = "questions.csv") =>
 const baseProps = {
   courses,
   coursesLoading: false,
+  coursesError: false,
+  onRetryCourses: vi.fn(),
   units,
   unitsLoading: false,
+  unitsError: false,
+  onRetryUnits: vi.fn(),
   courseId: null as number | null,
   unitId: null as number | null,
   isPreset: false,
@@ -165,5 +169,31 @@ describe("Step1FileSelect", () => {
     render(<Step1FileSelect {...baseProps} canProceed submitting />);
     const button = screen.getByRole("button", { name: "次へ" });
     expect(button.querySelector(".MuiCircularProgress-root")).not.toBeNull();
+  });
+
+  it("講座の取得に失敗したらエラーを表示し、再試行で onRetryCourses が呼ばれる", () => {
+    const onRetryCourses = vi.fn();
+    render(
+      <Step1FileSelect
+        {...baseProps}
+        coursesError
+        onRetryCourses={onRetryCourses}
+      />,
+    );
+
+    expect(screen.getByText("講座の取得に失敗しました")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+    expect(onRetryCourses).toHaveBeenCalledTimes(1);
+  });
+
+  it("単元の取得に失敗したらエラーを表示し、再試行で onRetryUnits が呼ばれる", () => {
+    const onRetryUnits = vi.fn();
+    render(
+      <Step1FileSelect {...baseProps} unitsError onRetryUnits={onRetryUnits} />,
+    );
+
+    expect(screen.getByText("単元の取得に失敗しました")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+    expect(onRetryUnits).toHaveBeenCalledTimes(1);
   });
 });

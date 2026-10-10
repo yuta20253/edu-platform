@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useFetchCourseOptions } from "./useFetchCourseOptions";
@@ -56,5 +56,22 @@ describe("useFetchCourseOptions", () => {
     renderHook(() => useFetchCourseOptions());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+  });
+
+  it("非401エラー時は coursesError が true になり、retryCourses で再取得できる", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({ data: { courses: [] } });
+
+    const { result } = renderHook(() => useFetchCourseOptions());
+    await waitFor(() => expect(result.current.coursesError).toBe(true));
+    expect(pushMock).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.retryCourses();
+    });
+
+    await waitFor(() => expect(result.current.coursesError).toBe(false));
+    expect(apiClient.get).toHaveBeenCalledTimes(2);
   });
 });

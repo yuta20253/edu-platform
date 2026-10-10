@@ -18,8 +18,12 @@ type Props = {
   state: CsvImportState;
   courses: CourseOption[];
   coursesLoading: boolean;
+  coursesError: boolean;
+  onRetryCourses: () => void;
   units: UnitOption[];
   unitsLoading: boolean;
+  unitsError: boolean;
+  onRetryUnits: () => void;
   handleCourseChange: (courseId: number) => void;
   handleUnitChange: (unitId: number) => void;
   handleFileSelect: (file: File) => void;
@@ -40,8 +44,12 @@ export const Presenter = ({
   state,
   courses,
   coursesLoading,
+  coursesError,
+  onRetryCourses,
   units,
   unitsLoading,
+  unitsError,
+  onRetryUnits,
   handleCourseChange,
   handleUnitChange,
   handleFileSelect,
@@ -59,8 +67,12 @@ export const Presenter = ({
         <Step1FileSelect
           courses={courses}
           coursesLoading={coursesLoading}
+          coursesError={coursesError}
+          onRetryCourses={onRetryCourses}
           units={units}
           unitsLoading={unitsLoading}
+          unitsError={unitsError}
+          onRetryUnits={onRetryUnits}
           courseId={state.courseId}
           unitId={state.unitId}
           isPreset={state.isPreset}
