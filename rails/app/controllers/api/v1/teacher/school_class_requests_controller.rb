@@ -85,6 +85,7 @@ module Api
             .where(grades: { high_school_id: current_user.high_school_id })
 
           @school_class_requests = @school_class_requests.where(status: params[:status]) if params[:status].present?
+          @school_class_requests = @school_class_requests.where(applicant_id: current_user.id) unless manage_other_teachers?
           @school_class_requests
         end
 
