@@ -5,26 +5,29 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include AnnouncementTargetGradeScopeValidatable
 
     TARGET_TYPES_REQUIRING_USER_ROLE = %w[by_role by_grade].freeze
 
     attribute :title, :string
     attribute :content, :string
     attribute :announcement_targets
+    attribute :status, :string
+    attribute :scheduled_at, :datetime
     validates :title, presence: true
     validates :content, presence: true, length: { maximum: 10_000 }
     validates :announcement_targets, presence: true
+    validates :status, inclusion: { in: Announcement.statuses.keys }, allow_blank: true
 
     validate :announcement_targets_must_be_array
     validate :target_types_must_be_valid
-    validate :grade_scope_validation
     validate :grade_ids_must_exist
     validate :user_role_ids_must_exist
     validate :user_ids_must_exist
     validate :users_must_belong_to_same_high_school
     validate :grades_must_belong_to_same_high_school
 
-    attr_reader :current_user
+    attr_reader :current_user, :announcement
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -34,11 +37,12 @@ module Teacher
     def save
       return false unless valid?
 
-      ::Common::AnnouncementCreateService.new(
+      @announcement = ::Teacher::CreateAnnouncementService.new(
         publisher: current_user,
         title: title,
         content: content,
-        announcement_targets: announcement_targets
+        announcement_targets: announcement_targets,
+        delivery: { status: status.presence, scheduled_at: scheduled_at }
       ).call
       true
     end
@@ -73,17 +77,6 @@ module Teacher
         next if valid_types.include?(target['target_type'])
 
         errors.add(:base, '不正なtarget_typeが含まれています')
-      end
-    end
-
-    def grade_scope_validation
-      restriction = current_user.own_grade_restriction
-      return if restriction.nil?
-
-      targets_of_type('by_grade').each do |target|
-        next if target['grade_id'].to_i == restriction
-
-        errors.add(:announcement_targets, '指定できない学年です')
       end
     end
 

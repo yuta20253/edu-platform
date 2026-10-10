@@ -796,6 +796,35 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(target.high_school_id).to eq(teacher.high_school_id)
       end
 
+      it 'all_usersの場合も他校に配信されないよう自校のhigh_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [{ target_type: 'all_users' }]
+
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        target = AnnouncementTarget.last
+
+        expect(target.target_type).to eq('all_users')
+        expect(target.high_school_id).to eq(teacher.high_school_id)
+      end
+
+      it 'by_roleの場合も他校に配信されないよう自校のhigh_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [
+          { target_type: 'by_role', user_role_id: teacher.user_role_id }
+        ]
+
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        target = AnnouncementTarget.last
+
+        expect(target.target_type).to eq('by_role')
+        expect(target.user_role_id).to eq(teacher.user_role_id)
+        expect(target.high_school_id).to eq(teacher.high_school_id)
+      end
+
       it 'メッセージが返る' do
         post '/api/v1/teacher/announcements',
              params: params.to_json,
@@ -804,6 +833,16 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         json = response.parsed_body
 
         expect(json['message']).to eq('お知らせを下書きで作成しました。')
+      end
+
+      it '作成されたお知らせのannouncement_idが返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+
+        expect(json['announcement_id']).to eq(Announcement.last.id)
       end
 
       it 'titleが保存される' do
@@ -824,6 +863,98 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         announcement = Announcement.last
 
         expect(announcement.content).to eq('テスト内容')
+      end
+    end
+
+    context '即時配信(status: published)を指定した場合' do
+      before do
+        params[:announcement][:status] = 'published'
+      end
+
+      it 'publishedで作成されpublished_atが設定される' do
+        freeze_time do
+          post '/api/v1/teacher/announcements',
+               params: params.to_json,
+               headers: headers.merge('Cookie' => cookie)
+
+          expect(response).to have_http_status(:created)
+          announcement = Announcement.last
+          expect(announcement.status).to eq('published')
+          expect(announcement.published_at).to eq(Time.current)
+        end
+      end
+
+      it '配信した旨のメッセージが返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['message']).to eq('お知らせを配信しました。')
+      end
+    end
+
+    context '予約配信(status: scheduled)を指定した場合' do
+      let(:scheduled_at) { 1.day.from_now.change(usec: 0) }
+
+      before do
+        params[:announcement][:status] = 'scheduled'
+        params[:announcement][:scheduled_at] = scheduled_at.iso8601
+      end
+
+      it 'scheduledで作成されscheduled_atが保存される' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:created)
+        announcement = Announcement.last
+        expect(announcement.status).to eq('scheduled')
+        expect(announcement.scheduled_at).to eq(scheduled_at)
+      end
+
+      it '予約した旨のメッセージが返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['message']).to eq('お知らせの配信を予約しました。')
+      end
+    end
+
+    context '異常系 - 予約配信のscheduled_atが過去' do
+      before do
+        params[:announcement][:status] = 'scheduled'
+        params[:announcement][:scheduled_at] = 1.minute.ago.iso8601
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it '下書きも残らない' do
+        expect do
+          post '/api/v1/teacher/announcements',
+               params: params.to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.not_to change(Announcement, :count)
+      end
+    end
+
+    context '異常系 - 不正なstatus' do
+      before do
+        params[:announcement][:status] = 'invalid'
+      end
+
+      it '422が返る' do
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
