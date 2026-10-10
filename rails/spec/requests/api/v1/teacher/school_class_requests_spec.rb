@@ -1025,7 +1025,7 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
 
       before do
-        ::Teacher::ProcessSchoolClassRequestService.new(
+        Teacher::ProcessSchoolClassRequestService.new(
           user: other_approver,
           id: school_class_request.id,
           status: 'rejected',
@@ -1042,7 +1042,7 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       let!(:request_lock_version) { school_class_request.lock_version }
 
       before do
-        ::Teacher::CancelSchoolClassRequestService.new(user: teacher, id: school_class_request.id).call
+        Teacher::CancelSchoolClassRequestService.new(user: teacher, id: school_class_request.id).call
       end
 
       it_behaves_like '処理済みの申請として409を返す'
