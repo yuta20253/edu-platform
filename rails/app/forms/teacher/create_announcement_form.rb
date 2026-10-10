@@ -5,6 +5,7 @@ module Teacher
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include AnnouncementTargetGradeScopeValidatable
 
     TARGET_TYPES_REQUIRING_USER_ROLE = %w[by_role by_grade].freeze
 
@@ -20,7 +21,6 @@ module Teacher
 
     validate :announcement_targets_must_be_array
     validate :target_types_must_be_valid
-    validates_with ::Teacher::AnnouncementGradeScopeValidator
     validate :grade_ids_must_exist
     validate :user_role_ids_must_exist
     validate :user_ids_must_exist
