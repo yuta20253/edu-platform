@@ -1,6 +1,8 @@
 "use client";
 
-import { Alert, Box, Button, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
+import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Presenter } from "./Presenter";
 import { useNoticeEditor } from "./hooks/useNoticeEditor";
 
@@ -25,16 +27,7 @@ export const NoticeEditor = ({ noticeId }: Props) => {
   if (fetchError) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={refetch}>
-              再試行
-            </Button>
-          }
-        >
-          {fetchError}
-        </Alert>
+        <ErrorState message={fetchError} onRetry={refetch} />
       </Box>
     );
   }
@@ -42,15 +35,8 @@ export const NoticeEditor = ({ noticeId }: Props) => {
   // 編集時、詳細取得が完了する（配信済みならリダイレクトされる）までは表示しない
   if (isEditMode && (loading || !notice)) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <CardSkeleton lines={6} />
       </Box>
     );
   }

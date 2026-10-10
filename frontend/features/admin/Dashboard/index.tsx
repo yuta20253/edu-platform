@@ -1,6 +1,7 @@
 "use client";
 
-import { Alert, Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { useFetchDashboard } from "./hooks/useFetchDashboard";
 import { Presenter } from "./Presenter";
 import { Skeleton } from "./Skeleton";
@@ -15,16 +16,7 @@ export function Dashboard() {
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={refetch}>
-              再読み込み
-            </Button>
-          }
-        >
-          {error}
-        </Alert>
+        <ErrorState message={error} onRetry={refetch} />
       </Box>
     );
   }

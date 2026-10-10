@@ -85,7 +85,7 @@ describe("DashboardPresenter", () => {
   it("インポート履歴が空のとき空状態とCTAが表示される", () => {
     render(<Presenter data={{ ...mockData, recent_imports: [] }} />);
     expect(
-      screen.getByText("まだCSVインポートを実行していません"),
+      screen.getByText("CSVインポート履歴がまだありません"),
     ).toBeInTheDocument();
     // クイックアクションにも同名のリンクがあるため複数ヒットする
     const links = screen.getAllByRole("link", {

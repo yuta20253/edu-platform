@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { format } from "date-fns";
 import {
   announcementStatusColor,
@@ -61,18 +62,19 @@ export const RecentAnnouncements = ({ announcements }: Props) => {
         </Box>
 
         {announcements.length === 0 ? (
-          <Box sx={{ py: 3, textAlign: "center" }}>
-            <Typography color="text.secondary" sx={{ mb: 2 }}>
-              お知らせがまだありません
-            </Typography>
-            <Button
-              variant="outlined"
-              component={Link}
-              href="/admin/notices/new"
-            >
-              お知らせを作成する
-            </Button>
-          </Box>
+          <EmptyState
+            message="お知らせがまだありません"
+            py={3}
+            action={
+              <Button
+                variant="outlined"
+                component={Link}
+                href="/admin/notices/new"
+              >
+                お知らせを作成する
+              </Button>
+            }
+          />
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
             {announcements.map((announcement) => (
