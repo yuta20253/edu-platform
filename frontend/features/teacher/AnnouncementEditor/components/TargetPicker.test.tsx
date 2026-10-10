@@ -131,6 +131,21 @@ describe("TargetPicker", () => {
     expect(onStudentKeywordChange).toHaveBeenCalledWith("山田");
   });
 
+  it("配信先の種類を変えると、前の種類で選んだ値がリセットされる", () => {
+    render(
+      <Host
+        defaultValues={{
+          ...baseValues,
+          targets: [{ target_type: "by_user", user_id: 10 }],
+        }}
+      />,
+    );
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
+    fireEvent.click(screen.getByRole("option", { name: "全員" }));
+
+    expect(currentTargets()).toEqual([{ target_type: "all_users" }]);
+  });
+
   it("「配信先を追加」ボタンで行が増える", () => {
     render(<Host defaultValues={baseValues} />);
     fireEvent.click(screen.getByRole("button", { name: "配信先を追加" }));
