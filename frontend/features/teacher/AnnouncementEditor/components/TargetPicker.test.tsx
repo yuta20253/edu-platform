@@ -1,11 +1,20 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useForm } from "react-hook-form";
+import { apiClient } from "@/libs/http/apiClient";
 import { TargetPicker } from "./TargetPicker";
 import type {
   AnnouncementFormValues,
   AnnouncementTargetOptions,
 } from "../types";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock("@/libs/http/apiClient", () => ({
+  apiClient: { get: vi.fn() },
+}));
 
 const options: AnnouncementTargetOptions = {
   grades: [{ id: 1, year: 1, display_name: "1年" }],
@@ -27,18 +36,36 @@ const options: AnnouncementTargetOptions = {
   own_grade_restriction: null,
 };
 
+const satoOptions: AnnouncementTargetOptions = {
+  ...options,
+  students: {
+    ...options.students,
+    items: [
+      {
+        id: 11,
+        name: "佐藤花子",
+        name_kana: "サトウハナコ",
+        grade: { display_name: "1年" },
+      },
+    ],
+  },
+};
+
+// 生徒検索APIのモック。keyword「佐藤」なら佐藤花子、それ以外は山田太郎を返す
+const mockStudentSearch = (base: AnnouncementTargetOptions = options) => {
+  vi.mocked(apiClient.get).mockImplementation(async (_url, config) => {
+    const keyword = (config?.params as { keyword?: string } | undefined)
+      ?.keyword;
+    return { data: keyword === "佐藤" ? satoOptions : base };
+  });
+};
+
 const Host = ({
   defaultValues,
-  onStudentKeywordChange = vi.fn(),
-  onStudentPageChange = vi.fn(),
   opts = options,
-  studentPage = 1,
 }: {
   defaultValues: AnnouncementFormValues;
-  onStudentKeywordChange?: (keyword: string) => void;
-  onStudentPageChange?: (page: number) => void;
   opts?: AnnouncementTargetOptions | null;
-  studentPage?: number;
 }) => {
   const { control, watch } = useForm<AnnouncementFormValues>({
     defaultValues,
@@ -46,14 +73,7 @@ const Host = ({
   return (
     <>
       <pre data-testid="targets">{JSON.stringify(watch("targets"))}</pre>
-      <TargetPicker
-      control={control}
-      options={opts}
-      studentKeyword=""
-      onStudentKeywordChange={onStudentKeywordChange}
-      studentPage={studentPage}
-      onStudentPageChange={onStudentPageChange}
-      />
+      <TargetPicker control={control} options={opts} />
     </>
   );
 };
@@ -70,6 +90,11 @@ const baseValues: AnnouncementFormValues = {
 };
 
 describe("TargetPicker", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockStudentSearch();
+  });
+
   it("初期状態で1行表示され、配信先の種類は「全員」になっている", () => {
     render(<Host defaultValues={baseValues} />);
     expect(
@@ -111,24 +136,6 @@ describe("TargetPicker", () => {
     expect(screen.getByRole("option", { name: "教員" })).toBeInTheDocument();
     expect(screen.queryByText("student")).not.toBeInTheDocument();
     expect(screen.queryByText("teacher")).not.toBeInTheDocument();
-  });
-
-  it("配信先の種類で「個人」を選ぶと生徒検索欄が表示され、入力するとonStudentKeywordChangeが呼ばれる", () => {
-    const onStudentKeywordChange = vi.fn();
-    render(
-      <Host
-        defaultValues={baseValues}
-        onStudentKeywordChange={onStudentKeywordChange}
-      />,
-    );
-    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
-    fireEvent.click(screen.getByRole("option", { name: "個人" }));
-
-    fireEvent.change(screen.getByRole("textbox", { name: "生徒を検索" }), {
-      target: { value: "山田" },
-    });
-
-    expect(onStudentKeywordChange).toHaveBeenCalledWith("山田");
   });
 
   it("配信先の種類を変えると、前の種類で選んだ値がリセットされる", () => {
@@ -190,38 +197,114 @@ describe("TargetPicker", () => {
     ).toHaveTextContent("学年別");
   });
 
-  it("生徒が複数ページある場合、「個人」選択時に次へ/前へボタンが表示される", () => {
-    const onStudentPageChange = vi.fn();
+  it("「個人」では生徒を検索して選択でき、選んだ生徒のuser_idが値に入る", async () => {
     render(
       <Host
-        defaultValues={baseValues}
-        onStudentPageChange={onStudentPageChange}
-        opts={{
-          ...options,
-          students: {
-            ...options.students,
-            meta: {
-              current_page: 1,
-              total_pages: 2,
-              total_count: 21,
-              per_page: 20,
-            },
-          },
+        defaultValues={{ ...baseValues, targets: [{ target_type: "by_user" }] }}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole("textbox", { name: "生徒を検索" }), {
+      target: { value: "佐藤" },
+    });
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/teacher/announcements/new",
+        expect.objectContaining({ params: { page: "1", keyword: "佐藤" } }),
+      ),
+    );
+
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "生徒" }));
+    fireEvent.click(
+      await screen.findByRole("option", { name: "佐藤花子(1年)" }),
+    );
+
+    expect(currentTargets()).toEqual([{ target_type: "by_user", user_id: 11 }]);
+  });
+
+  it("「個人」の行ごとに検索キーワードは独立している", () => {
+    render(
+      <Host
+        defaultValues={{
+          ...baseValues,
+          targets: [{ target_type: "by_user" }, { target_type: "by_user" }],
         }}
       />,
     );
-    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
-    fireEvent.click(screen.getByRole("option", { name: "個人" }));
+    const [first, second] = screen.getAllByRole("textbox", {
+      name: "生徒を検索",
+    });
 
-    expect(screen.getByRole("button", { name: "前へ" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "次へ" }));
-    expect(onStudentPageChange).toHaveBeenCalledWith(2);
+    fireEvent.change(first, { target: { value: "佐藤" } });
+
+    expect(first).toHaveValue("佐藤");
+    expect(second).toHaveValue("");
   });
 
-  it("生徒が1ページのみの場合、次へ/前へボタンは表示されない", () => {
-    render(<Host defaultValues={baseValues} />);
-    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
-    fireEvent.click(screen.getByRole("option", { name: "個人" }));
+  it("生徒を選んだ後に別のキーワードで検索して一覧から消えても、選択済みの生徒名は表示されたまま", async () => {
+    render(
+      <Host
+        defaultValues={{ ...baseValues, targets: [{ target_type: "by_user" }] }}
+      />,
+    );
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "生徒" }));
+    fireEvent.click(
+      await screen.findByRole("option", { name: "山田太郎(1年)" }),
+    );
+
+    fireEvent.change(screen.getByRole("textbox", { name: "生徒を検索" }), {
+      target: { value: "佐藤" },
+    });
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/teacher/announcements/new",
+        expect.objectContaining({ params: { page: "1", keyword: "佐藤" } }),
+      ),
+    );
+
+    expect(screen.getByRole("combobox", { name: "生徒" })).toHaveTextContent(
+      "山田太郎(1年)",
+    );
+    expect(currentTargets()).toEqual([{ target_type: "by_user", user_id: 10 }]);
+  });
+
+  it("生徒が複数ページある場合、次へ/前へボタンでページを切り替えて検索する", async () => {
+    mockStudentSearch({
+      ...options,
+      students: {
+        ...options.students,
+        meta: {
+          current_page: 1,
+          total_pages: 2,
+          total_count: 21,
+          per_page: 20,
+        },
+      },
+    });
+    render(
+      <Host
+        defaultValues={{ ...baseValues, targets: [{ target_type: "by_user" }] }}
+      />,
+    );
+
+    expect(await screen.findByRole("button", { name: "前へ" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "次へ" }));
+
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/teacher/announcements/new",
+        expect.objectContaining({ params: { page: "2" } }),
+      ),
+    );
+  });
+
+  it("生徒が1ページのみの場合、次へ/前へボタンは表示されない", async () => {
+    render(
+      <Host
+        defaultValues={{ ...baseValues, targets: [{ target_type: "by_user" }] }}
+      />,
+    );
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalled());
 
     expect(
       screen.queryByRole("button", { name: "次へ" }),

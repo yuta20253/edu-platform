@@ -51,10 +51,6 @@ const options: AnnouncementTargetOptions = {
 
 const defaultProps = {
   options,
-  studentKeyword: "",
-  onStudentKeywordChange: vi.fn(),
-  studentPage: 1,
-  onStudentPageChange: vi.fn(),
   submitting: false,
   submitError: null,
   onSaveDraft: vi.fn(),
