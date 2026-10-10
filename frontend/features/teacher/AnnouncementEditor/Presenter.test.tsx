@@ -124,6 +124,63 @@ describe("AnnouncementEditorPresenter", () => {
     );
   });
 
+  describe("配信先の検証", () => {
+    const fillRequired = () => {
+      fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
+        target: { value: "お知らせ" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
+        target: { value: "本文です" },
+      });
+    };
+
+    it("配信先をすべて削除して保存するとエラーが表示されonSaveDraftは呼ばれない", async () => {
+      const onSaveDraft = vi.fn();
+      render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
+      fillRequired();
+
+      fireEvent.click(screen.getByRole("button", { name: "削除" }));
+      fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+      expect(
+        await screen.findByText("配信先を1つ以上指定してください"),
+      ).toBeInTheDocument();
+      expect(onSaveDraft).not.toHaveBeenCalled();
+    });
+
+    it("同じ配信先が重複しているとエラーが表示されonSaveDraftは呼ばれない", async () => {
+      const onSaveDraft = vi.fn();
+      render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
+      fillRequired();
+
+      fireEvent.click(screen.getByRole("button", { name: "配信先を追加" }));
+      fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+      expect(
+        await screen.findByText("同じ配信先が重複しています"),
+      ).toBeInTheDocument();
+      expect(onSaveDraft).not.toHaveBeenCalled();
+    });
+
+    it("学年別で学年・権限が未選択だとエラーが表示されonSaveDraftは呼ばれない", async () => {
+      const onSaveDraft = vi.fn();
+      render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
+      fillRequired();
+
+      fireEvent.mouseDown(
+        screen.getByRole("combobox", { name: "配信先の種類" }),
+      );
+      fireEvent.click(screen.getByRole("option", { name: "学年別" }));
+      fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+      expect(
+        await screen.findByText("学年を選択してください"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("権限を選択してください")).toBeInTheDocument();
+      expect(onSaveDraft).not.toHaveBeenCalled();
+    });
+  });
+
   it("配信タイミングが下書き保存のままだと配信するボタンは無効", () => {
     render(<Presenter {...defaultProps} />);
     expect(screen.getByRole("button", { name: "配信する" })).toBeDisabled();
