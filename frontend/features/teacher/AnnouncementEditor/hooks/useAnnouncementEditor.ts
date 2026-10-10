@@ -7,26 +7,39 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import type { AnnouncementFormValues } from "../types";
 
+type Delivery =
+  | { status: "draft" }
+  | { status: "published" }
+  | { status: "scheduled"; scheduled_at: string };
+
 // お知らせ新規作成画面の保存・配信を行うフック。
-// Rails側の仕様上、新規作成は常にdraftで作成されるため
-// (POST /api/teacher/announcements)、即時公開・予約投稿は
-// 作成後に続けてステータス更新(PATCH /api/teacher/announcements/:id)を呼ぶ
-// 2段階フローになる。
+// 配信タイミング(status/scheduled_at)も作成リクエストに含め、1回のPOSTで作成する。
+// 作成と配信設定を分けると、配信設定の失敗時に下書きだけが残り再試行で重複するため。
 export const useAnnouncementEditor = () => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const runRequest = useCallback(
-    async <T>(
-      request: () => Promise<T>,
+  const create = useCallback(
+    async (
+      values: AnnouncementFormValues,
+      delivery: Delivery,
       fallback: string,
-    ): Promise<T | undefined> => {
+    ): Promise<void> => {
       setSubmitting(true);
       setSubmitError(null);
 
       try {
-        return await request();
+        await apiClient.post<{ announcement_id: number }>(
+          "/api/teacher/announcements",
+          {
+            title: values.title,
+            content: values.content,
+            announcement_targets: values.targets,
+            ...delivery,
+          },
+        );
+        router.push("/teacher/announcements");
       } catch (err) {
         const { status, errors } = extractApiError(err);
 
@@ -36,7 +49,6 @@ export const useAnnouncementEditor = () => {
         }
 
         setSubmitError(buildErrorMessage(errors, fallback));
-        return;
       } finally {
         setSubmitting(false);
       }
@@ -44,90 +56,38 @@ export const useAnnouncementEditor = () => {
     [router],
   );
 
-  const createDraft = useCallback(
+  const onSaveDraft = useCallback(
     (values: AnnouncementFormValues) =>
-      apiClient.post<{ announcement_id: number }>(
-        "/api/teacher/announcements",
-        {
-          title: values.title,
-          content: values.content,
-          announcement_targets: values.targets,
-        },
-      ),
-    [],
-  );
-
-  const saveDraft = useCallback(
-    async (values: AnnouncementFormValues): Promise<void> => {
-      const res = await runRequest(
-        () => createDraft(values),
-        "下書きの保存に失敗しました",
-      );
-      if (res) router.push("/teacher/announcements");
-    },
-    [createDraft, router, runRequest],
-  );
-
-  const publishNow = useCallback(
-    async (values: AnnouncementFormValues): Promise<void> => {
-      const created = await runRequest(
-        () => createDraft(values),
-        "お知らせの作成に失敗しました",
-      );
-      if (!created) return;
-
-      const published = await runRequest(
-        () =>
-          apiClient.patch(
-            `/api/teacher/announcements/${created.data.announcement_id}`,
-            { status: "published" },
-          ),
-        "お知らせの公開に失敗しました",
-      );
-      if (published) router.push("/teacher/announcements");
-    },
-    [createDraft, router, runRequest],
-  );
-
-  const schedule = useCallback(
-    async (
-      values: AnnouncementFormValues,
-      scheduledAt: Date,
-    ): Promise<void> => {
-      const created = await runRequest(
-        () => createDraft(values),
-        "お知らせの作成に失敗しました",
-      );
-      if (!created) return;
-
-      const scheduled = await runRequest(
-        () =>
-          apiClient.patch(
-            `/api/teacher/announcements/${created.data.announcement_id}`,
-            { status: "scheduled", scheduled_at: scheduledAt.toISOString() },
-          ),
-        "予約投稿の設定に失敗しました",
-      );
-      if (scheduled) router.push("/teacher/announcements");
-    },
-    [createDraft, router, runRequest],
+      create(values, { status: "draft" }, "下書きの保存に失敗しました"),
+    [create],
   );
 
   const onDeliver = useCallback(
     (values: AnnouncementFormValues) => {
       if (values.deliveryTiming === "scheduled") {
         if (!values.scheduledAt) return;
-        return schedule(values, values.scheduledAt);
+        return create(
+          values,
+          {
+            status: "scheduled",
+            scheduled_at: values.scheduledAt.toISOString(),
+          },
+          "予約配信の設定に失敗しました",
+        );
       }
-      return publishNow(values);
+      return create(
+        values,
+        { status: "published" },
+        "お知らせの配信に失敗しました",
+      );
     },
-    [schedule, publishNow],
+    [create],
   );
 
   return {
     submitting,
     submitError,
-    onSaveDraft: saveDraft,
+    onSaveDraft,
     onDeliver,
   };
 };
