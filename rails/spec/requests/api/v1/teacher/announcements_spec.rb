@@ -796,6 +796,35 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         expect(target.high_school_id).to eq(teacher.high_school_id)
       end
 
+      it 'all_usersの場合も他校に配信されないよう自校のhigh_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [{ target_type: 'all_users' }]
+
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        target = AnnouncementTarget.last
+
+        expect(target.target_type).to eq('all_users')
+        expect(target.high_school_id).to eq(teacher.high_school_id)
+      end
+
+      it 'by_roleの場合も他校に配信されないよう自校のhigh_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [
+          { target_type: 'by_role', user_role_id: teacher.user_role_id }
+        ]
+
+        post '/api/v1/teacher/announcements',
+             params: params.to_json,
+             headers: headers.merge('Cookie' => cookie)
+
+        target = AnnouncementTarget.last
+
+        expect(target.target_type).to eq('by_role')
+        expect(target.user_role_id).to eq(teacher.user_role_id)
+        expect(target.high_school_id).to eq(teacher.high_school_id)
+      end
+
       it 'メッセージが返る' do
         post '/api/v1/teacher/announcements',
              params: params.to_json,
