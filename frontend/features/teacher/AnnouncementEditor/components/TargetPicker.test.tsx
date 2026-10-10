@@ -40,18 +40,26 @@ const Host = ({
   opts?: AnnouncementTargetOptions | null;
   studentPage?: number;
 }) => {
-  const { control } = useForm<AnnouncementFormValues>({ defaultValues });
+  const { control, watch } = useForm<AnnouncementFormValues>({
+    defaultValues,
+  });
   return (
-    <TargetPicker
+    <>
+      <pre data-testid="targets">{JSON.stringify(watch("targets"))}</pre>
+      <TargetPicker
       control={control}
       options={opts}
       studentKeyword=""
       onStudentKeywordChange={onStudentKeywordChange}
       studentPage={studentPage}
       onStudentPageChange={onStudentPageChange}
-    />
+      />
+    </>
   );
 };
+
+const currentTargets = () =>
+  JSON.parse(screen.getByTestId("targets").textContent ?? "[]");
 
 const baseValues: AnnouncementFormValues = {
   title: "",
@@ -75,6 +83,21 @@ describe("TargetPicker", () => {
     fireEvent.click(screen.getByRole("option", { name: "学年別" }));
 
     expect(screen.getByRole("combobox", { name: "学年" })).toBeInTheDocument();
+  });
+
+  it("配信先の種類で「学年別」を選ぶと権限のセレクトも表示され、選んだ学年と権限が値に入る", () => {
+    render(<Host defaultValues={baseValues} />);
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "配信先の種類" }));
+    fireEvent.click(screen.getByRole("option", { name: "学年別" }));
+
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "学年" }));
+    fireEvent.click(screen.getByRole("option", { name: "1年" }));
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "権限" }));
+    fireEvent.click(screen.getByRole("option", { name: "生徒" }));
+
+    expect(currentTargets()).toEqual([
+      { target_type: "by_grade", grade_id: 1, user_role_id: 1 },
+    ]);
   });
 
   it("配信先の種類で「権限別」を選ぶと権限のセレクトが日本語ラベルで表示される", () => {
