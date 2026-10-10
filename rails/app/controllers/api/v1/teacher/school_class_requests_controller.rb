@@ -6,7 +6,11 @@ module Api
       class SchoolClassRequestsController < Api::V1::Teacher::BaseController
         include RequireManageOtherTeachers
 
-        ALLOWED_UPDATE_STATUSES = %w[approved rejected].freeze
+        UPDATE_SUCCESS_MESSAGES = {
+          'approved' => '申請が承認されました',
+          'rejected' => '申請が却下されました'
+        }.freeze
+        ALLOWED_UPDATE_STATUSES = UPDATE_SUCCESS_MESSAGES.keys.freeze
 
         before_action -> { require_manage_other_teachers!('承認権限がないユーザーです') }, only: :update
         before_action :require_valid_update_status!, only: :update
@@ -57,7 +61,7 @@ module Api
                    ).call
 
           if result
-            render json: { message: '申請が承認されました' }, status: :ok
+            render json: { message: UPDATE_SUCCESS_MESSAGES.fetch(update_school_class_params[:status]) }, status: :ok
           else
             render json: { message: '申請が却下されました' }, status: :ok
           end
