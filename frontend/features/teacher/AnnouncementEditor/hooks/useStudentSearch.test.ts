@@ -33,8 +33,15 @@ describe("useStudentSearch", () => {
     vi.useRealTimers();
   });
 
-  it("入力値はすぐ反映するが、検索は入力が止まって300ms後に最後のキーワードで1回だけ行う", () => {
+  // APIモックのPromise解決に伴うstate更新をact内で終わらせるため、タイマーは非同期で進める
+  const advance = (ms: number) =>
+    act(async () => {
+      await vi.advanceTimersByTimeAsync(ms);
+    });
+
+  it("入力値はすぐ反映するが、検索は入力が止まって300ms後に最後のキーワードで1回だけ行う", async () => {
     const { result } = renderHook(() => useStudentSearch());
+    await advance(0);
     expect(apiClient.get).toHaveBeenCalledTimes(1);
 
     act(() => {
@@ -43,14 +50,10 @@ describe("useStudentSearch", () => {
     });
 
     expect(result.current.query).toBe("やま");
-    act(() => {
-      vi.advanceTimersByTime(299);
-    });
+    await advance(299);
     expect(apiClient.get).toHaveBeenCalledTimes(1);
 
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
+    await advance(1);
     expect(apiClient.get).toHaveBeenCalledTimes(2);
     expect(apiClient.get).toHaveBeenLastCalledWith(
       "/api/teacher/announcements/new",
@@ -61,18 +64,19 @@ describe("useStudentSearch", () => {
     );
   });
 
-  it("キーワードが変わるとページを1に戻す", () => {
+  it("キーワードが変わるとページを1に戻す", async () => {
     const { result } = renderHook(() => useStudentSearch());
 
     act(() => {
       result.current.setPage(3);
     });
+    await advance(0);
     expect(result.current.page).toBe(3);
 
     act(() => {
       result.current.handleQueryChange("さとう");
-      vi.advanceTimersByTime(300);
     });
+    await advance(300);
 
     expect(result.current.page).toBe(1);
   });

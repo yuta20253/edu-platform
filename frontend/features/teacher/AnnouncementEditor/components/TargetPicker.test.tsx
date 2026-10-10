@@ -223,7 +223,7 @@ describe("TargetPicker", () => {
     expect(currentTargets()).toEqual([{ target_type: "by_user", user_id: 11 }]);
   });
 
-  it("「個人」の行ごとに検索キーワードは独立している", () => {
+  it("「個人」の行ごとに検索キーワードは独立している", async () => {
     render(
       <Host
         defaultValues={{
@@ -240,6 +240,18 @@ describe("TargetPicker", () => {
 
     expect(first).toHaveValue("佐藤");
     expect(second).toHaveValue("");
+    // 1行目だけがキーワード付きで検索する
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/teacher/announcements/new",
+        expect.objectContaining({ params: { page: "1", keyword: "佐藤" } }),
+      ),
+    );
+    expect(
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.filter(([, config]) => config?.params?.keyword === "佐藤"),
+    ).toHaveLength(1);
   });
 
   it("生徒を選んだ後に別のキーワードで検索して一覧から消えても、選択済みの生徒名は表示されたまま", async () => {
