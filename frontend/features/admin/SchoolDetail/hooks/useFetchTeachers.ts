@@ -10,10 +10,12 @@ import type { Teacher, TeachersData } from "../types";
 export const useFetchTeachers = (schoolId: number) => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const router = useRouter();
 
   const fetchTeachers = useCallback(() => {
     setLoading(true);
+    setError(false);
 
     apiClient
       .get<TeachersData>(`/api/admin/schools/${schoolId}/teachers`)
@@ -21,7 +23,9 @@ export const useFetchTeachers = (schoolId: number) => {
       .catch((err) => {
         if (extractApiError(err).status === 401) {
           router.push("/login");
+          return;
         }
+        setError(true);
       })
       .finally(() => setLoading(false));
   }, [schoolId, router]);
@@ -30,5 +34,5 @@ export const useFetchTeachers = (schoolId: number) => {
     fetchTeachers();
   }, [fetchTeachers]);
 
-  return { teachers, loading, refetch: fetchTeachers };
+  return { teachers, loading, error, refetch: fetchTeachers };
 };
