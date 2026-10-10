@@ -31,8 +31,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 
+  const body = await request.json().catch(() => undefined);
+  if (body === undefined) {
+    return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
+  }
+
   try {
-    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       `/api/v1/teacher/announcements/${announcementId}`,
       { method: "PATCH", body: { announcement: body } },

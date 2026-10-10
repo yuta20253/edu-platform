@@ -26,8 +26,12 @@ export async function GET(req: NextRequest) {
 // お知らせの新規作成。Railsはparams.require(:announcement)を要求するため
 // リクエストボディをannouncementキーでラップしてforwardする。
 export async function POST(request: NextRequest) {
+  const body = await request.json().catch(() => undefined);
+  if (body === undefined) {
+    return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
+  }
+
   try {
-    const body = await request.json();
     const { status, data, setCookie } = await railsFetch(
       "/api/v1/teacher/announcements",
       { method: "POST", body: { announcement: body } },
