@@ -51,6 +51,19 @@ describe("PATCH /api/teacher/announcements/[announcementId]", () => {
     expect(railsFetch).not.toHaveBeenCalled();
   });
 
+  it("リクエストボディが不正なJSONのときは BAD_REQUEST を返しバックエンドへ転送しない", async () => {
+    const res = await PATCH(
+      new NextRequest("http://localhost/api/teacher/announcements/1", {
+        method: "PATCH",
+        body: "{invalid",
+      }),
+      { params: Promise.resolve({ announcementId: "1" }) },
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+    expect(railsFetch).not.toHaveBeenCalled();
+  });
+
   it("401 のときは UNAUTHORIZED を返す", async () => {
     vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
     const res = await patch("1", { status: "published" });
