@@ -96,6 +96,22 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         end
       end
 
+      context 'per_pageとpageを指定した場合' do
+        it '指定したページの申請とページ情報が返る' do
+          get '/api/v1/teacher/school_class_requests',
+              params: { page: 2, per_page: 1 },
+              headers: headers.merge('Cookie' => cookie)
+
+          expect(request_ids.size).to eq(1)
+          expect(response.parsed_body['meta']).to eq(
+            'current_page' => 2,
+            'total_pages' => 2,
+            'total_count' => 2,
+            'per_page' => 1
+          )
+        end
+      end
+
       context '存在しないstatusを指定した場合' do
         it '申請が1件も返らない' do
           get '/api/v1/teacher/school_class_requests',
