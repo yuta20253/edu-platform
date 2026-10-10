@@ -30,36 +30,13 @@ RSpec.describe TaskAnswerStatsQuery, type: :model do
     create(:task_unit, task: task_not_targeted, unit: unit_not_targeted)
   end
 
-  def answer!(task:, question:, is_correct:, answerer: user, **attrs)
-    create(
-      :question_history,
-      user: answerer,
-      task: task,
-      course: question.unit.course,
-      unit: question.unit,
-      question: question,
-      question_choice: question.question_choices.first || create(:question_choice, question: question),
-      is_correct: is_correct,
-      **attrs
-    )
-  end
-
-  def count_queries(&block)
-    queries = []
-    callback = lambda { |_n, _s, _f, _id, payload|
-      queries << payload[:sql] if payload[:name] != 'SCHEMA'
-    }
-    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &block)
-    queries.size
-  end
-
   describe '#answer_counts' do
     context '解答履歴がある場合' do
       before do
-        answer!(task: task_a, question: question_one, is_correct: true)
-        answer!(task: task_a, question: question_two, is_correct: false)
-        answer!(task: task_a, question: question_four, is_correct: true)
-        answer!(task: task_b, question: question_one, is_correct: false)
+        create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
+        create_answer!(user: user, task: task_a, question: question_two, is_correct: false)
+        create_answer!(user: user, task: task_a, question: question_four, is_correct: true)
+        create_answer!(user: user, task: task_b, question: question_one, is_correct: false)
       end
 
       it 'タスク×Unitごとに解答数と正答数を返す' do
@@ -79,21 +56,21 @@ RSpec.describe TaskAnswerStatsQuery, type: :model do
     end
 
     it '対象外のタスクの解答履歴は含まない' do
-      answer!(task: task_not_targeted, question: question_not_targeted, is_correct: true)
+      create_answer!(user: user, task: task_not_targeted, question: question_not_targeted, is_correct: true)
 
       expect(query.answer_counts).to eq({})
     end
 
     it '他の生徒の解答履歴は含まない' do
       other_user = create(:user)
-      answer!(task: task_a, question: question_one, is_correct: true, answerer: other_user)
+      create_answer!(user: other_user, task: task_a, question: question_one, is_correct: true)
 
       expect(query.answer_counts).to eq({})
     end
 
     it '論理削除された問題への解答履歴は含まない' do
-      answer!(task: task_a, question: question_one, is_correct: true)
-      answer!(task: task_a, question: question_two, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_two, is_correct: true)
       question_two.update_columns(deleted_at: Time.current)
 
       expect(query.answer_counts).to eq(
@@ -102,8 +79,8 @@ RSpec.describe TaskAnswerStatsQuery, type: :model do
     end
 
     it '論理削除された解答履歴は含まない' do
-      answer!(task: task_a, question: question_one, is_correct: true)
-      answer!(task: task_a, question: question_two, is_correct: true, deleted_at: Time.current)
+      create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_two, is_correct: true, deleted_at: Time.current)
 
       expect(query.answer_counts).to eq(
         [task_a.id, unit_one.id] => { answered_count: 1, correct_count: 1 }
@@ -111,7 +88,7 @@ RSpec.describe TaskAnswerStatsQuery, type: :model do
     end
 
     it '未解答のタスク×Unitはキーごと含まない' do
-      answer!(task: task_a, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
 
       expect(query.answer_counts.keys).to contain_exactly([task_a.id, unit_one.id])
     end
@@ -125,11 +102,11 @@ RSpec.describe TaskAnswerStatsQuery, type: :model do
     end
 
     it 'タスク・Unitの数に関係なくクエリは1本' do
-      answer!(task: task_a, question: question_one, is_correct: true)
-      answer!(task: task_a, question: question_four, is_correct: true)
-      answer!(task: task_b, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_four, is_correct: true)
+      create_answer!(user: user, task: task_b, question: question_one, is_correct: true)
 
-      expect(count_queries { query.answer_counts }).to eq(1)
+      expect(capture_queries { query.answer_counts }.size).to eq(1)
     end
   end
 
@@ -159,7 +136,7 @@ RSpec.describe TaskAnswerStatsQuery, type: :model do
     end
 
     it 'タスク・Unitの数に関係なくクエリは1本' do
-      expect(count_queries { query.question_counts }).to eq(1)
+      expect(capture_queries { query.question_counts }.size).to eq(1)
     end
   end
 end

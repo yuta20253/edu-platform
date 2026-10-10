@@ -18,15 +18,6 @@ RSpec.describe Teacher::StudentGoalSerializer do
     ActiveModelSerializers::SerializableResource.new(target, serializer: described_class).to_json
   end
 
-  def count_queries(&block)
-    queries = []
-    callback = lambda { |_n, _s, _f, _id, payload|
-      queries << payload[:sql] if payload[:name] != 'SCHEMA'
-    }
-    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &block)
-    queries.size
-  end
-
   it '一覧に必要なフィールドを含む' do
     expect(serialized.keys).to contain_exactly(
       'id', 'title', 'description', 'status', 'due_date', 'progress', 'tasks'
@@ -90,7 +81,7 @@ RSpec.describe Teacher::StudentGoalSerializer do
     it 'tasksが読み込み済みなら、シリアライズ中にクエリを発行しない' do
       preloaded_goal = goal
 
-      expect(count_queries { serialize(preloaded_goal) }).to eq(0)
+      expect(capture_queries { serialize(preloaded_goal) }.size).to eq(0)
     end
   end
 

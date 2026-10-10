@@ -189,28 +189,6 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
     let(:params) { {} }
     let(:body) { response.parsed_body }
 
-    def count_queries(&block)
-      queries = []
-      callback = lambda { |_n, _s, _f, _id, payload|
-        queries << payload[:sql] if payload[:name] != 'SCHEMA'
-      }
-      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &block)
-      queries
-    end
-
-    def answer!(task:, question:, is_correct:)
-      create(
-        :question_history,
-        user: student,
-        task: task,
-        course: question.unit.course,
-        unit: question.unit,
-        question: question,
-        question_choice: question.question_choices.first || create(:question_choice, question: question),
-        is_correct: is_correct
-      )
-    end
-
     shared_examples 'プロフィールを返す' do
       it '200で、StudentSerializerの出力をトップレベルに返す(既存の挙動のまま)' do
         request_show
@@ -284,7 +262,7 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
       it '目標の数に関係なく、tasksの取得は1クエリ(N+1にならない)' do
         create_list(:goal, 3, user: student).each { |goal| create(:task, user: student, goal: goal) }
 
-        task_queries = count_queries { request_show }.grep(/FROM `tasks`/i)
+        task_queries = capture_queries { request_show }.grep(/FROM `tasks`/i)
 
         expect(task_queries.size).to eq(1)
       end
@@ -311,8 +289,8 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
         create(:task_unit, task: task_early, unit: unit_one)
         create(:task_unit, task: task_early, unit: unit_two)
         create(:task_unit, task: task_late, unit: unit_two)
-        answer!(task: task_early, question: question_one, is_correct: true)
-        answer!(task: task_early, question: question_two, is_correct: false)
+        create_answer!(user: student, task: task_early, question: question_one, is_correct: true)
+        create_answer!(user: student, task: task_early, question: question_two, is_correct: false)
       end
 
       it '200で、生徒のidとnameを返す' do
@@ -384,7 +362,7 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
           create(:task_unit, task: task, unit: unit_one)
         end
 
-        queries = count_queries { request_show }
+        queries = capture_queries { request_show }
 
         expect(queries.grep(/FROM `question_histories`/i).size).to eq(1)
         expect(queries.grep(/FROM `questions`/i).size).to eq(1)

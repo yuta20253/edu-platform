@@ -21,7 +21,6 @@
 #  task_id            :bigint           not null
 #
 class QuestionHistory < ApplicationRecord
-
   CORRECT_ANSWER_COUNT = 'SUM(CASE WHEN question_histories.is_correct THEN 1 ELSE 0 END)'
 
   belongs_to :user

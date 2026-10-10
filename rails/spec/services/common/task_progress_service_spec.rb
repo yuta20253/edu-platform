@@ -36,34 +36,12 @@ RSpec.describe Common::TaskProgressService do
     create(:task_unit, task: task_b, unit: unit_one)
   end
 
-  def answer!(task:, question:, is_correct:, answerer: user)
-    create(
-      :question_history,
-      user: answerer,
-      task: task,
-      course: question.unit.course,
-      unit: question.unit,
-      question: question,
-      question_choice: question.question_choices.first || create(:question_choice, question: question),
-      is_correct: is_correct
-    )
-  end
-
-  def count_queries(&block)
-    queries = []
-    callback = lambda { |_n, _s, _f, _id, payload|
-      queries << payload[:sql] if payload[:name] != 'SCHEMA'
-    }
-    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &block)
-    queries.size
-  end
-
   describe '#call' do
     context '一部のUnitに解答している場合' do
       before do
-        answer!(task: task_a, question: question_one, is_correct: true)
-        answer!(task: task_a, question: question_two, is_correct: false)
-        answer!(task: task_a, question: question_four, is_correct: true)
+        create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
+        create_answer!(user: user, task: task_a, question: question_two, is_correct: false)
+        create_answer!(user: user, task: task_a, question: question_four, is_correct: true)
       end
 
       it 'Unitごとの件数と率を返す(未解答・問題0問のUnitも含む)' do
@@ -89,7 +67,7 @@ RSpec.describe Common::TaskProgressService do
 
     context '同じUnitを持つ別のタスクに解答している場合' do
       before do
-        answer!(task: task_a, question: question_one, is_correct: true)
+        create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
       end
 
       it '解答はタスクごとに分けて数える' do
@@ -125,7 +103,7 @@ RSpec.describe Common::TaskProgressService do
 
     it '他の生徒の解答は数えない' do
       other_user = create(:user)
-      answer!(task: task_a, question: question_one, is_correct: true, answerer: other_user)
+      create_answer!(user: other_user, task: task_a, question: question_one, is_correct: true)
 
       expect(result[task_a.id]).to include(answered_count: 0, correct_count: 0)
     end
@@ -139,11 +117,11 @@ RSpec.describe Common::TaskProgressService do
     end
 
     it 'タスク・Unitの数に関係なくクエリは2本(TaskAnswerStatsQueryの2本だけ)' do
-      answer!(task: task_a, question: question_one, is_correct: true)
-      answer!(task: task_b, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_a, question: question_one, is_correct: true)
+      create_answer!(user: user, task: task_b, question: question_one, is_correct: true)
       service = described_class.new(user: user, tasks: tasks)
 
-      expect(count_queries { service.call }).to eq(2)
+      expect(capture_queries { service.call }.size).to eq(2)
     end
   end
 end

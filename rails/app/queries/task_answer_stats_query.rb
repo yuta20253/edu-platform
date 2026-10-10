@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TaskAnswerStatsQuery
   def initialize(user:, task_ids:)
     @user = user

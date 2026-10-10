@@ -45,15 +45,6 @@ RSpec.describe Teacher::StudentTaskSerializer do
     ).to_json
   end
 
-  def count_queries(&block)
-    queries = []
-    callback = lambda { |_n, _s, _f, _id, payload|
-      queries << payload[:sql] if payload[:name] != 'SCHEMA'
-    }
-    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &block)
-    queries.size
-  end
-
   it '一覧に必要なフィールドを含む' do
     expect(serialized.keys).to contain_exactly(
       'id', 'title', 'status', 'priority', 'due_date', 'completed_at', 'goal', 'progress', 'units'
@@ -116,6 +107,6 @@ RSpec.describe Teacher::StudentTaskSerializer do
   it '関連が読み込み済みなら、シリアライズ中にクエリを発行しない' do
     preloaded_task = task
 
-    expect(count_queries { serialize(preloaded_task) }).to eq(0)
+    expect(capture_queries { serialize(preloaded_task) }.size).to eq(0)
   end
 end
