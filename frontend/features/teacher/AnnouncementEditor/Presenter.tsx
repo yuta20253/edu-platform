@@ -37,6 +37,8 @@ type Props = {
   options: AnnouncementTargetOptions | null;
   submitting: boolean;
   submitError: string | null;
+  // 配信先の選択肢(学年・権限・学年制限)の取得エラー
+  optionsError: string | null;
   onSaveDraft: (values: AnnouncementFormValues) => void;
   onDeliver: (values: AnnouncementFormValues) => void;
 };
@@ -45,6 +47,7 @@ export const Presenter = ({
   options,
   submitting,
   submitError,
+  optionsError,
   onSaveDraft,
   onDeliver,
 }: Props) => {
@@ -60,6 +63,8 @@ export const Presenter = ({
   });
 
   const deliveryTiming = watch("deliveryTiming");
+  // 学年制限(own_grade_restriction)は選択肢の取得後に確定するため、取得できるまでは送信させない
+  const submitDisabled = submitting || options === null;
 
   // scheduledAtの必須・未来日時チェックは「配信する」で予約投稿を選んだ場合のみ行う。
   // Controllerのrulesにすると「下書き保存」の送信時にも走ってしまうため、ここで個別に検証する。
@@ -87,6 +92,12 @@ export const Presenter = ({
       >
         お知らせを作成
       </Typography>
+
+      {optionsError && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {optionsError}
+        </Alert>
+      )}
 
       {submitError && (
         <Alert severity="error" sx={{ mb: 3 }}>
@@ -217,14 +228,14 @@ export const Presenter = ({
         </Button>
         <Button
           variant="outlined"
-          disabled={submitting}
+          disabled={submitDisabled}
           onClick={handleSubmit((values) => onSaveDraft(values))}
         >
           下書き保存
         </Button>
         <Button
           variant="contained"
-          disabled={submitting || deliveryTiming === "draft"}
+          disabled={submitDisabled || deliveryTiming === "draft"}
           startIcon={
             submitting ? <CircularProgress size={16} color="inherit" /> : null
           }

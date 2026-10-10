@@ -9,6 +9,7 @@ import { AnnouncementTargetOptions } from "../types";
 export const useAnnouncementTargetOptions = (keyword: string, page: number) => {
   const [data, setData] = useState<AnnouncementTargetOptions | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export const useAnnouncementTargetOptions = (keyword: string, page: number) => {
     const controller = new AbortController();
 
     setLoading(true);
+    setError(null);
 
     apiClient
       .get<AnnouncementTargetOptions>("/api/teacher/announcements/new", {
@@ -33,7 +35,9 @@ export const useAnnouncementTargetOptions = (keyword: string, page: number) => {
         if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
           router.push("/login");
+          return;
         }
+        setError("配信先の取得に失敗しました");
       })
       .finally(() => {
         if (controller.signal.aborted) return;
@@ -45,5 +49,5 @@ export const useAnnouncementTargetOptions = (keyword: string, page: number) => {
     };
   }, [keyword, page, router]);
 
-  return { data, loading };
+  return { data, loading, error };
 };
