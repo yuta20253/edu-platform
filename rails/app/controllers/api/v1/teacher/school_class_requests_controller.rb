@@ -88,6 +88,12 @@ module Api
 
         def school_class_requests_scope
           @school_class_requests = SchoolClassRequest
+            .includes(
+              :school_class,
+              :applicant,
+              :approver,
+              :grade
+            )
             .joins(:grade)
             .where(grades: { high_school_id: current_user.high_school_id })
             .order(created_at: :desc)
