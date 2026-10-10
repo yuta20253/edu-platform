@@ -4,26 +4,21 @@ import { apiClient } from "@/libs/http/apiClient";
 import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { CreateAdminInput, SnackbarState } from "../types";
-
-const initialSnackbar: SnackbarState = {
-  open: false,
-  message: "",
-  severity: "success",
-};
+import { useToast } from "@/components/ui/ToastProvider";
+import type { CreateAdminInput } from "../types";
 
 type UseCreateAdminParams = {
   // 作成成功後に呼ばれる（一覧の再取得など）
   onCreated: () => void;
 };
 
-// 管理者の作成・追加ドロワーの開閉・完了スナックバーを管理するフック。
+// 管理者の作成・追加ドロワーの開閉と完了トーストを管理するフック。
 export const useCreateAdmin = ({ onCreated }: UseCreateAdminParams) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createErrors, setCreateErrors] = useState<string[]>([]);
-  const [snackbar, setSnackbar] = useState<SnackbarState>(initialSnackbar);
   const router = useRouter();
+  const toast = useToast();
 
   const handleAddClick = () => {
     setCreateErrors([]);
@@ -43,11 +38,7 @@ export const useCreateAdmin = ({ onCreated }: UseCreateAdminParams) => {
     try {
       await apiClient.post("/api/admin/admins", input);
       setDrawerOpen(false);
-      setSnackbar({
-        open: true,
-        message: "管理者を追加しました",
-        severity: "success",
-      });
+      toast.show({ message: "管理者を追加しました" });
       onCreated();
     } catch (err) {
       const { status, errors } = extractApiError(err);
@@ -63,18 +54,12 @@ export const useCreateAdmin = ({ onCreated }: UseCreateAdminParams) => {
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
   return {
     drawerOpen,
     creating,
     createErrors,
-    snackbar,
     handleAddClick,
     handleDrawerClose,
     handleCreate,
-    handleSnackbarClose,
   };
 };

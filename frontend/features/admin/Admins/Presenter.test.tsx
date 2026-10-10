@@ -56,8 +56,6 @@ const defaultProps = {
   onCreate: vi.fn(),
   creating: false,
   createErrors: [],
-  snackbar: { open: false, message: "", severity: "success" as const },
-  onSnackbarClose: vi.fn(),
 };
 
 describe("AdminsPresenter", () => {

@@ -14,6 +14,7 @@ type UseFetchAdminsParams = {
 // page / query の変更で自動再取得し、作成後などに使う refetch も返す。
 export const useFetchAdmins = ({ page, query }: UseFetchAdminsParams) => {
   const [data, setData] = useState<AdminsData | null>(null);
+  const [error, setError] = useState(false);
   const router = useRouter();
 
   const fetchAdmins = useCallback(() => {
@@ -22,13 +23,16 @@ export const useFetchAdmins = ({ page, query }: UseFetchAdminsParams) => {
       params.q = query;
     }
 
+    setError(false);
     apiClient
       .get<AdminsData>("/api/admin/admins", { params })
       .then((res) => setData(res.data))
       .catch((err) => {
         if (err.response?.status === 401) {
           router.push("/login");
+          return;
         }
+        setError(true);
       });
   }, [page, query, router]);
 
@@ -36,5 +40,5 @@ export const useFetchAdmins = ({ page, query }: UseFetchAdminsParams) => {
     fetchAdmins();
   }, [fetchAdmins]);
 
-  return { data, refetch: fetchAdmins };
+  return { data, error, refetch: fetchAdmins };
 };

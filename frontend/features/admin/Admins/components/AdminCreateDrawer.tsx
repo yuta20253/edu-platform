@@ -6,12 +6,12 @@ import {
   Box,
   Button,
   CircularProgress,
-  Drawer,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useEffect } from "react";
+import { SlideInDrawer } from "@/components/ui/SlideInDrawer";
 import { useForm } from "react-hook-form";
 import type { CreateAdminInput } from "../types";
 
@@ -48,12 +48,7 @@ export const AdminCreateDrawer = ({
   }, [open, reset]);
 
   return (
-    <Drawer
-      anchor="right"
-      open={open}
-      onClose={onClose}
-      slotProps={{ paper: { sx: { width: 480, maxWidth: "100%" } } }}
-    >
+    <SlideInDrawer open={open} onClose={onClose}>
       <Box
         component="form"
         onSubmit={handleSubmit(onCreate)}
@@ -143,6 +138,6 @@ export const AdminCreateDrawer = ({
           </Button>
         </Box>
       </Box>
-    </Drawer>
+    </SlideInDrawer>
   );
 };
