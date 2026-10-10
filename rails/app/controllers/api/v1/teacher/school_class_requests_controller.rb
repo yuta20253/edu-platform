@@ -17,7 +17,9 @@ module Api
         before_action :require_lock_version!, only: :update
 
         def index
-          school_class_requests = school_class_requests_scope.page(sanitized_page).per(sanitized_per_page)
+          school_class_requests = school_class_requests_scope
+          school_class_requests = school_class_requests.where(status: params[:status]) if params[:status].present?
+          school_class_requests = school_class_requests.page(sanitized_page).per(sanitized_per_page)
 
           render json: {
             school_class_requests: ActiveModelSerializers::SerializableResource.new(
@@ -106,7 +108,6 @@ module Api
                                   .where(grades: { high_school_id: current_user.high_school_id })
                                   .order(created_at: :desc)
 
-          school_class_requests = school_class_requests.where(status: params[:status]) if params[:status].present?
           unless manage_other_teachers?
             school_class_requests = school_class_requests.where(applicant_id: current_user.id)
           end
