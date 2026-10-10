@@ -44,10 +44,8 @@ const defaultProps = {
   data: mockData,
   activeTab: "errors" as const,
   exporting: false,
-  snackbar: { open: false, message: "", severity: "success" as const },
   onTabChange: vi.fn(),
   onExport: vi.fn(),
-  onSnackbarClose: vi.fn(),
 };
 
 describe("ImportHistoryDetailPresenter", () => {
@@ -170,21 +168,21 @@ describe("ImportHistoryDetailPresenter", () => {
         <Presenter {...defaultProps} data={{ ...mockData, errors: [] }} />,
       );
       expect(
-        screen.getByText("該当するデータがありません"),
+        screen.getByText("該当するデータが見つかりません"),
       ).toBeInTheDocument();
     });
 
     it("警告タブが空のときは空状態が表示される", () => {
       render(<Presenter {...defaultProps} activeTab="warnings" />);
       expect(
-        screen.getByText("該当するデータがありません"),
+        screen.getByText("該当するデータが見つかりません"),
       ).toBeInTheDocument();
     });
 
     it("成功タブが空のときは空状態が表示される", () => {
       render(<Presenter {...defaultProps} activeTab="successes" />);
       expect(
-        screen.getByText("該当するデータがありません"),
+        screen.getByText("該当するデータが見つかりません"),
       ).toBeInTheDocument();
     });
 
@@ -225,31 +223,6 @@ describe("ImportHistoryDetailPresenter", () => {
       expect(
         screen.getByRole("link", { name: "インポート履歴一覧へ戻る" }),
       ).toHaveAttribute("href", "/admin/csv-import/history");
-    });
-  });
-
-  describe("Snackbar", () => {
-    it("snackbar.open が true のときメッセージが表示される", () => {
-      render(
-        <Presenter
-          {...defaultProps}
-          snackbar={{
-            open: true,
-            message: "CSVのダウンロードに失敗しました",
-            severity: "error",
-          }}
-        />,
-      );
-      expect(
-        screen.getByText("CSVのダウンロードに失敗しました"),
-      ).toBeInTheDocument();
-    });
-
-    it("snackbar.open が false のときメッセージは表示されない", () => {
-      render(<Presenter {...defaultProps} />);
-      expect(
-        screen.queryByText("CSVのダウンロードに失敗しました"),
-      ).not.toBeInTheDocument();
     });
   });
 });

@@ -1,3 +1,4 @@
+import type { PaginationMeta } from "@/types/common/pagination";
 import type { AnnouncementStatus } from "@/types/common/announcement";
 
 export type NoticeStatus = AnnouncementStatus;
@@ -24,14 +25,7 @@ export type Notice = {
   publisher: NoticePublisher;
 };
 
-export type NoticesMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
 export type NoticesData = {
   announcements: Notice[];
-  meta: NoticesMeta;
+  meta: PaginationMeta;
 };

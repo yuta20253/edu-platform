@@ -1,24 +1,24 @@
 "use client";
 
-import { colors } from "@/app/theme/colors";
 import {
   Box,
   Button,
   Chip,
-  CircularProgress,
-  Snackbar,
-  Alert as MuiAlert,
   Stack,
   Switch,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
-import SchoolIcon from "@mui/icons-material/School";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { TableCard } from "@/components/ui/TableCard";
+import { TableSkeleton } from "@/components/ui/TableSkeleton";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   TeacherDrawer,
   type TeacherFormValues,
@@ -33,17 +33,34 @@ type Props = {
   schoolId: number;
 };
 
+const TABLE_COLUMNS = [
+  "名前",
+  "メール",
+  "担当学年権限",
+  "他教師管理",
+  "担当学年",
+] as const;
+
 const gradeScopeLabel: Record<Teacher["grade_scope"], string> = {
   own_grade: "自学年",
   all_grades: "全学年",
 };
 
 export const TeachersTab = ({ schoolId }: Props) => {
-  const { teachers, loading, refetch } = useFetchTeachers(schoolId);
-  const { grades } = useFetchGrades(schoolId);
+  const { teachers, loading, error, refetch } = useFetchTeachers(schoolId);
+  const { grades, error: gradesError } = useFetchGrades(schoolId);
+  const toast = useToast();
   const [drawerMode, setDrawerMode] = useState<"create" | "edit" | null>(null);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  // 担当学年の選択肢が取れないままドロワーを開くと空のまま気づけないため通知する
+  useEffect(() => {
+    if (gradesError) {
+      toast.show({ message: "学年の取得に失敗しました", severity: "error" });
+    }
+    // toast は安定した参照のため依存に含めない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gradesError]);
 
   const closeDrawer = () => {
     setDrawerMode(null);
@@ -54,7 +71,7 @@ export const TeachersTab = ({ schoolId }: Props) => {
     schoolId,
     onCreated: () => {
       closeDrawer();
-      setSnackbarOpen(true);
+      toast.show({ message: "保存しました" });
       refetch();
     },
   });
@@ -64,7 +81,7 @@ export const TeachersTab = ({ schoolId }: Props) => {
     teacherId: editingTeacher?.id ?? 0,
     onUpdated: () => {
       closeDrawer();
-      setSnackbarOpen(true);
+      toast.show({ message: "保存しました" });
       refetch();
     },
   });
@@ -89,33 +106,39 @@ export const TeachersTab = ({ schoolId }: Props) => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-        <CircularProgress />
-      </Box>
+      <TableCard>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {TABLE_COLUMNS.map((label) => (
+                  <TableCell key={label}>{label}</TableCell>
+                ))}
+                <TableCell align="right">操作</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableSkeleton rows={5} columns={TABLE_COLUMNS.length + 1} />
+          </Table>
+        </TableContainer>
+      </TableCard>
     );
+  }
+
+  if (error) {
+    return <ErrorState onRetry={refetch} />;
   }
 
   return (
     <Box>
       {teachers.length === 0 ? (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            py: 10,
-            gap: 2,
-          }}
-        >
-          <SchoolIcon sx={{ fontSize: 64, color: colors.text.muted }} />
-          <Typography variant="h6" sx={{ color: colors.text.secondary }}>
-            まだ教師が登録されていません
-          </Typography>
-          <Button variant="contained" onClick={openCreateDrawer}>
-            最初の教師を追加する
-          </Button>
-        </Box>
+        <EmptyState
+          message="教師がまだありません"
+          action={
+            <Button variant="contained" onClick={openCreateDrawer}>
+              最初の教師を追加する
+            </Button>
+          }
+        />
       ) : (
         <Box>
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
@@ -123,45 +146,56 @@ export const TeachersTab = ({ schoolId }: Props) => {
               教師を追加する
             </Button>
           </Box>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>名前</TableCell>
-                <TableCell>メール</TableCell>
-                <TableCell>担当学年権限</TableCell>
-                <TableCell>他教師管理</TableCell>
-                <TableCell>担当学年</TableCell>
-                <TableCell align="right">操作</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {teachers.map((teacher) => (
-                <TableRow key={teacher.id}>
-                  <TableCell>{teacher.name}</TableCell>
-                  <TableCell>{teacher.email}</TableCell>
-                  <TableCell>{gradeScopeLabel[teacher.grade_scope]}</TableCell>
-                  <TableCell>
-                    <Switch checked={teacher.manage_other_teachers} disabled />
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                      {teacher.grades.map((grade) => (
-                        <Chip key={grade.id} label={grade.name} size="small" />
-                      ))}
-                    </Stack>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Button
-                      size="small"
-                      onClick={() => openEditDrawer(teacher)}
-                    >
-                      編集
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <TableCard>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {TABLE_COLUMNS.map((label) => (
+                      <TableCell key={label}>{label}</TableCell>
+                    ))}
+                    <TableCell align="right">操作</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {teachers.map((teacher) => (
+                    <TableRow key={teacher.id}>
+                      <TableCell>{teacher.name}</TableCell>
+                      <TableCell>{teacher.email}</TableCell>
+                      <TableCell>
+                        {gradeScopeLabel[teacher.grade_scope]}
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={teacher.manage_other_teachers}
+                          disabled
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                          {teacher.grades.map((grade) => (
+                            <Chip
+                              key={grade.id}
+                              label={grade.name}
+                              size="small"
+                            />
+                          ))}
+                        </Stack>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button
+                          size="small"
+                          onClick={() => openEditDrawer(teacher)}
+                        >
+                          編集
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TableCard>
         </Box>
       )}
 
@@ -175,16 +209,6 @@ export const TeachersTab = ({ schoolId }: Props) => {
         grades={grades}
         initialTeacher={editingTeacher}
       />
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <MuiAlert severity="success" onClose={() => setSnackbarOpen(false)}>
-          保存しました
-        </MuiAlert>
-      </Snackbar>
     </Box>
   );
 };

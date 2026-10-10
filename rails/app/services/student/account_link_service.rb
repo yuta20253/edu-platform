@@ -81,29 +81,12 @@ module Student
     end
 
     def find_user!
-      raise InvalidFormatError, '不正な生徒番号です' unless User.student_number_format_valid?(@student_number)
-
-      @target_user = User.active.find_by!(student_number: @student_number)
-
-      raise AlreadyLinkedError, '既に紐付けられています' if @target_user == @user
-      raise AlreadyActivatedError, '既に利用されているアカウントです' unless @target_user.password_reset_required
-      raise SchoolMismatchError, '生徒コードが正しくありません' if User.high_school_mismatch?(@target_user.high_school_id,
-                                                                                              @user.high_school_id)
-      raise HasDependentDataError, '統合できません' if dependent_data_exists?
-    end
-
-    # Userのhas_many/has_one関連を網羅的にチェックすることで、
-    # 新しい関連が追加された際にチェック漏れが発生しないようにする。
-    def dependent_data_exists?
-      checked_associations.any? do |reflection|
-        @target_user.association(reflection.name).scope.exists?
-      end
-    end
-
-    def checked_associations
-      User.reflect_on_all_associations.select do |reflection|
-        %i[has_many has_one].include?(reflection.macro) && reflection.options[:through].blank?
-      end
+      finder = AccountLinkFinder.new(user: @user, student_number: @student_number)
+      @target_user = finder.find!
+    ensure
+      # @target_userはこのメソッド専用の一時変数ではなくcall/log_failureでも参照するため、
+      # Naming/MemoizedInstanceVariableNameが提案する@find_userへの改名はしない。
+      @target_user ||= finder&.target_user # rubocop:disable Naming/MemoizedInstanceVariableName
     end
   end
 end

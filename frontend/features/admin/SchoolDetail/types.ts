@@ -1,3 +1,5 @@
+import type { PaginationMeta } from "@/types/common/pagination";
+
 export type SchoolDetail = {
   id: number;
   name: string;
@@ -50,16 +52,9 @@ export type Announcement = {
   created_at: string;
 };
 
-export type AnnouncementsMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
 export type AnnouncementsData = {
   announcements: Announcement[];
-  meta: AnnouncementsMeta;
+  meta: PaginationMeta;
 };
 
 // 教師追加ドロワーの入力（姓/名は結合してAPIへ渡す）。
@@ -81,10 +76,4 @@ export type UpdateTeacherInput = {
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
   gradeIds: number[];
-};
-
-export type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
 };

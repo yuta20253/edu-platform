@@ -35,9 +35,3 @@ export type ImportHistoryDetailData = {
 };
 
 export type DetailTabValue = "errors" | "warnings" | "successes";
-
-export type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
-};

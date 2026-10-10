@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import {
-  Alert,
   Box,
   Button,
   Chip,
   CircularProgress,
   IconButton,
-  Snackbar,
   Tab,
   Table,
   TableBody,
@@ -22,6 +20,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { colors } from "@/app/theme/colors";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { TableCard } from "@/components/ui/TableCard";
 import {
   importModeLabel,
@@ -33,17 +32,14 @@ import type {
   DetailTabValue,
   ImportHistoryDetailData,
   ImportHistoryDetailRow,
-  SnackbarState,
 } from "./types";
 
 type Props = {
   data: ImportHistoryDetailData;
   activeTab: DetailTabValue;
   exporting: boolean;
-  snackbar: SnackbarState;
   onTabChange: (tab: DetailTabValue) => void;
   onExport: () => void;
-  onSnackbarClose: () => void;
 };
 
 const SummaryItem = ({
@@ -68,11 +64,7 @@ const SummaryItem = ({
 
 const RowTable = ({ rows }: { rows: ImportHistoryDetailRow[] }) => {
   if (rows.length === 0) {
-    return (
-      <Typography color="text.secondary" sx={{ py: 4, textAlign: "center" }}>
-        該当するデータがありません
-      </Typography>
-    );
+    return <EmptyState message="該当するデータが見つかりません" />;
   }
 
   return (
@@ -103,10 +95,8 @@ export const Presenter = ({
   data,
   activeTab,
   exporting,
-  snackbar,
   onTabChange,
   onExport,
-  onSnackbarClose,
 }: Props) => {
   const warnings = data.warnings ?? [];
   const successes = data.successes ?? [];
@@ -219,21 +209,6 @@ export const Presenter = ({
       <TableCard density="compact" mb={0}>
         <RowTable rows={tabRows[activeTab]} />
       </TableCard>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={onSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={onSnackbarClose}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

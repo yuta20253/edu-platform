@@ -13,14 +13,17 @@ export const Home = async (): Promise<JSX.Element> => {
     .join("; ");
 
   try {
-    const goals = await getStudentDashboard(cookieHeader);
+    const { goals, today_answer_count } =
+      await getStudentDashboard(cookieHeader);
 
-    return <Presenter initialGoals={goals} />;
+    return (
+      <Presenter initialGoals={goals} todayAnswerCount={today_answer_count} />
+    );
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       redirect("/login");
     }
 
-    return <Presenter initialGoals={[]} />;
+    return <Presenter initialGoals={[]} todayAnswerCount={0} />;
   }
 };

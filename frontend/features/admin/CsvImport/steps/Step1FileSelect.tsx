@@ -17,14 +17,19 @@ import {
 } from "@mui/material";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { colors } from "@/app/theme/colors";
+import { ErrorState } from "@/components/ui/ErrorState";
 import type { CourseOption, ImportMode, UnitOption } from "../types";
 import { buildCourseLabel } from "@/libs/domain/course/courseLabel";
 
 type Props = {
   courses: CourseOption[];
   coursesLoading: boolean;
+  coursesError: boolean;
+  onRetryCourses: () => void;
   units: UnitOption[];
   unitsLoading: boolean;
+  unitsError: boolean;
+  onRetryUnits: () => void;
   courseId: number | null;
   unitId: number | null;
   isPreset: boolean;
@@ -44,8 +49,12 @@ type Props = {
 export const Step1FileSelect = ({
   courses,
   coursesLoading,
+  coursesError,
+  onRetryCourses,
   units,
   unitsLoading,
+  unitsError,
+  onRetryUnits,
   courseId,
   unitId,
   isPreset,
@@ -97,36 +106,51 @@ export const Step1FileSelect = ({
           </Stack>
         </Box>
       ) : (
-        <Stack direction="row" spacing={2}>
-          <TextField
-            select
-            label="講座"
-            fullWidth
-            disabled={coursesLoading}
-            value={courseId ?? ""}
-            onChange={(e) => onCourseChange(Number(e.target.value))}
-          >
-            {courses.map((course) => (
-              <MenuItem key={course.id} value={course.id}>
-                {buildCourseLabel(course)}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            select
-            label="単元"
-            fullWidth
-            disabled={courseId == null || unitsLoading}
-            value={unitId ?? ""}
-            onChange={(e) => onUnitChange(Number(e.target.value))}
-          >
-            {units.map((unit) => (
-              <MenuItem key={unit.id} value={unit.id}>
-                {unit.unit_name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Stack>
+        <>
+          {coursesError ? (
+            <ErrorState
+              message="講座の取得に失敗しました"
+              onRetry={onRetryCourses}
+            />
+          ) : (
+            <Stack direction="row" spacing={2}>
+              <TextField
+                select
+                label="講座"
+                fullWidth
+                disabled={coursesLoading}
+                value={courseId ?? ""}
+                onChange={(e) => onCourseChange(Number(e.target.value))}
+              >
+                {courses.map((course) => (
+                  <MenuItem key={course.id} value={course.id}>
+                    {buildCourseLabel(course)}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="単元"
+                fullWidth
+                disabled={courseId == null || unitsLoading}
+                value={unitId ?? ""}
+                onChange={(e) => onUnitChange(Number(e.target.value))}
+              >
+                {units.map((unit) => (
+                  <MenuItem key={unit.id} value={unit.id}>
+                    {unit.unit_name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          )}
+          {unitsError && (
+            <ErrorState
+              message="単元の取得に失敗しました"
+              onRetry={onRetryUnits}
+            />
+          )}
+        </>
       )}
 
       <Box

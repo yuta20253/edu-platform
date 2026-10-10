@@ -1,13 +1,11 @@
 "use client";
 
-import {
-  Box,
-  CircularProgress,
-  Pagination,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
+import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { announcementStatusDefinitions } from "@/constants/announcement_status";
 import { useFetchAnnouncements } from "../hooks/useFetchAnnouncements";
@@ -17,25 +15,19 @@ type Props = {
 };
 
 export const AnnouncementsTab = ({ schoolId }: Props) => {
-  const { announcements, meta, page, setPage, loading } =
+  const { announcements, meta, page, setPage, loading, error, refetch } =
     useFetchAnnouncements(schoolId);
 
   if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <CardSkeleton lines={3} />;
+  }
+
+  if (error) {
+    return <ErrorState onRetry={refetch} />;
   }
 
   if (announcements.length === 0) {
-    return (
-      <Box sx={{ py: 6, textAlign: "center" }}>
-        <Typography variant="body1" sx={{ color: colors.text.secondary }}>
-          お知らせがありません
-        </Typography>
-      </Box>
-    );
+    return <EmptyState message="お知らせがまだありません" />;
   }
 
   return (
@@ -63,12 +55,12 @@ export const AnnouncementsTab = ({ schoolId }: Props) => {
         ))}
       </Stack>
 
-      {meta && meta.total_pages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination
-            count={meta.total_pages}
+      {meta && (
+        <Box sx={{ mt: 3 }}>
+          <PaginationBar
+            totalPages={meta.total_pages}
             page={page}
-            onChange={(_, value) => setPage(value)}
+            onChange={setPage}
           />
         </Box>
       )}

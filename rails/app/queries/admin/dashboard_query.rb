@@ -65,15 +65,11 @@ module Admin
     end
 
     def active_student_count
-      scope = accepted_users.merge(User.students)
+      scope = User.accepted_students
 
       scope.where(id: recent_study_log_user_ids)
            .or(scope.where(id: recent_question_history_user_ids))
            .count
-    end
-
-    def accepted_users
-      User.active.invitation_accepted.joins(:user_role)
     end
 
     def recent_study_log_user_ids

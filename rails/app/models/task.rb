@@ -20,6 +20,8 @@
 #  updated_at     :datetime         not null
 #
 class Task < ApplicationRecord
+  default_scope { where(deleted_at: nil) }
+
   belongs_to :user
   belongs_to :goal
   has_many :task_courses, dependent: :destroy

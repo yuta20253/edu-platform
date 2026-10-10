@@ -58,9 +58,3 @@ export type Address = {
   city: string;
   town: string;
 };
-
-export type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
-};

@@ -21,7 +21,11 @@ const rowSx = {
   borderBottom: `1px solid ${colors.border.light}`,
 } as const;
 
-export const ProfileMenu = (): JSX.Element => {
+type Props = {
+  accountLinked: boolean | null;
+};
+
+export const ProfileMenu = ({ accountLinked }: Props): JSX.Element => {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -41,6 +45,12 @@ export const ProfileMenu = (): JSX.Element => {
         mt: 3,
       }}
     >
+      {accountLinked === false && (
+        <ButtonBase component={Link} href="/account-link" sx={rowSx}>
+          アカウント紐付け
+          <ChevronRightIcon fontSize="small" />
+        </ButtonBase>
+      )}
       <ButtonBase component={Link} href="/announcements" sx={rowSx}>
         お知らせ
         <ChevronRightIcon fontSize="small" />

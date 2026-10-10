@@ -25,4 +25,6 @@ class StudyLog < ApplicationRecord
     studying: 0,
     completed: 1
   }
+
+  scope :active, -> { where(deleted_at: nil) }
 end

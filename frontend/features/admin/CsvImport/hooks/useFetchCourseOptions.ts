@@ -17,11 +17,14 @@ const PER_PAGE = "100";
 export const useFetchCourseOptions = () => {
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [coursesLoading, setCoursesLoading] = useState<boolean>(true);
+  const [coursesError, setCoursesError] = useState<boolean>(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const controller = new AbortController();
     setCoursesLoading(true);
+    setCoursesError(false);
 
     apiClient
       .get<CoursesResponse>("/api/admin/courses", {
@@ -38,6 +41,7 @@ export const useFetchCourseOptions = () => {
           return;
         }
         setCourses([]);
+        setCoursesError(true);
       })
       .finally(() => {
         if (controller.signal.aborted) return;
@@ -47,7 +51,9 @@ export const useFetchCourseOptions = () => {
     return () => {
       controller.abort();
     };
-  }, [router]);
+  }, [router, reloadKey]);
 
-  return { courses, coursesLoading };
+  const retryCourses = () => setReloadKey((prev) => prev + 1);
+
+  return { courses, coursesLoading, coursesError, retryCourses };
 };

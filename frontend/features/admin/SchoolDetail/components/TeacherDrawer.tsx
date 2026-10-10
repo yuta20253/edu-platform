@@ -7,7 +7,6 @@ import {
   Button,
   Checkbox,
   CircularProgress,
-  Drawer,
   FormControlLabel,
   FormGroup,
   Radio,
@@ -18,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect } from "react";
+import { SlideInDrawer } from "@/components/ui/SlideInDrawer";
 import { Controller, useForm } from "react-hook-form";
 import type { Grade, GradeScope, Teacher } from "../types";
 
@@ -113,12 +113,7 @@ export const TeacherDrawer = ({
   };
 
   return (
-    <Drawer
-      anchor="right"
-      open={open}
-      onClose={onClose}
-      slotProps={{ paper: { sx: { width: 480, maxWidth: "100%" } } }}
-    >
+    <SlideInDrawer open={open} onClose={onClose}>
       <Box
         component="form"
         noValidate
@@ -294,6 +289,6 @@ export const TeacherDrawer = ({
           </Button>
         </Box>
       </Box>
-    </Drawer>
+    </SlideInDrawer>
   );
 };

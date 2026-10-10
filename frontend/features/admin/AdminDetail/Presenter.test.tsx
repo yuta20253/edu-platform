@@ -49,8 +49,6 @@ const defaultProps = {
   onDeleteConfirm: vi.fn(),
   deleting: false,
   deleteErrors: [] as string[],
-  snackbar: { open: false, message: "", severity: "success" as const },
-  onSnackbarClose: vi.fn(),
 };
 
 describe("AdminDetailPresenter", () => {
@@ -194,7 +192,7 @@ describe("AdminDetailPresenter", () => {
   it("アクティビティログの空状態が表示される", () => {
     render(<Presenter {...defaultProps} />);
     expect(
-      screen.getByText("アクティビティはまだありません"),
+      screen.getByText("アクティビティがまだありません"),
     ).toBeInTheDocument();
   });
 
@@ -247,20 +245,6 @@ describe("AdminDetailPresenter", () => {
       screen.getByRole("button", { name: "この管理者を削除" }),
     ).toBeDisabled();
     expect(screen.getByText("自分自身は削除できません")).toBeInTheDocument();
-  });
-
-  it("snackbar.open のときメッセージが表示される", () => {
-    render(
-      <Presenter
-        {...defaultProps}
-        snackbar={{
-          open: true,
-          message: "管理者を更新しました",
-          severity: "success",
-        }}
-      />,
-    );
-    expect(screen.getByText("管理者を更新しました")).toBeInTheDocument();
   });
 
   it("updating 中は保存ボタンが無効", () => {

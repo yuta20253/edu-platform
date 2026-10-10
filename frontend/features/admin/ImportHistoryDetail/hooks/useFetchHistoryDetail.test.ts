@@ -10,6 +10,11 @@ vi.mock("next/navigation", () => ({
   useRouter: () => routerMock,
 }));
 
+const showMock = vi.fn();
+vi.mock("@/components/ui/ToastProvider", () => ({
+  useToast: () => ({ show: showMock }),
+}));
+
 vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn() },
 }));
@@ -219,7 +224,7 @@ describe("useFetchHistoryDetail", () => {
       expect(downloadName).toBe("履歴.csv");
     });
 
-    it("失敗時はSnackbarにエラーを表示する", async () => {
+    it("失敗時はトーストにエラーを表示する", async () => {
       vi.mocked(apiClient.get)
         .mockResolvedValueOnce({ data: mockDetail })
         .mockRejectedValueOnce({ response: { status: 500 } });
@@ -231,8 +236,10 @@ describe("useFetchHistoryDetail", () => {
         await result.current.onExport();
       });
 
-      expect(result.current.snackbar.open).toBe(true);
-      expect(result.current.snackbar.severity).toBe("error");
+      expect(showMock).toHaveBeenCalledWith({
+        message: "CSVのダウンロードに失敗しました",
+        severity: "error",
+      });
       expect(result.current.exporting).toBe(false);
       expect(clickMock).not.toHaveBeenCalled();
     });
@@ -250,7 +257,7 @@ describe("useFetchHistoryDetail", () => {
       });
 
       expect(pushMock).toHaveBeenCalledWith("/login");
-      expect(result.current.snackbar.open).toBe(false);
+      expect(showMock).not.toHaveBeenCalled();
     });
   });
 });

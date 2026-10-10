@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useFetchUnitOptions } from "./useFetchUnitOptions";
@@ -55,5 +55,22 @@ describe("useFetchUnitOptions", () => {
     renderHook(() => useFetchUnitOptions(7));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+  });
+
+  it("非401エラー時は unitsError が true になり、retryUnits で再取得できる", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({ data: { id: 1, units: [] } });
+
+    const { result } = renderHook(() => useFetchUnitOptions(1));
+    await waitFor(() => expect(result.current.unitsError).toBe(true));
+    expect(pushMock).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.retryUnits();
+    });
+
+    await waitFor(() => expect(result.current.unitsError).toBe(false));
+    expect(apiClient.get).toHaveBeenCalledTimes(2);
   });
 });

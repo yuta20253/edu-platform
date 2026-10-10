@@ -12,10 +12,11 @@ const baseProps = {
 };
 
 describe("Step2Preview", () => {
-  it("loading中はローディング表示のみでテーブルは出さない", () => {
-    render(<Step2Preview {...baseProps} loading />);
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
-    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  it("loading中はスケルトンを表示し、スピナーと検証結果は出さない", () => {
+    const { container } = render(<Step2Preview {...baseProps} loading />);
+    expect(container.querySelector(".MuiSkeleton-root")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(screen.queryByText(/行が有効/)).not.toBeInTheDocument();
   });
 
   it("errorがあるとAlertのみ表示されテーブルは出さない", () => {

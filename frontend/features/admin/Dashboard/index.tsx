@@ -1,40 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Box, CircularProgress } from "@mui/material";
-import { apiClient } from "@/libs/http/apiClient";
+import { Box } from "@mui/material";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { useFetchDashboard } from "./hooks/useFetchDashboard";
 import { Presenter } from "./Presenter";
-import type { DashboardData } from "./types";
+import { Skeleton } from "./Skeleton";
 
 export function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const router = useRouter();
+  const { data, loading, error, refetch } = useFetchDashboard();
 
-  useEffect(() => {
-    apiClient
-      .get<DashboardData>("/api/admin/dashboard")
-      .then((res) => setData(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-        }
-      });
-  }, [router]);
+  if (loading) {
+    return <Skeleton />;
+  }
 
-  if (!data) {
+  if (error) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <ErrorState message={error} onRetry={refetch} />
       </Box>
     );
+  }
+
+  if (!data) {
+    return null;
   }
 
   return <Presenter data={data} />;

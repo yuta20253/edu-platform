@@ -18,6 +18,75 @@
         1104
       ],
       "note": "Rails 7.2系のEOL警告。7.4系へのメジャーアップグレードは別issueで対応予定のため一時的に抑止する。"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "1192113732e9e1e154c96b9b3772ebe9ed58f3612e62e7b1d6b4134e0b69fd2b",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/queries/concerns/analytics_content_coverable.rb",
+      "line": 12,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"SUM(CASE WHEN NOT EXISTS (#{question_exists_sql}) THEN 1 ELSE 0 END)\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "AnalyticsContentCoverable",
+        "method": "content_coverage"
+      },
+      "user_input": "question_exists_sql",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "question_exists_sqlはQuestion.active.where('questions.unit_id = units.id').to_sqlの結果で、固定の相関条件のみを含む静的文字列。外部入力を生結合していないためfalse positive。"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "f9da1d44ef4a84b13475de1e84702d2e7ac892adafad8575e9dcad26b6a7d566",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/queries/concerns/analytics_content_coverable.rb",
+      "line": 14,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"SUM(CASE WHEN EXISTS (#{question_exists_sql}) AND NOT EXISTS (#{answered_exists_sql}) THEN 1 ELSE 0 END)\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "AnalyticsContentCoverable",
+        "method": "content_coverage"
+      },
+      "user_input": "question_exists_sql",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "question_exists_sql/answered_exists_sqlはQuestion.active/QuestionHistory.activeスコープを.where(固定の相関条件)・.to_sqlした結果で、外部入力を生結合していないためfalse positive。answered_atのfrom/toはActiveRecordの.whereで束縛済み。"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "a11054eff1ee9542cecabb0d37b9d64c2eea6c824da2b80bfdf6907471bb2385",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/queries/concerns/analytics_high_school_usable.rb",
+      "line": 32,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "User.where(:id => population.select(:id)).joins(\"LEFT JOIN (#{question_history_stats_sql}) AS qh_stats ON qh_stats.user_id = users.id\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "AnalyticsHighSchoolUsable",
+        "method": "high_school_usage_rows"
+      },
+      "user_input": "question_history_stats_sql",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "question_history_stats_sql/study_log_flags_sqlは、from/to/high_school_id/subject_idをActiveRecordの.whereで束縛した上で.to_sqlしたSQL文字列。値はすべてActiveRecordがエスケープ済みで、外部入力を生結合していないためfalse positive。"
     }
   ],
   "brakeman_version": "8.0.5"

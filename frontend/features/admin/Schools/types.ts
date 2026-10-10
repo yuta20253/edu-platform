@@ -1,3 +1,5 @@
+import type { PaginationMeta } from "@/types/common/pagination";
+
 export type School = {
   id: number;
   name: string;
@@ -6,14 +8,7 @@ export type School = {
   teacher_count: number;
 };
 
-export type SchoolMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
 export type SchoolsData = {
   schools: School[];
-  meta: SchoolMeta;
+  meta: PaginationMeta;
 };

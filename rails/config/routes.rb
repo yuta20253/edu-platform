@@ -48,7 +48,10 @@ Rails.application.routes.draw do
         resources :interview_requests, only: [:index, :show, :create, :destroy] do
           resources :messages, only: [:index, :create], controller: 'interview_request_messages'
         end
-        resource :account_link, only: :create
+        resource :calendar, only: :show
+        resource :account_link, only: :create do
+          post :preview, on: :member
+        end
       end
 
       namespace :teacher do
@@ -75,6 +78,7 @@ Rails.application.routes.draw do
 
       namespace :admin do
         resource :dashboard, only: :show
+        resource :analytics, only: :show
         resources :admins, only: [:index, :show, :create, :update, :destroy]
         resources :announcements, only: [:index, :show, :create, :update, :destroy] do
           post :publish, on: :member

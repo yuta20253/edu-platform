@@ -1,6 +1,8 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
+import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Presenter } from "./Presenter";
 import { useAdminSearch } from "./hooks/useAdminSearch";
 import { useCreateAdmin } from "./hooks/useCreateAdmin";
@@ -11,30 +13,28 @@ export const Admins = () => {
     useAdminSearch();
 
   // 一覧の取得はフックに切り出し。refetch は作成後の再取得に使う
-  const { data, refetch } = useFetchAdmins({ page, query: debouncedQuery });
+  const { data, error, refetch } = useFetchAdmins({
+    page,
+    query: debouncedQuery,
+  });
 
   const {
     drawerOpen,
     creating,
     createErrors,
-    snackbar,
     handleAddClick,
     handleDrawerClose,
     handleCreate,
-    handleSnackbarClose,
   } = useCreateAdmin({ onCreated: refetch });
 
   if (!data) {
+    if (error) {
+      return <ErrorState onRetry={refetch} />;
+    }
+
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <CardSkeleton lines={5} />
       </Box>
     );
   }
@@ -52,8 +52,6 @@ export const Admins = () => {
       onCreate={handleCreate}
       creating={creating}
       createErrors={createErrors}
-      snackbar={snackbar}
-      onSnackbarClose={handleSnackbarClose}
     />
   );
 };

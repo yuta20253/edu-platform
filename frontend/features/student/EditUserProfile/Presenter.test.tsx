@@ -13,6 +13,7 @@ const mockUser: MeUser = {
   name_kana: "ヤマダタロウ",
   email: "yamada@example.com",
   profile_completed: true,
+  account_linked: true,
   user_personal_info: {
     id: 10,
     phone_number: "09012345678",

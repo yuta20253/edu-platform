@@ -12,8 +12,6 @@ import {
   Box,
   Breadcrumbs,
   Button,
-  Card,
-  CardContent,
   Chip,
   Divider,
   Stack,
@@ -28,6 +26,8 @@ import {
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { importStatusDefinitions } from "@/constants/import_status";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { TableCard } from "@/components/ui/TableCard";
 import type { UnitDetail } from "./types";
 
 // 取込日時は実行環境のTZに依存せず日本時間(JST)で表示する
@@ -298,72 +298,61 @@ export const Presenter = ({ unit, courseId }: Props) => {
       >
         インポート履歴
       </Typography>
-      <Card
-        elevation={0}
-        sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          {histories.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: "center" }}>
-              <Typography color="text.secondary">
-                インポート履歴はありません
-              </Typography>
-            </Box>
-          ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: colors.surface.light }}>
-                    <TableCell sx={{ fontWeight: 600 }}>ファイル名</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>ステータス</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
-                      成功
+      <TableCard mb={0}>
+        {histories.length === 0 ? (
+          <EmptyState message="インポート履歴がまだありません" />
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: colors.surface.light }}>
+                  <TableCell sx={{ fontWeight: 600 }}>ファイル名</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>ステータス</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    成功
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    エラー
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    合計
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>取込日時</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {histories.map((history) => (
+                  /*
+                    履歴詳細ページ(/admin/courses/[courseId]/units/[unitId]/import-histories/[id])は
+                    未実装のため、現状はリンクなしの読み取り表示。別issueで詳細画面を実装予定。
+                  */
+                  <TableRow
+                    key={history.id}
+                    hover
+                    sx={{ "&:last-child td": { border: 0 } }}
+                  >
+                    <TableCell>{history.file_name}</TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        status={history.status}
+                        definitions={importStatusDefinitions}
+                        size="small"
+                        variant="outlined"
+                      />
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
-                      エラー
+                    <TableCell align="right">{history.success_count}</TableCell>
+                    <TableCell align="right">{history.error_count}</TableCell>
+                    <TableCell align="right">{history.total_count}</TableCell>
+                    <TableCell>
+                      {dateFormatter.format(new Date(history.created_at))}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="right">
-                      合計
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>取込日時</TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {histories.map((history) => (
-                    /*
-                      履歴詳細ページ(/admin/courses/[courseId]/units/[unitId]/import-histories/[id])は
-                      未実装のため、現状はリンクなしの読み取り表示。別issueで詳細画面を実装予定。
-                    */
-                    <TableRow
-                      key={history.id}
-                      hover
-                      sx={{ "&:last-child td": { border: 0 } }}
-                    >
-                      <TableCell>{history.file_name}</TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          status={history.status}
-                          definitions={importStatusDefinitions}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        {history.success_count}
-                      </TableCell>
-                      <TableCell align="right">{history.error_count}</TableCell>
-                      <TableCell align="right">{history.total_count}</TableCell>
-                      <TableCell>
-                        {dateFormatter.format(new Date(history.created_at))}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </TableCard>
     </Box>
   );
 };

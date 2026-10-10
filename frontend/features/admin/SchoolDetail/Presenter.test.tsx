@@ -19,6 +19,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => routerMock,
 }));
 
+vi.mock("@/components/ui/ToastProvider", () => ({
+  useToast: () => ({ show: vi.fn() }),
+}));
+
 vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
@@ -179,7 +183,7 @@ describe("SchoolDetailPresenter", () => {
       render(<Presenter {...defaultProps} />);
       fireEvent.click(screen.getByRole("tab", { name: "学年・クラス" }));
       expect(
-        await screen.findByText("学年が登録されていません"),
+        await screen.findByText("学年がまだありません"),
       ).toBeInTheDocument();
     });
   });
@@ -189,7 +193,7 @@ describe("SchoolDetailPresenter", () => {
       render(<Presenter {...defaultProps} />);
       fireEvent.click(screen.getByRole("tab", { name: "お知らせ" }));
       expect(
-        await screen.findByText("お知らせがありません"),
+        await screen.findByText("お知らせがまだありません"),
       ).toBeInTheDocument();
     });
   });

@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useFetchGrades } from "./useFetchGrades";
@@ -40,5 +40,22 @@ describe("useFetchGrades", () => {
     renderHook(() => useFetchGrades(1));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+  });
+
+  it("非401エラー時は error が true になり、refetch で再取得できる", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({ data: { grades: [] } });
+
+    const { result } = renderHook(() => useFetchGrades(1));
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(pushMock).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.refetch();
+    });
+
+    await waitFor(() => expect(result.current.error).toBe(false));
+    expect(apiClient.get).toHaveBeenCalledTimes(2);
   });
 });

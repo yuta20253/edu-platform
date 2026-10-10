@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Alert,
   Box,
@@ -11,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { colors } from "@/app/theme/colors";
+import { ConfirmDeleteDialog } from "@/components/ui/ConfirmDeleteDialog";
 import type { ImportMode } from "../types";
 
 type Props = {
@@ -43,6 +45,22 @@ export const Step3Confirm = ({
   onBack,
   onSubmit,
 }: Props) => {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // 上書きは既存の問題を全て削除するため、単元名を入力する確認ダイアログを挟む
+  const handleSubmitClick = () => {
+    if (mode === "overwrite") {
+      setConfirmOpen(true);
+      return;
+    }
+    onSubmit();
+  };
+
+  const handleConfirm = () => {
+    setConfirmOpen(false);
+    onSubmit();
+  };
+
   return (
     <Box>
       <Card
@@ -110,7 +128,7 @@ export const Step3Confirm = ({
         <Button
           variant="contained"
           disabled={submitting}
-          onClick={onSubmit}
+          onClick={handleSubmitClick}
           startIcon={
             submitting ? <CircularProgress size={16} color="inherit" /> : null
           }
@@ -118,6 +136,27 @@ export const Step3Confirm = ({
           インポートを実行
         </Button>
       </Box>
+
+      <ConfirmDeleteDialog
+        open={confirmOpen}
+        title="上書きインポートの確認"
+        description={
+          <>
+            この操作は取り消せません。既存の問題は全て削除され、CSVの内容で置き換わります。実行するには単元名
+            <Typography component="span" fontWeight={700}>
+              {` ${unitName} `}
+            </Typography>
+            を入力してください。
+          </>
+        }
+        confirmText={unitName}
+        inputLabel="単元名を入力"
+        confirmLabel="上書きして実行"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirm}
+        loading={submitting}
+        errors={[]}
+      />
     </Box>
   );
 };

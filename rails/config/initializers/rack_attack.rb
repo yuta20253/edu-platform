@@ -2,10 +2,15 @@
 
 module Rack
   class Attack
-    ACCOUNT_LINK_PATH = '/api/v1/student/account_link'
+    # previewは紐付けを確定しないreadonlyの確認APIだが、生徒コードの存在確認に
+    # 使えてしまうため、account_linkと同じthrottleバケットを共有して合算でカウントする。
+    ACCOUNT_LINK_PATHS = [
+      '/api/v1/student/account_link',
+      '/api/v1/student/account_link/preview'
+    ].freeze
 
     throttle('account_link/user', limit: 5, period: 10.minutes) do |req|
-      req.env['warden']&.authenticate(scope: :user)&.id if req.post? && req.path == ACCOUNT_LINK_PATH
+      req.env['warden']&.authenticate(scope: :user)&.id if req.post? && ACCOUNT_LINK_PATHS.include?(req.path)
     end
 
     self.throttled_responder = lambda do |_request|

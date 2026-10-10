@@ -14,6 +14,11 @@ vi.mock("next/navigation", () => ({
   useRouter: () => routerMock,
 }));
 
+const showMock = vi.fn();
+vi.mock("@/components/ui/ToastProvider", () => ({
+  useToast: () => ({ show: showMock }),
+}));
+
 vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn() },
 }));
@@ -27,12 +32,13 @@ describe("TeachersTab", () => {
     vi.clearAllMocks();
   });
 
-  it("データ取得中はローディングスピナーが表示される", () => {
+  it("データ取得中はスケルトンが表示される（スピナーは使わない）", () => {
     vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
 
-    render(<TeachersTab schoolId={1} />);
+    const { container } = render(<TeachersTab schoolId={1} />);
 
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    expect(container.querySelector(".MuiSkeleton-root")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
   it("教師が0人のとき空状態UIが表示される", async () => {
@@ -43,9 +49,7 @@ describe("TeachersTab", () => {
 
     render(<TeachersTab schoolId={1} />);
 
-    expect(
-      await screen.findByText("まだ教師が登録されていません"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("教師がまだありません")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "最初の教師を追加する" }),
     ).toBeInTheDocument();
@@ -142,5 +146,70 @@ describe("TeachersTab", () => {
       screen.getByRole("heading", { name: "教師を編集" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "姓" })).toHaveValue("田中");
+  });
+
+  it("教師一覧の取得に失敗したらエラーを表示し、再試行で再取得する", async () => {
+    vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.includes("/grades")) return Promise.resolve(gradesResponse);
+      return Promise.reject({ response: { status: 500 } });
+    });
+
+    render(<TeachersTab schoolId={1} />);
+
+    const callsBefore = vi.mocked(apiClient.get).mock.calls.length;
+    fireEvent.click(await screen.findByRole("button", { name: "再試行" }));
+
+    await waitFor(() =>
+      expect(vi.mocked(apiClient.get).mock.calls.length).toBeGreaterThan(
+        callsBefore,
+      ),
+    );
+  });
+
+  it("学年の取得に失敗したらトーストで通知する", async () => {
+    vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.includes("/grades"))
+        return Promise.reject({ response: { status: 500 } });
+      return Promise.resolve({ data: { teachers: [] } });
+    });
+
+    render(<TeachersTab schoolId={1} />);
+
+    await waitFor(() =>
+      expect(showMock).toHaveBeenCalledWith({
+        message: "学年の取得に失敗しました",
+        severity: "error",
+      }),
+    );
+  });
+
+  it("教師を追加できたら「保存しました」のトーストを表示する", async () => {
+    vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.includes("/grades")) return Promise.resolve(gradesResponse);
+      return Promise.resolve({ data: { teachers: [] } });
+    });
+    vi.mocked(apiClient.post).mockResolvedValue({ data: { teacher: {} } });
+
+    render(<TeachersTab schoolId={1} />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "最初の教師を追加する" }),
+    );
+    fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
+      target: { value: "田中" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
+      target: { value: "太郎" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
+      target: { value: "tanaka@example.com" },
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "追加" }));
+    });
+
+    await waitFor(() =>
+      expect(showMock).toHaveBeenCalledWith({ message: "保存しました" }),
+    );
   });
 });
