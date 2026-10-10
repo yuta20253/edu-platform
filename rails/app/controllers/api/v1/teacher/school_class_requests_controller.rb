@@ -83,6 +83,7 @@ module Api
           @school_class_requests = SchoolClassRequest
             .joins(:grade)
             .where(grades: { high_school_id: current_user.high_school_id })
+            .order(created_at: :desc)
 
           @school_class_requests = @school_class_requests.where(status: params[:status]) if params[:status].present?
           @school_class_requests = @school_class_requests.where(applicant_id: current_user.id) unless manage_other_teachers?
