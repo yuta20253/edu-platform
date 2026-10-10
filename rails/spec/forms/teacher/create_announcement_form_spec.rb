@@ -465,9 +465,9 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
     context 'validな場合' do
       it 'serviceが呼ばれる' do
-        service = instance_double(Common::AnnouncementCreateService)
+        service = instance_double(Teacher::CreateAnnouncementService)
 
-        allow(Common::AnnouncementCreateService)
+        allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
           .with(
             publisher: teacher,
@@ -485,9 +485,9 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
 
       it 'trueを返す' do
-        service = instance_double(Common::AnnouncementCreateService, call: true)
+        service = instance_double(Teacher::CreateAnnouncementService, call: true)
 
-        allow(Common::AnnouncementCreateService)
+        allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
           .with(
             publisher: teacher,
@@ -509,12 +509,12 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
 
       it 'serviceが呼ばれない' do
-        allow(Common::AnnouncementCreateService)
+        allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
 
         form.save
 
-        expect(Common::AnnouncementCreateService)
+        expect(Teacher::CreateAnnouncementService)
           .not_to have_received(:new)
       end
     end
