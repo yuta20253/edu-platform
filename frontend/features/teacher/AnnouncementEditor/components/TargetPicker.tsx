@@ -16,6 +16,7 @@ import { useCallback, useEffect } from "react";
 import {
   Controller,
   useFieldArray,
+  useFormState,
   useWatch,
   type Control,
   type UseFieldArrayUpdate,
@@ -27,10 +28,29 @@ import {
 } from "../constants";
 import type {
   AnnouncementFormValues,
+  AnnouncementTargetInput,
   AnnouncementTargetOptions,
   TargetType,
 } from "../types";
 import { StudentPicker } from "./StudentPicker";
+
+const targetKey = (target: AnnouncementTargetInput) =>
+  [
+    target.target_type,
+    target.grade_id ?? "",
+    target.user_role_id ?? "",
+    target.user_id ?? "",
+  ].join(":");
+
+// 配信先全体の検証。各行の未選択はController側のrulesで検証する。
+const validateTargets = (targets: AnnouncementTargetInput[]) => {
+  if (targets.length === 0) return "配信先を1つ以上指定してください";
+
+  const keys = targets.map(targetKey);
+  if (new Set(keys).size !== keys.length) return "同じ配信先が重複しています";
+
+  return true;
+};
 
 type Props = {
   control: Control<AnnouncementFormValues>;
@@ -101,12 +121,15 @@ const TargetRow = ({
         <Controller
           name={`targets.${index}.grade_id`}
           control={control}
-          render={({ field }) => (
+          rules={{ required: "学年を選択してください" }}
+          render={({ field, fieldState }) => (
             <TextField
               select
               label="学年"
               value={field.value ?? ""}
               onChange={(e) => field.onChange(Number(e.target.value))}
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
               sx={{ minWidth: 160 }}
             >
               {(options?.grades ?? []).map((grade) => (
@@ -124,12 +147,15 @@ const TargetRow = ({
         <Controller
           name={`targets.${index}.user_role_id`}
           control={control}
-          render={({ field }) => (
+          rules={{ required: "権限を選択してください" }}
+          render={({ field, fieldState }) => (
             <TextField
               select
               label="権限"
               value={field.value ?? ""}
               onChange={(e) => field.onChange(Number(e.target.value))}
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
               sx={{ minWidth: 160 }}
             >
               {(options?.user_roles ?? []).map((role) => (
@@ -157,7 +183,10 @@ export const TargetPicker = ({ control, options }: Props) => {
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: "targets",
+    rules: { validate: validateTargets },
   });
+  const { errors } = useFormState({ control, name: "targets" });
+  const targetsError = errors.targets?.root?.message;
 
   return (
     <Card
@@ -180,6 +209,15 @@ export const TargetPicker = ({ control, options }: Props) => {
             />
           ))}
         </Stack>
+        {targetsError && (
+          <Typography
+            variant="body2"
+            role="alert"
+            sx={{ mt: 1.5, color: colors.status.error }}
+          >
+            {targetsError}
+          </Typography>
+        )}
         <Button
           sx={{ mt: 2 }}
           onClick={() => append({ target_type: "all_users" })}

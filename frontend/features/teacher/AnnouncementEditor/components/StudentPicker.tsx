@@ -38,11 +38,14 @@ export const StudentPicker = ({ control, index }: Props) => {
       <Controller
         name={`targets.${index}.user_id`}
         control={control}
-        render={({ field }) => (
+        rules={{ required: "生徒を選択してください" }}
+        render={({ field, fieldState }) => (
           <TextField
             select
             label="生徒"
             value={field.value ?? ""}
+            error={!!fieldState.error}
+            helperText={fieldState.error?.message}
             onChange={(e) => {
               const id = Number(e.target.value);
               setSelected(menuStudents.find((s) => s.id === id) ?? null);
