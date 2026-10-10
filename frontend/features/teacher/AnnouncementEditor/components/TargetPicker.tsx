@@ -120,7 +120,8 @@ const TargetRow = ({
         />
       )}
 
-      {targetType === "by_role" && (
+      {/* by_gradeも「学年×権限」(例: 1年の生徒)で配信するため権限の指定が必要 */}
+      {(targetType === "by_role" || targetType === "by_grade") && (
         <Controller
           name={`targets.${index}.user_role_id`}
           control={control}
