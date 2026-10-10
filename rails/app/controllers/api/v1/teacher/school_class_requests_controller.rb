@@ -95,22 +95,22 @@ module Api
         end
 
         def school_class_requests_scope
-          @school_class_requests = SchoolClassRequest
-                                   .includes(
-                                     :school_class,
-                                     :applicant,
-                                     :approver,
-                                     :grade
-                                   )
-                                   .joins(:grade)
-                                   .where(grades: { high_school_id: current_user.high_school_id })
-                                   .order(created_at: :desc)
+          school_class_requests = SchoolClassRequest
+                                  .includes(
+                                    :school_class,
+                                    :applicant,
+                                    :approver,
+                                    :grade
+                                  )
+                                  .joins(:grade)
+                                  .where(grades: { high_school_id: current_user.high_school_id })
+                                  .order(created_at: :desc)
 
-          @school_class_requests = @school_class_requests.where(status: params[:status]) if params[:status].present?
+          school_class_requests = school_class_requests.where(status: params[:status]) if params[:status].present?
           unless manage_other_teachers?
-            @school_class_requests = @school_class_requests.where(applicant_id: current_user.id)
+            school_class_requests = school_class_requests.where(applicant_id: current_user.id)
           end
-          @school_class_requests
+          school_class_requests
         end
 
         def destroy_school_class_params
