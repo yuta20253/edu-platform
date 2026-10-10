@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { GradesTab } from "./GradesTab";
@@ -17,12 +17,13 @@ describe("GradesTab", () => {
     vi.clearAllMocks();
   });
 
-  it("データ取得中はローディングスピナーが表示される", () => {
+  it("データ取得中はスケルトンが表示される（スピナーは使わない）", () => {
     vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
 
-    render(<GradesTab schoolId={1} />);
+    const { container } = render(<GradesTab schoolId={1} />);
 
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    expect(container.querySelector(".MuiSkeleton-root")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
   it("学年一覧が表示される", async () => {
@@ -46,8 +47,21 @@ describe("GradesTab", () => {
 
     render(<GradesTab schoolId={1} />);
 
+    expect(await screen.findByText("学年がまだありません")).toBeInTheDocument();
+  });
+
+  it("取得に失敗したらエラーを表示し、再試行で再取得する", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValue({ data: { grades: [] } });
+
+    render(<GradesTab schoolId={1} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "再試行" }));
+
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(2));
     expect(
-      await screen.findByText("学年が登録されていません"),
-    ).toBeInTheDocument();
+      screen.queryByText("データの取得に失敗しました"),
+    ).not.toBeInTheDocument();
   });
 });

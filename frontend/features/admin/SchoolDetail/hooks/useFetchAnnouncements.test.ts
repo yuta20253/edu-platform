@@ -101,4 +101,31 @@ describe("useFetchAnnouncements", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
+
+  it("非401エラー時は error が true になり、refetch で再取得できる", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({
+        data: {
+          announcements: [],
+          meta: {
+            current_page: 1,
+            total_pages: 1,
+            total_count: 0,
+            per_page: 20,
+          },
+        },
+      });
+
+    const { result } = renderHook(() => useFetchAnnouncements(1));
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(pushMock).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.refetch();
+    });
+
+    await waitFor(() => expect(result.current.error).toBe(false));
+    expect(apiClient.get).toHaveBeenCalledTimes(2);
+  });
 });

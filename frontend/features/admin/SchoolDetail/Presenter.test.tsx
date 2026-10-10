@@ -179,7 +179,7 @@ describe("SchoolDetailPresenter", () => {
       render(<Presenter {...defaultProps} />);
       fireEvent.click(screen.getByRole("tab", { name: "学年・クラス" }));
       expect(
-        await screen.findByText("学年が登録されていません"),
+        await screen.findByText("学年がまだありません"),
       ).toBeInTheDocument();
     });
   });
@@ -189,7 +189,7 @@ describe("SchoolDetailPresenter", () => {
       render(<Presenter {...defaultProps} />);
       fireEvent.click(screen.getByRole("tab", { name: "お知らせ" }));
       expect(
-        await screen.findByText("お知らせがありません"),
+        await screen.findByText("お知らせがまだありません"),
       ).toBeInTheDocument();
     });
   });

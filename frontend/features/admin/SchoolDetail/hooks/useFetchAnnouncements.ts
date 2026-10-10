@@ -5,18 +5,17 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { extractApiError } from "@/libs/http/extractApiError";
-import type {
-  Announcement,
-  AnnouncementsData,
-  AnnouncementsMeta,
-} from "../types";
+import type { PaginationMeta } from "@/types/common/pagination";
+import type { Announcement, AnnouncementsData } from "../types";
 
 // お知らせ一覧をページネーション付きで取得するフック。
 export const useFetchAnnouncements = (schoolId: number) => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [meta, setMeta] = useState<AnnouncementsMeta | null>(null);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -25,6 +24,7 @@ export const useFetchAnnouncements = (schoolId: number) => {
     const controller = new AbortController();
 
     setLoading(true);
+    setError(false);
 
     apiClient
       .get<AnnouncementsData>(`/api/admin/schools/${schoolId}/announcements`, {
@@ -39,7 +39,9 @@ export const useFetchAnnouncements = (schoolId: number) => {
         if (axios.isCancel(err)) return;
         if (extractApiError(err).status === 401) {
           router.push("/login");
+          return;
         }
+        setError(true);
       })
       .finally(() => {
         if (controller.signal.aborted) return;
@@ -49,7 +51,9 @@ export const useFetchAnnouncements = (schoolId: number) => {
     return () => {
       controller.abort();
     };
-  }, [schoolId, page, router]);
+  }, [schoolId, page, router, reloadKey]);
 
-  return { announcements, meta, page, setPage, loading };
+  const refetch = () => setReloadKey((prev) => prev + 1);
+
+  return { announcements, meta, page, setPage, loading, error, refetch };
 };
