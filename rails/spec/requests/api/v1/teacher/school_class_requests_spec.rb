@@ -217,6 +217,45 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
 
+    describe '操作できるかどうか(can_process / can_cancel)' do
+      let!(:own_request) do
+        create(:school_class_request, applicant: teacher, grade: grade, action: :creation, status: :pending,
+                                      name: 'F組')
+      end
+
+      def fetch_permissions(request)
+        get "/api/v1/teacher/school_class_requests/#{request.id}", headers: headers.merge('Cookie' => cookie)
+
+        response.parsed_body.slice('can_process', 'can_cancel')
+      end
+
+      context '承認権限がある場合' do
+        it '他の教員の承認待ちの申請は、承認/却下できて取り消せない' do
+          expect(fetch_permissions(school_class_request)).to eq('can_process' => true, 'can_cancel' => false)
+        end
+
+        it '自分の承認待ちの申請は、承認/却下できず取り消せる' do
+          expect(fetch_permissions(own_request)).to eq('can_process' => false, 'can_cancel' => true)
+        end
+
+        it '処理済みの申請は、承認/却下も取消もできない' do
+          school_class_request.update_column(:status, SchoolClassRequest.statuses[:rejected])
+          own_request.update_column(:status, SchoolClassRequest.statuses[:cancelled])
+
+          expect(fetch_permissions(school_class_request)).to eq('can_process' => false, 'can_cancel' => false)
+          expect(fetch_permissions(own_request)).to eq('can_process' => false, 'can_cancel' => false)
+        end
+      end
+
+      context '承認権限がない場合' do
+        before { teacher_permission.update!(manage_other_teachers: false) }
+
+        it '自分の承認待ちの申請は、承認/却下できず取り消せる' do
+          expect(fetch_permissions(own_request)).to eq('can_process' => false, 'can_cancel' => true)
+        end
+      end
+    end
+
     context '他校の申請の場合' do
       let!(:other_high_school) { create(:high_school) }
       let!(:other_grade) { create(:grade, high_school: other_high_school) }
