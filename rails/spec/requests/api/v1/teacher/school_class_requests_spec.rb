@@ -208,6 +208,14 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         )
       end
 
+      it 'statusパラメータを付けても、申請のstatusに関係なく取得できる' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            params: { status: 'approved' },
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
       it '新設の申請ではschool_classがnullで返る' do
         creation_request = create(:school_class_request, applicant: other_teacher, grade: grade, action: :creation,
                                                          status: :pending, name: 'E組')
