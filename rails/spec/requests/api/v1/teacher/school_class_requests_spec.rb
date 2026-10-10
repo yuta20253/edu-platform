@@ -73,6 +73,16 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
 
         expect(request_ids).to contain_exactly(own_request.id, other_teacher_request.id)
       end
+
+      it '申請日時の新しい順に返る' do
+        # id順(own_request → other_teacher_request)とは逆になるように作成日時をずらす
+        own_request.update_column(:created_at, 2.days.ago)
+        other_teacher_request.update_column(:created_at, 1.day.ago)
+
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to eq([other_teacher_request.id, own_request.id])
+      end
     end
 
     context '承認権限がない場合' do
