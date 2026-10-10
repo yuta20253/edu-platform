@@ -175,6 +175,25 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
           'approver' => nil
         )
       end
+
+      it '新設の申請ではschool_classがnullで返る' do
+        creation_request = create(:school_class_request, applicant: other_teacher, grade: grade, action: :creation,
+                                                         status: :pending, name: 'E組')
+
+        get "/api/v1/teacher/school_class_requests/#{creation_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['school_class']).to be_nil
+      end
+
+      it '承認済みの申請では承認者が返る' do
+        school_class_request.update_columns(status: SchoolClassRequest.statuses[:approved], approver_id: teacher.id)
+
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['approver']).to eq('id' => teacher.id, 'name' => teacher.name)
+      end
     end
 
     context '承認権限がない場合' do
