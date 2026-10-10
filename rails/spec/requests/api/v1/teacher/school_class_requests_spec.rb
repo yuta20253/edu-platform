@@ -39,6 +39,43 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
     response.headers['Set-Cookie']&.split(';')&.first
   end
 
+  describe 'GET /api/v1/teacher/school_class_requests' do
+    let!(:other_teacher) { create(:user, :teacher, high_school: high_school) }
+    let!(:own_request) do
+      create(:school_class_request, applicant: teacher, grade: grade, action: :creation, status: :pending, name: '1組')
+    end
+    let!(:other_teacher_request) do
+      create(:school_class_request, applicant: other_teacher, grade: grade, action: :creation, status: :pending,
+                                    name: '2組')
+    end
+
+    let!(:other_high_school) { create(:high_school) }
+    let!(:other_grade) { create(:grade, high_school: other_high_school) }
+    let!(:other_school_teacher) { create(:user, :teacher, high_school: other_high_school) }
+    let!(:other_school_request) do
+      create(:school_class_request, applicant: other_school_teacher, grade: other_grade, action: :creation,
+                                    status: :pending, name: '3組')
+    end
+
+    def request_ids
+      response.parsed_body['school_class_requests'].pluck('id')
+    end
+
+    context '承認権限がある場合' do
+      it '200が返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '同じ高校の全教員の申請が返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to contain_exactly(own_request.id, other_teacher_request.id)
+      end
+    end
+  end
+
   describe 'POST /api/v1/teacher/school_class_requests' do
     let(:params) do
       {
