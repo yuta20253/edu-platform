@@ -176,6 +176,60 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         )
       end
     end
+
+    context '承認権限がない場合' do
+      before { teacher_permission.update!(manage_other_teachers: false) }
+
+      it '自分の申請は取得できる' do
+        own_request = create(:school_class_request, applicant: teacher, grade: grade, action: :creation,
+                                                    status: :pending, name: 'C組')
+
+        get "/api/v1/teacher/school_class_requests/#{own_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '他の教員の申請は404が返る' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '他校の申請の場合' do
+      let!(:other_high_school) { create(:high_school) }
+      let!(:other_grade) { create(:grade, high_school: other_high_school) }
+      let!(:other_school_teacher) { create(:user, :teacher, high_school: other_high_school) }
+      let!(:other_school_request) do
+        create(:school_class_request, applicant: other_school_teacher, grade: other_grade, action: :creation,
+                                      status: :pending, name: 'D組')
+      end
+
+      it '404が返る' do
+        get "/api/v1/teacher/school_class_requests/#{other_school_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '存在しない申請の場合' do
+      it '404が返る' do
+        get '/api/v1/teacher/school_class_requests/999999', headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '未認証の場合' do
+      it 'アクセスできない' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}", headers: headers
+
+        expect(response).not_to have_http_status(:ok)
+      end
+    end
   end
 
   describe 'POST /api/v1/teacher/school_class_requests' do
