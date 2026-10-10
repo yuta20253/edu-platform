@@ -1,13 +1,14 @@
 "use client";
 
-import { Alert, Box, Button, CircularProgress } from "@mui/material";
-import { useState } from "react";
+import { Box } from "@mui/material";
+import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { useToast } from "@/components/ui/ToastProvider";
 import { Presenter } from "./Presenter";
 import { useFetchAdminDetail } from "./hooks/useFetchAdminDetail";
 import { useUpdateAdmin } from "./hooks/useUpdateAdmin";
 import { useDeleteAdmin } from "./hooks/useDeleteAdmin";
 import { usePasswordReset } from "./hooks/usePasswordReset";
-import type { SnackbarState } from "./types";
 import type { Prefecture } from "@/types/common/prefecture";
 
 type Props = {
@@ -20,18 +21,12 @@ type Props = {
   prefectures: Prefecture[];
 };
 
-const initialSnackbar: SnackbarState = {
-  open: false,
-  message: "",
-  severity: "success",
-};
-
 export const AdminDetail = ({
   adminId,
   currentAdminId,
   prefectures,
 }: Props) => {
-  const [snackbar, setSnackbar] = useState<SnackbarState>(initialSnackbar);
+  const toast = useToast();
 
   const { admin, setAdmin, fetchError, refetch } = useFetchAdminDetail(adminId);
 
@@ -40,11 +35,7 @@ export const AdminDetail = ({
     onUpdated: (updated) => {
       // PATCH レスポンスの最新 admin で表示を更新する（再取得しない）
       setAdmin(updated);
-      setSnackbar({
-        open: true,
-        message: "管理者を更新しました",
-        severity: "success",
-      });
+      toast.show({ message: "管理者を更新しました" });
     },
   });
 
@@ -61,51 +52,26 @@ export const AdminDetail = ({
     adminId,
     email: admin?.email ?? "",
     onSuccess: () =>
-      setSnackbar({
-        open: true,
-        message: "パスワード再設定メールを送信しました",
-        severity: "success",
-      }),
+      toast.show({ message: "パスワード再設定メールを送信しました" }),
     onError: () =>
-      setSnackbar({
-        open: true,
+      toast.show({
         message: "パスワード再設定メールの送信に失敗しました",
         severity: "error",
       }),
   });
 
-  const handleSnackbarClose = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
   if (fetchError) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={refetch}>
-              再試行
-            </Button>
-          }
-        >
-          {fetchError}
-        </Alert>
+        <ErrorState message={fetchError} onRetry={refetch} />
       </Box>
     );
   }
 
   if (!admin) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <CardSkeleton lines={6} />
       </Box>
     );
   }
@@ -126,8 +92,6 @@ export const AdminDetail = ({
       onDeleteConfirm={handleDeleteConfirm}
       deleting={deleting}
       deleteErrors={deleteErrors}
-      snackbar={snackbar}
-      onSnackbarClose={handleSnackbarClose}
     />
   );
 };
