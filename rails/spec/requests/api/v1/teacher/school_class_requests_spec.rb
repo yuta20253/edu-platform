@@ -970,38 +970,82 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
 
-    context '申請がpendingではない場合' do
-      let(:status) { 'approved' }
-
-      before do
-        school_class_request.update!(status: :approved)
-      end
-
-      it '200が返る' do
+    shared_examples '処理済みの申請として409を返す' do
+      it '409が返る' do
         patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
               params: request_params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+              headers: headers.merge('Cookie' => approver_cookie)
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:conflict)
+      end
+
+      it '処理済みであることを示すエラーメッセージが返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response.parsed_body['errors']).to include('この申請はすでに処理されています。再読み込みしてください')
       end
 
       it '申請が更新されない' do
         expect do
           patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
                 params: request_params.to_json,
-                headers: headers.merge('Cookie' => cookie)
-        end.not_to(change do
-          school_class_request.reload.status
-        end)
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to(change { school_class_request.reload.attributes })
       end
 
       it '学級が作成されない' do
         expect do
           patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
                 params: request_params.to_json,
-                headers: headers.merge('Cookie' => cookie)
+                headers: headers.merge('Cookie' => approver_cookie)
         end.not_to change(SchoolClass, :count)
       end
+    end
+
+    context '申請がpendingではない場合(最新のlock_versionを送った場合)' do
+      let(:status) { 'approved' }
+
+      before do
+        school_class_request.update!(status: :approved)
+      end
+
+      it_behaves_like '処理済みの申請として409を返す'
+    end
+
+    context '他の教員が先に処理した場合' do
+      let(:status) { 'approved' }
+      # 画面を開いた時点のlock_versionを送る
+      let!(:request_lock_version) { school_class_request.lock_version }
+      let!(:other_approver) do
+        create(:user, :teacher, high_school: high_school).tap do |user|
+          create(:teacher_permission, user: user, manage_other_teachers: true)
+        end
+      end
+
+      before do
+        ::Teacher::ProcessSchoolClassRequestService.new(
+          user: other_approver,
+          id: school_class_request.id,
+          status: 'rejected',
+          lock_version: request_lock_version
+        ).call
+      end
+
+      it_behaves_like '処理済みの申請として409を返す'
+    end
+
+    context '申請者が先に取り消した場合' do
+      let(:status) { 'approved' }
+      # 画面を開いた時点のlock_versionを送る
+      let!(:request_lock_version) { school_class_request.lock_version }
+
+      before do
+        ::Teacher::CancelSchoolClassRequestService.new(user: teacher, id: school_class_request.id).call
+      end
+
+      it_behaves_like '処理済みの申請として409を返す'
     end
 
     context 'lock_versionが古い場合' do
