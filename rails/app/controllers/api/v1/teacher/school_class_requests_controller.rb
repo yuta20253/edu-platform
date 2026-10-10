@@ -10,6 +10,7 @@ module Api
 
         before_action -> { require_manage_other_teachers!('承認権限がないユーザーです') }, only: :update
         before_action :require_valid_update_status!, only: :update
+        before_action :require_lock_version!, only: :update
 
         def index
           school_class_requests = school_class_requests_scope.page(sanitized_page).per(sanitized_per_page)
@@ -111,6 +112,12 @@ module Api
           return if update_school_class_params[:status].in?(ALLOWED_UPDATE_STATUSES)
 
           render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
+        end
+
+        def require_lock_version!
+          return if update_school_class_params[:lock_version].present?
+
+          render json: { errors: ['lock_versionは必須です'] }, status: :unprocessable_content
         end
       end
     end
