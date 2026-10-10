@@ -1,3 +1,4 @@
+import type { PaginationMeta } from "@/types/common/pagination";
 import type {
   CourseOption,
   ImportMode,
@@ -25,16 +26,9 @@ export type ImportHistoryRow = {
   created_at: string;
 };
 
-export type ImportHistoryMeta = {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  per_page: number;
-};
-
 export type ImportHistoriesData = {
   import_histories: ImportHistoryRow[];
-  meta: ImportHistoryMeta;
+  meta: PaginationMeta;
 };
 
 export type ImportHistorySort =
@@ -54,5 +48,3 @@ export type ImportHistoryFilters = {
   from: string;
   to: string;
 };
-
-export const PER_PAGE_OPTIONS = [20, 50, 100] as const;
