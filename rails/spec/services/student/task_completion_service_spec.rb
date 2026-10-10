@@ -206,6 +206,58 @@ RSpec.describe Student::TaskCompletionService, type: :model do
       end
     end
 
+    context '解答済みの問題が論理削除された場合' do
+      before do
+        create(
+          :question_history,
+          user: user,
+          task: task,
+          course: course,
+          unit: unit_one,
+          question: question_one,
+          question_choice: choice_one,
+          answered_at: Time.current
+        )
+
+        create(
+          :question_history,
+          user: user,
+          task: task,
+          course: course,
+          unit: unit_two,
+          question: question_three,
+          question_choice: choice_three,
+          answered_at: Time.current
+        )
+
+        question_two.update_columns(deleted_at: Time.current)
+      end
+
+      it '削除された問題を分母から除き、completedを返す' do
+        expect(service.call).to eq(:completed)
+      end
+    end
+
+    context '唯一の解答履歴が論理削除されている場合' do
+      before do
+        create(
+          :question_history,
+          user: user,
+          task: task,
+          course: course,
+          unit: unit_one,
+          question: question_one,
+          question_choice: choice_one,
+          answered_at: Time.current,
+          deleted_at: Time.current
+        )
+      end
+
+      it '論理削除された履歴は解答済みに数えず、not_startedを返す' do
+        expect(service.call).to eq(:not_started)
+      end
+    end
+
     context '既存履歴が更新されている場合' do
       let!(:question_history) do
         create(
