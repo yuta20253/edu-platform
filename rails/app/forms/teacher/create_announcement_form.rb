@@ -11,9 +11,12 @@ module Teacher
     attribute :title, :string
     attribute :content, :string
     attribute :announcement_targets
+    attribute :status, :string
+    attribute :scheduled_at, :datetime
     validates :title, presence: true
     validates :content, presence: true, length: { maximum: 10_000 }
     validates :announcement_targets, presence: true
+    validates :status, inclusion: { in: Announcement.statuses.keys }, allow_blank: true
 
     validate :announcement_targets_must_be_array
     validate :target_types_must_be_valid
@@ -38,7 +41,8 @@ module Teacher
         publisher: current_user,
         title: title,
         content: content,
-        announcement_targets: announcement_targets
+        announcement_targets: announcement_targets,
+        delivery: { status: status.presence, scheduled_at: scheduled_at }
       ).call
       true
     end
