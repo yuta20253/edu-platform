@@ -141,6 +141,43 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
     end
   end
 
+  describe 'GET /api/v1/teacher/school_class_requests/:id' do
+    let!(:other_teacher) { create(:user, :teacher, high_school: high_school, name: '申請 太郎') }
+    let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
+    let!(:school_class_request) do
+      create(:school_class_request, applicant: other_teacher, grade: grade, school_class: school_class,
+                                    action: :modification, status: :pending, name: 'B組',
+                                    approved_at: nil, cancelled_at: nil)
+    end
+
+    context '承認権限がある場合' do
+      it '200が返る' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '申請の詳細が返る' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body).to include(
+          'id' => school_class_request.id,
+          'action' => 'modification',
+          'status' => 'pending',
+          'name' => 'B組',
+          'reason' => nil,
+          'lock_version' => school_class_request.lock_version,
+          'grade' => { 'id' => grade.id, 'year' => grade.year, 'display_name' => grade.display_name },
+          'school_class' => { 'id' => school_class.id, 'name' => 'A組' },
+          'applicant' => { 'id' => other_teacher.id, 'name' => '申請 太郎' },
+          'approver' => nil
+        )
+      end
+    end
+  end
+
   describe 'POST /api/v1/teacher/school_class_requests' do
     let(:params) do
       {
