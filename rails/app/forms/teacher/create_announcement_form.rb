@@ -17,7 +17,7 @@ module Teacher
 
     validate :announcement_targets_must_be_array
     validate :target_types_must_be_valid
-    validate :grade_scope_validation
+    validates_with ::Teacher::AnnouncementGradeScopeValidator
     validate :grade_ids_must_exist
     validate :user_role_ids_must_exist
     validate :user_ids_must_exist
@@ -73,17 +73,6 @@ module Teacher
         next if valid_types.include?(target['target_type'])
 
         errors.add(:base, '不正なtarget_typeが含まれています')
-      end
-    end
-
-    def grade_scope_validation
-      restriction = current_user.own_grade_restriction
-      return if restriction.nil?
-
-      targets_of_type('by_grade').each do |target|
-        next if target['grade_id'].to_i == restriction
-
-        errors.add(:announcement_targets, '指定できない学年です')
       end
     end
 
