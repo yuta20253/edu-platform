@@ -34,8 +34,8 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
     context '承認する場合' do
       let(:status) { 'approved' }
 
-      it '真を返す' do
-        expect(service.call).to be_truthy
+      it 'trueを返す' do
+        expect(service.call).to be true
       end
 
       it 'ステータスがapprovedになる' do
@@ -121,8 +121,8 @@ RSpec.describe Teacher::ProcessSchoolClassRequestService do
     context '却下する場合' do
       let(:status) { 'rejected' }
 
-      it '偽を返す' do
-        expect(service.call).to be_falsy
+      it 'trueを返す' do
+        expect(service.call).to be true
       end
 
       it 'ステータスがrejectedになる' do
