@@ -83,6 +83,29 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
 
         expect(request_ids).to eq([other_teacher_request.id, own_request.id])
       end
+
+      context 'statusを指定した場合' do
+        before { other_teacher_request.update_column(:status, SchoolClassRequest.statuses[:rejected]) }
+
+        it '指定したstatusの申請だけが返る' do
+          get '/api/v1/teacher/school_class_requests',
+              params: { status: 'rejected' },
+              headers: headers.merge('Cookie' => cookie)
+
+          expect(request_ids).to contain_exactly(other_teacher_request.id)
+        end
+      end
+
+      context '存在しないstatusを指定した場合' do
+        it '申請が1件も返らない' do
+          get '/api/v1/teacher/school_class_requests',
+              params: { status: 'unknown' },
+              headers: headers.merge('Cookie' => cookie)
+
+          expect(response).to have_http_status(:ok)
+          expect(request_ids).to be_empty
+        end
+      end
     end
 
     context '承認権限がない場合' do
