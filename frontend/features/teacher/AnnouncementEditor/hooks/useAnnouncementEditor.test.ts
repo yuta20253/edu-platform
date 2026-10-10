@@ -26,7 +26,7 @@ describe("useAnnouncementEditor", () => {
     vi.clearAllMocks();
   });
 
-  it("下書き保存はPOSTのみで一覧へ遷移する", async () => {
+  it("下書き保存はstatus: draftでPOSTし一覧へ遷移する", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({
       data: { announcement_id: 1 },
     });
@@ -40,16 +40,15 @@ describe("useAnnouncementEditor", () => {
       title: "お知らせ",
       content: "本文",
       announcement_targets: baseValues.targets,
+      status: "draft",
     });
-    expect(apiClient.patch).not.toHaveBeenCalled();
     expect(pushMock).toHaveBeenCalledWith("/teacher/announcements");
   });
 
-  it("即時公開はPOST後にPATCHでstatus: publishedを送る", async () => {
+  it("即時配信はstatus: publishedを付けて1回のPOSTで作成する", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({
       data: { announcement_id: 5 },
     });
-    vi.mocked(apiClient.patch).mockResolvedValue({ data: {} });
     const { result } = renderHook(() => useAnnouncementEditor());
 
     await act(async () => {
@@ -59,23 +58,21 @@ describe("useAnnouncementEditor", () => {
       });
     });
 
+    expect(apiClient.post).toHaveBeenCalledTimes(1);
     expect(apiClient.post).toHaveBeenCalledWith("/api/teacher/announcements", {
       title: "お知らせ",
       content: "本文",
       announcement_targets: baseValues.targets,
+      status: "published",
     });
-    expect(apiClient.patch).toHaveBeenCalledWith(
-      "/api/teacher/announcements/5",
-      { status: "published" },
-    );
+    expect(apiClient.patch).not.toHaveBeenCalled();
     expect(pushMock).toHaveBeenCalledWith("/teacher/announcements");
   });
 
-  it("予約投稿はPOST後にPATCHでstatus: scheduledとscheduled_atを送る", async () => {
+  it("予約配信はstatus: scheduledとscheduled_atを付けて1回のPOSTで作成する", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({
       data: { announcement_id: 7 },
     });
-    vi.mocked(apiClient.patch).mockResolvedValue({ data: {} });
     const { result } = renderHook(() => useAnnouncementEditor());
     const scheduledAt = new Date("2099-01-01T00:00:00.000Z");
 
@@ -87,10 +84,15 @@ describe("useAnnouncementEditor", () => {
       });
     });
 
-    expect(apiClient.patch).toHaveBeenCalledWith(
-      "/api/teacher/announcements/7",
-      { status: "scheduled", scheduled_at: scheduledAt.toISOString() },
-    );
+    expect(apiClient.post).toHaveBeenCalledTimes(1);
+    expect(apiClient.post).toHaveBeenCalledWith("/api/teacher/announcements", {
+      title: "お知らせ",
+      content: "本文",
+      announcement_targets: baseValues.targets,
+      status: "scheduled",
+      scheduled_at: scheduledAt.toISOString(),
+    });
+    expect(apiClient.patch).not.toHaveBeenCalled();
     expect(pushMock).toHaveBeenCalledWith("/teacher/announcements");
   });
 
@@ -111,14 +113,11 @@ describe("useAnnouncementEditor", () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
-  it("ステータス更新時に422エラーが返るとsubmitErrorに反映され遷移しない", async () => {
-    vi.mocked(apiClient.post).mockResolvedValue({
-      data: { announcement_id: 1 },
-    });
-    vi.mocked(apiClient.patch).mockRejectedValue({
+  it("配信時に422エラーが返るとsubmitErrorに反映され遷移しない", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
       response: {
         status: 422,
-        data: { errors: ["予約日時は未来を指定してください"] },
+        data: { errors: ["配信日時 は未来日時を指定してください"] },
       },
     });
     const { result } = renderHook(() => useAnnouncementEditor());
@@ -131,8 +130,10 @@ describe("useAnnouncementEditor", () => {
       });
     });
 
-    expect(result.current.submitError).toBe("予約日時は未来を指定してください");
-    expect(pushMock).not.toHaveBeenCalledWith("/teacher/announcements");
+    expect(result.current.submitError).toBe(
+      "配信日時 は未来日時を指定してください",
+    );
+    expect(pushMock).not.toHaveBeenCalled();
   });
 
   it("401エラー時はログイン画面へ遷移する", async () => {
