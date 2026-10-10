@@ -16,7 +16,7 @@ module Api
 
           render json: {
             school_class_requests: ActiveModelSerializers::SerializableResource.new(
-              school_class_requests
+              school_class_requests, each_serializer: ::Teacher::SchoolClassRequestSerializer
             ),
             meta: {
               current_page: school_class_requests.current_page,
@@ -25,6 +25,12 @@ module Api
               per_page: school_class_requests.limit_value
             }
           }, status: :ok
+        end
+
+        def show
+          school_class_request = school_class_requests_scope.find(params[:id])
+
+          render json: school_class_request, serializer: ::Teacher::SchoolClassRequestSerializer , status: :ok
         end
 
         def create

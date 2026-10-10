@@ -63,7 +63,7 @@ Rails.application.routes.draw do
         resources :teacher_notification_results
         resources :grades, only: :index
         resources :school_classes, only: [:index, :show]
-        resources :school_class_requests, only: [:index, :create, :update, :destroy]
+        resources :school_class_requests, only: [:index, :show, :create, :update, :destroy]
         resources :interview_requests, only: [:index, :show, :create, :update, :destroy] do
           resources :messages, only: [:index, :create], controller: 'interview_request_messages'
         end
