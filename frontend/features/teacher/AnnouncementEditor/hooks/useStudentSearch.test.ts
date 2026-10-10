@@ -3,8 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useStudentSearch } from "./useStudentSearch";
 
+const routerMock = { push: vi.fn() };
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => routerMock,
 }));
 
 vi.mock("@/libs/http/apiClient", () => ({
@@ -53,7 +54,10 @@ describe("useStudentSearch", () => {
     expect(apiClient.get).toHaveBeenCalledTimes(2);
     expect(apiClient.get).toHaveBeenLastCalledWith(
       "/api/teacher/announcements/new",
-      { params: { page: "1", keyword: "やま" }, signal: expect.any(AbortSignal) },
+      {
+        params: { page: "1", keyword: "やま" },
+        signal: expect.any(AbortSignal),
+      },
     );
   });
 

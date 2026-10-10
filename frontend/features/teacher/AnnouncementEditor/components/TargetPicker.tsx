@@ -30,24 +30,17 @@ import type {
   AnnouncementTargetOptions,
   TargetType,
 } from "../types";
+import { StudentPicker } from "./StudentPicker";
 
 type Props = {
   control: Control<AnnouncementFormValues>;
   options: AnnouncementTargetOptions | null;
-  studentKeyword: string;
-  onStudentKeywordChange: (keyword: string) => void;
-  studentPage: number;
-  onStudentPageChange: (page: number) => void;
 };
 
 type RowProps = {
   control: Control<AnnouncementFormValues>;
   index: number;
   options: AnnouncementTargetOptions | null;
-  studentKeyword: string;
-  onStudentKeywordChange: (keyword: string) => void;
-  studentPage: number;
-  onStudentPageChange: (page: number) => void;
   onUpdate: UseFieldArrayUpdate<AnnouncementFormValues, "targets">;
   onRemove: () => void;
 };
@@ -56,10 +49,6 @@ const TargetRow = ({
   control,
   index,
   options,
-  studentKeyword,
-  onStudentKeywordChange,
-  studentPage,
-  onStudentPageChange,
   onUpdate,
   onRemove,
 }: RowProps) => {
@@ -154,55 +143,7 @@ const TargetRow = ({
       )}
 
       {targetType === "by_user" && (
-        <Stack spacing={1}>
-          <TextField
-            label="生徒を検索"
-            value={studentKeyword}
-            onChange={(e) => onStudentKeywordChange(e.target.value)}
-          />
-          <Controller
-            name={`targets.${index}.user_id`}
-            control={control}
-            render={({ field }) => (
-              <TextField
-                select
-                label="生徒"
-                value={field.value ?? ""}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-                sx={{ minWidth: 220 }}
-              >
-                {(options?.students.items ?? []).map((student) => (
-                  <MenuItem key={student.id} value={student.id}>
-                    {student.name}({student.grade.display_name})
-                  </MenuItem>
-                ))}
-              </TextField>
-            )}
-          />
-          {(options?.students.meta.total_pages ?? 1) > 1 && (
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Button
-                size="small"
-                disabled={studentPage <= 1}
-                onClick={() => onStudentPageChange(studentPage - 1)}
-              >
-                前へ
-              </Button>
-              <Typography variant="body2" sx={{ color: colors.text.muted }}>
-                {studentPage} / {options?.students.meta.total_pages}
-              </Typography>
-              <Button
-                size="small"
-                disabled={
-                  studentPage >= (options?.students.meta.total_pages ?? 1)
-                }
-                onClick={() => onStudentPageChange(studentPage + 1)}
-              >
-                次へ
-              </Button>
-            </Stack>
-          )}
-        </Stack>
+        <StudentPicker control={control} index={index} />
       )}
 
       <IconButton aria-label="削除" onClick={onRemove}>
@@ -212,14 +153,7 @@ const TargetRow = ({
   );
 };
 
-export const TargetPicker = ({
-  control,
-  options,
-  studentKeyword,
-  onStudentKeywordChange,
-  studentPage,
-  onStudentPageChange,
-}: Props) => {
+export const TargetPicker = ({ control, options }: Props) => {
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: "targets",
@@ -241,10 +175,6 @@ export const TargetPicker = ({
               control={control}
               index={index}
               options={options}
-              studentKeyword={studentKeyword}
-              onStudentKeywordChange={onStudentKeywordChange}
-              studentPage={studentPage}
-              onStudentPageChange={onStudentPageChange}
               onUpdate={update}
               onRemove={() => remove(index)}
             />

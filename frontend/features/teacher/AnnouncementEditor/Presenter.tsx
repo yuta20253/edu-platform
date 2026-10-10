@@ -35,10 +35,6 @@ const CONTENT_MAX_LENGTH = 10_000;
 
 type Props = {
   options: AnnouncementTargetOptions | null;
-  studentKeyword: string;
-  onStudentKeywordChange: (keyword: string) => void;
-  studentPage: number;
-  onStudentPageChange: (page: number) => void;
   submitting: boolean;
   submitError: string | null;
   onSaveDraft: (values: AnnouncementFormValues) => void;
@@ -47,10 +43,6 @@ type Props = {
 
 export const Presenter = ({
   options,
-  studentKeyword,
-  onStudentKeywordChange,
-  studentPage,
-  onStudentPageChange,
   submitting,
   submitError,
   onSaveDraft,
@@ -149,14 +141,7 @@ export const Presenter = ({
             </CardContent>
           </Card>
 
-          <TargetPicker
-            control={control}
-            options={options}
-            studentKeyword={studentKeyword}
-            onStudentKeywordChange={onStudentKeywordChange}
-            studentPage={studentPage}
-            onStudentPageChange={onStudentPageChange}
-          />
+          <TargetPicker control={control} options={options} />
         </Stack>
 
         <Box sx={{ flex: "1 1 280px" }}>

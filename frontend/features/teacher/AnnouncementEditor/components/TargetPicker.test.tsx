@@ -8,8 +8,9 @@ import type {
   AnnouncementTargetOptions,
 } from "../types";
 
+const routerMock = { push: vi.fn() };
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => routerMock,
 }));
 
 vi.mock("@/libs/http/apiClient", () => ({
