@@ -246,6 +246,23 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
     end
 
+    context 'statusが不正な場合' do
+      subject(:form) do
+        described_class.new(
+          current_user: teacher,
+          title: 'テストタイトル',
+          content: 'テスト内容',
+          announcement_targets: announcement_targets,
+          status: 'invalid'
+        )
+      end
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:status]).to be_present
+      end
+    end
+
     context 'by_gradeでgrade_idが存在しない場合' do
       let(:title) { 'テストタイトル' }
       let(:content) { 'テスト内容' }
@@ -473,7 +490,8 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
             publisher: teacher,
             title: title,
             content: content,
-            announcement_targets: announcement_targets
+            announcement_targets: announcement_targets,
+            delivery: { status: nil, scheduled_at: nil }
           )
           .and_return(service)
 
@@ -493,11 +511,40 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
             publisher: teacher,
             title: title,
             content: content,
-            announcement_targets: announcement_targets
+            announcement_targets: announcement_targets,
+            delivery: { status: nil, scheduled_at: nil }
           )
           .and_return(service)
 
         expect(form.save).to be true
+      end
+    end
+
+    context 'statusとscheduled_atを指定した場合' do
+      subject(:form) do
+        described_class.new(
+          current_user: teacher,
+          title: title,
+          content: content,
+          announcement_targets: announcement_targets,
+          status: 'scheduled',
+          scheduled_at: scheduled_at
+        )
+      end
+
+      let(:scheduled_at) { 1.day.from_now.change(usec: 0) }
+
+      it '配信タイミングをserviceに渡す' do
+        service = instance_double(Teacher::CreateAnnouncementService, call: true)
+
+        allow(Teacher::CreateAnnouncementService)
+          .to receive(:new)
+          .with(hash_including(delivery: { status: 'scheduled', scheduled_at: scheduled_at }))
+          .and_return(service)
+
+        form.save
+
+        expect(service).to have_received(:call)
       end
     end
 
