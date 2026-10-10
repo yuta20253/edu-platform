@@ -12,12 +12,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
   Controller,
-  useController,
   useFieldArray,
+  useWatch,
   type Control,
+  type UseFieldArrayUpdate,
 } from "react-hook-form";
 import {
   ALL_TARGET_TYPE_OPTIONS,
@@ -27,6 +28,7 @@ import {
 import type {
   AnnouncementFormValues,
   AnnouncementTargetOptions,
+  TargetType,
 } from "../types";
 
 type Props = {
@@ -46,6 +48,7 @@ type RowProps = {
   onStudentKeywordChange: (keyword: string) => void;
   studentPage: number;
   onStudentPageChange: (page: number) => void;
+  onUpdate: UseFieldArrayUpdate<AnnouncementFormValues, "targets">;
   onRemove: () => void;
 };
 
@@ -57,13 +60,19 @@ const TargetRow = ({
   onStudentKeywordChange,
   studentPage,
   onStudentPageChange,
+  onUpdate,
   onRemove,
 }: RowProps) => {
-  const { field: targetTypeField } = useController({
+  const targetType = useWatch({
     control,
     name: `targets.${index}.target_type`,
   });
-  const targetType = targetTypeField.value;
+
+  // 種類を変えたら前の種類で選んだ値(grade_id/user_idなど)が送られないよう行ごと置き換える
+  const changeTargetType = useCallback(
+    (value: TargetType) => onUpdate(index, { target_type: value }),
+    [onUpdate, index],
+  );
 
   const targetTypeOptions =
     options?.own_grade_restriction != null
@@ -75,8 +84,8 @@ const TargetRow = ({
   // その場合は選択可能な種類の先頭へ自動的に補正する。
   useEffect(() => {
     if (targetTypeOptions.some((opt) => opt.value === targetType)) return;
-    targetTypeField.onChange(targetTypeOptions[0].value);
-  }, [targetType, targetTypeOptions, targetTypeField]);
+    changeTargetType(targetTypeOptions[0].value);
+  }, [targetType, targetTypeOptions, changeTargetType]);
 
   return (
     <Stack
@@ -86,7 +95,8 @@ const TargetRow = ({
       flexWrap="wrap"
     >
       <TextField
-        {...targetTypeField}
+        value={targetType}
+        onChange={(e) => changeTargetType(e.target.value as TargetType)}
         select
         label="配信先の種類"
         sx={{ minWidth: 160 }}
@@ -210,7 +220,7 @@ export const TargetPicker = ({
   studentPage,
   onStudentPageChange,
 }: Props) => {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control,
     name: "targets",
   });
@@ -235,6 +245,7 @@ export const TargetPicker = ({
               onStudentKeywordChange={onStudentKeywordChange}
               studentPage={studentPage}
               onStudentPageChange={onStudentPageChange}
+              onUpdate={update}
               onRemove={() => remove(index)}
             />
           ))}
