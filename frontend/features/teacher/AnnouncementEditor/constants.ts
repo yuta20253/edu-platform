@@ -27,7 +27,8 @@ export const DELIVERY_TIMING_OPTIONS: {
   value: DeliveryTiming;
   label: string;
 }[] = [
-  { value: "draft", label: "下書き保存" },
+  // 「下書き保存」ボタンと紛らわしくならないよう文言を分ける
+  { value: "draft", label: "配信しない(下書き)" },
   { value: "immediate", label: "即時公開" },
   { value: "scheduled", label: "予約投稿" },
 ];

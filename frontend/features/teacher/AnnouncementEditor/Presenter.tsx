@@ -31,6 +31,7 @@ import type {
   AnnouncementTargetOptions,
 } from "./types";
 
+const TITLE_MAX_LENGTH = 255;
 const CONTENT_MAX_LENGTH = 10_000;
 
 type Props = {
@@ -127,6 +128,10 @@ export const Presenter = ({
                   {...register("title", {
                     validate: (value) =>
                       value.trim() !== "" || "タイトルを入力してください",
+                    maxLength: {
+                      value: TITLE_MAX_LENGTH,
+                      message: `タイトルは${TITLE_MAX_LENGTH}文字以内で入力してください`,
+                    },
                   })}
                   error={!!errors.title}
                   helperText={errors.title?.message}
