@@ -23,6 +23,6 @@ class TaskAnswerStatsQuery
   private
 
   def question_histories
-    QuestionHistory.on_active_questions.where(user: @user, task_id: @task_ids)
+    @user.question_histories.on_active_questions.where(task_id: @task_ids)
   end
 end
