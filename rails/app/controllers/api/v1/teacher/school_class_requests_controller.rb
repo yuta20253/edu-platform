@@ -11,6 +11,22 @@ module Api
         before_action -> { require_manage_other_teachers!('承認権限がないユーザーです') }, only: :update
         before_action :require_valid_update_status!, only: :update
 
+        def index
+          school_class_requests = school_class_requests_scope.page(sanitized_page).per(sanitized_per_page)
+
+          render json: {
+            school_class_requests: ActiveModelSerializers::SerializableResource.new(
+              school_class_requests
+            ),
+            meta: {
+              current_page: school_class_requests.current_page,
+              total_pages: school_class_requests.total_pages,
+              total_count: school_class_requests.total_count,
+              per_page: school_class_requests.limit_value
+            }
+          }, status: :ok
+        end
+
         def create
           form = ::Teacher::CreateSchoolClassRequestForm.new(
             user: current_user,
@@ -61,6 +77,15 @@ module Api
 
         def update_school_class_params
           params.require(:school_class_request).permit(:status, :lock_version, :reason)
+        end
+
+        def school_class_requests_scope
+          @school_class_requests = SchoolClassRequest
+            .joins(:grade)
+            .where(grades: { high_school_id: current_user.high_school_id })
+
+          @school_class_requests = @school_class_requests.where(status: params[:status]) if params[:status].present?
+          @school_class_requests
         end
 
         def destroy_school_class_params
