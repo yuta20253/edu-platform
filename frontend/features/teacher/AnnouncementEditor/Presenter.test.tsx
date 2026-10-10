@@ -86,6 +86,30 @@ describe("AnnouncementEditorPresenter", () => {
     expect(onSaveDraft).not.toHaveBeenCalled();
   });
 
+  it("タイトルが255字を超えるとエラーが表示される", async () => {
+    const onSaveDraft = vi.fn();
+    render(<Presenter {...defaultProps} onSaveDraft={onSaveDraft} />);
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
+      target: { value: "あ".repeat(256) },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "本文" }), {
+      target: { value: "本文" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+    expect(
+      await screen.findByText("タイトルは255文字以内で入力してください"),
+    ).toBeInTheDocument();
+    expect(onSaveDraft).not.toHaveBeenCalled();
+  });
+
+  it("配信タイミングの下書きは「下書き保存」ボタンと区別できる文言で表示される", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(
+      screen.getByRole("radio", { name: "配信しない(下書き)" }),
+    ).toBeChecked();
+  });
+
   it("本文が10,000字を超えるとエラーが表示される", async () => {
     render(<Presenter {...defaultProps} />);
     fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
