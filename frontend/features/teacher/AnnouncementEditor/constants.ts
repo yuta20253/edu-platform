@@ -14,8 +14,8 @@ export const ALL_TARGET_TYPE_OPTIONS: { value: TargetType; label: string }[] = [
 
 // 学年別・個人以外は学年による絞り込みを行わないため、own_grade_restriction
 // がある教員がこれらを選ぶと自分の学年外にも配信できてしまう。
-// Rails側のgrade_scope_validationはby_gradeタイプのみ検証するため、
-// UI側でも選択肢自体を絞ってこれを防ぐ。
+// Rails側(Teacher::AnnouncementGradeScopeValidator)でも拒否されるが、
+// 送信してからエラーにならないようUI側でも選択肢自体を絞る。
 export const GRADE_RESTRICTED_TARGET_TYPE_OPTIONS: {
   value: TargetType;
   label: string;
