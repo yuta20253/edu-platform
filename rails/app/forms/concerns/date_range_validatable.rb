@@ -51,11 +51,12 @@ module DateRangeValidatable
   end
 
   def validate_period_within_max_range
+    max_days = self.class::MAX_RANGE_DAYS
+
     return if from_date.nil? || to_date.nil?
 
-    return unless (to_date - from_date).to_i > self.class::MAX_RANGE_DAYS - 1
+    return unless (to_date - from_date).to_i > max_days - 1
 
-    errors.add(:base,
-               "取得期間は#{self.class::MAX_RANGE_DAYS}日以内で指定してください")
+    errors.add(:base, "取得期間は#{max_days}日以内で指定してください")
   end
 end
