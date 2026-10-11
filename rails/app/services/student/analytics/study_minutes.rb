@@ -7,6 +7,8 @@ module Student
 
       DAILY_MAX_DAYS = 31
       WEEK_DAYS = 7
+      DAY_UNIT = 'day'
+      WEEK_UNIT = 'week'
 
       def initialize(user, from:, to:)
         @user = user
@@ -40,7 +42,7 @@ module Student
       end
 
       def unit
-        period_days <= DAILY_MAX_DAYS ? 'day' : 'week'
+        period_days <= DAILY_MAX_DAYS ? DAY_UNIT : WEEK_UNIT
       end
 
       def daily_series
@@ -58,7 +60,7 @@ module Student
       end
 
       def series
-        unit == 'day' ? daily_series : weekly_series
+        unit == DAY_UNIT ? daily_series : weekly_series
       end
     end
   end
