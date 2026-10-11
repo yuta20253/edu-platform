@@ -5,7 +5,11 @@ module Api
     module Student
       class TeachersController < Api::V1::Student::BaseController
         def index
-          render json: { teachers: teachers.as_json(only: %i[id name]) }, status: :ok
+          render json: {
+            teachers: ActiveModelSerializers::SerializableResource.new(
+              teachers, each_serializer: ::Student::TeacherSerializer
+            )
+          }, status: :ok
         end
 
         private
