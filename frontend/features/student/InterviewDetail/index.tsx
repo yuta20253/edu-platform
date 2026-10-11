@@ -2,7 +2,7 @@
 
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Box, CircularProgress } from "@mui/material";
-import { useInterviewDetail } from "./hooks";
+import { useInterviewDetail } from "./hooks/useInterviewDetail";
 import { Presenter } from "./Presenter";
 
 type Props = {
