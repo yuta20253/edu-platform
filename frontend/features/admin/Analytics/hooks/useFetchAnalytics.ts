@@ -128,8 +128,10 @@ export const useFetchAnalytics = () => {
           router.push("/login");
           return;
         }
-        // 期間不正などは全画面エラーにせず、フィルタ直下にメッセージを出す
+        // 期間不正などは全画面エラーにせず、フィルタ直下にメッセージを出す。
+        // 前回のデータを残すと、新しい期間の結果のように見えてしまうため消す。
         if (status === 422) {
+          setData(null);
           setValidationErrors(validationMessages(err));
           return;
         }

@@ -66,7 +66,7 @@ export const Presenter = ({
       <ErrorState message="分析データの取得に失敗しました" onRetry={onRetry} />
     )}
 
-    {!error && data && (
+    {!error && data && validationErrors.length === 0 && (
       <Box
         data-testid="analytics-content"
         aria-busy={isRefetching}
