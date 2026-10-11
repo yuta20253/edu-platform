@@ -3,6 +3,8 @@
 module Student
   module Analytics
     class SubjectProgress
+      include AnalyticsPeriodable
+
       def initialize(user, from:, to:)
         @user = user
         @from = from
@@ -33,11 +35,7 @@ module Student
         @user
           .question_histories
           .active
-          .where(answered_at: jst_range(@from, @to))
-      end
-
-      def jst_range(from_date, to_date)
-        from_date.in_time_zone.beginning_of_day..to_date.in_time_zone.end_of_day
+          .where(answered_at: jst_range)
       end
     end
   end

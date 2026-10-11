@@ -3,6 +3,8 @@
 module Student
   module Analytics
     class Summary
+      include AnalyticsPeriodable
+
       def initialize(user, from:, to:)
         @user = user
         @from = from
@@ -66,10 +68,6 @@ module Student
 
       def previous_to
         @from - 1
-      end
-
-      def period_days
-        (@to - @from + 1).to_i
       end
 
       def meta

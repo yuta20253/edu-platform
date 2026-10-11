@@ -3,6 +3,8 @@
 module Student
   module Analytics
     class StudyMinutes
+      include AnalyticsPeriodable
+
       DAILY_MAX_DAYS = 31
       WEEK_DAYS = 7
 
@@ -34,11 +36,7 @@ module Student
         @user
           .study_logs
           .active
-          .where(started_at: jst_range(@from, @to))
-      end
-
-      def period_days
-        (@to - @from + 1).to_i
+          .where(started_at: jst_range)
       end
 
       def unit
@@ -62,10 +60,6 @@ module Student
 
       def series
         unit == 'day' ? daily_series : weekly_series
-      end
-
-      def jst_range(from_date, to_date)
-        from_date.in_time_zone.beginning_of_day..to_date.in_time_zone.end_of_day
       end
     end
   end
