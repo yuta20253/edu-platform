@@ -229,9 +229,15 @@ describe("AnalyticsPresenter", () => {
       expect(screen.getByLabelText("高校")).toBeVisible();
     });
 
-    it("前回のデータがあれば表示を維持する", () => {
+    it("検証エラー中は、データが渡されても古い数値(KPI・グラフ等)を表示しない", () => {
       render(<Presenter {...invalid} data={data} />);
-      expect(screen.getByText("日別の学習推移")).toBeVisible();
+      expect(screen.queryByText("日別の学習推移")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("group", { name: "アクティブ生徒数" }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "指定できる期間は366日以内です",
+      );
     });
   });
 });

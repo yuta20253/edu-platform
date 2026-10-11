@@ -208,6 +208,28 @@ describe("useFetchAnalytics", () => {
     expect(result.current.error).toBe(false);
   });
 
+  it("取得済みの状態で 422 になったら、前回のデータを消す(古い数値を新しい期間の結果に見せない)", async () => {
+    const { result, rerender } = renderHook(() => useFetchAnalytics());
+    await waitFor(() => expect(result.current.data).toEqual(analyticsData));
+
+    mockApi({
+      "/api/admin/analytics": {
+        response: {
+          status: 422,
+          data: { errors: ["指定できる期間は366日以内です"] },
+        },
+      },
+    });
+    searchParamsMock = new URLSearchParams("from=2020-01-01&to=2026-09-30");
+    rerender();
+
+    await waitFor(() =>
+      expect(result.current.validationErrors).toHaveLength(1),
+    );
+    expect(result.current.data).toBeNull();
+    expect(result.current.isRefetching).toBe(false);
+  });
+
   it("422 の後に正常取得できたら検証メッセージを消す", async () => {
     mockApi({
       "/api/admin/analytics": {
