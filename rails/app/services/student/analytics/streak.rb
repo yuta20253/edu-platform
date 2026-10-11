@@ -1,43 +1,47 @@
-class Student::Analytics::Streak
-  def initialize(user)
-    @user = user
-  end
+# frozen_string_literal: true
 
-  def call
-    dates = studied_dates
-    start_date = streak_start_date(dates)
+module Student
+  module Analytics
+    class Streak
+      def initialize(user)
+        @user = user
+      end
 
-    return 0 if start_date.nil?
-    count_consecutive_days(dates, start_date)
-  end
+      def call
+        dates = studied_dates
+        start_date = streak_start_date(dates)
 
-  private
+        return 0 if start_date.nil?
 
-  def studied_dates
-    @user
-      .study_logs
-      .active
-      .pluck(:started_at)
-      .map(&:to_date)
-      .to_set
-  end
+        count_consecutive_days(dates, start_date)
+      end
 
-  def streak_start_date(dates)
-    if dates.include?(Date.current)
-      Date.current
-    elsif dates.include?(Date.current - 1)
-      Date.current - 1
-    else
-      nil
+      private
+
+      def studied_dates
+        @user
+          .study_logs
+          .active
+          .pluck(:started_at)
+          .to_set(&:to_date)
+      end
+
+      def streak_start_date(dates)
+        if dates.include?(Date.current)
+          Date.current
+        elsif dates.include?(Date.current - 1)
+          Date.current - 1
+        end
+      end
+
+      def count_consecutive_days(dates, start_date)
+        streak_days = 0
+        while dates.include?(start_date)
+          streak_days += 1
+          start_date -= 1
+        end
+        streak_days
+      end
     end
-  end
-
-  def count_consecutive_days(dates, start_date)
-    streak_days = 0
-    while dates.include?(start_date)
-      streak_days += 1
-      start_date -= 1
-    end
-    streak_days
   end
 end

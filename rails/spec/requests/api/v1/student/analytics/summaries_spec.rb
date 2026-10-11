@@ -57,7 +57,8 @@ RSpec.describe 'Api::V1::Student::Analytics::Summaries', type: :request do
         request
 
         body = response.parsed_body
-        expect(body.keys).to contain_exactly('streak_days', 'task_completion', 'study_minutes', 'subject_progress', 'meta')
+        expect(body.keys).to contain_exactly('streak_days', 'task_completion', 'study_minutes', 'subject_progress',
+                                             'meta')
         expect(body['streak_days']).to eq(1)
         expect(body['task_completion']['current']).to eq(
           'completed_count' => 1, 'total_count' => 2, 'completion_rate' => 50.0

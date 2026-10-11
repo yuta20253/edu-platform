@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Student
   module Analytics
     class Summary
@@ -38,22 +40,24 @@ module Student
           series: current[:series],
           total:
             { current: current[:total],
-              previous: previous[:total]
-            }
+              previous: previous[:total] }
         }
       end
 
       def subject_progress
         current = SubjectProgress
-          .new(@user, from: @from, to: @to)
-          .call
+                  .new(@user, from: @from, to: @to)
+                  .call
 
         previous_rates = SubjectProgress
-          .new(@user, from: previous_from, to: previous_to)
-          .call
-          .to_h { |item| [item[:subject_name], item[:correct_rate]] }
+                         .new(@user, from: previous_from, to: previous_to)
+                         .call
+                         .to_h { |item| [item[:subject_name], item[:correct_rate]] }
 
-        current.map { |item| { subject_name: item[:subject_name], correct_rate: { current: item[:correct_rate], previous: previous_rates[item[:subject_name]] }}}
+        current.map do |item|
+          { subject_name: item[:subject_name],
+            correct_rate: { current: item[:correct_rate], previous: previous_rates[item[:subject_name]] } }
+        end
       end
 
       def previous_from

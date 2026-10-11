@@ -1,31 +1,37 @@
-class Student::AnalyticsPeriodForm
-  include ActiveModel::Model
-  include ActiveModel::Attributes
-  include DateRangeValidatable
+# frozen_string_literal: true
 
-  MAX_RANGE_DAYS = 366
-  DEFAULT_RANGE_DAYS = 6
+module Student
+  class AnalyticsPeriodForm
+    include ActiveModel::Model
+    include ActiveModel::Attributes
+    include DateRangeValidatable
 
-  attribute :from, :string
-  attribute :to, :string
+    MAX_RANGE_DAYS = 366
+    DEFAULT_RANGE_DAYS = 6
 
-  validate :validate_period_within_max_range
+    attribute :from, :string
+    attribute :to, :string
 
-  def from_date
-    return @from_date ||= Date.current - DEFAULT_RANGE_DAYS if from.blank?
-    super()
-  end
+    validate :validate_period_within_max_range
 
-  def to_date
-    return @to_date ||= Date.current if to.blank?
-    super()
-  end
+    def from_date
+      return @from_date ||= Date.current - DEFAULT_RANGE_DAYS if from.blank?
 
-  private
+      super
+    end
 
-  def validate_period_within_max_range
-    return if from_date.nil? || to_date.nil?
+    def to_date
+      return @to_date ||= Date.current if to.blank?
 
-    errors.add(:base, '取得期間は366日以内で指定してください') if (to_date - from_date).to_i > MAX_RANGE_DAYS - 1
+      super
+    end
+
+    private
+
+    def validate_period_within_max_range
+      return if from_date.nil? || to_date.nil?
+
+      errors.add(:base, '取得期間は366日以内で指定してください') if (to_date - from_date).to_i > MAX_RANGE_DAYS - 1
+    end
   end
 end
