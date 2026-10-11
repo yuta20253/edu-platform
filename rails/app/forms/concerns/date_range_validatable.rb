@@ -10,6 +10,7 @@ module DateRangeValidatable
     validate :from_must_be_valid_date
     validate :to_must_be_valid_date
     validate :validate_from_before_to
+    validate :validate_period_within_max_range
   end
 
   def from_date
@@ -47,5 +48,14 @@ module DateRangeValidatable
     Date.strptime(value, DATE_STRPTIME_FORMAT)
   rescue ArgumentError
     nil
+  end
+
+  def validate_period_within_max_range
+    return if from_date.nil? || to_date.nil?
+
+    return unless (to_date - from_date).to_i > self.class::MAX_RANGE_DAYS - 1
+
+    errors.add(:base,
+               "取得期間は#{self.class::MAX_RANGE_DAYS}日以内で指定してください")
   end
 end
