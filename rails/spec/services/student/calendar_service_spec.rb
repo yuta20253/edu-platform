@@ -99,28 +99,37 @@ RSpec.describe Student::CalendarService, type: :model do
       )
     end
 
-    it '期間外のデータは含まれない' do
-      ids = call.pluck(:id)
+    # goal・task・interview_requestはテーブルが別でidが重なりうるため、typeとidの組で比較する
+    def type_and_ids
+      call.map { |item| [item[:type], item[:id]] }
+    end
 
-      expect(ids).not_to include(goal_out_of_range.id, task_out_of_range.id, interview_request_out_of_range.id)
+    it '期間外のデータは含まれない' do
+      expect(type_and_ids).not_to include(
+        ['goal', goal_out_of_range.id],
+        ['task', task_out_of_range.id],
+        ['interview_request', interview_request_out_of_range.id]
+      )
     end
 
     it '他ユーザーのデータは含まれない' do
-      ids = call.pluck(:id)
-
-      expect(ids).not_to include(goal_other_user.id, task_other_user.id, interview_request_other_user.id)
+      expect(type_and_ids).not_to include(
+        ['goal', goal_other_user.id],
+        ['task', task_other_user.id],
+        ['interview_request', interview_request_other_user.id]
+      )
     end
 
     it 'scheduled_atが未確定の面談は含まれない' do
-      expect(call.pluck(:id)).not_to include(interview_request_unscheduled.id)
+      expect(type_and_ids).not_to include(['interview_request', interview_request_unscheduled.id])
     end
 
     it 'cancelledの面談は含まれない' do
-      expect(call.pluck(:id)).not_to include(interview_request_cancelled.id)
+      expect(type_and_ids).not_to include(['interview_request', interview_request_cancelled.id])
     end
 
     it '論理削除済みのtaskは含まれない' do
-      expect(call.pluck(:id)).not_to include(task_deleted.id)
+      expect(type_and_ids).not_to include(['task', task_deleted.id])
     end
   end
 
