@@ -3,7 +3,7 @@ import {
   PERIOD_PRESETS,
   type AnalyticsFilters,
   type PeriodPreset,
-} from "./types";
+} from "../types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 const DEFAULT_PRESET: PeriodPreset = 30;

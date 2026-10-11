@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { sortHighSchoolUsage, uniqueSubjects } from "./selectors";
-import type { HighSchoolUsage } from "./types";
+import type { HighSchoolUsage } from "../types";
 
 const row = (overrides: Partial<HighSchoolUsage>): HighSchoolUsage => ({
   high_school_id: 1,

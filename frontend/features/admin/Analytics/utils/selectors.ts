@@ -2,7 +2,7 @@ import type {
   HighSchoolUsage,
   HighSchoolUsageSort,
   SubjectOption,
-} from "./types";
+} from "../types";
 
 // 高校別利用状況のソート。元配列は変更せず、同値は元の並びを保つ。
 export const sortHighSchoolUsage = (

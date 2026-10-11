@@ -18,7 +18,7 @@ import { isValid } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { dateToInput, dateToParam } from "../../ImportHistory/dateUtils";
-import { detectPreset, presetRange } from "../filters";
+import { detectPreset, presetRange } from "../utils/filters";
 import {
   PERIOD_PRESETS,
   type AnalyticsFilters,

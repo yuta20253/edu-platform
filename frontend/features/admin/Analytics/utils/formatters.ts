@@ -1,4 +1,4 @@
-import type { KpiValue } from "./types";
+import type { KpiValue } from "../types";
 
 export type TrendDirection = "up" | "down" | "flat";
 

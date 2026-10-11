@@ -5,7 +5,7 @@ import {
   filtersToSearchParams,
   presetRange,
 } from "./filters";
-import type { AnalyticsFilters } from "./types";
+import type { AnalyticsFilters } from "../types";
 
 // 2026-09-30 (JST)。月をまたぐ計算を確認するため月末を使う
 const today = new Date(2026, 8, 30);

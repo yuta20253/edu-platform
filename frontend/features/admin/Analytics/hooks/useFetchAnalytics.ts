@@ -4,8 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
-import { filtersFromSearchParams, filtersToSearchParams } from "../filters";
-import { uniqueSubjects } from "../selectors";
+import {
+  filtersFromSearchParams,
+  filtersToSearchParams,
+} from "../utils/filters";
+import { uniqueSubjects } from "../utils/selectors";
 import type {
   AnalyticsData,
   AnalyticsFilters,
