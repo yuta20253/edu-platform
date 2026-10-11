@@ -1,4 +1,5 @@
 import { Status } from "@/types/common/status";
+import type { InterviewStatus } from "@/types/interview/interviewRequest";
 
 export const CALENDAR_EVENT_TYPES = [
   "goal",
@@ -7,13 +8,6 @@ export const CALENDAR_EVENT_TYPES = [
 ] as const;
 
 export type CalendarEventType = (typeof CALENDAR_EVENT_TYPES)[number];
-
-export type InterviewRequestStatus =
-  | "requested"
-  | "scheduling"
-  | "confirmed"
-  | "completed"
-  | "cancelled";
 
 type CalendarEventBase = {
   id: number;
@@ -27,5 +21,5 @@ export type CalendarEvent =
   | (CalendarEventBase & { type: "task"; status: Status })
   | (CalendarEventBase & {
       type: "interview_request";
-      status: InterviewRequestStatus;
+      status: InterviewStatus;
     });

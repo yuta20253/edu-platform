@@ -1,20 +1,24 @@
 // 面談(InterviewRequest)の表示ラベルと判定。
-// 生徒・教員の両画面で同じ表記を使うため共通化している。
+// 生徒・教員の面談画面とカレンダーで同じ表記を使うため共通化している。
+import type { StatusBadgeDefinition } from "@/components/ui/StatusBadge";
 import type {
   InterviewReasonCategory,
   InterviewStatus,
 } from "@/types/interview/interviewRequest";
 
-export const INTERVIEW_STATUS_LABELS: Record<InterviewStatus, string> = {
-  requested: "申請中",
-  scheduling: "日程調整中",
-  confirmed: "確定",
-  completed: "完了",
-  cancelled: "キャンセル",
+export const INTERVIEW_STATUS_DEFINITIONS: Record<
+  InterviewStatus,
+  StatusBadgeDefinition
+> = {
+  requested: { label: "申請中", color: "default" },
+  scheduling: { label: "日程調整中", color: "warning" },
+  confirmed: { label: "確定", color: "info" },
+  completed: { label: "完了", color: "success" },
+  cancelled: { label: "キャンセル", color: "default" },
 };
 
 export const INTERVIEW_STATUSES = Object.keys(
-  INTERVIEW_STATUS_LABELS,
+  INTERVIEW_STATUS_DEFINITIONS,
 ) as InterviewStatus[];
 
 export const isInterviewStatus = (value: string): value is InterviewStatus =>
