@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Api::V1::Student::AnalyticsSummaries', type: :request do
+RSpec.describe 'Api::V1::Student::Analytics::Summaries', type: :request do
   let(:headers) do
     {
       'Content-Type' => 'application/json',
