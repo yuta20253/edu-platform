@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type {
   InterviewRequest,
@@ -127,7 +133,9 @@ describe("InterviewDetailPresenter", () => {
 
     it("メッセージが無いときは案内を表示する", () => {
       render(<Presenter {...defaultProps} messages={[]} />);
-      expect(screen.getByText("まだメッセージはありません")).toBeInTheDocument();
+      expect(
+        screen.getByText("まだメッセージはありません"),
+      ).toBeInTheDocument();
     });
 
     it("入力して送信すると onSendMessage が呼ばれ、成功したら入力欄が空になる", async () => {
