@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { apiClient } from "@/libs/http/apiClient";
 import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
 import { extractApiError } from "@/libs/http/extractApiError";
+import type { PaginationMeta } from "@/types/common/pagination";
 import type {
   InterviewRequest,
   InterviewRequestMessage,
@@ -11,8 +12,13 @@ import type {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-// メッセージはスレッドとして1画面に全件並べるため、Rails の上限件数でまとめて取得する
+// メッセージはスレッドとして1画面に全件並べるため、Rails の上限件数ずつ取得する
 const MESSAGES_PER_PAGE = "100";
+
+type MessagesData = {
+  interview_request_messages: InterviewRequestMessage[];
+  meta?: PaginationMeta;
+};
 
 export const useInterviewDetail = (interviewId: string) => {
   const [interview, setInterview] = useState<InterviewRequest | null>(null);
@@ -26,16 +32,32 @@ export const useInterviewDetail = (interviewId: string) => {
 
   const basePath = `/api/student/interview-requests/${interviewId}`;
 
+  // Rails は古い順にページングするため、1ページ目だけだと最新のメッセージが欠ける。残りのページもまとめて取得する
+  const fetchAllMessages = useCallback(async () => {
+    const fetchPage = (page: number) =>
+      apiClient.get<MessagesData>(`${basePath}/messages`, {
+        params: { page: String(page), per_page: MESSAGES_PER_PAGE },
+      });
+
+    const first = await fetchPage(1);
+    const totalPages = first.data.meta?.total_pages ?? 1;
+    const rest = await Promise.all(
+      Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)),
+    );
+
+    return [first, ...rest].flatMap(
+      (res) => res.data.interview_request_messages,
+    );
+  }, [basePath]);
+
   const fetchDetail = useCallback(async () => {
     try {
-      const [interviewRes, messagesRes] = await Promise.all([
+      const [interviewRes, allMessages] = await Promise.all([
         apiClient.get<InterviewRequest>(basePath),
-        apiClient.get<{
-          interview_request_messages: InterviewRequestMessage[];
-        }>(`${basePath}/messages`, { params: { per_page: MESSAGES_PER_PAGE } }),
+        fetchAllMessages(),
       ]);
       setInterview(interviewRes.data);
-      setMessages(messagesRes.data.interview_request_messages);
+      setMessages(allMessages);
       setError(false);
     } catch (err) {
       if (extractApiError(err).status === 401) {
@@ -46,7 +68,7 @@ export const useInterviewDetail = (interviewId: string) => {
     } finally {
       setLoading(false);
     }
-  }, [basePath, router]);
+  }, [basePath, fetchAllMessages, router]);
 
   useEffect(() => {
     fetchDetail();

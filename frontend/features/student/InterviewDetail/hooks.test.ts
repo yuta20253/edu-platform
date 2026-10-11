@@ -65,11 +65,37 @@ describe("useInterviewDetail", () => {
       );
       expect(apiClient.get).toHaveBeenCalledWith(
         "/api/student/interview-requests/1/messages",
-        { params: { per_page: "100" } },
+        { params: { page: "1", per_page: "100" } },
       );
       expect(result.current.interview).toEqual(interview);
       expect(result.current.messages).toEqual([message]);
       expect(result.current.error).toBe(false);
+    });
+
+    it("メッセージが複数ページにわたるときは全ページを取得して古い順に並べる", async () => {
+      const second = { ...message, id: 101, body: "2ページ目" };
+      vi.mocked(apiClient.get).mockImplementation(
+        (url: string, config?: { params?: { page?: string } }) => {
+          if (!url.endsWith("/messages")) {
+            return Promise.resolve({ data: interview });
+          }
+          const page = config?.params?.page;
+          return Promise.resolve({
+            data: {
+              interview_request_messages: page === "2" ? [second] : [message],
+              meta: { current_page: Number(page), total_pages: 2 },
+            },
+          });
+        },
+      );
+
+      const { result } = await renderLoaded();
+
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/api/student/interview-requests/1/messages",
+        { params: { page: "2", per_page: "100" } },
+      );
+      expect(result.current.messages).toEqual([message, second]);
     });
 
     it("401 のときはログイン画面へ遷移する", async () => {
