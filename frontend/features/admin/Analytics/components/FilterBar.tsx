@@ -94,7 +94,7 @@ const DateField = ({
           size: "small",
           error,
           helperText,
-          sx: { width: { xs: "100%", sm: 180 }, ...compactFieldSx },
+          sx: { width: { xs: "100%", sm: 220 }, ...compactFieldSx },
         },
         field: { clearable: true },
       }}
