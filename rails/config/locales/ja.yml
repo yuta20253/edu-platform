@@ -18,6 +18,8 @@ ja:
         phone_number: 電話番号
         birthday: 生年月日
         gender: 性別
+      announcement:
+        scheduled_at: 配信日時
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました"
