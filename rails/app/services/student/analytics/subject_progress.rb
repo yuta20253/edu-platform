@@ -24,7 +24,7 @@ module Student
           .map do |subject_name, total_count, correct_count|
             {
               subject_name: subject_name,
-              correct_rate: Student::Analytics::Calculator.correct_rate_from_counts(correct_count, total_count)
+              correct_rate: Calculator.correct_rate_from_counts(correct_count, total_count)
             }
           end
       end
