@@ -92,7 +92,10 @@ describe("POST /api/student/interview-requests/[interviewRequestId]/messages", (
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {
-    const res = await post("1", JSON.stringify({ body: "よろしくお願いします" }));
+    const res = await post(
+      "1",
+      JSON.stringify({ body: "よろしくお願いします" }),
+    );
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ id: 1, body: "よろしくお願いします" });
   });

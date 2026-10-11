@@ -12,7 +12,9 @@ vi.mock("@/libs/server/rails/railsFetch", () => ({
 }));
 
 const get = (query: string) =>
-  GET(new NextRequest(`http://localhost/api/student/interview-requests${query}`));
+  GET(
+    new NextRequest(`http://localhost/api/student/interview-requests${query}`),
+  );
 
 const post = (body: string) =>
   POST(

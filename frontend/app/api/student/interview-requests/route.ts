@@ -13,7 +13,11 @@ export async function GET(req: NextRequest) {
   if (isInterviewStatus(status)) params.set("status", status);
 
   try {
-    const { status: resStatus, data, setCookie } = await railsFetch(
+    const {
+      status: resStatus,
+      data,
+      setCookie,
+    } = await railsFetch(
       `/api/v1/student/interview_requests?${params.toString()}`,
     );
 
