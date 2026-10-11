@@ -36,9 +36,10 @@ module Student
 
       def count_consecutive_days(dates, start_date)
         streak_days = 0
-        while dates.include?(start_date)
+        date = start_date
+        while dates.include?(date)
           streak_days += 1
-          start_date -= 1
+          date -= 1
         end
         streak_days
       end
