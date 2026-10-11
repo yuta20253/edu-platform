@@ -112,6 +112,15 @@ describe("POST /api/student/interview-requests/[interviewRequestId]/messages", (
     expect(railsFetch).not.toHaveBeenCalled();
   });
 
+  it.each(["null", "[]", "1"])(
+    "リクエストボディがオブジェクト以外(%s)のときは BAD_REQUEST を返しバックエンドへ転送しない",
+    async (body) => {
+      const res = await post("1", body);
+      expect(res.status).toBe(400);
+      expect(railsFetch).not.toHaveBeenCalled();
+    },
+  );
+
   it("422 のときは Rails のエラー内容を返す", async () => {
     vi.mocked(railsFetch).mockRejectedValue(
       new RailsFetchError(

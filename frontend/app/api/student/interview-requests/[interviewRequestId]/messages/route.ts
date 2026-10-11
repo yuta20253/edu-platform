@@ -38,8 +38,9 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 
+  // 必要なキーだけ取り出して転送するため、オブジェクト以外(null・配列など)は弾く
   const body = await req.json().catch(() => undefined);
-  if (body === undefined) {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 

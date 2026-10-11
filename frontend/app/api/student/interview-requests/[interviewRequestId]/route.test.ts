@@ -114,6 +114,16 @@ describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
     expect(railsFetch).not.toHaveBeenCalled();
   });
 
+  it.each(["null", "[]", "1"])(
+    "リクエストボディがオブジェクト以外(%s)のときは BAD_REQUEST を返しバックエンドへ転送しない",
+    async (body) => {
+      const res = await destroy("1", body);
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+      expect(railsFetch).not.toHaveBeenCalled();
+    },
+  );
+
   it("409(楽観ロックの競合)のときは Rails のエラー内容をステータスごと返す", async () => {
     const errors = [
       "他のユーザーによってデータが更新されています。再読み込みしてください",
