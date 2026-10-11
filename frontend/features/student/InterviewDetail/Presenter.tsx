@@ -4,10 +4,10 @@ import { colors } from "@/app/theme/colors";
 import { cardSx } from "@/app/theme/studentTheme";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
-  INTERVIEW_REASON_CATEGORY_LABELS,
-  INTERVIEW_STATUS_DEFINITIONS,
-  isActiveInterviewStatus,
-} from "@/libs/domain/interview/interviewRequest";
+  interviewReasonCategoryLabel,
+  interviewStatusDefinitions,
+} from "@/constants/interview_request";
+import { isActiveInterviewStatus } from "@/libs/domain/interview/interviewStatus";
 import { formatDateTime } from "@/libs/ui/formatDate";
 import type {
   InterviewRequest,
@@ -94,7 +94,7 @@ export const Presenter = ({
         <Box sx={{ flex: "none" }}>
           <StatusBadge
             status={interview.status}
-            definitions={INTERVIEW_STATUS_DEFINITIONS}
+            definitions={interviewStatusDefinitions}
           />
         </Box>
       </Box>
@@ -104,7 +104,7 @@ export const Presenter = ({
           label="相談カテゴリ"
           value={
             interview.reason_category
-              ? INTERVIEW_REASON_CATEGORY_LABELS[interview.reason_category]
+              ? interviewReasonCategoryLabel[interview.reason_category]
               : "先生から"
           }
         />
