@@ -22,7 +22,7 @@ module Api
           private
 
           def summary_params
-            params.permit(:from, :to)
+            params.permit(:from, :to).to_h.symbolize_keys
           end
         end
       end
