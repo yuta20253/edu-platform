@@ -1,7 +1,7 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
-import { useCreateInterview, useGetTeachers } from "./hooks";
+import { useCreateInterview } from "./useCreateInterview";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -15,7 +15,7 @@ vi.mock("@/components/ui/ToastProvider", () => ({
 }));
 
 vi.mock("@/libs/http/apiClient", () => ({
-  apiClient: { get: vi.fn(), post: vi.fn() },
+  apiClient: { post: vi.fn() },
 }));
 
 const formValues = {
@@ -23,39 +23,6 @@ const formValues = {
   reason_category: "career" as const,
   reason_detail: "志望校について相談したい",
 };
-
-describe("useGetTeachers", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("申請先の教員一覧を取得する", async () => {
-    vi.mocked(apiClient.get).mockResolvedValue({
-      data: { teachers: [{ id: 1, name: "担任先生" }] },
-    });
-    const { result } = renderHook(() => useGetTeachers());
-
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(apiClient.get).toHaveBeenCalledWith("/api/student/teachers");
-    expect(result.current.teachers).toEqual([{ id: 1, name: "担任先生" }]);
-    expect(result.current.error).toBe(false);
-  });
-
-  it("401 のときはログイン画面へ遷移する", async () => {
-    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 401 } });
-    renderHook(() => useGetTeachers());
-
-    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
-  });
-
-  it("その他のエラーのときは error を true にする", async () => {
-    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
-    const { result } = renderHook(() => useGetTeachers());
-
-    await waitFor(() => expect(result.current.error).toBe(true));
-    expect(result.current.loading).toBe(false);
-  });
-});
 
 describe("useCreateInterview", () => {
   beforeEach(() => {

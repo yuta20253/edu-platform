@@ -4,7 +4,7 @@ import { apiClient } from "@/libs/http/apiClient";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { InterviewsData, InterviewStatusFilter } from "./types";
+import { InterviewsData, InterviewStatusFilter } from "../types";
 
 export const useGetInterviews = () => {
   const [data, setData] = useState<InterviewsData | null>(null);

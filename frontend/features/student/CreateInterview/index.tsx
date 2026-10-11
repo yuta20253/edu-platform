@@ -2,7 +2,8 @@
 
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Box, CircularProgress } from "@mui/material";
-import { useCreateInterview, useGetTeachers } from "./hooks";
+import { useCreateInterview } from "./hooks/useCreateInterview";
+import { useGetTeachers } from "./hooks/useGetTeachers";
 import { Presenter } from "./Presenter";
 
 export const CreateInterview = () => {

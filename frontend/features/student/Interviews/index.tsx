@@ -2,7 +2,7 @@
 
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Box, CircularProgress } from "@mui/material";
-import { useGetInterviews } from "./hooks";
+import { useGetInterviews } from "./hooks/useGetInterviews";
 import { Presenter } from "./Presenter";
 
 export const Interviews = () => {
