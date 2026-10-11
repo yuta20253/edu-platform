@@ -44,8 +44,7 @@ module Student
       end
 
       def daily_series
-        dates = (@from..@to)
-        dates.map do |date|
+        (@from..@to).map do |date|
           { date: date, minutes: minutes_by_date.fetch(date, 0) }
         end
       end
