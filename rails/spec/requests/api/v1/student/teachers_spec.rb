@@ -43,6 +43,14 @@ RSpec.describe 'Api::V1::Student::Teachers', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.parsed_body['teachers']).to eq([{ 'id' => homeroom_teacher.id, 'name' => '担任先生' }])
       end
+
+      it '論理削除された教員は返らない' do
+        homeroom_teacher.update!(deleted_at: Time.current)
+
+        get '/api/v1/student/teachers', headers: headers.merge('Cookie' => login_and_get_cookie(student))
+
+        expect(response.parsed_body['teachers']).to eq([])
+      end
     end
 
     context '学級に所属していない生徒の場合' do
