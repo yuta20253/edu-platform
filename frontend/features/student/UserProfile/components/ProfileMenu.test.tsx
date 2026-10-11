@@ -44,12 +44,20 @@ describe("ProfileMenu", () => {
     );
   });
 
-  it("未紐付けの場合はお知らせの上にアカウント紐付けリンクを表示する", () => {
+  it("面談がお知らせの上に /interviews へのリンクとして表示される", () => {
+    render(<ProfileMenu accountLinked={true} />);
+    const links = screen.getAllByRole("link");
+    expect(links[0]).toHaveTextContent("面談");
+    expect(links[0]).toHaveAttribute("href", "/interviews");
+    expect(links[1]).toHaveTextContent("お知らせ");
+  });
+
+  it("未紐付けの場合は先頭にアカウント紐付けリンクを表示する", () => {
     render(<ProfileMenu accountLinked={false} />);
     const links = screen.getAllByRole("link");
     expect(links[0]).toHaveTextContent("アカウント紐付け");
     expect(links[0]).toHaveAttribute("href", "/account-link");
-    expect(links[1]).toHaveTextContent("お知らせ");
+    expect(links[1]).toHaveTextContent("面談");
   });
 
   it.each([
