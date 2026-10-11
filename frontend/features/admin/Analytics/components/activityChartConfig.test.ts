@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildActivityChart } from "./activityChartConfig";
-import type { DailyActivity } from "./types";
+import type { DailyActivity } from "../types";
 
 const daily: DailyActivity[] = [
   {

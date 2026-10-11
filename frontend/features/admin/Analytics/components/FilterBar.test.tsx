@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilterBar } from "./FilterBar";
-import type { AnalyticsFilters } from "./types";
+import type { AnalyticsFilters } from "../types";
 
 const emptyFilters: AnalyticsFilters = {
   from: "",

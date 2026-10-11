@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { RateBar } from "./RateBar";
-import type { LowAccuracyQuestion, LowAccuracyUnit } from "./types";
+import type { LowAccuracyQuestion, LowAccuracyUnit } from "../types";
 
 type Props = {
   units: LowAccuracyUnit[];

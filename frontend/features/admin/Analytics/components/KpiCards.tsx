@@ -18,8 +18,8 @@ import PeopleIcon from "@mui/icons-material/People";
 import QuizIcon from "@mui/icons-material/Quiz";
 import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import type { ReactNode } from "react";
-import { calcTrend, formatStudyMinutes, type Trend } from "./formatters";
-import type { AnalyticsKpis, KpiValue } from "./types";
+import { calcTrend, formatStudyMinutes, type Trend } from "../formatters";
+import type { AnalyticsKpis, KpiValue } from "../types";
 
 type Props = {
   kpis: AnalyticsKpis;

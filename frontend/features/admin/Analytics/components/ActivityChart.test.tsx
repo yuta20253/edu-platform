@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ActivityChart } from "./ActivityChart";
-import type { DailyActivity } from "./types";
+import type { DailyActivity } from "../types";
 
 const daily: DailyActivity[] = [
   {

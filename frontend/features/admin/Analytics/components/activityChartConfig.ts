@@ -1,5 +1,5 @@
 import { colors } from "@/app/theme/colors";
-import type { DailyActivity } from "./types";
+import type { DailyActivity } from "../types";
 
 // "2026-09-05" → "9/5"
 const formatAxisDate = (value: string) => {

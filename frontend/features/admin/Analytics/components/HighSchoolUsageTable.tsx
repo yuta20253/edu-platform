@@ -17,8 +17,8 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { RateBar } from "./RateBar";
-import { sortHighSchoolUsage } from "./selectors";
-import type { HighSchoolUsage, HighSchoolUsageSort } from "./types";
+import { sortHighSchoolUsage } from "../selectors";
+import type { HighSchoolUsage, HighSchoolUsageSort } from "../types";
 
 type Props = {
   rows: HighSchoolUsage[];

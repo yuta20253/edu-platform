@@ -3,7 +3,7 @@
 import { colors } from "@/app/theme/colors";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
-import type { ContentCoverage as ContentCoverageData } from "./types";
+import type { ContentCoverage as ContentCoverageData } from "../types";
 
 type Props = {
   coverage: ContentCoverageData;

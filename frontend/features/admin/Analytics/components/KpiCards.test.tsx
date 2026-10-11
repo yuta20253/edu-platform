@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { KpiCards } from "./KpiCards";
-import type { AnalyticsKpis } from "./types";
+import type { AnalyticsKpis } from "../types";
 
 const kpis: AnalyticsKpis = {
   active_student_count: { current: 87, previous: 74 },

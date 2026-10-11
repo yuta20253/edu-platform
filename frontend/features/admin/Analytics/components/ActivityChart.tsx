@@ -12,7 +12,7 @@ import {
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useState } from "react";
 import { buildActivityChart } from "./activityChartConfig";
-import type { DailyActivity } from "./types";
+import type { DailyActivity } from "../types";
 
 type Props = {
   data: DailyActivity[];

@@ -3,13 +3,13 @@
 import { colors } from "@/app/theme/colors";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Box, Typography } from "@mui/material";
-import { ActivityChart } from "./ActivityChart";
-import { ContentCoverage } from "./ContentCoverage";
-import { FilterBar } from "./FilterBar";
-import { HighSchoolUsageTable } from "./HighSchoolUsageTable";
-import { KpiCards } from "./KpiCards";
-import { LowAccuracyRanking } from "./LowAccuracyRanking";
-import { AnalyticsSkeleton } from "./Skeleton";
+import { ActivityChart } from "./components/ActivityChart";
+import { ContentCoverage } from "./components/ContentCoverage";
+import { FilterBar } from "./components/FilterBar";
+import { HighSchoolUsageTable } from "./components/HighSchoolUsageTable";
+import { KpiCards } from "./components/KpiCards";
+import { LowAccuracyRanking } from "./components/LowAccuracyRanking";
+import { AnalyticsSkeleton } from "./components/Skeleton";
 import type {
   AnalyticsData,
   AnalyticsFilters,
