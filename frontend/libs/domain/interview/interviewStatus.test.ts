@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest";
-import {
-  INTERVIEW_REASON_CATEGORIES,
-  INTERVIEW_STATUSES,
-  isActiveInterviewStatus,
-  isInterviewStatus,
-} from "./interviewRequest";
+import { interviewStatuses } from "@/constants/interview_request";
+import { isActiveInterviewStatus, isInterviewStatus } from "./interviewStatus";
 
 describe("isInterviewStatus", () => {
-  it.each(INTERVIEW_STATUSES)("%s は true を返す", (status) => {
+  it.each(interviewStatuses)("%s は true を返す", (status) => {
     expect(isInterviewStatus(status)).toBe(true);
   });
 
@@ -30,18 +26,4 @@ describe("isActiveInterviewStatus", () => {
       expect(isActiveInterviewStatus(status)).toBe(false);
     },
   );
-});
-
-describe("INTERVIEW_REASON_CATEGORIES", () => {
-  it("Rails の enum と同じ順序で相談カテゴリを返す", () => {
-    expect(INTERVIEW_REASON_CATEGORIES).toEqual([
-      "study_method",
-      "study_plan",
-      "academic_performance",
-      "career",
-      "school_life",
-      "mental",
-      "other",
-    ]);
-  });
 });

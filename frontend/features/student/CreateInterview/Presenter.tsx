@@ -2,9 +2,9 @@
 
 import { FormLabel } from "@/components/student/Form";
 import {
-  INTERVIEW_REASON_CATEGORIES,
-  INTERVIEW_REASON_CATEGORY_LABELS,
-} from "@/libs/domain/interview/interviewRequest";
+  interviewReasonCategories,
+  interviewReasonCategoryLabel,
+} from "@/constants/interview_request";
 import {
   Alert,
   Box,
@@ -105,9 +105,9 @@ export const Presenter = ({ teachers, onSubmit, submitError }: Props) => {
                   onChange={(e) => field.onChange(e.target.value)}
                   onBlur={field.onBlur}
                 >
-                  {INTERVIEW_REASON_CATEGORIES.map((category) => (
+                  {interviewReasonCategories.map((category) => (
                     <MenuItem key={category} value={category}>
-                      {INTERVIEW_REASON_CATEGORY_LABELS[category]}
+                      {interviewReasonCategoryLabel[category]}
                     </MenuItem>
                   ))}
                 </Select>

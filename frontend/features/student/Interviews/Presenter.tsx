@@ -5,10 +5,10 @@ import { radius } from "@/app/theme/studentTheme";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
-  INTERVIEW_REASON_CATEGORY_LABELS,
-  INTERVIEW_STATUS_DEFINITIONS,
-  INTERVIEW_STATUSES,
-} from "@/libs/domain/interview/interviewRequest";
+  interviewReasonCategoryLabel,
+  interviewStatusDefinitions,
+  interviewStatuses,
+} from "@/constants/interview_request";
 import { formatDateTime } from "@/libs/ui/formatDate";
 import type { InterviewRequest } from "@/types/interview/interviewRequest";
 import AddIcon from "@mui/icons-material/Add";
@@ -33,16 +33,16 @@ type Props = {
 
 const filters: { value: InterviewStatusFilter; label: string }[] = [
   { value: "all", label: "すべて" },
-  ...INTERVIEW_STATUSES.map((s) => ({
+  ...interviewStatuses.map((s) => ({
     value: s,
-    label: INTERVIEW_STATUS_DEFINITIONS[s].label,
+    label: interviewStatusDefinitions[s].label,
   })),
 ];
 
 // 教員から申し込まれた面談には相談カテゴリが無い
 const categoryLabel = (interview: InterviewRequest) =>
   interview.reason_category
-    ? INTERVIEW_REASON_CATEGORY_LABELS[interview.reason_category]
+    ? interviewReasonCategoryLabel[interview.reason_category]
     : "先生から";
 
 const InterviewRow = ({ interview }: { interview: InterviewRequest }) => (
@@ -72,7 +72,7 @@ const InterviewRow = ({ interview }: { interview: InterviewRequest }) => (
     <Box sx={{ flex: "none" }}>
       <StatusBadge
         status={interview.status}
-        definitions={INTERVIEW_STATUS_DEFINITIONS}
+        definitions={interviewStatusDefinitions}
       />
     </Box>
   </Box>

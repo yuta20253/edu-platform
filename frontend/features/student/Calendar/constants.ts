@@ -6,7 +6,7 @@ import { colors } from "@/app/theme/colors";
 import { statusLabel } from "@/constants/status";
 import type { StatusBadgeDefinition } from "@/components/ui/StatusBadge";
 import type { Status } from "@/types/common/status";
-import { INTERVIEW_STATUS_DEFINITIONS } from "@/libs/domain/interview/interviewRequest";
+import { interviewStatusDefinitions } from "@/constants/interview_request";
 import type { CalendarEventType } from "./types";
 
 // イベント種別ごとの見た目(ラベル・色・アイコン)。カレンダーのセルと予定一覧・凡例で共通に使う
@@ -35,5 +35,5 @@ export const statusDefinitionsByType: Record<
 > = {
   goal: progressStatusDefinitions,
   task: progressStatusDefinitions,
-  interview_request: INTERVIEW_STATUS_DEFINITIONS,
+  interview_request: interviewStatusDefinitions,
 };

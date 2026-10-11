@@ -1,6 +1,6 @@
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { isInterviewStatus } from "@/libs/domain/interview/interviewRequest";
+import { isInterviewStatus } from "@/libs/domain/interview/interviewStatus";
 import { type NextRequest, NextResponse } from "next/server";
 
 // 定義外の status は Rails へ渡さず全件扱いにする
