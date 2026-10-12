@@ -2,7 +2,8 @@
 
 # 学年制限のある教員は、自分の学年に絞り込める配信先(自学年のby_grade・自学年の生徒のby_user)
 # しか指定できない。all_users/by_role/by_schoolは学年で絞り込めず学年外にも届くため拒否する。
-# includeするクラスは #current_user と、配信先を種類で絞り込む #targets_of_type / #targets_of_types を実装すること。
+# includeするクラスは #current_user を実装し、配信先を種類で絞り込む #targets_of_type / #targets_of_types を
+# 提供する AnnouncementTargetsValidatable と合わせてincludeすること。
 module AnnouncementTargetGradeScopeValidatable
   extend ActiveSupport::Concern
 
