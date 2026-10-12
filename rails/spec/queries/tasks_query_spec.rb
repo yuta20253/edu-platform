@@ -51,6 +51,13 @@ RSpec.describe TasksQuery, type: :model do
 
       expect(result).to eq([task_early, task_middle, task_late])
     end
+
+    # 同じ期限の並びはMySQLが保証しないため、データではなくORDER BY句で確認する
+    it '期限が同じ場合はid順で並びを確定させる' do
+      sql = described_class.new(user.tasks).due_soon.result.to_sql
+
+      expect(sql).to include('ORDER BY `tasks`.`due_date` ASC, `tasks`.`id` ASC')
+    end
   end
 
   describe '#includes_units' do
