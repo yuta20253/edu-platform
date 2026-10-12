@@ -340,6 +340,28 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
         )
       end
 
+      context '論理削除済みの目標に紐づくタスクがある場合' do
+        let!(:deleted_goal) { create(:goal, user: student) }
+        let!(:task_of_deleted_goal) do
+          create(:task, user: student, goal: deleted_goal, due_date: Date.new(2026, 10, 15))
+        end
+
+        before { deleted_goal.soft_delete! }
+
+        it 'そのタスクは返さない' do
+          request_show
+
+          expect(response).to have_http_status(:ok)
+          expect(body['tasks'].pluck('id')).to eq([task_early.id, task_late.id])
+        end
+
+        it 'metaの件数にも含めない' do
+          request_show
+
+          expect(body['meta']['total_count']).to eq(2)
+        end
+      end
+
       context 'pageとper_pageを指定した場合' do
         let(:params) { { tab: 'tasks', page: 2, per_page: 1 } }
 

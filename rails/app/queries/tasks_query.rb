@@ -15,6 +15,12 @@ class TasksQuery
     self
   end
 
+  # Goalのdefault_scope(deleted_at: nil)がjoinにも効くため、論理削除済みの目標に紐づくtaskは除外される
+  def with_active_goal
+    @relation = @relation.joins(:goal)
+    self
+  end
+
   def includes_units
     @relation = @relation.includes(:goal, units: :course)
     self

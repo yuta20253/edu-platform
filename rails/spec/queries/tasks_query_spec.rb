@@ -71,6 +71,20 @@ RSpec.describe TasksQuery, type: :model do
     end
   end
 
+  describe '#with_active_goal' do
+    let!(:task_of_active_goal) { create(:task, user: user, goal: goal) }
+    let!(:deleted_goal) { create(:goal, user: user) }
+    let!(:task_of_deleted_goal) { create(:task, user: user, goal: deleted_goal) }
+
+    before { deleted_goal.soft_delete! }
+
+    it '論理削除済みの目標に紐づくtaskは除外される' do
+      result = described_class.new(user.tasks).with_active_goal.result
+
+      expect(result).to contain_exactly(task_of_active_goal)
+    end
+  end
+
   describe '#paginate' do
     before do
       create_list(:task, 3, user: user, goal: goal)

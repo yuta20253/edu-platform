@@ -80,6 +80,7 @@ module Api
 
         def student_tasks
           TasksQuery.new(@student.tasks)
+                    .with_active_goal
                     .due_soon
                     .includes_units
                     .paginate(page: sanitized_page, per_page: sanitized_per_page)
