@@ -17,27 +17,45 @@ module Teacher
       ActiveRecord::Base.transaction do
         @announcement.lock!
 
-        @announcement.update!(
-          title: @title,
-          content: @content,
-          status: @status,
-          scheduled_at: @scheduled_at
-        )
+        update_announcement!
 
-        @announcement.announcement_targets.destroy_all
+        destroy_announcement_targets
 
-        @announcement_targets.each do |target|
-          @announcement.announcement_targets.create!(
-            Common::BuildAnnouncementTargetAttributesService.new(
-              publisher: @announcement.publisher,
-              target: target,
-              school_scoped: true
-            ).call
-          )
-        end
+        create_announcement_targets!(@announcement_targets)
       end
 
       @announcement
+    end
+
+    private
+
+    def update_announcement!
+      @announcement.update!(
+        title: @title,
+        content: @content,
+        status: @status,
+        scheduled_at: @scheduled_at
+      )
+    end
+
+    def destroy_announcement_targets
+      @announcement.announcement_targets.destroy_all
+    end
+
+    def create_announcement_target!(target)
+      @announcement.announcement_targets.create!(
+        Common::BuildAnnouncementTargetAttributesService.new(
+          publisher: @announcement.publisher,
+          target: target,
+          school_scoped: true
+        ).call
+      )
+    end
+
+    def create_announcement_targets!(targets)
+      targets.each do |target|
+        create_announcement_target!(target)
+      end
     end
   end
 end
