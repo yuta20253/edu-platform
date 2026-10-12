@@ -15,6 +15,8 @@ module Teacher
 
     def call
       ActiveRecord::Base.transaction do
+        @announcement.lock!
+
         @announcement.update!(
           title: @title,
           content: @content,
