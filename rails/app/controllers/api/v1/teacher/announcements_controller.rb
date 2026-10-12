@@ -12,8 +12,8 @@ module Api
           'published' => 'お知らせを配信しました。'
         }.freeze
 
-        before_action :set_announcement, only: [:edit, :update]
-        before_action :authorize_announcement, only: [:edit, :update]
+        before_action :set_announcement, only: %i[edit update]
+        before_action :authorize_announcement, only: %i[edit update]
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
           announcements = announcement_scope
@@ -25,12 +25,7 @@ module Api
             announcements: ActiveModelSerializers::SerializableResource.new(
               announcements, each_serializer: serializer_class
             ),
-            meta: {
-              current_page: announcements.current_page,
-              total_pages: announcements.total_pages,
-              total_count: announcements.total_count,
-              per_page: announcements.limit_value
-            }
+            meta: pagination_meta(announcements)
           }
         end
 
@@ -56,27 +51,10 @@ module Api
             students: {
               items: ActiveModelSerializers::SerializableResource.new(students,
                                                                       each_serializer: StudentSerializer),
-              meta: {
-                current_page: students.current_page,
-                total_pages: students.total_pages,
-                total_count: students.total_count,
-                per_page: students.limit_value
-              }
+              meta: pagination_meta(students)
             },
             own_grade_restriction: restriction
           }
-        end
-
-        def create
-          form = ::Teacher::CreateAnnouncementForm.new(current_user: current_user,
-                                                       **create_announcement_params.to_h.symbolize_keys)
-
-          if form.save
-            render json: { message: CREATED_MESSAGES[form.announcement.status], announcement_id: form.announcement.id },
-                   status: :created
-          else
-            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
-          end
         end
 
         def edit
@@ -91,11 +69,27 @@ module Api
           }, status: :ok
         end
 
-        def update
-          if @announcement.update(update_announcement_params)
-            render json: { message: 'お知らせのステータスを更新しました。' }, status: :ok
+        def create
+          form = ::Teacher::CreateAnnouncementForm.new(current_user: current_user,
+                                                       **create_announcement_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: { message: CREATED_MESSAGES[form.announcement.status], announcement_id: form.announcement.id },
+                   status: :created
           else
-            render json: { errors: @announcement.errors.full_messages }, status: :unprocessable_content
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
+          end
+        end
+
+        def update
+          form = ::Teacher::UpdateAnnouncementForm.new(current_user: current_user,
+                                                       announcement: @announcement,
+                                                       **update_announcement_params.to_h.symbolize_keys)
+
+          if form.save
+            render json: { message: 'お知らせを更新しました。' }, status: :ok
+          else
+            render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
         end
 
@@ -103,8 +97,8 @@ module Api
 
         def set_announcement
           @announcement = Announcement
-            .where(publisher_id: User.teachers.select(:id))
-            .find(params[:id])
+                          .where(publisher_id: User.teachers.select(:id))
+                          .find(params[:id])
         end
 
         def authorize_announcement
@@ -117,7 +111,8 @@ module Api
         end
 
         def update_announcement_params
-          params.require(:announcement).permit(:status, :scheduled_at)
+          params.require(:announcement).permit(:title, :content, :status, :scheduled_at,
+                                               announcement_targets: %i[target_type grade_id user_role_id user_id])
         end
 
         def announcement_scope
