@@ -12,7 +12,8 @@ module Api
           'published' => 'お知らせを配信しました。'
         }.freeze
 
-        before_action :set_announcement, only: :update
+        before_action :set_announcement, only: [:edit, :update]
+        before_action :authorize_announcement, only: [:edit, :update]
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
           announcements = announcement_scope
@@ -78,6 +79,18 @@ module Api
           end
         end
 
+        def edit
+          raise ActiveRecord::RecordNotFound.new(nil, 'Announcement') unless @announcement.editable?
+
+          announcement_targets = @announcement.announcement_targets.includes(:user)
+          render json: {
+            announcement: ::Teacher::AnnouncementEditSerializer.new(@announcement),
+            announcement_targets: ActiveModelSerializers::SerializableResource.new(
+              announcement_targets, each_serializer: ::Teacher::AnnouncementTargetSerializer
+            )
+          }, status: :ok
+        end
+
         def update
           if @announcement.update(update_announcement_params)
             render json: { message: 'お知らせのステータスを更新しました。' }, status: :ok
@@ -89,7 +102,13 @@ module Api
         private
 
         def set_announcement
-          @announcement = current_user.announcements.find(params[:id])
+          @announcement = Announcement
+            .where(publisher_id: User.teachers.select(:id))
+            .find(params[:id])
+        end
+
+        def authorize_announcement
+          authorize @announcement
         end
 
         def create_announcement_params
