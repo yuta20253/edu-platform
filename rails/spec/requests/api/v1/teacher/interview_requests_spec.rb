@@ -109,6 +109,18 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
 
         expect(response.parsed_body['interview_requests'].size).to eq(ApplicationController::DEFAULT_PER_PAGE + 1)
       end
+
+      it '予定日時の昇順で返る' do
+        later = create(:interview_request, :initiated_by_teacher, teacher: teacher,
+                                                                  scheduled_at: Time.zone.local(2026, 2, 20, 10, 0))
+        earlier = create(:interview_request, :initiated_by_teacher, teacher: teacher,
+                                                                    scheduled_at: Time.zone.local(2026, 2, 5, 10, 0))
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).to eq([earlier.id, later.id])
+      end
     end
   end
 
