@@ -2,6 +2,7 @@
 
 import { colors } from "@/app/theme/colors";
 import {
+  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -51,18 +52,36 @@ export const Presenter = ({
           flexWrap: "wrap",
         }}
       >
-        <Box>
-          <Typography
-            variant="h5"
-            fontWeight={700}
-            sx={{ color: colors.text.primary }}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Avatar
+            sx={{
+              width: 52,
+              height: 52,
+              bgcolor: colors.brand.primary,
+              fontSize: 22,
+              fontWeight: 700,
+            }}
           >
-            生徒詳細
-          </Typography>
+            {studentName.charAt(0)}
+          </Avatar>
 
-          <Typography variant="body1" sx={{ color: colors.text.secondary }}>
-            {studentName}
-          </Typography>
+          <Box>
+            <Typography
+              variant="caption"
+              fontWeight={600}
+              sx={{ display: "block", color: colors.text.muted }}
+            >
+              生徒詳細
+            </Typography>
+
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: colors.text.primary }}
+            >
+              {studentName}
+            </Typography>
+          </Box>
         </Box>
 
         <Button
@@ -108,7 +127,10 @@ export const Presenter = ({
         <GoalsTab goals={data.data.goals} />
       ) : (
         <>
-          <TasksTab tasks={data.data.tasks} />
+          <TasksTab
+            tasks={data.data.tasks}
+            totalCount={data.data.meta.total_count}
+          />
 
           {data.data.meta.total_pages > 1 && (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
