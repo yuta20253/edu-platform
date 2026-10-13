@@ -15,7 +15,7 @@ class GoalsQuery
   end
 
   def due_soon
-    @relation = @relation.order(due_date: :asc)
+    @relation = @relation.order(due_date: :asc, id: :asc)
     self
   end
 
