@@ -86,6 +86,18 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         ids = response.parsed_body['interview_requests'].pluck('id')
         expect(ids).to contain_exactly(first_day.id, last_day.id)
       end
+
+      it 'キャンセル済みの面談は含まれない' do
+        confirmed = create(:interview_request, :initiated_by_teacher, teacher: teacher, status: :confirmed,
+                                                                       scheduled_at: Time.zone.local(2026, 2, 10, 10, 0))
+        create(:interview_request, :initiated_by_teacher, teacher: teacher, status: :cancelled,
+                                                          scheduled_at: Time.zone.local(2026, 2, 11, 10, 0))
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).to contain_exactly(confirmed.id)
+      end
     end
   end
 
