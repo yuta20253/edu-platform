@@ -6,11 +6,10 @@ module Api
       class InterviewRequestsController < Api::V1::Teacher::BaseController
         before_action :require_valid_update_status!, only: :update
         before_action :require_lock_version!, only: %i[update destroy]
+        before_action :require_valid_period!, only: :index
 
         def index
-          return render_interview_requests_within_period if period_requested?
-
-          requests = scoped_interview_requests.order(created_at: :desc).page(sanitized_page).per(sanitized_per_page)
+          requests = listed_interview_requests.page(sanitized_page).per(sanitized_per_page)
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
               requests, each_serializer: InterviewRequestSerializer
@@ -82,22 +81,18 @@ module Api
           params[:from].present? || params[:to].present?
         end
 
-        def render_interview_requests_within_period
-          form = ::CalendarPeriodForm.new(period_params)
-          return render json: { errors: form.errors.full_messages }, status: :unprocessable_content unless form.valid?
+        def listed_interview_requests
+          return scoped_interview_requests.order(created_at: :desc) unless period_requested?
 
-          requests = InterviewRequestsQuery.new(scoped_interview_requests)
-                                           .within_period(from: form.from_date, to: form.to_date)
-                                           .exclude_cancelled
-                                           .result
-                                           .order(:scheduled_at, :id)
-                                           .load
-          render json: {
-            interview_requests: ActiveModelSerializers::SerializableResource.new(
-              requests, each_serializer: InterviewRequestSerializer
-            ),
-            meta: { current_page: 1, total_pages: 1, total_count: requests.size, per_page: requests.size }
-          }, status: :ok
+          InterviewRequestsQuery.new(scoped_interview_requests)
+                                .within_period(from: period_form.from_date, to: period_form.to_date)
+                                .exclude_cancelled
+                                .result
+                                .order(:scheduled_at, :id)
+        end
+
+        def period_form
+          @period_form ||= ::CalendarPeriodForm.new(period_params)
         end
 
         def period_params
@@ -121,6 +116,13 @@ module Api
           return if update_interview_request_params[:status].in?(allowed_statuses)
 
           render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
+        end
+
+        def require_valid_period!
+          return unless period_requested?
+          return if period_form.valid?
+
+          render json: { errors: period_form.errors.full_messages }, status: :unprocessable_content
         end
 
         def require_lock_version!
