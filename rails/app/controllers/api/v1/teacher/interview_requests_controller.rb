@@ -8,6 +8,8 @@ module Api
         before_action :require_lock_version!, only: %i[update destroy]
 
         def index
+          return render_interview_requests_within_period if period_requested?
+
           requests = scoped_interview_requests.order(created_at: :desc).page(sanitized_page).per(sanitized_per_page)
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
@@ -74,6 +76,27 @@ module Api
           relation = InterviewRequest.includes(:student, :teacher).for_participant(current_user)
           relation = relation.where(status: params[:status]) if params[:status].present?
           relation
+        end
+
+        def period_requested?
+          params[:from].present? || params[:to].present?
+        end
+
+        def render_interview_requests_within_period
+          form = ::CalendarPeriodForm.new(period_params)
+
+          requests = InterviewRequestsQuery.new(scoped_interview_requests)
+                                           .within_period(from: form.from_date, to: form.to_date)
+                                           .result
+          render json: {
+            interview_requests: ActiveModelSerializers::SerializableResource.new(
+              requests, each_serializer: InterviewRequestSerializer
+            )
+          }, status: :ok
+        end
+
+        def period_params
+          params.permit(:from, :to).to_h.symbolize_keys
         end
 
         def create_interview_request_params
