@@ -103,6 +103,40 @@ describe("StudentDetailPresenter", () => {
     });
   });
 
+  describe("タブ切り替え中・失敗時", () => {
+    it("読み込み中はヘッダーとタブを残したままローディングを表示する", () => {
+      renderPresenter({ tab: "goals", loading: true });
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "一覧へ戻る" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "目標" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      expect(screen.queryByText("yamada@example.com")).not.toBeInTheDocument();
+    });
+
+    it("選択中のタブとデータのタブが食い違う間は、前のタブの内容を出さずローディングを表示する", () => {
+      renderPresenter({ tab: "goals" });
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(screen.queryByText("yamada@example.com")).not.toBeInTheDocument();
+    });
+
+    it("取得に失敗したときはヘッダーを残したままエラーを表示する", () => {
+      renderPresenter({ tab: "tasks", error: true });
+      expect(
+        screen.getByText("データの取得に失敗しました"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "一覧へ戻る" }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+  });
+
   describe("プロフィールタブ", () => {
     it("基本情報が表示される", () => {
       renderPresenter();
