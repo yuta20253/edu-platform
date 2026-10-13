@@ -122,6 +122,15 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         expect(ids).to eq([earlier.id, later.id])
       end
 
+      it '他の教員が担当する面談は期間内でも含まれない' do
+        other_teacher_request.update!(scheduled_at: Time.zone.local(2026, 2, 10, 10, 0))
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).not_to include(other_teacher_request.id)
+      end
+
       context 'fromのみ指定した場合' do
         let(:period_params) { { from: '2026-02-01' } }
 
