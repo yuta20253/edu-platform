@@ -91,7 +91,7 @@ module Api
                                            .exclude_cancelled
                                            .result
                                            .order(:scheduled_at, :id)
-                                           .to_a
+                                           .load
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
               requests, each_serializer: InterviewRequestSerializer
