@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { GoalsTab } from "./components/GoalsTab";
 import { ProfileTab } from "./components/ProfileTab";
 import { StudentDetailResult, StudentDetailTab } from "./types";
 
@@ -97,8 +98,10 @@ export const Presenter = ({
         <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
           <CircularProgress />
         </Box>
+      ) : data.tab === "profile" ? (
+        <ProfileTab student={data.data} />
       ) : (
-        data.tab === "profile" && <ProfileTab student={data.data} />
+        data.tab === "goals" && <GoalsTab goals={data.data.goals} />
       )}
     </Box>
   );
