@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ComponentProps } from "react";
 import { Presenter } from "./Presenter";
-import type { Student, StudentGoalsData } from "./types";
+import type { Student, StudentGoal, StudentGoalsData } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -43,6 +43,20 @@ const mockGoalsData: StudentGoalsData = {
   goals: [],
 };
 
+const mockGoal: StudentGoal = {
+  id: 1,
+  title: "英検2級に合格する",
+  description: "12月の試験で合格する",
+  status: "in_progress",
+  due_date: "2026/12/31",
+  progress: {
+    task_completed_count: 2,
+    task_total_count: 5,
+    completion_rate: 40.0,
+  },
+  tasks: [],
+};
+
 type Props = ComponentProps<typeof Presenter>;
 
 const renderPresenter = (props: Partial<Props> = {}) => {
@@ -60,6 +74,12 @@ const renderPresenter = (props: Partial<Props> = {}) => {
 
 const renderProfile = (student: Student) =>
   renderPresenter({ data: { tab: "profile", data: student } });
+
+const renderGoals = (goals: StudentGoal[]) =>
+  renderPresenter({
+    tab: "goals",
+    data: { tab: "goals", data: { ...mockGoalsData, goals } },
+  });
 
 describe("StudentDetailPresenter", () => {
   describe("ヘッダーとタブ", () => {
@@ -190,6 +210,34 @@ describe("StudentDetailPresenter", () => {
     it("address が未設定のとき住所が「未設定」になる", () => {
       renderProfile({ ...mockStudent, address: undefined });
       expect(screen.getByText("未設定")).toBeInTheDocument();
+    });
+  });
+
+  describe("目標タブ", () => {
+    it("目標のタイトル・ステータス・期限が表示される", () => {
+      renderGoals([mockGoal]);
+      expect(screen.getByText("英検2級に合格する")).toBeInTheDocument();
+      expect(screen.getByText("進行中")).toBeInTheDocument();
+      expect(screen.getByText("期限: 2026/12/31")).toBeInTheDocument();
+    });
+
+    it("期限が未設定のときは「期限なし」と表示される", () => {
+      renderGoals([{ ...mockGoal, due_date: null }]);
+      expect(screen.getByText("期限なし")).toBeInTheDocument();
+    });
+
+    it("タスクの完了数/総数と完了率の進捗バーが表示される", () => {
+      renderGoals([mockGoal]);
+      expect(screen.getByText("タスク完了 2/5")).toBeInTheDocument();
+      expect(screen.getByRole("progressbar")).toHaveAttribute(
+        "aria-valuenow",
+        "40",
+      );
+    });
+
+    it("目標が0件のときは空である旨が表示される", () => {
+      renderGoals([]);
+      expect(screen.getByText("目標がありません")).toBeInTheDocument();
     });
   });
 });
