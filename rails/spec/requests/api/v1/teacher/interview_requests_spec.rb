@@ -98,25 +98,30 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         expect(ids).to contain_exactly(confirmed.id)
       end
 
-      it '1ページの既定件数を超えても期間内の面談が全件返る' do
-        (ApplicationController::DEFAULT_PER_PAGE + 1).times do |i|
-          create_scheduled_request(Time.zone.local(2026, 2, 1 + i, 10, 0))
+      context '期間内の面談が1ページの既定件数を超える場合' do
+        let(:over_default_count) { ApplicationController::DEFAULT_PER_PAGE + 1 }
+
+        before do
+          over_default_count.times do |i|
+            create_scheduled_request(Time.zone.local(2026, 2, 1 + i, 10, 0))
+          end
         end
 
-        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+        it '通常の一覧と同じくページネーションされ、metaが返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
 
-        expect(response.parsed_body['interview_requests'].size).to eq(ApplicationController::DEFAULT_PER_PAGE + 1)
-      end
+          expect(response.parsed_body['interview_requests'].size).to eq(ApplicationController::DEFAULT_PER_PAGE)
+          expect(response.parsed_body['meta']).to eq(
+            'current_page' => 1, 'total_pages' => 2, 'total_count' => over_default_count,
+            'per_page' => ApplicationController::DEFAULT_PER_PAGE
+          )
+        end
 
-      it '全件を1ページとしたmetaが返る' do
-        create_scheduled_request(Time.zone.local(2026, 2, 5, 10, 0))
-        create_scheduled_request(Time.zone.local(2026, 2, 6, 10, 0))
+        it 'per_pageを指定すると既定件数を超えて取得できる' do
+          get '/api/v1/teacher/interview_requests', params: period_params.merge(per_page: 100), headers: request_headers
 
-        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
-
-        expect(response.parsed_body['meta']).to eq(
-          'current_page' => 1, 'total_pages' => 1, 'total_count' => 2, 'per_page' => 2
-        )
+          expect(response.parsed_body['interview_requests'].size).to eq(over_default_count)
+        end
       end
 
       it '予定日時の昇順で返る' do
