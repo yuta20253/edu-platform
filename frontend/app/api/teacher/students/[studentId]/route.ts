@@ -7,10 +7,13 @@ export async function GET(
   { params }: { params: Promise<{ studentId: string }> },
 ) {
   const { studentId } = await params;
-  const tab = req.nextUrl.searchParams.get("tab");
+  const { searchParams } = req.nextUrl;
+  const tab = searchParams.get("tab");
+  const page = searchParams.get("page");
 
   const query = new URLSearchParams();
   if (tab) query.set("tab", tab);
+  if (page) query.set("page", page);
   const queryString = query.toString();
 
   try {
