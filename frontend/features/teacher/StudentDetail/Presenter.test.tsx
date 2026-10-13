@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { ComponentProps } from "react";
 import { Presenter } from "./Presenter";
 import { colors } from "@/app/theme/colors";
@@ -163,6 +163,14 @@ describe("StudentDetailPresenter", () => {
       expect(screen.getByText("山田太郎")).toBeInTheDocument();
     });
 
+    it("ヘッダーに生徒名の頭文字のアバターが表示される", () => {
+      renderPresenter({
+        tab: "goals",
+        data: { tab: "goals", data: mockGoalsData },
+      });
+      expect(screen.getByText("山")).toBeInTheDocument();
+    });
+
     it("「一覧へ戻る」リンクが /teacher/students を指している", () => {
       renderPresenter();
       expect(screen.getByRole("link", { name: "一覧へ戻る" })).toHaveAttribute(
@@ -285,9 +293,87 @@ describe("StudentDetailPresenter", () => {
       ).toHaveAttribute("aria-valuenow", "40");
     });
 
-    it("目標が0件のときは空である旨が表示される", () => {
+    it("目標が0件のときは空である旨が表示され、サマリーは表示しない", () => {
       renderGoals([]);
       expect(screen.getByText("目標がありません")).toBeInTheDocument();
+      expect(screen.queryByText("目標数")).not.toBeInTheDocument();
+    });
+
+    it("全目標のサマリー(目標数・達成した目標・タスク完了の合計)が表示される", () => {
+      renderGoals([
+        mockGoal,
+        {
+          ...mockGoal,
+          id: 2,
+          title: "数学の定期テストで80点",
+          status: "completed",
+          progress: {
+            task_completed_count: 3,
+            task_total_count: 3,
+            completion_rate: 100.0,
+          },
+        },
+      ]);
+      const summary = screen.getByRole("region", { name: "目標のサマリー" });
+      expect(within(summary).getByText("目標数")).toBeInTheDocument();
+      expect(within(summary).getByText("2件")).toBeInTheDocument();
+      expect(within(summary).getByText("達成した目標")).toBeInTheDocument();
+      expect(within(summary).getByText("1件")).toBeInTheDocument();
+      expect(within(summary).getByText("タスク完了")).toBeInTheDocument();
+      expect(within(summary).getByText("5/8")).toBeInTheDocument();
+    });
+
+    it("目標に紐づくタスクがステータス付きで表示される", () => {
+      renderGoals([
+        {
+          ...mockGoal,
+          tasks: [
+            {
+              id: 10,
+              title: "単語帳を1周する",
+              status: "completed",
+              due_date: "2026/11/30",
+            },
+            {
+              id: 11,
+              title: "過去問を解く",
+              status: "not_started",
+              due_date: null,
+            },
+          ],
+        },
+      ]);
+      expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
+      expect(screen.getByText("過去問を解く")).toBeInTheDocument();
+      expect(screen.getByText("完了")).toBeInTheDocument();
+      expect(screen.getByText("未着手")).toBeInTheDocument();
+    });
+
+    it("目標に紐づくタスクがないときはその旨が表示される", () => {
+      renderGoals([mockGoal]);
+      expect(screen.getByText("タスクはまだありません")).toBeInTheDocument();
+    });
+
+    describe("期限切れ", () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it("未完了で期限を過ぎた目標には「期限切れ」が表示される", () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        vi.setSystemTime(new Date(2026, 9, 14));
+        renderGoals([{ ...mockGoal, due_date: "2026/10/01" }]);
+        expect(screen.getByText("期限切れ")).toBeInTheDocument();
+      });
+
+      it("完了済みの目標は期限を過ぎていても「期限切れ」を表示しない", () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        vi.setSystemTime(new Date(2026, 9, 14));
+        renderGoals([
+          { ...mockGoal, due_date: "2026/10/01", status: "completed" },
+        ]);
+        expect(screen.queryByText("期限切れ")).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -301,10 +387,24 @@ describe("StudentDetailPresenter", () => {
       expect(screen.getByText("目標: 英検2級に合格する")).toBeInTheDocument();
     });
 
+    it("タスクの総件数が表示される", () => {
+      renderTasks({
+        meta: {
+          current_page: 1,
+          total_pages: 3,
+          total_count: 25,
+          per_page: 10,
+        },
+      });
+      expect(screen.getByText("全25件")).toBeInTheDocument();
+    });
+
     it("タスク全体の進捗率と正答率が表示される", () => {
       renderTasks();
-      expect(screen.getByText("進捗 60%")).toBeInTheDocument();
-      expect(screen.getByText("正答率 66.7%")).toBeInTheDocument();
+      expect(screen.getByText("進捗")).toBeInTheDocument();
+      expect(screen.getByText("60%")).toBeInTheDocument();
+      expect(screen.getByText("正答率")).toBeInTheDocument();
+      expect(screen.getByText("66.7%")).toBeInTheDocument();
       expect(
         screen.getByRole("progressbar", { name: "単語帳を1周するの進捗" }),
       ).toHaveAttribute("aria-valuenow", "60");
@@ -339,7 +439,7 @@ describe("StudentDetailPresenter", () => {
           },
         ],
       });
-      expect(screen.getByText("正答率 -")).toBeInTheDocument();
+      expect(screen.getByText("-")).toBeInTheDocument();
     });
 
     it("正答率が80%以上のときは成功色で表示される", () => {
@@ -351,9 +451,17 @@ describe("StudentDetailPresenter", () => {
           },
         ],
       });
-      expect(screen.getByText("正答率 85%")).toHaveStyle({
+      expect(screen.getByText("85%")).toHaveStyle({
         color: colors.status.success,
       });
+    });
+
+    it("未完了で期限を過ぎたタスクには「期限切れ」が表示される", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(2026, 9, 14));
+      renderTasks({ tasks: [{ ...mockTask, due_date: "2026/10/01" }] });
+      expect(screen.getByText("期限切れ")).toBeInTheDocument();
+      vi.useRealTimers();
     });
 
     it("タスクが0件のときは空である旨が表示される", () => {
@@ -376,10 +484,16 @@ describe("StudentDetailPresenter", () => {
 
       await userEvent.click(screen.getByText("単語帳を1周する"));
 
-      expect(screen.getByText("不定詞")).toBeInTheDocument();
-      expect(screen.getByText("標準レベル2")).toBeInTheDocument();
-      expect(screen.getByText("10/10問")).toBeInTheDocument();
-      expect(screen.getByText("正答率 80%")).toBeInTheDocument();
+      const table = screen.getByRole("table");
+      ["Unit", "コース", "解答数", "進捗", "正答率"].forEach((name) =>
+        expect(
+          within(table).getByRole("columnheader", { name }),
+        ).toBeInTheDocument(),
+      );
+      expect(within(table).getByText("不定詞")).toBeInTheDocument();
+      expect(within(table).getByText("標準レベル2")).toBeInTheDocument();
+      expect(within(table).getByText("10/10問")).toBeInTheDocument();
+      expect(within(table).getByText("80%")).toBeInTheDocument();
       expect(
         screen.getByRole("progressbar", { name: "不定詞の進捗" }),
       ).toHaveAttribute("aria-valuenow", "100");
@@ -405,8 +519,9 @@ describe("StudentDetailPresenter", () => {
 
       await userEvent.click(screen.getByText("単語帳を1周する"));
 
-      expect(screen.getByText("0/10問")).toBeInTheDocument();
-      expect(screen.getAllByText("正答率 -")).toHaveLength(1);
+      const table = screen.getByRole("table");
+      expect(within(table).getByText("0/10問")).toBeInTheDocument();
+      expect(within(table).getByText("-")).toBeInTheDocument();
     });
 
     it("紐づくUnitがないタスクは展開するとその旨が表示される", async () => {
