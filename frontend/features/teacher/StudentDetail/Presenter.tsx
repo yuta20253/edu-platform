@@ -1,7 +1,14 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import Link from "next/link";
 import { ProfileTab } from "./components/ProfileTab";
 import { StudentDetailResult, StudentDetailTab } from "./types";
@@ -16,7 +23,13 @@ type Props = {
   onPageChange: (page: number) => void;
 };
 
-export const Presenter = ({ tab, data, onTabChange }: Props) => {
+export const Presenter = ({
+  tab,
+  data,
+  loading,
+  error,
+  onTabChange,
+}: Props) => {
   // プロフィールは生徒の情報をそのまま返し、目標・タスクは student に名前を持つ
   const studentName =
     data.tab === "profile" ? data.data.name : data.data.student.name;
@@ -72,7 +85,21 @@ export const Presenter = ({ tab, data, onTabChange }: Props) => {
         <Tab label="タスク" value="tasks" />
       </Tabs>
 
-      {data.tab === "profile" && <ProfileTab student={data.data} />}
+      {error ? (
+        <Typography
+          variant="body2"
+          sx={{ py: 6, textAlign: "center", color: colors.text.secondary }}
+        >
+          データの取得に失敗しました
+        </Typography>
+      ) : loading || data.tab !== tab ? (
+        // タブを押してから取得が始まるまでの間も、前のタブの内容を出さない
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        data.tab === "profile" && <ProfileTab student={data.data} />
+      )}
     </Box>
   );
 };
