@@ -87,6 +87,7 @@ module Api
 
           requests = InterviewRequestsQuery.new(scoped_interview_requests)
                                            .within_period(from: form.from_date, to: form.to_date)
+                                           .exclude_cancelled
                                            .result
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
