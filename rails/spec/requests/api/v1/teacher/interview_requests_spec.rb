@@ -98,6 +98,17 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         ids = response.parsed_body['interview_requests'].pluck('id')
         expect(ids).to contain_exactly(confirmed.id)
       end
+
+      it '1ページの既定件数を超えても期間内の面談が全件返る' do
+        (ApplicationController::DEFAULT_PER_PAGE + 1).times do |i|
+          create(:interview_request, :initiated_by_teacher, teacher: teacher,
+                                                            scheduled_at: Time.zone.local(2026, 2, 1 + i, 10, 0))
+        end
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        expect(response.parsed_body['interview_requests'].size).to eq(ApplicationController::DEFAULT_PER_PAGE + 1)
+      end
     end
   end
 
