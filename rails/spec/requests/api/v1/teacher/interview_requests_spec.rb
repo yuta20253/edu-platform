@@ -108,6 +108,17 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         expect(response.parsed_body['interview_requests'].size).to eq(ApplicationController::DEFAULT_PER_PAGE + 1)
       end
 
+      it '全件を1ページとしたmetaが返る' do
+        create_scheduled_request(Time.zone.local(2026, 2, 5, 10, 0))
+        create_scheduled_request(Time.zone.local(2026, 2, 6, 10, 0))
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        expect(response.parsed_body['meta']).to eq(
+          'current_page' => 1, 'total_pages' => 1, 'total_count' => 2, 'per_page' => 2
+        )
+      end
+
       it '予定日時の昇順で返る' do
         later = create_scheduled_request(Time.zone.local(2026, 2, 20, 10, 0))
         earlier = create_scheduled_request(Time.zone.local(2026, 2, 5, 10, 0))
