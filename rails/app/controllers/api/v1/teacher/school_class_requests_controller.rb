@@ -106,7 +106,7 @@ module Api
                                   )
                                   .joins(:grade)
                                   .where(grades: { high_school_id: current_user.high_school_id })
-                                  .order(created_at: :desc)
+                                  .order(created_at: :desc, id: :desc)
 
           unless manage_other_teachers?
             school_class_requests = school_class_requests.where(applicant_id: current_user.id)
