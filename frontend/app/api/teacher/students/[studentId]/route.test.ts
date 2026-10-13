@@ -35,6 +35,13 @@ describe("GET /api/teacher/students/:studentId", () => {
     );
   });
 
+  it("tasks タブの page をバックエンドへ転送する", async () => {
+    await get("?tab=tasks&page=2");
+    expect(railsFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students/1?tab=tasks&page=2",
+    );
+  });
+
   it("バックエンドのレスポンスをそのまま返す", async () => {
     const res = await get("");
     expect(res.status).toBe(200);
