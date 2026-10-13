@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
+import { ComponentProps } from "react";
 import { Presenter } from "./Presenter";
-import type { Student } from "./types";
+import type { Student, StudentGoalsData } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -36,71 +38,124 @@ const mockStudent: Student = {
   grade: { year: 1, display_name: "高校1年" },
 };
 
+const mockGoalsData: StudentGoalsData = {
+  student: { id: 1, name: "山田太郎" },
+  goals: [],
+};
+
+type Props = ComponentProps<typeof Presenter>;
+
+const renderPresenter = (props: Partial<Props> = {}) => {
+  const defaultProps: Props = {
+    tab: "profile",
+    data: { tab: "profile", data: mockStudent },
+    loading: false,
+    error: false,
+    page: 1,
+    onTabChange: vi.fn(),
+    onPageChange: vi.fn(),
+  };
+  return render(<Presenter {...defaultProps} {...props} />);
+};
+
+const renderProfile = (student: Student) =>
+  renderPresenter({ data: { tab: "profile", data: student } });
+
 describe("StudentDetailPresenter", () => {
-  it("基本情報が表示される", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByText("生徒詳細")).toBeInTheDocument();
-    expect(screen.getByText("山田太郎")).toBeInTheDocument();
-    expect(screen.getByText("ヤマダタロウ")).toBeInTheDocument();
-    expect(screen.getByText("yamada@example.com")).toBeInTheDocument();
-    expect(screen.getByText("高校1年")).toBeInTheDocument();
-    expect(screen.getByText("東京第一高校")).toBeInTheDocument();
+  describe("ヘッダーとタブ", () => {
+    it("プロフィール・目標・タスクの3つのタブが表示され、選択中のタブが選ばれている", () => {
+      renderPresenter();
+      expect(screen.getByRole("tab", { name: "プロフィール" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      expect(screen.getByRole("tab", { name: "目標" })).toHaveAttribute(
+        "aria-selected",
+        "false",
+      );
+      expect(screen.getByRole("tab", { name: "タスク" })).toBeInTheDocument();
+    });
+
+    it("タブをクリックするとonTabChangeがそのタブで呼ばれる", async () => {
+      const onTabChange = vi.fn();
+      renderPresenter({ onTabChange });
+
+      await userEvent.click(screen.getByRole("tab", { name: "タスク" }));
+
+      expect(onTabChange).toHaveBeenCalledWith("tasks");
+    });
+
+    it("目標タブのデータでもヘッダーに生徒名が表示される", () => {
+      renderPresenter({
+        tab: "goals",
+        data: { tab: "goals", data: mockGoalsData },
+      });
+      expect(screen.getByText("生徒詳細")).toBeInTheDocument();
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+    });
+
+    it("「一覧へ戻る」リンクが /teacher/students を指している", () => {
+      renderPresenter();
+      expect(screen.getByRole("link", { name: "一覧へ戻る" })).toHaveAttribute(
+        "href",
+        "/teacher/students",
+      );
+    });
   });
 
-  it("プロフィール完了時は「入力完了」バッジが表示される", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByText("入力完了")).toBeInTheDocument();
-  });
+  describe("プロフィールタブ", () => {
+    it("基本情報が表示される", () => {
+      renderPresenter();
+      expect(screen.getByText("ヤマダタロウ")).toBeInTheDocument();
+      expect(screen.getByText("yamada@example.com")).toBeInTheDocument();
+      expect(screen.getByText("高校1年")).toBeInTheDocument();
+      expect(screen.getByText("東京第一高校")).toBeInTheDocument();
+    });
 
-  it("プロフィール未完了時は「未完了」バッジが表示される", () => {
-    render(
-      <Presenter student={{ ...mockStudent, profile_completed: false }} />,
-    );
-    expect(screen.getByText("未完了")).toBeInTheDocument();
-  });
+    it("氏名がヘッダーとプロフィールの両方に表示される", () => {
+      renderPresenter();
+      expect(screen.getAllByText("山田太郎")).toHaveLength(2);
+    });
 
-  it("個人情報（生年月日・性別・電話番号・住所）が表示される", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByText("2008-04-01")).toBeInTheDocument();
-    expect(screen.getByText("男性")).toBeInTheDocument();
-    expect(screen.getByText("09012345678")).toBeInTheDocument();
-    expect(
-      screen.getByText("〒1000001 東京都千代田区千代田"),
-    ).toBeInTheDocument();
-  });
+    it("プロフィール完了時は「入力完了」バッジが表示される", () => {
+      renderPresenter();
+      expect(screen.getByText("入力完了")).toBeInTheDocument();
+    });
 
-  it("性別が female のとき「女性」と表示される", () => {
-    render(
-      <Presenter
-        student={{
-          ...mockStudent,
-          user_personal_info: {
-            ...mockStudent.user_personal_info!,
-            gender: "female",
-          },
-        }}
-      />,
-    );
-    expect(screen.getByText("女性")).toBeInTheDocument();
-  });
+    it("プロフィール未完了時は「未完了」バッジが表示される", () => {
+      renderProfile({ ...mockStudent, profile_completed: false });
+      expect(screen.getByText("未完了")).toBeInTheDocument();
+    });
 
-  it("user_personal_info が未設定のとき生年月日・電話番号・性別が「未設定」になる", () => {
-    render(
-      <Presenter student={{ ...mockStudent, user_personal_info: undefined }} />,
-    );
-    expect(screen.getAllByText("未設定").length).toBeGreaterThanOrEqual(2);
-  });
+    it("個人情報（生年月日・性別・電話番号・住所）が表示される", () => {
+      renderPresenter();
+      expect(screen.getByText("2008-04-01")).toBeInTheDocument();
+      expect(screen.getByText("男性")).toBeInTheDocument();
+      expect(screen.getByText("09012345678")).toBeInTheDocument();
+      expect(
+        screen.getByText("〒1000001 東京都千代田区千代田"),
+      ).toBeInTheDocument();
+    });
 
-  it("address が未設定のとき住所が「未設定」になる", () => {
-    render(<Presenter student={{ ...mockStudent, address: undefined }} />);
-    expect(screen.getByText("未設定")).toBeInTheDocument();
-  });
+    it("性別が female のとき「女性」と表示される", () => {
+      renderProfile({
+        ...mockStudent,
+        user_personal_info: {
+          ...mockStudent.user_personal_info!,
+          gender: "female",
+        },
+      });
+      expect(screen.getByText("女性")).toBeInTheDocument();
+    });
 
-  it("「一覧へ戻る」リンクが /teacher/students を指している", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByRole("link", { name: "一覧へ戻る" })).toHaveAttribute(
-      "href",
-      "/teacher/students",
-    );
+    it("user_personal_info が未設定のとき生年月日・電話番号・性別が「未設定」になる", () => {
+      renderProfile({ ...mockStudent, user_personal_info: undefined });
+      expect(screen.getAllByText("未設定").length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("address が未設定のとき住所が「未設定」になる", () => {
+      renderProfile({ ...mockStudent, address: undefined });
+      expect(screen.getByText("未設定")).toBeInTheDocument();
+    });
   });
 });
