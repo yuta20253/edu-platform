@@ -121,6 +121,37 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         ids = response.parsed_body['interview_requests'].pluck('id')
         expect(ids).to eq([earlier.id, later.id])
       end
+
+      context 'fromのみ指定した場合' do
+        let(:period_params) { { from: '2026-02-01' } }
+
+        it '422が返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body['errors']).to be_present
+        end
+      end
+
+      context '日付として不正な値の場合' do
+        let(:period_params) { { from: '2026-02-99', to: '2026-02-28' } }
+
+        it '422が返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
+
+      context '期間が92日を超える場合' do
+        let(:period_params) { { from: '2026-01-01', to: '2026-04-02' } }
+
+        it '422が返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
     end
   end
 
