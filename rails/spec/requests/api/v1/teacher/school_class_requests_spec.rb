@@ -84,6 +84,16 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
         expect(request_ids).to eq([other_teacher_request.id, own_request.id])
       end
 
+      it '申請日時が同じ場合はidの大きい順に返る' do
+        same_time = 1.day.ago
+        own_request.update_column(:created_at, same_time)
+        other_teacher_request.update_column(:created_at, same_time)
+
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to eq([other_teacher_request.id, own_request.id])
+      end
+
       context 'statusを指定した場合' do
         before { other_teacher_request.update_column(:status, SchoolClassRequest.statuses[:rejected]) }
 
