@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const StudentDetail = ({ studentId }: Props) => {
-  const { student, loading, error } = useStudent(studentId);
+  const { data, loading, error } = useStudent(studentId, "profile", 1);
 
   if (loading) {
     return (
@@ -26,7 +26,7 @@ export const StudentDetail = ({ studentId }: Props) => {
     );
   }
 
-  if (error || !student) {
+  if (error || data?.tab !== "profile") {
     return (
       <Box
         sx={{
@@ -45,5 +45,5 @@ export const StudentDetail = ({ studentId }: Props) => {
     );
   }
 
-  return <Presenter student={student} />;
+  return <Presenter student={data.data} />;
 };
