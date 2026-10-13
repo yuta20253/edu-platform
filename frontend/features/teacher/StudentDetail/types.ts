@@ -1,5 +1,6 @@
 import type { Status } from "@/types/common/status";
 import type { PaginationMeta } from "@/types/common/pagination";
+import type { TaskPriority } from "@/types/common/priority";
 
 export type Student = {
   id: number;
@@ -33,8 +34,6 @@ export type Student = {
 };
 
 export type StudentDetailTab = "profile" | "goals" | "tasks";
-
-export type TaskPriority = "very_low" | "low" | "normal" | "high" | "very_high";
 
 type StudentSummary = {
   id: number;
