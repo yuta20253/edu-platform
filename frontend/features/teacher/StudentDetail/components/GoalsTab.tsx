@@ -81,6 +81,7 @@ export const GoalsTab = ({ goals }: Props) => {
             <LinearProgress
               variant="determinate"
               value={goal.progress.completion_rate}
+              aria-label={`${goal.title}のタスク完了率`}
               sx={{ height: 6, borderRadius: 999 }}
             />
           </CardContent>

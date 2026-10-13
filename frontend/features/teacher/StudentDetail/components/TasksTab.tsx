@@ -102,6 +102,7 @@ export const TasksTab = ({ tasks }: Props) => {
                   <LinearProgress
                     variant="determinate"
                     value={task.progress.progress_rate}
+                    aria-label={`${task.title}の進捗`}
                     sx={{ height: 6, borderRadius: 999 }}
                   />
                 </Box>

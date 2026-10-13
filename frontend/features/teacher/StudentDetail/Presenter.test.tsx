@@ -278,10 +278,11 @@ describe("StudentDetailPresenter", () => {
     it("タスクの完了数/総数と完了率の進捗バーが表示される", () => {
       renderGoals([mockGoal]);
       expect(screen.getByText("タスク完了 2/5")).toBeInTheDocument();
-      expect(screen.getByRole("progressbar")).toHaveAttribute(
-        "aria-valuenow",
-        "40",
-      );
+      expect(
+        screen.getByRole("progressbar", {
+          name: "英検2級に合格するのタスク完了率",
+        }),
+      ).toHaveAttribute("aria-valuenow", "40");
     });
 
     it("目標が0件のときは空である旨が表示される", () => {
@@ -304,6 +305,9 @@ describe("StudentDetailPresenter", () => {
       renderTasks();
       expect(screen.getByText("進捗 60%")).toBeInTheDocument();
       expect(screen.getByText("正答率 66.7%")).toBeInTheDocument();
+      expect(
+        screen.getByRole("progressbar", { name: "単語帳を1周するの進捗" }),
+      ).toHaveAttribute("aria-valuenow", "60");
     });
 
     it("完了済みのタスクも表示される", () => {
