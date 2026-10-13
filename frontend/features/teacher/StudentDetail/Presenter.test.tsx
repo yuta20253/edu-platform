@@ -360,4 +360,57 @@ describe("StudentDetailPresenter", () => {
       expect(screen.getByText("タスクがありません")).toBeInTheDocument();
     });
   });
+
+  describe("タスクのUnit別の解答状況", () => {
+    it("タスク行を展開する前はUnitの解答状況を表示しない", () => {
+      renderTasks();
+      expect(screen.queryByText("不定詞")).not.toBeInTheDocument();
+    });
+
+    it("タスク行を展開するとUnit名・コース名・解答数/問題数・正答率が表示される", async () => {
+      renderTasks();
+
+      await userEvent.click(screen.getByText("単語帳を1周する"));
+
+      expect(screen.getByText("不定詞")).toBeInTheDocument();
+      expect(screen.getByText("標準レベル2")).toBeInTheDocument();
+      expect(screen.getByText("10/10問")).toBeInTheDocument();
+      expect(screen.getByText("正答率 80%")).toBeInTheDocument();
+      expect(
+        screen.getByRole("progressbar", { name: "不定詞の進捗" }),
+      ).toHaveAttribute("aria-valuenow", "100");
+    });
+
+    it("未解答のUnitは正答率に「-」が表示される", async () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            units: [
+              {
+                ...mockTask.units[0],
+                answered_count: 0,
+                correct_count: 0,
+                progress_rate: 0,
+                correct_rate: null,
+              },
+            ],
+          },
+        ],
+      });
+
+      await userEvent.click(screen.getByText("単語帳を1周する"));
+
+      expect(screen.getByText("0/10問")).toBeInTheDocument();
+      expect(screen.getAllByText("正答率 -")).toHaveLength(1);
+    });
+
+    it("紐づくUnitがないタスクは展開するとその旨が表示される", async () => {
+      renderTasks({ tasks: [{ ...mockTask, units: [] }] });
+
+      await userEvent.click(screen.getByText("単語帳を1周する"));
+
+      expect(screen.getByText("紐づくUnitがありません")).toBeInTheDocument();
+    });
+  });
 });
