@@ -62,6 +62,31 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
       # 内訳: current_userの認証クエリ1件 + student/teacherのバッチpreloadクエリ2件(N+1なら記録数に比例して増える)
       expect(user_queries.size).to be <= 3
     end
+
+    context 'from/toで期間を指定した場合' do
+      let(:period_params) { { from: '2026-02-01', to: '2026-02-28' } }
+      let(:request_headers) { headers.merge('Cookie' => cookie) }
+
+      before do
+        own_request.update!(scheduled_at: Time.zone.local(2026, 1, 15, 10, 0))
+      end
+
+      it '期間内に予定されている面談のみ返る' do
+        first_day = create(:interview_request, :initiated_by_teacher, teacher: teacher,
+                                                                       scheduled_at: Time.zone.local(2026, 2, 1, 0, 0))
+        last_day = create(:interview_request, :initiated_by_teacher, teacher: teacher,
+                                                                      scheduled_at: Time.zone.local(2026, 2, 28, 23, 59))
+        create(:interview_request, :initiated_by_teacher, teacher: teacher,
+                                                          scheduled_at: Time.zone.local(2026, 3, 1, 0, 0))
+        create(:interview_request, :initiated_by_teacher, teacher: teacher, scheduled_at: nil)
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        expect(response).to have_http_status(:ok)
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).to contain_exactly(first_day.id, last_day.id)
+      end
+    end
   end
 
   describe 'POST /api/v1/teacher/interview_requests' do
