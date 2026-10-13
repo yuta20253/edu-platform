@@ -144,7 +144,7 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
       end
 
       context '期間が92日を超える場合' do
-        let(:period_params) { { from: '2026-01-01', to: '2026-04-02' } }
+        let(:period_params) { { from: '2026-01-01', to: '2026-04-03' } }
 
         it '422が返る' do
           get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
