@@ -3,7 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ComponentProps } from "react";
 import { Presenter } from "./Presenter";
-import type { Student, StudentGoal, StudentGoalsData } from "./types";
+import { colors } from "@/app/theme/colors";
+import type {
+  Student,
+  StudentGoal,
+  StudentGoalsData,
+  StudentTask,
+  StudentTasksData,
+} from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -57,6 +64,42 @@ const mockGoal: StudentGoal = {
   tasks: [],
 };
 
+const mockTask: StudentTask = {
+  id: 10,
+  title: "単語帳を1周する",
+  status: "in_progress",
+  priority: "normal",
+  due_date: "2026/11/30",
+  completed_at: null,
+  goal: { id: 1, title: "英検2級に合格する" },
+  progress: {
+    total_questions: 30,
+    answered_count: 18,
+    correct_count: 12,
+    progress_rate: 60.0,
+    correct_rate: 66.7,
+  },
+  units: [
+    {
+      id: 100,
+      course_id: 5,
+      unit_name: "不定詞",
+      course: { id: 5, level_number: 2, level_name: "標準" },
+      total_questions: 10,
+      answered_count: 10,
+      correct_count: 8,
+      progress_rate: 100.0,
+      correct_rate: 80.0,
+    },
+  ],
+};
+
+const mockTasksData: StudentTasksData = {
+  student: { id: 1, name: "山田太郎" },
+  tasks: [mockTask],
+  meta: { current_page: 1, total_pages: 1, total_count: 1, per_page: 10 },
+};
+
 type Props = ComponentProps<typeof Presenter>;
 
 const renderPresenter = (props: Partial<Props> = {}) => {
@@ -74,6 +117,12 @@ const renderPresenter = (props: Partial<Props> = {}) => {
 
 const renderProfile = (student: Student) =>
   renderPresenter({ data: { tab: "profile", data: student } });
+
+const renderTasks = (data: Partial<StudentTasksData> = {}) =>
+  renderPresenter({
+    tab: "tasks",
+    data: { tab: "tasks", data: { ...mockTasksData, ...data } },
+  });
 
 const renderGoals = (goals: StudentGoal[]) =>
   renderPresenter({
@@ -238,6 +287,77 @@ describe("StudentDetailPresenter", () => {
     it("目標が0件のときは空である旨が表示される", () => {
       renderGoals([]);
       expect(screen.getByText("目標がありません")).toBeInTheDocument();
+    });
+  });
+
+  describe("タスクタブ", () => {
+    it("タスクのタイトル・ステータス・優先度・期限・紐づく目標名が表示される", () => {
+      renderTasks();
+      expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
+      expect(screen.getByText("進行中")).toBeInTheDocument();
+      expect(screen.getByText("優先度: 普通")).toBeInTheDocument();
+      expect(screen.getByText("期限: 2026/11/30")).toBeInTheDocument();
+      expect(screen.getByText("目標: 英検2級に合格する")).toBeInTheDocument();
+    });
+
+    it("タスク全体の進捗率と正答率が表示される", () => {
+      renderTasks();
+      expect(screen.getByText("進捗 60%")).toBeInTheDocument();
+      expect(screen.getByText("正答率 66.7%")).toBeInTheDocument();
+    });
+
+    it("完了済みのタスクも表示される", () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            status: "completed",
+            completed_at: "2026/11/20",
+          },
+        ],
+      });
+      expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
+      expect(screen.getByText("完了")).toBeInTheDocument();
+    });
+
+    it("未解答のタスクは正答率に「-」が表示される", () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            progress: {
+              ...mockTask.progress,
+              answered_count: 0,
+              correct_count: 0,
+              progress_rate: 0,
+              correct_rate: null,
+            },
+          },
+        ],
+      });
+      expect(screen.getByText("正答率 -")).toBeInTheDocument();
+    });
+
+    it("正答率が80%以上のときは成功色で表示される", () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            progress: { ...mockTask.progress, correct_rate: 85.0 },
+          },
+        ],
+      });
+      expect(screen.getByText("正答率 85%")).toHaveStyle({
+        color: colors.status.success,
+      });
+    });
+
+    it("タスクが0件のときは空である旨が表示される", () => {
+      renderTasks({
+        tasks: [],
+        meta: { current_page: 1, total_pages: 0, total_count: 0, per_page: 10 },
+      });
+      expect(screen.getByText("タスクがありません")).toBeInTheDocument();
     });
   });
 });
