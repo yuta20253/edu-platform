@@ -1,7 +1,10 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import {
+  RailsFetchError,
+  RailsUnauthorizedError,
+} from "@/libs/server/rails/railsError";
 import { GET } from "./route";
 
 vi.mock("@/libs/server/rails/railsFetch", () => ({
@@ -53,5 +56,18 @@ describe("GET /api/teacher/students/:studentId", () => {
     const res = await get("");
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
+  });
+
+  it("401 以外のバックエンドのエラーはステータスを保って返す", async () => {
+    vi.mocked(railsFetch).mockRejectedValue(
+      new RailsFetchError(
+        404,
+        "Rails request failed: 404",
+        JSON.stringify({ errors: ["Not Found"] }),
+      ),
+    );
+    const res = await get("?tab=goals");
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ errors: ["Not Found"] });
   });
 });
