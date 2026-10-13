@@ -84,6 +84,7 @@ module Api
 
         def render_interview_requests_within_period
           form = ::CalendarPeriodForm.new(period_params)
+          return render json: { errors: form.errors.full_messages }, status: :unprocessable_content unless form.valid?
 
           requests = InterviewRequestsQuery.new(scoped_interview_requests)
                                            .within_period(from: form.from_date, to: form.to_date)
