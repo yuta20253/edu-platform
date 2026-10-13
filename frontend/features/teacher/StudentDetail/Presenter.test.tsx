@@ -413,4 +413,37 @@ describe("StudentDetailPresenter", () => {
       expect(screen.getByText("紐づくUnitがありません")).toBeInTheDocument();
     });
   });
+
+  describe("タスクタブのページネーション", () => {
+    it("複数ページあるときはページネーションが表示され、ページを押すとonPageChangeが呼ばれる", async () => {
+      const onPageChange = vi.fn();
+      renderPresenter({
+        tab: "tasks",
+        data: {
+          tab: "tasks",
+          data: {
+            ...mockTasksData,
+            meta: {
+              current_page: 1,
+              total_pages: 3,
+              total_count: 25,
+              per_page: 10,
+            },
+          },
+        },
+        onPageChange,
+      });
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "Go to page 2" }),
+      );
+
+      expect(onPageChange).toHaveBeenCalledWith(2);
+    });
+
+    it("1ページしかないときはページネーションを表示しない", () => {
+      renderTasks();
+      expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    });
+  });
 });
