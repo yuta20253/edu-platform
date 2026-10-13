@@ -89,6 +89,7 @@ module Api
                                            .within_period(from: form.from_date, to: form.to_date)
                                            .exclude_cancelled
                                            .result
+                                           .order(:scheduled_at, :id)
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
               requests, each_serializer: InterviewRequestSerializer
