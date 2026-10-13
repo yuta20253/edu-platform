@@ -71,14 +71,15 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
         own_request.update!(scheduled_at: Time.zone.local(2026, 1, 15, 10, 0))
       end
 
+      def create_scheduled_request(scheduled_at, **attributes)
+        create(:interview_request, :initiated_by_teacher, teacher: teacher, scheduled_at: scheduled_at, **attributes)
+      end
+
       it '期間内に予定されている面談のみ返る' do
-        first_day = create(:interview_request, :initiated_by_teacher, teacher: teacher,
-                                                                       scheduled_at: Time.zone.local(2026, 2, 1, 0, 0))
-        last_day = create(:interview_request, :initiated_by_teacher, teacher: teacher,
-                                                                      scheduled_at: Time.zone.local(2026, 2, 28, 23, 59))
-        create(:interview_request, :initiated_by_teacher, teacher: teacher,
-                                                          scheduled_at: Time.zone.local(2026, 3, 1, 0, 0))
-        create(:interview_request, :initiated_by_teacher, teacher: teacher, scheduled_at: nil)
+        first_day = create_scheduled_request(Time.zone.local(2026, 2, 1, 0, 0))
+        last_day = create_scheduled_request(Time.zone.local(2026, 2, 28, 23, 59))
+        create_scheduled_request(Time.zone.local(2026, 3, 1, 0, 0))
+        create_scheduled_request(nil)
 
         get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
 
@@ -88,10 +89,8 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
       end
 
       it 'キャンセル済みの面談は含まれない' do
-        confirmed = create(:interview_request, :initiated_by_teacher, teacher: teacher, status: :confirmed,
-                                                                       scheduled_at: Time.zone.local(2026, 2, 10, 10, 0))
-        create(:interview_request, :initiated_by_teacher, teacher: teacher, status: :cancelled,
-                                                          scheduled_at: Time.zone.local(2026, 2, 11, 10, 0))
+        confirmed = create_scheduled_request(Time.zone.local(2026, 2, 10, 10, 0), status: :confirmed)
+        create_scheduled_request(Time.zone.local(2026, 2, 11, 10, 0), status: :cancelled)
 
         get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
 
@@ -101,8 +100,7 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
 
       it '1ページの既定件数を超えても期間内の面談が全件返る' do
         (ApplicationController::DEFAULT_PER_PAGE + 1).times do |i|
-          create(:interview_request, :initiated_by_teacher, teacher: teacher,
-                                                            scheduled_at: Time.zone.local(2026, 2, 1 + i, 10, 0))
+          create_scheduled_request(Time.zone.local(2026, 2, 1 + i, 10, 0))
         end
 
         get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
@@ -111,10 +109,8 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
       end
 
       it '予定日時の昇順で返る' do
-        later = create(:interview_request, :initiated_by_teacher, teacher: teacher,
-                                                                  scheduled_at: Time.zone.local(2026, 2, 20, 10, 0))
-        earlier = create(:interview_request, :initiated_by_teacher, teacher: teacher,
-                                                                    scheduled_at: Time.zone.local(2026, 2, 5, 10, 0))
+        later = create_scheduled_request(Time.zone.local(2026, 2, 20, 10, 0))
+        earlier = create_scheduled_request(Time.zone.local(2026, 2, 5, 10, 0))
 
         get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
 
