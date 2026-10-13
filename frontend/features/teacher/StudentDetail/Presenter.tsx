@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { GoalsTab } from "./components/GoalsTab";
 import { ProfileTab } from "./components/ProfileTab";
+import { TasksTab } from "./components/TasksTab";
 import { StudentDetailResult, StudentDetailTab } from "./types";
 
 type Props = {
@@ -100,8 +101,10 @@ export const Presenter = ({
         </Box>
       ) : data.tab === "profile" ? (
         <ProfileTab student={data.data} />
+      ) : data.tab === "goals" ? (
+        <GoalsTab goals={data.data.goals} />
       ) : (
-        data.tab === "goals" && <GoalsTab goals={data.data.goals} />
+        <TasksTab tasks={data.data.tasks} />
       )}
     </Box>
   );
