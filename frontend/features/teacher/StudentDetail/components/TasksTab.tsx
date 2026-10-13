@@ -7,6 +7,7 @@ import { statusDefinitions } from "@/constants/status";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
+  AccordionDetails,
   AccordionSummary,
   Box,
   LinearProgress,
@@ -14,6 +15,7 @@ import {
 } from "@mui/material";
 import { StudentTask } from "../types";
 import { formatCorrectRate, getCorrectRateColor } from "./correctRate";
+import { TaskUnitList } from "./TaskUnitList";
 
 type Props = {
   tasks: StudentTask[];
@@ -38,6 +40,8 @@ export const TasksTab = ({ tasks }: Props) => {
           key={task.id}
           disableGutters
           elevation={0}
+          // 閉じているタスクのUnitは描画しない(一覧が長いときに要素を増やさない)
+          slotProps={{ transition: { unmountOnExit: true } }}
           sx={{
             border: `1px solid ${colors.border.light}`,
             "&:not(:last-of-type)": { borderBottom: 0 },
@@ -114,6 +118,11 @@ export const TasksTab = ({ tasks }: Props) => {
               </Box>
             </Box>
           </AccordionSummary>
+          <AccordionDetails
+            sx={{ borderTop: `1px solid ${colors.border.light}`, pt: 2 }}
+          >
+            <TaskUnitList units={task.units} />
+          </AccordionDetails>
         </Accordion>
       ))}
     </Box>
