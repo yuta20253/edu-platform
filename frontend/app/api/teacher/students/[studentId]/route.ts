@@ -3,14 +3,19 @@ import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ studentId: string }> },
 ) {
   const { studentId } = await params;
+  const tab = req.nextUrl.searchParams.get("tab");
+
+  const query = new URLSearchParams();
+  if (tab) query.set("tab", tab);
+  const queryString = query.toString();
 
   try {
     const { data, status, setCookie } = await railsFetch(
-      `/api/v1/teacher/students/${studentId}`,
+      `/api/v1/teacher/students/${studentId}${queryString ? `?${queryString}` : ""}`,
     );
 
     const res = NextResponse.json(data, { status });
