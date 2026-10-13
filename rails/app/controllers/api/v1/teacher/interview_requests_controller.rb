@@ -91,10 +91,12 @@ module Api
                                            .exclude_cancelled
                                            .result
                                            .order(:scheduled_at, :id)
+                                           .to_a
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
               requests, each_serializer: InterviewRequestSerializer
-            )
+            ),
+            meta: { current_page: 1, total_pages: 1, total_count: requests.size, per_page: requests.size }
           }, status: :ok
         end
 
