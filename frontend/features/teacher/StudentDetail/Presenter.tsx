@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Pagination,
   Tab,
   Tabs,
   Typography,
@@ -30,7 +31,9 @@ export const Presenter = ({
   data,
   loading,
   error,
+  page,
   onTabChange,
+  onPageChange,
 }: Props) => {
   // プロフィールは生徒の情報をそのまま返し、目標・タスクは student に名前を持つ
   const studentName =
@@ -104,7 +107,21 @@ export const Presenter = ({
       ) : data.tab === "goals" ? (
         <GoalsTab goals={data.data.goals} />
       ) : (
-        <TasksTab tasks={data.data.tasks} />
+        <>
+          <TasksTab tasks={data.data.tasks} />
+
+          {data.data.meta.total_pages > 1 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+              <Pagination
+                count={data.data.meta.total_pages}
+                page={page}
+                onChange={(_, value) => onPageChange(value)}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
