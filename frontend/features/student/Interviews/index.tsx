@@ -6,11 +6,14 @@ import { useGetInterviews } from "./hooks/useGetInterviews";
 import { Presenter } from "./Presenter";
 
 export const Interviews = () => {
-  const { data, page, setPage, status, setStatus, loading, error } =
-    useGetInterviews();
+  const { data, page, setPage, status, setStatus, error } = useGetInterviews();
+
+  if (error) {
+    return <ErrorState />;
+  }
 
   // 絞り込み切替の再取得中は前回のデータを残し、セグメントが消えないようにする
-  if (loading && !data) {
+  if (!data) {
     return (
       <Box
         sx={{
@@ -23,10 +26,6 @@ export const Interviews = () => {
         <CircularProgress />
       </Box>
     );
-  }
-
-  if (!data || error) {
-    return <ErrorState />;
   }
 
   return (

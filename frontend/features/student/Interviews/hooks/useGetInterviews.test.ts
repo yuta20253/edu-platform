@@ -29,8 +29,9 @@ describe("useGetInterviews", () => {
   it("面談一覧を1ページ目・全ステータスで取得しdataにセットする", async () => {
     const { result } = renderHook(() => useGetInterviews());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual(emptyResponse.data);
+    await waitFor(() =>
+      expect(result.current.data).toEqual(emptyResponse.data),
+    );
     expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith(
       "/api/student/interview-requests",
@@ -40,10 +41,17 @@ describe("useGetInterviews", () => {
 
   it("ステータスを切り替えると status 付き・1ページ目で再取得する", async () => {
     const { result } = renderHook(() => useGetInterviews());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() =>
+      expect(result.current.data).toEqual(emptyResponse.data),
+    );
 
     act(() => result.current.setPage(2));
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/student/interview-requests",
+        { params: { page: "2" }, signal: expect.any(AbortSignal) },
+      ),
+    );
     act(() => result.current.setStatus("confirmed"));
 
     await waitFor(() =>
