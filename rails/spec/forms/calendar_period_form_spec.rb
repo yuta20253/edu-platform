@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Student::CalendarForm, type: :model do
+RSpec.describe CalendarPeriodForm, type: :model do
   subject(:form) { described_class.new(**params) }
 
   let(:params) { { from: '2026-02-01', to: '2026-02-28' } }
