@@ -509,6 +509,32 @@ RSpec.describe 'Api::V1::Admin::Courses', type: :request do
         end
       end
 
+      context '論理削除済みの unit・問題がある場合' do
+        let!(:deleted_unit) { create(:unit, course: course, deleted_at: Time.current) }
+        let!(:question) { create(:question, unit: units.first) }
+        let!(:deleted_question) { create(:question, unit: units.first, deleted_at: Time.current) }
+        let!(:question_in_deleted_unit) { create(:question, unit: deleted_unit) }
+
+        it '論理削除済みの unit は units に含まれない' do
+          subject
+          expect(response.parsed_body['units'].pluck('id')).to eq(units.map(&:id).sort)
+        end
+
+        it 'questions_count は論理削除済みの問題を含まない' do
+          subject
+          counts = response.parsed_body['units'].to_h { |u| [u['id'], u['questions_count']] }
+          expect(counts[units.first.id]).to eq(1)
+        end
+
+        it 'index の questions_count と show の questions_count が一致する' do
+          get '/api/v1/admin/courses', headers: headers.merge('Cookie' => cookie)
+          index_total = response.parsed_body['courses'].find { |c| c['id'] == course.id }['questions_count']
+          subject
+          show_total = response.parsed_body['units'].sum { |u| u['questions_count'] }
+          expect(show_total).to eq(index_total)
+        end
+      end
+
       context 'unit に紐づく問題が存在しない場合' do
         it 'questions_count は 0 として返る' do
           subject
