@@ -105,11 +105,11 @@ describe("POST /api/student/interview-requests", () => {
     expect(backendFetch).not.toHaveBeenCalled();
   });
 
-  it("422 のときは Rails のエラー内容を返す", async () => {
+  it("422 のときは バックエンドのエラー内容を返す", async () => {
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         422,
-        "Rails request failed: 422",
+        "Backend request failed: 422",
         JSON.stringify({ errors: ["申請可能な教員ではありません"] }),
       ),
     );

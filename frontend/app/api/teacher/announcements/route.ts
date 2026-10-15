@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// お知らせの新規作成。Railsはparams.require(:announcement)を要求するため
+// お知らせの新規作成。バックエンドはparams.require(:announcement)を要求するため
 // リクエストボディをannouncementキーでラップしてforwardする。
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => undefined);

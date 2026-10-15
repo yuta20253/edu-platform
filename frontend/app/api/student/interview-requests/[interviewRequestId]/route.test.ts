@@ -50,11 +50,11 @@ describe("GET /api/student/interview-requests/[interviewRequestId]", () => {
     expect(backendFetch).not.toHaveBeenCalled();
   });
 
-  it("404 のときは Rails のエラー内容を返す", async () => {
+  it("404 のときは バックエンドのエラー内容を返す", async () => {
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         404,
-        "Rails request failed: 404",
+        "Backend request failed: 404",
         JSON.stringify({ message: "面談が見つかりません" }),
       ),
     );
@@ -124,14 +124,14 @@ describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
     },
   );
 
-  it("409(楽観ロックの競合)のときは Rails のエラー内容をステータスごと返す", async () => {
+  it("409(楽観ロックの競合)のときは バックエンドのエラー内容をステータスごと返す", async () => {
     const errors = [
       "他のユーザーによってデータが更新されています。再読み込みしてください",
     ];
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         409,
-        "Rails request failed: 409",
+        "Backend request failed: 409",
         JSON.stringify({ errors }),
       ),
     );

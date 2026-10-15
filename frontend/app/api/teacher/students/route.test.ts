@@ -116,7 +116,7 @@ describe("POST /api/teacher/students", () => {
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         422,
-        "Rails request failed: 422",
+        "Backend request failed: 422",
         JSON.stringify({ errors: ["Emailは既に生徒として登録されています"] }),
       ),
     );

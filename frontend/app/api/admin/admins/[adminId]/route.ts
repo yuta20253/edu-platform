@@ -17,12 +17,12 @@ export async function GET(_: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    // 404（存在しない・削除済み）などは Rails のステータス・内容をそのまま返す
+    // 404（存在しない・削除済み）などは バックエンドのステータス・内容をそのまま返す
     return handleBackendRouteError(error, "管理者の取得に失敗しました");
   }
 }
 
-// 管理者の更新（name / email を Rails へ送る）
+// 管理者の更新（name / email を バックエンドへ送る）
 export async function PATCH(request: NextRequest, { params }: Params) {
   const { adminId } = await params;
   const body = await request.json();
@@ -41,7 +41,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   }
 }
 
-// 管理者の削除（ソフトデリート）。自己削除・最後の管理者は Rails が 422 を返す。
+// 管理者の削除（ソフトデリート）。自己削除・最後の管理者は バックエンドが 422 を返す。
 export async function DELETE(_: NextRequest, { params }: Params) {
   const { adminId } = await params;
 

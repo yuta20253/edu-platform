@@ -15,7 +15,7 @@ type BackendFetchResult<T> = {
 };
 
 /**
- * サーバ専用：Rails APIへ Cookie をforwardしてfetchする共通関数
+ * サーバ専用：バックエンド APIへ Cookie をforwardしてfetchする共通関数
  * - Cookieヘッダ生成をここに集約
  * - 401は専用例外で統一
  * - JSONパース失敗時も扱う
@@ -29,7 +29,7 @@ export async function backendFetch<T = unknown>(
     throw new Error("API_URL is not set");
   }
 
-  // Next.js に入ってきた Cookie を Rails へ forward
+  // Next.js に入ってきた Cookie を バックエンドへ forward
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
@@ -72,7 +72,7 @@ export async function backendFetch<T = unknown>(
       typeof data === "string" ? data : JSON.stringify(data).slice(0, 2000);
     throw new BackendFetchError(
       response.status,
-      `Rails request failed: ${response.status}`,
+      `Backend request failed: ${response.status}`,
       bodyText,
     );
   }

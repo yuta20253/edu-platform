@@ -22,7 +22,7 @@ export async function GET(_: Request, { params }: Params) {
   }
 }
 
-// お知らせのステータス更新(公開・予約投稿)。Railsはparams.require(:announcement)を要求するため
+// お知らせのステータス更新(公開・予約投稿)。バックエンドはparams.require(:announcement)を要求するため
 // リクエストボディをannouncementキーでラップしてforwardする。
 export async function PATCH(request: NextRequest, { params }: Params) {
   const { announcementId } = await params;

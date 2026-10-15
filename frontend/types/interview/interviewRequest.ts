@@ -1,5 +1,5 @@
-// Rails の InterviewRequestSerializer / InterviewRequestMessageSerializer に対応する型。
-// enum の値は Rails の InterviewRequest と対応させること。
+// バックエンドの InterviewRequestSerializer / InterviewRequestMessageSerializer に対応する型。
+// enum の値は バックエンドの InterviewRequest と対応させること。
 export type InterviewStatus =
   | "requested"
   | "scheduling"

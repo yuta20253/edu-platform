@@ -68,7 +68,7 @@ describe("GET /api/admin/analytics", () => {
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
   });
 
-  it("期間不正(422)のときは Rails のエラー内容をそのまま返す", async () => {
+  it("期間不正(422)のときは バックエンドのエラー内容をそのまま返す", async () => {
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         422,

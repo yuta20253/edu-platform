@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-// Railsはparams.require(:interview_request_message)を要求するため、bodyをラップしてforwardする。
+// バックエンドはparams.require(:interview_request_message)を要求するため、bodyをラップしてforwardする。
 export async function POST(req: NextRequest, { params }: Params) {
   const { interviewRequestId } = await params;
 

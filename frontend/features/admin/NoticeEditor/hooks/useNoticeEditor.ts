@@ -105,7 +105,7 @@ export const useNoticeEditor = ({ noticeId }: UseNoticeEditorParams) => {
 
   // 下書き保存はstatus: draftを明示的に送る。既に下書きの場合はdraft→draftの
   // 無変更なので問題なく保存されるが、予約配信中のお知らせに対して下書き保存を
-  // 選ぶことは「配信予約を取り消す」意思表示であり、Rails側がscheduled→draftの
+  // 選ぶことは「配信予約を取り消す」意思表示であり、バックエンド側がscheduled→draftの
   // 遷移を許可していないため422で拒否される（エラーはsubmitErrorに表示される）。
   const saveDraft = useCallback(
     async (values: NoticeFormValues): Promise<void> => {

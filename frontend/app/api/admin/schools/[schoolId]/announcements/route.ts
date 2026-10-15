@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ schoolId: string }> };
 
-// お知らせ一覧の取得（page を Rails へ引き継ぐ）
+// お知らせ一覧の取得（page を バックエンドへ引き継ぐ）
 export async function GET(request: NextRequest, { params }: Params) {
   const { schoolId } = await params;
   const { searchParams } = request.nextUrl;

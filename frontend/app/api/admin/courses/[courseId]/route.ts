@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const { courseId } = await params;
 
-  // courseId は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
+  // courseId は数値IDのみ許容。不正値は バックエンドへ問い合わせる前に弾く
   if (!isNumericId(courseId)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }

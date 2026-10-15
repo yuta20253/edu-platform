@@ -3,7 +3,7 @@ import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRout
 import { type NextRequest, NextResponse } from "next/server";
 
 // 対象管理者にパスワード再設定メールを送信する。
-// body の email を Rails のパスワードリセット要求エンドポイントへ転送する。
+// body の email を バックエンドのパスワードリセット要求エンドポイントへ転送する。
 export async function POST(request: NextRequest) {
   const body = await request.json();
 

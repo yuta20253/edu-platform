@@ -24,7 +24,7 @@ describe("POST /api/student/account-link", () => {
     vi.clearAllMocks();
   });
 
-  it("student_numberをRailsへ転送し、成功時のレスポンスをそのまま返す", async () => {
+  it("student_numberをバックエンドへ転送し、成功時のレスポンスをそのまま返す", async () => {
     vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { message: "アカウントの紐付けが成功しました" },
@@ -43,11 +43,11 @@ describe("POST /api/student/account-link", () => {
     });
   });
 
-  it("Rails側のバリデーションエラー(400)をそのまま転送する", async () => {
+  it("バックエンド側のバリデーションエラー(400)をそのまま転送する", async () => {
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         400,
-        "Rails request failed: 400",
+        "Backend request failed: 400",
         JSON.stringify({ errors: ["既に紐付けられています"] }),
       ),
     );
@@ -62,7 +62,7 @@ describe("POST /api/student/account-link", () => {
     vi.mocked(backendFetch).mockRejectedValue(
       new BackendFetchError(
         404,
-        "Rails request failed: 404",
+        "Backend request failed: 404",
         JSON.stringify({
           errors: [
             "見つからないか、すでに使用されています。心当たりがある場合は学校へお問い合わせください",

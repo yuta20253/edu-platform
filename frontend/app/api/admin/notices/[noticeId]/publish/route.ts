@@ -9,7 +9,7 @@ type Params = { params: Promise<{ noticeId: string }> };
 export async function POST(_: NextRequest, { params }: Params) {
   const { noticeId } = await params;
 
-  // noticeId は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
+  // noticeId は数値IDのみ許容。不正値は バックエンドへ問い合わせる前に弾く
   if (!isNumericId(noticeId)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }

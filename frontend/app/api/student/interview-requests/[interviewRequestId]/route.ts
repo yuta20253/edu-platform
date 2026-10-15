@@ -25,7 +25,7 @@ export async function GET(_: NextRequest, { params }: Params) {
   }
 }
 
-// 面談のキャンセル。楽観ロックのため lock_version を必ず送る(競合時は Rails が 409 を返す)。
+// 面談のキャンセル。楽観ロックのため lock_version を必ず送る(競合時は バックエンドが 409 を返す)。
 export async function DELETE(req: NextRequest, { params }: Params) {
   const { interviewRequestId } = await params;
 

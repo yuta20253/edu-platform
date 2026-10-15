@@ -8,7 +8,7 @@ type BackendFetchMultipartResult<T> = {
 };
 
 /**
- * サーバ専用：multipart/form-data を Rails API へ Cookie をforwardして送る共通関数
+ * サーバ専用：multipart/form-data を バックエンド API へ Cookie をforwardして送る共通関数
  * - backendFetch は JSON専用のため、ファイルアップロードにはこちらを使う
  * - FormData を渡すと fetch が Content-Type: multipart/form-data を自動付与する
  */
@@ -57,7 +57,7 @@ export async function backendFetchMultipart<T = unknown>(
       typeof data === "string" ? data : JSON.stringify(data).slice(0, 2000);
     throw new BackendFetchError(
       response.status,
-      `Rails request failed: ${response.status}`,
+      `Backend request failed: ${response.status}`,
       bodyText,
     );
   }

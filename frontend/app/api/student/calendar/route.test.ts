@@ -97,7 +97,7 @@ describe("GET /api/student/calendar", () => {
     expect(backendFetch).not.toHaveBeenCalled();
   });
 
-  it("形式が正しければ実在しない日付でもバックエンドへ転送する(日付の妥当性は Rails で判定する)", async () => {
+  it("形式が正しければ実在しない日付でもバックエンドへ転送する(日付の妥当性は バックエンドで判定する)", async () => {
     await get("?from=2026-02-30&to=2026-03-31");
     expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/calendar?from=2026-02-30&to=2026-03-31",

@@ -5,7 +5,7 @@ import {
 import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { type NextRequest, NextResponse } from "next/server";
 
-// 管理者一覧の取得（page / per_page / q を Rails へ引き継ぐ）
+// 管理者一覧の取得（page / per_page / q を バックエンドへ引き継ぐ）
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const page = searchParams.get("page") ?? "1";
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 管理者の新規作成（name / email を Rails へ送る）
+// 管理者の新規作成（name / email を バックエンドへ送る）
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    // 422 などのバリデーションエラーは Rails のエラー内容をそのまま返す
+    // 422 などのバリデーションエラーは バックエンドのエラー内容をそのまま返す
     if (error instanceof BackendFetchError) {
       let data: unknown = { errors: ["管理者の作成に失敗しました"] };
       if (error.bodyText) {
