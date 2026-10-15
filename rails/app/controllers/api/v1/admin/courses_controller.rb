@@ -44,8 +44,11 @@ module Api
         end
 
         def show
-          course = Course.includes(:subject, :units).find(params[:id])
-          questions_counts = Question.where(unit_id: course.unit_ids).group(:unit_id).count
+          course = Course.includes(:subject).find(params[:id])
+          questions_counts = Question.active
+                                     .joins(:unit).merge(Unit.active)
+                                     .where(units: { course_id: course.id })
+                                     .group(:unit_id).count
 
           render json: course,
                  serializer: ::Admin::CourseDetailSerializer,
