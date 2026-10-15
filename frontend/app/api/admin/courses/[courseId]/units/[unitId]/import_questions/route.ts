@@ -1,5 +1,5 @@
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
-import { backendFetchMultipart } from "@/libs/server/backend/backendFetchMultipart";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetchMultipart } from "@/libs/server/backend/fetchMultipart";
 import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 

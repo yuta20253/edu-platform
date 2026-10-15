@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BackendFetchError, BackendUnauthorizedError } from "./backendError";
+import { BackendFetchError, BackendUnauthorizedError } from "./error";
 
 // バックエンドへの fetch で発生した例外を Next.js の Response に変換する共通ハンドラ。
 // - BackendUnauthorizedError は 401 に統一

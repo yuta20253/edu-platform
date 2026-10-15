@@ -1,5 +1,5 @@
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function GET() {

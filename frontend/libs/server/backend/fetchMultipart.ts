@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { BackendFetchError, BackendUnauthorizedError } from "./backendError";
+import { BackendFetchError, BackendUnauthorizedError } from "./error";
 
 type BackendFetchMultipartResult<T> = {
   status: number;

@@ -1,5 +1,5 @@
-import { BackendUnauthorizedError } from "@/libs/server/backend/backendError";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function GET() {

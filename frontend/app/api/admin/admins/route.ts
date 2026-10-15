@@ -1,8 +1,8 @@
 import {
   BackendFetchError,
   BackendUnauthorizedError,
-} from "@/libs/server/backend/backendError";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+} from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 // 管理者一覧の取得（page / per_page / q を バックエンドへ引き継ぐ）

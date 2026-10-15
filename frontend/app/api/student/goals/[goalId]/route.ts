@@ -1,6 +1,6 @@
-import { BackendUnauthorizedError } from "@/libs/server/backend/backendError";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { NextResponse } from "next/server";
 
 export async function GET(

@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { GET } from "./route";
 
-vi.mock("@/libs/server/backend/backendFetch", () => ({
+vi.mock("@/libs/server/backend/fetch", () => ({
   backendFetch: vi.fn(),
 }));
 

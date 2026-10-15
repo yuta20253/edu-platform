@@ -1,4 +1,4 @@
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { isNumericId } from "@/libs/server/routeParams";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";

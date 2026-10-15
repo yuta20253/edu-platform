@@ -1,4 +1,4 @@
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { Prefecture } from "@/types/common/prefecture";
 
 export const getPrefectures = async (cookieHeader?: string) => {

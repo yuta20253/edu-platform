@@ -1,5 +1,5 @@
-import { backendFetch } from "@/libs/server/backend/backendFetch";
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 // 対象管理者にパスワード再設定メールを送信する。

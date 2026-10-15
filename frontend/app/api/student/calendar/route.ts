@@ -1,5 +1,5 @@
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextRequest, NextResponse } from "next/server";
 
 // 形式(YYYY-MM-DD)だけをここで確認し、不正値は バックエンドへ問い合わせる前に弾く。

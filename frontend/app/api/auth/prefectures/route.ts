@@ -1,4 +1,4 @@
-import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function GET() {

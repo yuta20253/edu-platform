@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { backendFetch } from "@/libs/server/backend/backendFetch";
-import { BackendUnauthorizedError } from "@/libs/server/backend/backendError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
 import { GET } from "./route";
 
-vi.mock("@/libs/server/backend/backendFetch", () => ({
+vi.mock("@/libs/server/backend/fetch", () => ({
   backendFetch: vi.fn(),
 }));
 

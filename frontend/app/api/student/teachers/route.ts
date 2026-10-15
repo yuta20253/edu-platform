@@ -1,5 +1,5 @@
-import { backendFetch } from "@/libs/server/backend/backendFetch";
-import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { NextResponse } from "next/server";
 
 // 面談申請先として選べる、自分の学級の担当教員一覧
