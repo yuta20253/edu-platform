@@ -1,12 +1,12 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       "/api/v1/student/account_link",
       {
         method: "POST",
@@ -20,6 +20,6 @@ export async function POST(req: Request) {
 
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "アカウントの紐付けに失敗しました");
+    return handleBackendRouteError(error, "アカウントの紐付けに失敗しました");
   }
 }

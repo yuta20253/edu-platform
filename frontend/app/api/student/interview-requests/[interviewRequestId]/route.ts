@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -13,7 +13,7 @@ export async function GET(_: NextRequest, { params }: Params) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/interview_requests/${interviewRequestId}`,
     );
 
@@ -21,7 +21,7 @@ export async function GET(_: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "面談の取得に失敗しました");
+    return handleBackendRouteError(error, "面談の取得に失敗しました");
   }
 }
 
@@ -40,7 +40,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/interview_requests/${interviewRequestId}`,
       {
         method: "DELETE",
@@ -52,6 +52,6 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "面談のキャンセルに失敗しました");
+    return handleBackendRouteError(error, "面談のキャンセルに失敗しました");
   }
 }

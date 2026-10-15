@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/backendError";
 import { GET, POST } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/backendFetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const get = (query: string) =>
@@ -25,7 +25,7 @@ const post = (body: unknown) =>
 describe("GET /api/teacher/students", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { students: [] },
       setCookie: null,
@@ -34,12 +34,16 @@ describe("GET /api/teacher/students", () => {
 
   it("page のみのときはそのままバックエンドへ転送する", async () => {
     await get("?page=2");
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/teacher/students?page=2");
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students?page=2",
+    );
   });
 
   it("page 未指定のときは 1 ページ目として転送する", async () => {
     await get("");
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/teacher/students?page=1");
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students?page=1",
+    );
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {
@@ -49,7 +53,7 @@ describe("GET /api/teacher/students", () => {
   });
 
   it("401 のときは UNAUTHORIZED を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
     const res = await get("?page=1");
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
@@ -70,7 +74,7 @@ describe("POST /api/teacher/students", () => {
   });
 
   it("リクエストボディをそのままバックエンドへ転送する", async () => {
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 201,
       data: { message: "生徒の新規作成に成功しました。" },
       setCookie: null,
@@ -78,14 +82,14 @@ describe("POST /api/teacher/students", () => {
 
     await post({ user: input });
 
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/teacher/students", {
+    expect(backendFetch).toHaveBeenCalledWith("/api/v1/teacher/students", {
       method: "POST",
       body: { user: input },
     });
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 201,
       data: { message: "生徒の新規作成に成功しました。" },
       setCookie: null,
@@ -100,7 +104,7 @@ describe("POST /api/teacher/students", () => {
   });
 
   it("401 のときは UNAUTHORIZED を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
 
     const res = await post({ user: input });
 
@@ -109,8 +113,8 @@ describe("POST /api/teacher/students", () => {
   });
 
   it("422 のときはバックエンドのエラー内容をそのまま返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
+    vi.mocked(backendFetch).mockRejectedValue(
+      new BackendFetchError(
         422,
         "Rails request failed: 422",
         JSON.stringify({ errors: ["Emailは既に生徒として登録されています"] }),

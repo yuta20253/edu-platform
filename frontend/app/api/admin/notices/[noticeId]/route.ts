@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -15,7 +15,7 @@ export async function GET(_: NextRequest, { params }: Params) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/announcements/${noticeId}`,
     );
 
@@ -23,7 +23,7 @@ export async function GET(_: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせの取得に失敗しました");
+    return handleBackendRouteError(error, "お知らせの取得に失敗しました");
   }
 }
 
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   try {
     const body = await request.json();
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/announcements/${noticeId}`,
       { method: "PATCH", body: { announcement: body } },
     );
@@ -47,6 +47,6 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせの更新に失敗しました");
+    return handleBackendRouteError(error, "お知らせの更新に失敗しました");
   }
 }

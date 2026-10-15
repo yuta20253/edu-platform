@@ -1,5 +1,5 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/backendError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
   const { studentId } = await params;
 
   try {
-    const { data, status, setCookie } = await railsFetch(
+    const { data, status, setCookie } = await backendFetch(
       `/api/v1/teacher/students/${studentId}`,
     );
 
@@ -19,7 +19,7 @@ export async function GET(
 
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 

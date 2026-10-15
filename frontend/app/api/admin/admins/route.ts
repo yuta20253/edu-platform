@@ -1,8 +1,8 @@
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/backendError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 // 管理者一覧の取得（page / per_page / q を Rails へ引き継ぐ）
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   if (q) params.set("q", q);
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/admins?${params.toString()}`,
     );
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       "/api/v1/admin/admins",
       { method: "POST", body },
     );
@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
     // 422 などのバリデーションエラーは Rails のエラー内容をそのまま返す
-    if (error instanceof RailsFetchError) {
+    if (error instanceof BackendFetchError) {
       let data: unknown = { errors: ["管理者の作成に失敗しました"] };
       if (error.bodyText) {
         try {

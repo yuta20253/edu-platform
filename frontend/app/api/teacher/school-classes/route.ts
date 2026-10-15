@@ -1,10 +1,10 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       "/api/v1/teacher/school_classes",
     );
 
@@ -14,6 +14,6 @@ export async function GET() {
 
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "学級一覧の取得に失敗しました");
+    return handleBackendRouteError(error, "学級一覧の取得に失敗しました");
   }
 }

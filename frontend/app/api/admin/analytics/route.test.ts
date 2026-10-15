@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/backendError";
 import { GET } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/backendFetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const get = (query: string) =>
@@ -17,7 +17,7 @@ const get = (query: string) =>
 describe("GET /api/admin/analytics", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { kpis: {} },
       setCookie: null,
@@ -26,21 +26,21 @@ describe("GET /api/admin/analytics", () => {
 
   it("クエリ未指定のときはパラメータなしでバックエンドへ転送する", async () => {
     await get("");
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/admin/analytics?");
+    expect(backendFetch).toHaveBeenCalledWith("/api/v1/admin/analytics?");
   });
 
   it("from / to / high_school_id / subject_id のみ転送する", async () => {
     await get(
       "?from=2026-09-01&to=2026-09-30&high_school_id=4&subject_id=2&evil=1&page=3",
     );
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/admin/analytics?from=2026-09-01&to=2026-09-30&high_school_id=4&subject_id=2",
     );
   });
 
   it("空文字のパラメータは転送しない", async () => {
     await get("?from=&to=2026-09-30&high_school_id=");
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/admin/analytics?to=2026-09-30",
     );
   });
@@ -52,7 +52,7 @@ describe("GET /api/admin/analytics", () => {
   });
 
   it("set-cookie があれば再送出する", async () => {
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: {},
       setCookie: "session=abc",
@@ -62,15 +62,15 @@ describe("GET /api/admin/analytics", () => {
   });
 
   it("未認証のときは 401 を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
     const res = await get("");
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
   });
 
   it("期間不正(422)のときは Rails のエラー内容をそのまま返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
+    vi.mocked(backendFetch).mockRejectedValue(
+      new BackendFetchError(
         422,
         "Unprocessable",
         JSON.stringify({ errors: ["指定できる期間は366日以内です"] }),

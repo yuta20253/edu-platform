@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ schoolId: string }> };
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: Params) {
 
   try {
     const query = new URLSearchParams({ page });
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/high_schools/${schoolId}/announcements?${query.toString()}`,
     );
 
@@ -20,6 +20,6 @@ export async function GET(request: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせ一覧の取得に失敗しました");
+    return handleBackendRouteError(error, "お知らせ一覧の取得に失敗しました");
   }
 }

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getMeFromRails } from "@/libs/server/me";
+import { getMeFromBackend } from "@/libs/server/me";
 import { colors } from "@/app/theme/colors";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Box } from "@mui/material";
@@ -16,7 +16,7 @@ export default async function AdminAuthenticatedLayout({
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const user = await getMeFromRails(cookieHeader);
+  const user = await getMeFromBackend(cookieHeader);
 
   if (!user || user.user_role?.name !== "admin") {
     redirect("/login");

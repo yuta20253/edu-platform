@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// テンプレートCSVは railsFetch(JSON専用) を使わず、Rails のレスポンス
+// テンプレートCSVは backendFetch(JSON専用) を使わず、Rails のレスポンス
 // （Content-Type/Content-Disposition・バイナリボディ）をそのままパススルーする。
 export async function GET() {
   const origin = process.env.API_URL;

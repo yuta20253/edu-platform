@@ -1,8 +1,8 @@
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/backendError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({ page });
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/teacher/colleagues?${params.toString()}`,
     );
 
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/teacher/colleagues`,
       { method: "POST", body },
     );
@@ -45,11 +45,11 @@ export async function POST(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    if (error instanceof RailsFetchError) {
+    if (error instanceof BackendFetchError) {
       let data: unknown = { errors: ["教員の作成に失敗しました"] };
       if (error.bodyText) {
         try {

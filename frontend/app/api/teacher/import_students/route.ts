@@ -1,12 +1,12 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetchMultipart } from "@/libs/server/rails/railsFetchMultipart";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { backendFetchMultipart } from "@/libs/server/backend/backendFetchMultipart";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
 
   try {
-    const { status, data, setCookie } = await railsFetchMultipart(
+    const { status, data, setCookie } = await backendFetchMultipart(
       "/api/v1/teacher/import_students",
       formData,
     );
@@ -15,6 +15,6 @@ export async function POST(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "インポートの実行に失敗しました");
+    return handleBackendRouteError(error, "インポートの実行に失敗しました");
   }
 }

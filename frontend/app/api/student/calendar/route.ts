@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { NextRequest, NextResponse } from "next/server";
 
 // 形式(YYYY-MM-DD)だけをここで確認し、不正値は Rails へ問い合わせる前に弾く。
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({ from, to });
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/calendar?${params.toString()}`,
     );
 
@@ -26,6 +26,6 @@ export async function GET(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "カレンダーの取得に失敗しました");
+    return handleBackendRouteError(error, "カレンダーの取得に失敗しました");
   }
 }

@@ -1,14 +1,14 @@
 import { cookies } from "next/headers";
-import { RailsFetchError, RailsUnauthorizedError } from "./railsError";
+import { BackendFetchError, BackendUnauthorizedError } from "./backendError";
 
-type RailsFetchOptions = {
+type BackendFetchOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   headers?: Record<string, string>;
   cache?: RequestCache;
 };
 
-type RailsFetchResult<T> = {
+type BackendFetchResult<T> = {
   status: number;
   data: T;
   setCookie: string | null;
@@ -20,10 +20,10 @@ type RailsFetchResult<T> = {
  * - 401は専用例外で統一
  * - JSONパース失敗時も扱う
  */
-export async function railsFetch<T = unknown>(
+export async function backendFetch<T = unknown>(
   path: string,
-  opts: RailsFetchOptions = {},
-): Promise<RailsFetchResult<T>> {
+  opts: BackendFetchOptions = {},
+): Promise<BackendFetchResult<T>> {
   const origin = process.env.API_URL;
   if (!origin) {
     throw new Error("API_URL is not set");
@@ -51,7 +51,7 @@ export async function railsFetch<T = unknown>(
   });
 
   if (response.status === 401) {
-    throw new RailsUnauthorizedError();
+    throw new BackendUnauthorizedError();
   }
 
   const setCookie = response.headers.get("set-cookie");
@@ -70,7 +70,7 @@ export async function railsFetch<T = unknown>(
   if (!response.ok) {
     const bodyText =
       typeof data === "string" ? data : JSON.stringify(data).slice(0, 2000);
-    throw new RailsFetchError(
+    throw new BackendFetchError(
       response.status,
       `Rails request failed: ${response.status}`,
       bodyText,

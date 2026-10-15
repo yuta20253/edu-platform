@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
@@ -10,7 +10,7 @@ export async function PATCH(
   const body = await request.json();
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/teacher/permissions/${teacherId}`,
       { method: "PATCH", body },
     );
@@ -19,6 +19,6 @@ export async function PATCH(
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "権限の更新に失敗しました");
+    return handleBackendRouteError(error, "権限の更新に失敗しました");
   }
 }

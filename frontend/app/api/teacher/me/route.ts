@@ -1,10 +1,10 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const { status, data, setCookie } = await railsFetch("/api/v1/me");
+    const { status, data, setCookie } = await backendFetch("/api/v1/me");
 
     const res = NextResponse.json(data, { status });
 
@@ -12,6 +12,6 @@ export async function GET() {
 
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "ユーザー情報の取得に失敗しました");
+    return handleBackendRouteError(error, "ユーザー情報の取得に失敗しました");
   }
 }

@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ schoolId: string }> };
@@ -9,7 +9,7 @@ export async function GET(_: NextRequest, { params }: Params) {
   const { schoolId } = await params;
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/high_schools/${schoolId}/teachers`,
     );
 
@@ -17,7 +17,7 @@ export async function GET(_: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "教師一覧の取得に失敗しました");
+    return handleBackendRouteError(error, "教師一覧の取得に失敗しました");
   }
 }
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   try {
     const body = await request.json();
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/high_schools/${schoolId}/teachers`,
       { method: "POST", body },
     );
@@ -36,6 +36,6 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "教師の追加に失敗しました");
+    return handleBackendRouteError(error, "教師の追加に失敗しました");
   }
 }

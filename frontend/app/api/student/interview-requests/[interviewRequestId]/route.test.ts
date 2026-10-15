@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/backendError";
 import { DELETE, GET } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/backendFetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const url = (id: string) =>
@@ -27,7 +27,7 @@ const destroy = (interviewRequestId: string, body: string) =>
 describe("GET /api/student/interview-requests/[interviewRequestId]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { id: 1, status: "requested" },
       setCookie: null,
@@ -36,7 +36,7 @@ describe("GET /api/student/interview-requests/[interviewRequestId]", () => {
 
   it("バックエンドへ転送してレスポンスをそのまま返す", async () => {
     const res = await get("1");
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/interview_requests/1",
     );
     expect(res.status).toBe(200);
@@ -47,12 +47,12 @@ describe("GET /api/student/interview-requests/[interviewRequestId]", () => {
     const res = await get("abc");
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it("404 のときは Rails のエラー内容を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
+    vi.mocked(backendFetch).mockRejectedValue(
+      new BackendFetchError(
         404,
         "Rails request failed: 404",
         JSON.stringify({ message: "面談が見つかりません" }),
@@ -64,7 +64,7 @@ describe("GET /api/student/interview-requests/[interviewRequestId]", () => {
   });
 
   it("401 のときは UNAUTHORIZED を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
     const res = await get("1");
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
@@ -74,7 +74,7 @@ describe("GET /api/student/interview-requests/[interviewRequestId]", () => {
 describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { message: "面談をキャンセルしました" },
       setCookie: null,
@@ -86,7 +86,7 @@ describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
       "1",
       JSON.stringify({ reason: "都合が悪くなった", lock_version: 2, foo: 1 }),
     );
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/interview_requests/1",
       {
         method: "DELETE",
@@ -104,14 +104,14 @@ describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
   it("interviewRequestId が数値以外のときは BAD_REQUEST を返す", async () => {
     const res = await destroy("abc", JSON.stringify({ lock_version: 0 }));
     expect(res.status).toBe(400);
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it("リクエストボディが不正なJSONのときは BAD_REQUEST を返しバックエンドへ転送しない", async () => {
     const res = await destroy("1", "{invalid");
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it.each(["null", "[]", "1"])(
@@ -120,7 +120,7 @@ describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
       const res = await destroy("1", body);
       expect(res.status).toBe(400);
       expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-      expect(railsFetch).not.toHaveBeenCalled();
+      expect(backendFetch).not.toHaveBeenCalled();
     },
   );
 
@@ -128,8 +128,8 @@ describe("DELETE /api/student/interview-requests/[interviewRequestId]", () => {
     const errors = [
       "他のユーザーによってデータが更新されています。再読み込みしてください",
     ];
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
+    vi.mocked(backendFetch).mockRejectedValue(
+      new BackendFetchError(
         409,
         "Rails request failed: 409",
         JSON.stringify({ errors }),

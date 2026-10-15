@@ -1,4 +1,4 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { isNumericId } from "@/libs/server/routeParams";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 type Params = { params: Promise<{ id: string }> };
 
 // インポート履歴のCSVエクスポート。
-// railsFetch(JSON専用) を使わず、Rails のレスポンス
+// backendFetch(JSON専用) を使わず、Rails のレスポンス
 // （Content-Type/Content-Disposition・バイナリボディ）をそのままパススルーする。
 export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
@@ -42,9 +42,9 @@ export async function GET(_request: Request, { params }: Params) {
   } catch (error) {
     // Rails への接続断など、fetch自体が例外を投げるケースを
     // 未処理例外にせず、隣接するJSONルートと同じ契約で返す
-    // （RailsUnauthorizedError/RailsFetchErrorのどちらでもないため
+    // （BackendUnauthorizedError/BackendFetchErrorのどちらでもないため
     // 一律INTERNAL_SERVER_ERRORの500になる）
-    return handleRailsRouteError(error, "CSVのエクスポートに失敗しました");
+    return handleBackendRouteError(error, "CSVのエクスポートに失敗しました");
   }
 
   if (response.status === 401) {

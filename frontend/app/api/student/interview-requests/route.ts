@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { isInterviewStatus } from "@/libs/domain/interview/interviewStatus";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
       status: resStatus,
       data,
       setCookie,
-    } = await railsFetch(
+    } = await backendFetch(
       `/api/v1/student/interview_requests?${params.toString()}`,
     );
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "面談の取得に失敗しました");
+    return handleBackendRouteError(error, "面談の取得に失敗しました");
   }
 }
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       "/api/v1/student/interview_requests",
       { method: "POST", body: { interview_request: body } },
     );
@@ -46,6 +46,6 @@ export async function POST(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "面談の申請に失敗しました");
+    return handleBackendRouteError(error, "面談の申請に失敗しました");
   }
 }

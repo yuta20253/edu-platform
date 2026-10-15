@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
-import { RailsFetchError, RailsUnauthorizedError } from "./railsError";
+import { BackendFetchError, BackendUnauthorizedError } from "./backendError";
 
-type RailsFetchMultipartResult<T> = {
+type BackendFetchMultipartResult<T> = {
   status: number;
   data: T;
   setCookie: string | null;
@@ -9,13 +9,13 @@ type RailsFetchMultipartResult<T> = {
 
 /**
  * サーバ専用：multipart/form-data を Rails API へ Cookie をforwardして送る共通関数
- * - railsFetch は JSON専用のため、ファイルアップロードにはこちらを使う
+ * - backendFetch は JSON専用のため、ファイルアップロードにはこちらを使う
  * - FormData を渡すと fetch が Content-Type: multipart/form-data を自動付与する
  */
-export async function railsFetchMultipart<T = unknown>(
+export async function backendFetchMultipart<T = unknown>(
   path: string,
   formData: FormData,
-): Promise<RailsFetchMultipartResult<T>> {
+): Promise<BackendFetchMultipartResult<T>> {
   const origin = process.env.API_URL;
   if (!origin) {
     throw new Error("API_URL is not set");
@@ -38,7 +38,7 @@ export async function railsFetchMultipart<T = unknown>(
   });
 
   if (response.status === 401) {
-    throw new RailsUnauthorizedError();
+    throw new BackendUnauthorizedError();
   }
 
   const setCookie = response.headers.get("set-cookie");
@@ -55,7 +55,7 @@ export async function railsFetchMultipart<T = unknown>(
   if (!response.ok) {
     const bodyText =
       typeof data === "string" ? data : JSON.stringify(data).slice(0, 2000);
-    throw new RailsFetchError(
+    throw new BackendFetchError(
       response.status,
       `Rails request failed: ${response.status}`,
       bodyText,

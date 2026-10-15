@@ -1,4 +1,4 @@
-import { getMeFromRails } from "@/libs/server/me";
+import { getMeFromBackend } from "@/libs/server/me";
 import { Box, CircularProgress } from "@mui/material";
 import { cookies } from "next/headers";
 import { Container } from "./Container";
@@ -11,7 +11,7 @@ export const EditUserProfile = async () => {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const user = await getMeFromRails(cookieHeader);
+  const user = await getMeFromBackend(cookieHeader);
   const prefectures = await getPrefectures();
 
   if (!user) {

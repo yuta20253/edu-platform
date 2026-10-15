@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { RailsFetchError, RailsUnauthorizedError } from "./railsError";
+import { BackendFetchError, BackendUnauthorizedError } from "./backendError";
 
 // Rails への fetch で発生した例外を Next.js の Response に変換する共通ハンドラ。
-// - RailsUnauthorizedError は 401 に統一
-// - RailsFetchError（422 など）は Rails のエラー内容（{ errors: [...] }）をそのまま返す
+// - BackendUnauthorizedError は 401 に統一
+// - BackendFetchError（422 など）は Rails のエラー内容（{ errors: [...] }）をそのまま返す
 // - それ以外は 500
-export function handleRailsRouteError(error: unknown, fallbackMessage: string) {
-  if (error instanceof RailsUnauthorizedError) {
+export function handleBackendRouteError(
+  error: unknown,
+  fallbackMessage: string,
+) {
+  if (error instanceof BackendUnauthorizedError) {
     return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
   }
 
-  if (error instanceof RailsFetchError) {
+  if (error instanceof BackendFetchError) {
     let data: unknown = { errors: [fallbackMessage] };
     if (error.bodyText) {
       try {

@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/backendFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleBackendRouteError";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { announcementId } = await params;
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/announcements/${announcementId}`,
       {
         method: "GET",
@@ -22,6 +22,6 @@ export async function GET(
 
     return nextResponse;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせの取得に失敗しました");
+    return handleBackendRouteError(error, "お知らせの取得に失敗しました");
   }
 }
