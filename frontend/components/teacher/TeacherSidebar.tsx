@@ -15,6 +15,7 @@ import ClassIcon from "@mui/icons-material/Class";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CampaignIcon from "@mui/icons-material/Campaign";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -48,6 +49,11 @@ const navItems = [
     label: "学習管理",
     href: "/teacher/student-study",
     icon: <MenuBookIcon fontSize="small" />,
+  },
+  {
+    label: "面談カレンダー",
+    href: "/teacher/calendar",
+    icon: <CalendarMonthIcon fontSize="small" />,
   },
   {
     label: "CSVインポート",
