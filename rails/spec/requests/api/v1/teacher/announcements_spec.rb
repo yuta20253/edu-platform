@@ -831,10 +831,22 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
         create(:announcement, :draft, publisher: create(:user, :teacher, high_school: high_school))
       end
 
-      it '403が返る' do
+      it '404が返る' do
         get_edit(announcement.id)
 
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 他校の教員が作成したお知らせ' do
+      let!(:announcement) do
+        create(:announcement, :draft, publisher: create(:user, :teacher, high_school: create(:high_school)))
+      end
+
+      it '404が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -1502,10 +1514,27 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       let!(:other_teacher) { create(:user, :teacher, high_school: high_school) }
       let!(:announcement) { create(:announcement, :draft, publisher: other_teacher) }
 
-      it '403が返る' do
+      it '404が返る' do
         patch_announcement
 
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'お知らせは更新されない' do
+        patch_announcement
+
+        expect(announcement.reload.title).not_to eq('更新後タイトル')
+      end
+    end
+
+    context '異常系 - 他校の教員が作成したお知らせ' do
+      let!(:other_school_teacher) { create(:user, :teacher, high_school: create(:high_school)) }
+      let!(:announcement) { create(:announcement, :draft, publisher: other_school_teacher) }
+
+      it '404が返る' do
+        patch_announcement
+
+        expect(response).to have_http_status(:not_found)
       end
 
       it 'お知らせは更新されない' do
