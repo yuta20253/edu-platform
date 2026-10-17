@@ -62,6 +62,118 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
       # 内訳: current_userの認証クエリ1件 + student/teacherのバッチpreloadクエリ2件(N+1なら記録数に比例して増える)
       expect(user_queries.size).to be <= 3
     end
+
+    context 'from/toで期間を指定した場合' do
+      let(:period_params) { { from: '2026-02-01', to: '2026-02-28' } }
+      let(:request_headers) { headers.merge('Cookie' => cookie) }
+
+      before do
+        own_request.update!(scheduled_at: Time.zone.local(2026, 1, 15, 10, 0))
+      end
+
+      def create_scheduled_request(scheduled_at, **attributes)
+        create(:interview_request, :initiated_by_teacher, teacher: teacher, scheduled_at: scheduled_at, **attributes)
+      end
+
+      it '期間内に予定されている面談のみ返る' do
+        first_day = create_scheduled_request(Time.zone.local(2026, 2, 1, 0, 0))
+        last_day = create_scheduled_request(Time.zone.local(2026, 2, 28, 23, 59))
+        create_scheduled_request(Time.zone.local(2026, 3, 1, 0, 0))
+        create_scheduled_request(nil)
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        expect(response).to have_http_status(:ok)
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).to contain_exactly(first_day.id, last_day.id)
+      end
+
+      it 'キャンセル済みの面談は含まれない' do
+        confirmed = create_scheduled_request(Time.zone.local(2026, 2, 10, 10, 0), status: :confirmed)
+        create_scheduled_request(Time.zone.local(2026, 2, 11, 10, 0), status: :cancelled)
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).to contain_exactly(confirmed.id)
+      end
+
+      context '期間内の面談が1ページの既定件数を超える場合' do
+        let(:over_default_count) { ApplicationController::DEFAULT_PER_PAGE + 1 }
+
+        before do
+          over_default_count.times do |i|
+            create_scheduled_request(Time.zone.local(2026, 2, 1 + i, 10, 0))
+          end
+        end
+
+        it '通常の一覧と同じくページネーションされ、metaが返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response.parsed_body['interview_requests'].size).to eq(ApplicationController::DEFAULT_PER_PAGE)
+          expect(response.parsed_body['meta']).to eq(
+            'current_page' => 1, 'total_pages' => 2, 'total_count' => over_default_count,
+            'per_page' => ApplicationController::DEFAULT_PER_PAGE
+          )
+        end
+
+        it 'per_pageを指定すると既定件数を超えて取得できる' do
+          get '/api/v1/teacher/interview_requests', params: period_params.merge(per_page: 100), headers: request_headers
+
+          expect(response.parsed_body['interview_requests'].size).to eq(over_default_count)
+        end
+      end
+
+      it '予定日時の昇順で返る' do
+        later = create_scheduled_request(Time.zone.local(2026, 2, 20, 10, 0))
+        earlier = create_scheduled_request(Time.zone.local(2026, 2, 5, 10, 0))
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).to eq([earlier.id, later.id])
+      end
+
+      it '他の教員が担当する面談は期間内でも含まれない' do
+        other_teacher_request.update!(scheduled_at: Time.zone.local(2026, 2, 10, 10, 0))
+
+        get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+        ids = response.parsed_body['interview_requests'].pluck('id')
+        expect(ids).not_to include(other_teacher_request.id)
+      end
+
+      context 'fromのみ指定した場合' do
+        let(:period_params) { { from: '2026-02-01' } }
+
+        it '422が返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body['errors']).to be_present
+        end
+      end
+
+      context '日付として不正な値の場合' do
+        let(:period_params) { { from: '2026-02-99', to: '2026-02-28' } }
+
+        it '422が返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
+
+      context '期間が92日を超える場合' do
+        let(:period_params) { { from: '2026-01-01', to: '2026-04-03' } }
+
+        it '422が返る' do
+          get '/api/v1/teacher/interview_requests', params: period_params, headers: request_headers
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
+    end
   end
 
   describe 'POST /api/v1/teacher/interview_requests' do

@@ -16,6 +16,13 @@ RSpec.describe GoalsQuery, type: :model do
     expect(result).to eq([goal6, goal5, goal4, goal3, goal2, goal1])
   end
 
+  # 同じ期限の並びはMySQLが保証しないため、データではなくORDER BY句で確認する
+  it '期限が同じ場合はid順で並びを確定させる' do
+    sql = described_class.new(user.goals).due_soon.result.to_sql
+
+    expect(sql).to include('ORDER BY `goals`.`due_date` ASC, `goals`.`id` ASC')
+  end
+
   it '５件以下が表示される' do
     result = described_class.new(user.goals).limit_five.result
     expect(result.size).to eq(5)

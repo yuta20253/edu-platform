@@ -51,6 +51,10 @@ export const ProfileMenu = ({ accountLinked }: Props): JSX.Element => {
           <ChevronRightIcon fontSize="small" />
         </ButtonBase>
       )}
+      <ButtonBase component={Link} href="/interviews" sx={rowSx}>
+        面談
+        <ChevronRightIcon fontSize="small" />
+      </ButtonBase>
       <ButtonBase component={Link} href="/announcements" sx={rowSx}>
         お知らせ
         <ChevronRightIcon fontSize="small" />

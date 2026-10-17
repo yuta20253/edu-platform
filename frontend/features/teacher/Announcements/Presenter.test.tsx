@@ -138,9 +138,12 @@ describe("AnnouncementsPresenter", () => {
     expect(screen.getByText("お知らせが見つかりません")).toBeInTheDocument();
   });
 
-  it("「新規作成」ボタンが無効状態で表示される", () => {
+  it("「新規作成」は/teacher/announcements/newへのリンクになっている", () => {
     render(<Presenter {...defaultProps} />);
-    expect(screen.getByRole("button", { name: "新規作成" })).toBeDisabled();
+    expect(screen.getByRole("link", { name: "新規作成" })).toHaveAttribute(
+      "href",
+      "/teacher/announcements/new",
+    );
   });
 
   it("作成分タブの各お知らせを展開すると無効状態の「更新」ボタンが表示される", () => {

@@ -166,6 +166,103 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
     end
 
+    context '学年制限がある教員の場合' do
+      let(:title) { 'テストタイトル' }
+      let(:content) { 'テスト内容' }
+      let(:own_grade) { create(:grade, high_school: teacher.high_school) }
+      let(:other_grade) { create(:grade, high_school: teacher.high_school) }
+
+      before do
+        allow(teacher).to receive(:own_grade_restriction).and_return(own_grade.id)
+      end
+
+      %w[all_users by_role by_school].each do |target_type|
+        context "#{target_type}を指定した場合" do
+          let(:announcement_targets) do
+            [
+              {
+                'target_type' => target_type,
+                'user_role_id' => teacher.user_role_id
+              }
+            ]
+          end
+
+          it 'invalidになる' do
+            expect(form).not_to be_valid
+            expect(form.errors[:announcement_targets]).to include('学年が制限されているため指定できない配信先です')
+          end
+        end
+      end
+
+      context '自分の学年をby_gradeで指定した場合' do
+        let(:announcement_targets) do
+          [
+            {
+              'target_type' => 'by_grade',
+              'grade_id' => own_grade.id,
+              'user_role_id' => teacher.user_role_id
+            }
+          ]
+        end
+
+        it 'validになる' do
+          expect(form).to be_valid
+        end
+      end
+
+      context '自分の学年の生徒をby_userで指定した場合' do
+        let(:student) { create(:user, :student, high_school: teacher.high_school, grade: own_grade) }
+        let(:announcement_targets) do
+          [{ 'target_type' => 'by_user', 'user_id' => student.id }]
+        end
+
+        it 'validになる' do
+          expect(form).to be_valid
+        end
+      end
+
+      context '他学年の生徒をby_userで指定した場合' do
+        let(:student) { create(:user, :student, high_school: teacher.high_school, grade: other_grade) }
+        let(:announcement_targets) do
+          [{ 'target_type' => 'by_user', 'user_id' => student.id }]
+        end
+
+        it 'invalidになる' do
+          expect(form).not_to be_valid
+          expect(form.errors[:announcement_targets]).to include('指定できないユーザーです')
+        end
+      end
+
+      context '自分の学年の生徒以外をby_userで指定した場合' do
+        let(:other_teacher) { create(:user, :teacher, high_school: teacher.high_school, grade: own_grade) }
+        let(:announcement_targets) do
+          [{ 'target_type' => 'by_user', 'user_id' => other_teacher.id }]
+        end
+
+        it 'invalidになる' do
+          expect(form).not_to be_valid
+          expect(form.errors[:announcement_targets]).to include('指定できないユーザーです')
+        end
+      end
+    end
+
+    context 'statusが不正な場合' do
+      subject(:form) do
+        described_class.new(
+          current_user: teacher,
+          title: 'テストタイトル',
+          content: 'テスト内容',
+          announcement_targets: announcement_targets,
+          status: 'invalid'
+        )
+      end
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+        expect(form.errors[:status]).to be_present
+      end
+    end
+
     context 'by_gradeでgrade_idが存在しない場合' do
       let(:title) { 'テストタイトル' }
       let(:content) { 'テスト内容' }
@@ -385,15 +482,16 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
     context 'validな場合' do
       it 'serviceが呼ばれる' do
-        service = instance_double(Common::AnnouncementCreateService)
+        service = instance_double(Teacher::CreateAnnouncementService)
 
-        allow(Common::AnnouncementCreateService)
+        allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
           .with(
             publisher: teacher,
             title: title,
             content: content,
-            announcement_targets: announcement_targets
+            announcement_targets: announcement_targets,
+            delivery: { status: nil, scheduled_at: nil }
           )
           .and_return(service)
 
@@ -405,19 +503,48 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
 
       it 'trueを返す' do
-        service = instance_double(Common::AnnouncementCreateService, call: true)
+        service = instance_double(Teacher::CreateAnnouncementService, call: true)
 
-        allow(Common::AnnouncementCreateService)
+        allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
           .with(
             publisher: teacher,
             title: title,
             content: content,
-            announcement_targets: announcement_targets
+            announcement_targets: announcement_targets,
+            delivery: { status: nil, scheduled_at: nil }
           )
           .and_return(service)
 
         expect(form.save).to be true
+      end
+    end
+
+    context 'statusとscheduled_atを指定した場合' do
+      subject(:form) do
+        described_class.new(
+          current_user: teacher,
+          title: title,
+          content: content,
+          announcement_targets: announcement_targets,
+          status: 'scheduled',
+          scheduled_at: scheduled_at
+        )
+      end
+
+      let(:scheduled_at) { 1.day.from_now.change(usec: 0) }
+
+      it '配信タイミングをserviceに渡す' do
+        service = instance_double(Teacher::CreateAnnouncementService, call: true)
+
+        allow(Teacher::CreateAnnouncementService)
+          .to receive(:new)
+          .with(hash_including(delivery: { status: 'scheduled', scheduled_at: scheduled_at }))
+          .and_return(service)
+
+        form.save
+
+        expect(service).to have_received(:call)
       end
     end
 
@@ -429,12 +556,12 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       end
 
       it 'serviceが呼ばれない' do
-        allow(Common::AnnouncementCreateService)
+        allow(Teacher::CreateAnnouncementService)
           .to receive(:new)
 
         form.save
 
-        expect(Common::AnnouncementCreateService)
+        expect(Teacher::CreateAnnouncementService)
           .not_to have_received(:new)
       end
     end

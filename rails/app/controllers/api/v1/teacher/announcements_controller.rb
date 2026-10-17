@@ -6,6 +6,12 @@ module Api
       class AnnouncementsController < Api::V1::Teacher::BaseController
         include TeacherStudentsScope
 
+        CREATED_MESSAGES = {
+          'draft' => 'お知らせを下書きで作成しました。',
+          'scheduled' => 'お知らせの配信を予約しました。',
+          'published' => 'お知らせを配信しました。'
+        }.freeze
+
         before_action :set_announcement, only: :update
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
@@ -65,7 +71,8 @@ module Api
                                                        **create_announcement_params.to_h.symbolize_keys)
 
           if form.save
-            render json: { message: 'お知らせを下書きで作成しました。' }, status: :created
+            render json: { message: CREATED_MESSAGES[form.announcement.status], announcement_id: form.announcement.id },
+                   status: :created
           else
             render json: { errors: form.errors.full_messages }, status: :unprocessable_content
           end
@@ -86,7 +93,7 @@ module Api
         end
 
         def create_announcement_params
-          params.require(:announcement).permit(:title, :content,
+          params.require(:announcement).permit(:title, :content, :status, :scheduled_at,
                                                announcement_targets: %i[target_type grade_id user_role_id user_id])
         end
 

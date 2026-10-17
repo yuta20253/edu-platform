@@ -37,6 +37,46 @@ RSpec.describe QuestionHistory, type: :model do
     end
   end
 
+  describe '.on_active_questions' do
+    it '削除されていない問題への解答履歴を返す' do
+      history = create_question_history
+
+      expect(described_class.on_active_questions).to contain_exactly(history)
+    end
+
+    it '論理削除された問題への解答履歴は除外する' do
+      history = create_question_history
+      history.question.update_columns(deleted_at: Time.current)
+
+      expect(described_class.on_active_questions).to be_empty
+    end
+
+    it '論理削除された解答履歴は除外する' do
+      create_question_history(deleted_at: Time.current)
+
+      expect(described_class.on_active_questions).to be_empty
+    end
+  end
+
+  describe 'CORRECT_ANSWER_COUNT' do
+    it '正解の解答履歴の件数を集計できる' do
+      create_question_history(is_correct: true)
+      create_question_history(is_correct: true)
+      create_question_history(is_correct: false)
+
+      expect(described_class.pick(Arel.sql(described_class::CORRECT_ANSWER_COUNT))).to eq(2)
+    end
+
+    it 'GROUP BYと組み合わせてグループごとに集計できる' do
+      correct_history = create_question_history(is_correct: true)
+      incorrect_history = create_question_history(is_correct: false)
+
+      result = described_class.group(:task_id).pluck(:task_id, Arel.sql(described_class::CORRECT_ANSWER_COUNT)).to_h
+
+      expect(result).to eq(correct_history.task_id => 1, incorrect_history.task_id => 0)
+    end
+  end
+
   describe '論理削除された問題・選択肢との関連' do
     let(:user) { create(:user) }
     let!(:history) { create(:question_history, user: user, task: create(:task, user: user)) }

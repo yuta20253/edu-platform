@@ -2,6 +2,7 @@
 
 import { colors } from "@/app/theme/colors";
 import { Box, Button, Pagination, Tab, Tabs, Typography } from "@mui/material";
+import Link from "next/link";
 import { AuthoredList } from "./components/AuthoredList";
 import { ReceivedList } from "./components/ReceivedList";
 import { AnnouncementsResult, AnnouncementTab } from "./types";
@@ -48,9 +49,10 @@ export const Presenter = ({
           </Typography>
 
           <Button
+            component={Link}
+            href="/teacher/announcements/new"
             variant="outlined"
             size="small"
-            disabled
             sx={{
               minWidth: 110,
               height: 36,
