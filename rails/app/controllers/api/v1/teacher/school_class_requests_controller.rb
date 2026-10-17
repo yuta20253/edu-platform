@@ -6,10 +6,41 @@ module Api
       class SchoolClassRequestsController < Api::V1::Teacher::BaseController
         include RequireManageOtherTeachers
 
-        ALLOWED_UPDATE_STATUSES = %w[approved rejected].freeze
+        UPDATE_SUCCESS_MESSAGES = {
+          'approved' => '申請が承認されました',
+          'rejected' => '申請が却下されました'
+        }.freeze
+        ALLOWED_UPDATE_STATUSES = UPDATE_SUCCESS_MESSAGES.keys.freeze
 
         before_action -> { require_manage_other_teachers!('承認権限がないユーザーです') }, only: :update
         before_action :require_valid_update_status!, only: :update
+        before_action :require_lock_version!, only: :update
+
+        def index
+          school_class_requests = school_class_requests_scope
+          school_class_requests = school_class_requests.where(status: params[:status]) if params[:status].present?
+          school_class_requests = school_class_requests.page(sanitized_page).per(sanitized_per_page)
+
+          render json: {
+            school_class_requests: ActiveModelSerializers::SerializableResource.new(
+              school_class_requests, each_serializer: ::Teacher::SchoolClassRequestSerializer,
+                                     current_user: current_user
+            ),
+            meta: {
+              current_page: school_class_requests.current_page,
+              total_pages: school_class_requests.total_pages,
+              total_count: school_class_requests.total_count,
+              per_page: school_class_requests.limit_value
+            }
+          }, status: :ok
+        end
+
+        def show
+          school_class_request = school_class_requests_scope.find(params[:id])
+
+          render json: school_class_request, serializer: ::Teacher::SchoolClassRequestSerializer,
+                 current_user: current_user, status: :ok
+        end
 
         def create
           form = ::Teacher::CreateSchoolClassRequestForm.new(
@@ -33,9 +64,11 @@ module Api
                    ).call
 
           if result
-            render json: { message: '申請が承認されました' }, status: :ok
+            render json: { message: UPDATE_SUCCESS_MESSAGES.fetch(update_school_class_params[:status]) }, status: :ok
           else
-            render json: { message: '申請が却下されました' }, status: :ok
+            # 画面を開いた後に他の教員が承認/却下した、または申請者が取り消した場合。
+            # lock_versionの競合(StaleObjectError)と同じく、再読み込みを促す409にする
+            render json: { errors: ['この申請はすでに処理されています。再読み込みしてください'] }, status: :conflict
           end
         end
 
@@ -63,6 +96,24 @@ module Api
           params.require(:school_class_request).permit(:status, :lock_version, :reason)
         end
 
+        def school_class_requests_scope
+          school_class_requests = SchoolClassRequest
+                                  .includes(
+                                    :school_class,
+                                    :applicant,
+                                    :approver,
+                                    :grade
+                                  )
+                                  .joins(:grade)
+                                  .where(grades: { high_school_id: current_user.high_school_id })
+                                  .order(created_at: :desc, id: :desc)
+
+          unless manage_other_teachers?
+            school_class_requests = school_class_requests.where(applicant_id: current_user.id)
+          end
+          school_class_requests
+        end
+
         def destroy_school_class_params
           params.permit(:reason)
         end
@@ -71,6 +122,12 @@ module Api
           return if update_school_class_params[:status].in?(ALLOWED_UPDATE_STATUSES)
 
           render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
+        end
+
+        def require_lock_version!
+          return if update_school_class_params[:lock_version].present?
+
+          render json: { errors: ['lock_versionは必須です'] }, status: :unprocessable_content
         end
       end
     end

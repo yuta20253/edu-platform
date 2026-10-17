@@ -5,7 +5,7 @@ module Api
     module Student
       class CalendarsController < Api::V1::Student::BaseController
         def show
-          form = ::Student::CalendarForm.new(calendar_params)
+          form = ::CalendarPeriodForm.new(calendar_params)
 
           if form.valid?
             result = ::Student::CalendarService

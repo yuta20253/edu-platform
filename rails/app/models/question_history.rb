@@ -21,6 +21,8 @@
 #  task_id            :bigint           not null
 #
 class QuestionHistory < ApplicationRecord
+  CORRECT_ANSWER_COUNT = 'SUM(CASE WHEN question_histories.is_correct THEN 1 ELSE 0 END)'
+
   belongs_to :user
   belongs_to :course
   belongs_to :unit
@@ -30,4 +32,5 @@ class QuestionHistory < ApplicationRecord
   belongs_to :question_choice, -> { unscope(where: :deleted_at) }, inverse_of: :question_histories
 
   scope :active, -> { where(deleted_at: nil) }
+  scope :on_active_questions, -> { active.joins(:question).where(questions: { deleted_at: nil }) }
 end

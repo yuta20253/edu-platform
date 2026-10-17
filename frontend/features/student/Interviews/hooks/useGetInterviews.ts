@@ -10,7 +10,6 @@ export const useGetInterviews = () => {
   const [data, setData] = useState<InterviewsData | null>(null);
   const [page, setPage] = useState(1);
   const [status, setStatusState] = useState<InterviewStatusFilter>("all");
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();
 
@@ -22,7 +21,6 @@ export const useGetInterviews = () => {
     const params: Record<string, string> = { page: String(page) };
     if (status !== "all") params.status = status;
 
-    setLoading(true);
     setError(false);
 
     apiClient
@@ -40,10 +38,6 @@ export const useGetInterviews = () => {
 
         setError(true);
         setData(null);
-      })
-      .finally(() => {
-        if (controller.signal.aborted) return;
-        setLoading(false);
       });
 
     return () => {
@@ -56,5 +50,5 @@ export const useGetInterviews = () => {
     setPage(1);
   };
 
-  return { data, page, setPage, status, setStatus, loading, error };
+  return { data, page, setPage, status, setStatus, error };
 };

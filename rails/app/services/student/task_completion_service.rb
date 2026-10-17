@@ -22,12 +22,9 @@ module Student
       @task ||= @user.tasks.find(@task_id)
     end
 
-    def question_histories
-      @question_histories ||= @user.question_histories.where(task_id: @task_id)
-    end
-
-    def unit_ids
-      @unit_ids ||= task.units.pluck(:id)
+    # 教員画面の進捗率(Common::TaskProgressService)と判定がずれないよう、同じ集計Queryを使う
+    def task_answer_stats_query
+      @task_answer_stats_query ||= TaskAnswerStatsQuery.new(user: @user, task_ids: [task.id])
     end
 
     def all_answered?
@@ -35,16 +32,11 @@ module Student
     end
 
     def total_questions_count
-      @total_questions_count ||= Question.where(unit_id: unit_ids, deleted_at: nil).count
+      @total_questions_count ||= task_answer_stats_query.question_counts.values.sum
     end
 
     def answered_count
-      @answered_count ||= question_histories
-                          .joins(:question)
-                          .where(questions: { deleted_at: nil })
-                          .select(:question_id)
-                          .distinct
-                          .count
+      @answered_count ||= task_answer_stats_query.answer_counts.values.sum { |counts| counts[:answered_count] }
     end
   end
 end
