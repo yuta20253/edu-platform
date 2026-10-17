@@ -1,33 +1,66 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
-import { Student } from "./types";
+import {
+  Student,
+  StudentDetailResult,
+  StudentDetailTab,
+  StudentGoalsData,
+  StudentTasksData,
+} from "./types";
 
-export const useStudent = (studentId: number) => {
-  const [student, setStudent] = useState<Student | null>(null);
+export const useStudent = (
+  studentId: number,
+  tab: StudentDetailTab,
+  page: number,
+) => {
+  const [data, setData] = useState<StudentDetailResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
+    // プロフィールは従来どおりtabを付けずに取得する。pageはタスクタブだけで使う
+    const params: Record<string, string> = {};
+    if (tab !== "profile") params.tab = tab;
+    if (tab === "tasks") params.page = String(page);
+
+    // タブやページを素早く切り替えた際、古いリクエストの応答が後から返ってきて
+    // 新しい表示を上書きしないようキャンセルする
+    const controller = new AbortController();
+
     setLoading(true);
     setError(false);
 
     apiClient
-      .get<Student>(`/api/teacher/students/${studentId}`)
-      .then((res) => setStudent(res.data))
+      .get<Student | StudentGoalsData | StudentTasksData>(
+        `/api/teacher/students/${studentId}`,
+        { params, signal: controller.signal },
+      )
+      .then((res) => {
+        setData({ tab, data: res.data } as StudentDetailResult);
+      })
       .catch((err) => {
+        if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
           router.push("/login");
           return;
         }
+        // タブ切り替え後の失敗でもヘッダーに生徒名を出せるよう、前回のデータは残す
         setError(true);
-        setStudent(null);
       })
-      .finally(() => setLoading(false));
-  }, [router, studentId]);
+      .finally(() => {
+        if (controller.signal.aborted) return;
+        setLoading(false);
+      });
 
-  return { student, loading, error };
+    return () => {
+      controller.abort();
+    };
+  }, [router, studentId, tab, page]);
+
+  return { data, loading, error };
 };

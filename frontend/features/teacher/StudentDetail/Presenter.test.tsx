@@ -1,7 +1,16 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { ComponentProps } from "react";
 import { Presenter } from "./Presenter";
-import type { Student } from "./types";
+import { colors } from "@/app/theme/colors";
+import type {
+  Student,
+  StudentGoal,
+  StudentGoalsData,
+  StudentTask,
+  StudentTasksData,
+} from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -36,71 +45,524 @@ const mockStudent: Student = {
   grade: { year: 1, display_name: "高校1年" },
 };
 
+const mockGoalsData: StudentGoalsData = {
+  student: { id: 1, name: "山田太郎" },
+  goals: [],
+};
+
+const mockGoal: StudentGoal = {
+  id: 1,
+  title: "英検2級に合格する",
+  description: "12月の試験で合格する",
+  status: "in_progress",
+  due_date: "2026/12/31",
+  progress: {
+    task_completed_count: 2,
+    task_total_count: 5,
+    completion_rate: 40.0,
+  },
+  tasks: [],
+};
+
+const mockTask: StudentTask = {
+  id: 10,
+  title: "単語帳を1周する",
+  status: "in_progress",
+  priority: "normal",
+  due_date: "2026/11/30",
+  completed_at: null,
+  goal: { id: 1, title: "英検2級に合格する" },
+  progress: {
+    total_questions: 30,
+    answered_count: 18,
+    correct_count: 12,
+    progress_rate: 60.0,
+    correct_rate: 66.7,
+  },
+  units: [
+    {
+      id: 100,
+      course_id: 5,
+      unit_name: "不定詞",
+      course: { id: 5, level_number: 2, level_name: "標準" },
+      total_questions: 10,
+      answered_count: 10,
+      correct_count: 8,
+      progress_rate: 100.0,
+      correct_rate: 80.0,
+    },
+  ],
+};
+
+const mockTasksData: StudentTasksData = {
+  student: { id: 1, name: "山田太郎" },
+  tasks: [mockTask],
+  meta: { current_page: 1, total_pages: 1, total_count: 1, per_page: 10 },
+};
+
+type Props = ComponentProps<typeof Presenter>;
+
+const renderPresenter = (props: Partial<Props> = {}) => {
+  const defaultProps: Props = {
+    tab: "profile",
+    data: { tab: "profile", data: mockStudent },
+    loading: false,
+    error: false,
+    page: 1,
+    onTabChange: vi.fn(),
+    onPageChange: vi.fn(),
+  };
+  return render(<Presenter {...defaultProps} {...props} />);
+};
+
+const renderProfile = (student: Student) =>
+  renderPresenter({ data: { tab: "profile", data: student } });
+
+const renderTasks = (data: Partial<StudentTasksData> = {}) =>
+  renderPresenter({
+    tab: "tasks",
+    data: { tab: "tasks", data: { ...mockTasksData, ...data } },
+  });
+
+const renderGoals = (goals: StudentGoal[]) =>
+  renderPresenter({
+    tab: "goals",
+    data: { tab: "goals", data: { ...mockGoalsData, goals } },
+  });
+
 describe("StudentDetailPresenter", () => {
-  it("基本情報が表示される", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByText("生徒詳細")).toBeInTheDocument();
-    expect(screen.getByText("山田太郎")).toBeInTheDocument();
-    expect(screen.getByText("ヤマダタロウ")).toBeInTheDocument();
-    expect(screen.getByText("yamada@example.com")).toBeInTheDocument();
-    expect(screen.getByText("高校1年")).toBeInTheDocument();
-    expect(screen.getByText("東京第一高校")).toBeInTheDocument();
+  describe("ヘッダーとタブ", () => {
+    it("プロフィール・目標・タスクの3つのタブが表示され、選択中のタブが選ばれている", () => {
+      renderPresenter();
+      expect(screen.getByRole("tab", { name: "プロフィール" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      expect(screen.getByRole("tab", { name: "目標" })).toHaveAttribute(
+        "aria-selected",
+        "false",
+      );
+      expect(screen.getByRole("tab", { name: "タスク" })).toBeInTheDocument();
+    });
+
+    it("タブをクリックするとonTabChangeがそのタブで呼ばれる", async () => {
+      const onTabChange = vi.fn();
+      renderPresenter({ onTabChange });
+
+      await userEvent.click(screen.getByRole("tab", { name: "タスク" }));
+
+      expect(onTabChange).toHaveBeenCalledWith("tasks");
+    });
+
+    it("目標タブのデータでもヘッダーに生徒名が表示される", () => {
+      renderPresenter({
+        tab: "goals",
+        data: { tab: "goals", data: mockGoalsData },
+      });
+      expect(screen.getByText("生徒詳細")).toBeInTheDocument();
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+    });
+
+    it("ヘッダーに生徒名の頭文字のアバターが表示される", () => {
+      renderPresenter({
+        tab: "goals",
+        data: { tab: "goals", data: mockGoalsData },
+      });
+      expect(screen.getByText("山")).toBeInTheDocument();
+    });
+
+    it("「一覧へ戻る」リンクが /teacher/students を指している", () => {
+      renderPresenter();
+      expect(screen.getByRole("link", { name: "一覧へ戻る" })).toHaveAttribute(
+        "href",
+        "/teacher/students",
+      );
+    });
   });
 
-  it("プロフィール完了時は「入力完了」バッジが表示される", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByText("入力完了")).toBeInTheDocument();
+  describe("タブ切り替え中・失敗時", () => {
+    it("読み込み中はヘッダーとタブを残したままローディングを表示する", () => {
+      renderPresenter({ tab: "goals", loading: true });
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "一覧へ戻る" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "目標" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      expect(screen.queryByText("yamada@example.com")).not.toBeInTheDocument();
+    });
+
+    it("選択中のタブとデータのタブが食い違う間は、前のタブの内容を出さずローディングを表示する", () => {
+      renderPresenter({ tab: "goals" });
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(screen.queryByText("yamada@example.com")).not.toBeInTheDocument();
+    });
+
+    it("取得に失敗したときはヘッダーを残したままエラーを表示する", () => {
+      renderPresenter({ tab: "tasks", error: true });
+      expect(
+        screen.getByText("データの取得に失敗しました"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "一覧へ戻る" }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
   });
 
-  it("プロフィール未完了時は「未完了」バッジが表示される", () => {
-    render(
-      <Presenter student={{ ...mockStudent, profile_completed: false }} />,
-    );
-    expect(screen.getByText("未完了")).toBeInTheDocument();
+  describe("プロフィールタブ", () => {
+    it("基本情報が表示される", () => {
+      renderPresenter();
+      expect(screen.getByText("ヤマダタロウ")).toBeInTheDocument();
+      expect(screen.getByText("yamada@example.com")).toBeInTheDocument();
+      expect(screen.getByText("高校1年")).toBeInTheDocument();
+      expect(screen.getByText("東京第一高校")).toBeInTheDocument();
+    });
+
+    it("氏名がヘッダーとプロフィールの両方に表示される", () => {
+      renderPresenter();
+      expect(screen.getAllByText("山田太郎")).toHaveLength(2);
+    });
+
+    it("プロフィール完了時は「入力完了」バッジが表示される", () => {
+      renderPresenter();
+      expect(screen.getByText("入力完了")).toBeInTheDocument();
+    });
+
+    it("プロフィール未完了時は「未完了」バッジが表示される", () => {
+      renderProfile({ ...mockStudent, profile_completed: false });
+      expect(screen.getByText("未完了")).toBeInTheDocument();
+    });
+
+    it("個人情報（生年月日・性別・電話番号・住所）が表示される", () => {
+      renderPresenter();
+      expect(screen.getByText("2008-04-01")).toBeInTheDocument();
+      expect(screen.getByText("男性")).toBeInTheDocument();
+      expect(screen.getByText("09012345678")).toBeInTheDocument();
+      expect(
+        screen.getByText("〒1000001 東京都千代田区千代田"),
+      ).toBeInTheDocument();
+    });
+
+    it("性別が female のとき「女性」と表示される", () => {
+      renderProfile({
+        ...mockStudent,
+        user_personal_info: {
+          ...mockStudent.user_personal_info!,
+          gender: "female",
+        },
+      });
+      expect(screen.getByText("女性")).toBeInTheDocument();
+    });
+
+    it("user_personal_info が未設定のとき生年月日・電話番号・性別が「未設定」になる", () => {
+      renderProfile({ ...mockStudent, user_personal_info: undefined });
+      expect(screen.getAllByText("未設定").length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("address が未設定のとき住所が「未設定」になる", () => {
+      renderProfile({ ...mockStudent, address: undefined });
+      expect(screen.getByText("未設定")).toBeInTheDocument();
+    });
   });
 
-  it("個人情報（生年月日・性別・電話番号・住所）が表示される", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByText("2008-04-01")).toBeInTheDocument();
-    expect(screen.getByText("男性")).toBeInTheDocument();
-    expect(screen.getByText("09012345678")).toBeInTheDocument();
-    expect(
-      screen.getByText("〒1000001 東京都千代田区千代田"),
-    ).toBeInTheDocument();
-  });
+  describe("目標タブ", () => {
+    it("目標のタイトル・ステータス・期限が表示される", () => {
+      renderGoals([mockGoal]);
+      expect(screen.getByText("英検2級に合格する")).toBeInTheDocument();
+      expect(screen.getByText("進行中")).toBeInTheDocument();
+      expect(screen.getByText("期限: 2026/12/31")).toBeInTheDocument();
+    });
 
-  it("性別が female のとき「女性」と表示される", () => {
-    render(
-      <Presenter
-        student={{
-          ...mockStudent,
-          user_personal_info: {
-            ...mockStudent.user_personal_info!,
-            gender: "female",
+    it("期限が未設定のときは「期限なし」と表示される", () => {
+      renderGoals([{ ...mockGoal, due_date: null }]);
+      expect(screen.getByText("期限なし")).toBeInTheDocument();
+    });
+
+    it("タスクの完了数/総数と完了率の進捗バーが表示される", () => {
+      renderGoals([mockGoal]);
+      expect(screen.getByText("タスク完了 2/5")).toBeInTheDocument();
+      expect(
+        screen.getByRole("progressbar", {
+          name: "英検2級に合格するのタスク完了率",
+        }),
+      ).toHaveAttribute("aria-valuenow", "40");
+    });
+
+    it("目標が0件のときは空である旨が表示され、サマリーは表示しない", () => {
+      renderGoals([]);
+      expect(screen.getByText("目標がありません")).toBeInTheDocument();
+      expect(screen.queryByText("目標数")).not.toBeInTheDocument();
+    });
+
+    it("全目標のサマリー(目標数・達成した目標・タスク完了の合計)が表示される", () => {
+      renderGoals([
+        mockGoal,
+        {
+          ...mockGoal,
+          id: 2,
+          title: "数学の定期テストで80点",
+          status: "completed",
+          progress: {
+            task_completed_count: 3,
+            task_total_count: 3,
+            completion_rate: 100.0,
           },
-        }}
-      />,
-    );
-    expect(screen.getByText("女性")).toBeInTheDocument();
+        },
+      ]);
+      const summary = screen.getByRole("region", { name: "目標のサマリー" });
+      expect(within(summary).getByText("目標数")).toBeInTheDocument();
+      expect(within(summary).getByText("2件")).toBeInTheDocument();
+      expect(within(summary).getByText("達成した目標")).toBeInTheDocument();
+      expect(within(summary).getByText("1件")).toBeInTheDocument();
+      expect(within(summary).getByText("タスク完了")).toBeInTheDocument();
+      expect(within(summary).getByText("5/8")).toBeInTheDocument();
+    });
+
+    it("目標に紐づくタスクがステータス付きで表示される", () => {
+      renderGoals([
+        {
+          ...mockGoal,
+          tasks: [
+            {
+              id: 10,
+              title: "単語帳を1周する",
+              status: "completed",
+              due_date: "2026/11/30",
+            },
+            {
+              id: 11,
+              title: "過去問を解く",
+              status: "not_started",
+              due_date: null,
+            },
+          ],
+        },
+      ]);
+      expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
+      expect(screen.getByText("過去問を解く")).toBeInTheDocument();
+      expect(screen.getByText("完了")).toBeInTheDocument();
+      expect(screen.getByText("未着手")).toBeInTheDocument();
+    });
+
+    it("目標に紐づくタスクがないときはその旨が表示される", () => {
+      renderGoals([mockGoal]);
+      expect(screen.getByText("タスクはまだありません")).toBeInTheDocument();
+    });
+
+    describe("期限切れ", () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it("未完了で期限を過ぎた目標には「期限切れ」が表示される", () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        vi.setSystemTime(new Date(2026, 9, 14));
+        renderGoals([{ ...mockGoal, due_date: "2026/10/01" }]);
+        expect(screen.getByText("期限切れ")).toBeInTheDocument();
+      });
+
+      it("完了済みの目標は期限を過ぎていても「期限切れ」を表示しない", () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        vi.setSystemTime(new Date(2026, 9, 14));
+        renderGoals([
+          { ...mockGoal, due_date: "2026/10/01", status: "completed" },
+        ]);
+        expect(screen.queryByText("期限切れ")).not.toBeInTheDocument();
+      });
+    });
   });
 
-  it("user_personal_info が未設定のとき生年月日・電話番号・性別が「未設定」になる", () => {
-    render(
-      <Presenter student={{ ...mockStudent, user_personal_info: undefined }} />,
-    );
-    expect(screen.getAllByText("未設定").length).toBeGreaterThanOrEqual(2);
+  describe("タスクタブ", () => {
+    it("タスクのタイトル・ステータス・優先度・期限・紐づく目標名が表示される", () => {
+      renderTasks();
+      expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
+      expect(screen.getByText("進行中")).toBeInTheDocument();
+      expect(screen.getByText("優先度: 普通")).toBeInTheDocument();
+      expect(screen.getByText("期限: 2026/11/30")).toBeInTheDocument();
+      expect(screen.getByText("目標: 英検2級に合格する")).toBeInTheDocument();
+    });
+
+    it("タスクの総件数が表示される", () => {
+      renderTasks({
+        meta: {
+          current_page: 1,
+          total_pages: 3,
+          total_count: 25,
+          per_page: 10,
+        },
+      });
+      expect(screen.getByText("全25件")).toBeInTheDocument();
+    });
+
+    it("タスク全体の進捗率と正答率が表示される", () => {
+      renderTasks();
+      expect(screen.getByText("進捗")).toBeInTheDocument();
+      expect(screen.getByText("60%")).toBeInTheDocument();
+      expect(screen.getByText("正答率")).toBeInTheDocument();
+      expect(screen.getByText("66.7%")).toBeInTheDocument();
+      expect(
+        screen.getByRole("progressbar", { name: "単語帳を1周するの進捗" }),
+      ).toHaveAttribute("aria-valuenow", "60");
+    });
+
+    it("完了済みのタスクも表示される", () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            status: "completed",
+            completed_at: "2026/11/20",
+          },
+        ],
+      });
+      expect(screen.getByText("単語帳を1周する")).toBeInTheDocument();
+      expect(screen.getByText("完了")).toBeInTheDocument();
+    });
+
+    it("未解答のタスクは正答率に「-」が表示される", () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            progress: {
+              ...mockTask.progress,
+              answered_count: 0,
+              correct_count: 0,
+              progress_rate: 0,
+              correct_rate: null,
+            },
+          },
+        ],
+      });
+      expect(screen.getByText("-")).toBeInTheDocument();
+    });
+
+    it("正答率が80%以上のときは成功色で表示される", () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            progress: { ...mockTask.progress, correct_rate: 85.0 },
+          },
+        ],
+      });
+      expect(screen.getByText("85%")).toHaveStyle({
+        color: colors.status.success,
+      });
+    });
+
+    it("未完了で期限を過ぎたタスクには「期限切れ」が表示される", () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(2026, 9, 14));
+      renderTasks({ tasks: [{ ...mockTask, due_date: "2026/10/01" }] });
+      expect(screen.getByText("期限切れ")).toBeInTheDocument();
+      vi.useRealTimers();
+    });
+
+    it("タスクが0件のときは空である旨が表示される", () => {
+      renderTasks({
+        tasks: [],
+        meta: { current_page: 1, total_pages: 0, total_count: 0, per_page: 10 },
+      });
+      expect(screen.getByText("タスクがありません")).toBeInTheDocument();
+    });
   });
 
-  it("address が未設定のとき住所が「未設定」になる", () => {
-    render(<Presenter student={{ ...mockStudent, address: undefined }} />);
-    expect(screen.getByText("未設定")).toBeInTheDocument();
+  describe("タスクのUnit別の解答状況", () => {
+    it("タスク行を展開する前はUnitの解答状況を表示しない", () => {
+      renderTasks();
+      expect(screen.queryByText("不定詞")).not.toBeInTheDocument();
+    });
+
+    it("タスク行を展開するとUnit名・コース名・解答数/問題数・正答率が表示される", async () => {
+      renderTasks();
+
+      await userEvent.click(screen.getByText("単語帳を1周する"));
+
+      const table = screen.getByRole("table");
+      ["Unit", "コース", "解答数", "進捗", "正答率"].forEach((name) =>
+        expect(
+          within(table).getByRole("columnheader", { name }),
+        ).toBeInTheDocument(),
+      );
+      expect(within(table).getByText("不定詞")).toBeInTheDocument();
+      expect(within(table).getByText("標準レベル2")).toBeInTheDocument();
+      expect(within(table).getByText("10/10問")).toBeInTheDocument();
+      expect(within(table).getByText("80%")).toBeInTheDocument();
+      expect(
+        screen.getByRole("progressbar", { name: "不定詞の進捗" }),
+      ).toHaveAttribute("aria-valuenow", "100");
+    });
+
+    it("未解答のUnitは正答率に「-」が表示される", async () => {
+      renderTasks({
+        tasks: [
+          {
+            ...mockTask,
+            units: [
+              {
+                ...mockTask.units[0],
+                answered_count: 0,
+                correct_count: 0,
+                progress_rate: 0,
+                correct_rate: null,
+              },
+            ],
+          },
+        ],
+      });
+
+      await userEvent.click(screen.getByText("単語帳を1周する"));
+
+      const table = screen.getByRole("table");
+      expect(within(table).getByText("0/10問")).toBeInTheDocument();
+      expect(within(table).getByText("-")).toBeInTheDocument();
+    });
+
+    it("紐づくUnitがないタスクは展開するとその旨が表示される", async () => {
+      renderTasks({ tasks: [{ ...mockTask, units: [] }] });
+
+      await userEvent.click(screen.getByText("単語帳を1周する"));
+
+      expect(screen.getByText("紐づくUnitがありません")).toBeInTheDocument();
+    });
   });
 
-  it("「一覧へ戻る」リンクが /teacher/students を指している", () => {
-    render(<Presenter student={mockStudent} />);
-    expect(screen.getByRole("link", { name: "一覧へ戻る" })).toHaveAttribute(
-      "href",
-      "/teacher/students",
-    );
+  describe("タスクタブのページネーション", () => {
+    it("複数ページあるときはページネーションが表示され、ページを押すとonPageChangeが呼ばれる", async () => {
+      const onPageChange = vi.fn();
+      renderPresenter({
+        tab: "tasks",
+        data: {
+          tab: "tasks",
+          data: {
+            ...mockTasksData,
+            meta: {
+              current_page: 1,
+              total_pages: 3,
+              total_count: 25,
+              per_page: 10,
+            },
+          },
+        },
+        onPageChange,
+      });
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "Go to page 2" }),
+      );
+
+      expect(onPageChange).toHaveBeenCalledWith(2);
+    });
+
+    it("1ページしかないときはページネーションを表示しない", () => {
+      renderTasks();
+      expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    });
   });
 });

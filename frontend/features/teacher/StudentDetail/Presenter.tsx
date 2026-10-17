@@ -2,30 +2,43 @@
 
 import { colors } from "@/app/theme/colors";
 import {
+  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Grid,
+  CircularProgress,
+  Pagination,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { Student } from "./types";
+import { GoalsTab } from "./components/GoalsTab";
+import { ProfileTab } from "./components/ProfileTab";
+import { TasksTab } from "./components/TasksTab";
+import { StudentDetailResult, StudentDetailTab } from "./types";
 
 type Props = {
-  student: Student;
+  tab: StudentDetailTab;
+  data: StudentDetailResult;
+  loading: boolean;
+  error: boolean;
+  page: number;
+  onTabChange: (tab: StudentDetailTab) => void;
+  onPageChange: (page: number) => void;
 };
 
-export const Presenter = ({ student }: Props) => {
-  const GENDER_LABEL: Record<string, string> = { male: "男性", female: "女性" };
-  const genderLabel =
-    GENDER_LABEL[student.user_personal_info?.gender ?? ""] ?? "未設定";
-
-  const addressText = student.address
-    ? `〒${student.address.postal_code} ${student.address.prefecture.name}${student.address.city}${student.address.town}`
-    : "未設定";
+export const Presenter = ({
+  tab,
+  data,
+  loading,
+  error,
+  page,
+  onTabChange,
+  onPageChange,
+}: Props) => {
+  // プロフィールは生徒の情報をそのまま返し、目標・タスクは student に名前を持つ
+  const studentName =
+    data.tab === "profile" ? data.data.name : data.data.student.name;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -39,13 +52,37 @@ export const Presenter = ({ student }: Props) => {
           flexWrap: "wrap",
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight={700}
-          sx={{ color: colors.text.primary }}
-        >
-          生徒詳細
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Avatar
+            sx={{
+              width: 52,
+              height: 52,
+              bgcolor: colors.brand.primary,
+              fontSize: 22,
+              fontWeight: 700,
+            }}
+          >
+            {studentName.charAt(0)}
+          </Avatar>
+
+          <Box>
+            <Typography
+              variant="caption"
+              fontWeight={600}
+              sx={{ display: "block", color: colors.text.muted }}
+            >
+              生徒詳細
+            </Typography>
+
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: colors.text.primary }}
+            >
+              {studentName}
+            </Typography>
+          </Box>
+        </Box>
 
         <Button
           component={Link}
@@ -62,201 +99,52 @@ export const Presenter = ({ student }: Props) => {
         </Button>
       </Box>
 
-      <Card
-        elevation={0}
-        sx={{
-          border: `1px solid ${colors.border.light}`,
-          borderRadius: 2,
-        }}
+      <Tabs
+        value={tab}
+        onChange={(_, value: StudentDetailTab) => onTabChange(value)}
+        sx={{ mb: 3, borderBottom: `1px solid ${colors.border.light}` }}
       >
-        <CardContent sx={{ p: 3 }}>
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                氏名
-              </Typography>
+        <Tab label="プロフィール" value="profile" />
+        <Tab label="目標" value="goals" />
+        <Tab label="タスク" value="tasks" />
+      </Tabs>
 
-              <Typography variant="body1" fontWeight={600}>
-                {student.name}
-              </Typography>
-            </Grid>
+      {error ? (
+        <Typography
+          variant="body2"
+          sx={{ py: 6, textAlign: "center", color: colors.text.secondary }}
+        >
+          データの取得に失敗しました
+        </Typography>
+      ) : loading || data.tab !== tab ? (
+        // タブを押してから取得が始まるまでの間も、前のタブの内容を出さない
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : data.tab === "profile" ? (
+        <ProfileTab student={data.data} />
+      ) : data.tab === "goals" ? (
+        <GoalsTab goals={data.data.goals} />
+      ) : (
+        <>
+          <TasksTab
+            tasks={data.data.tasks}
+            totalCount={data.data.meta.total_count}
+          />
 
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                氏名カナ
-              </Typography>
-
-              <Typography variant="body1">{student.name_kana}</Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                メールアドレス
-              </Typography>
-
-              <Typography variant="body1">{student.email}</Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 1,
-                  color: colors.text.muted,
-                }}
-              >
-                プロフィール状態
-              </Typography>
-
-              <Chip
-                label={student.profile_completed ? "入力完了" : "未完了"}
-                size="small"
-                color={student.profile_completed ? "success" : "default"}
-                sx={{
-                  minWidth: 80,
-                  height: 26,
-                  fontWeight: 600,
-                }}
+          {data.data.meta.total_pages > 1 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+              <Pagination
+                count={data.data.meta.total_pages}
+                page={page}
+                onChange={(_, value) => onPageChange(value)}
+                color="primary"
+                shape="rounded"
               />
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                学年
-              </Typography>
-
-              <Typography variant="body1">
-                {student.grade.display_name}
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                学校名
-              </Typography>
-
-              <Typography variant="body1">
-                {student.high_school.name}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Divider sx={{ my: 4 }} />
-
-          <Typography
-            variant="subtitle1"
-            fontWeight={700}
-            sx={{
-              mb: 2.5,
-              color: colors.text.primary,
-            }}
-          >
-            個人情報
-          </Typography>
-
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                生年月日
-              </Typography>
-
-              <Typography variant="body1">
-                {student.user_personal_info?.birthday || "未設定"}
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                性別
-              </Typography>
-
-              <Typography variant="body1">{genderLabel}</Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                電話番号
-              </Typography>
-
-              <Typography variant="body1">
-                {student.user_personal_info?.phone_number || "未設定"}
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mb: 0.5,
-                  color: colors.text.muted,
-                }}
-              >
-                住所
-              </Typography>
-
-              <Typography variant="body1">{addressText}</Typography>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+            </Box>
+          )}
+        </>
+      )}
     </Box>
   );
 };

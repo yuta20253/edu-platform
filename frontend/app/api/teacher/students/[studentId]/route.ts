@@ -1,16 +1,24 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
 import { railsFetch } from "@/libs/server/rails/railsFetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ studentId: string }> },
 ) {
   const { studentId } = await params;
+  const { searchParams } = req.nextUrl;
+  const tab = searchParams.get("tab");
+  const page = searchParams.get("page");
+
+  const query = new URLSearchParams();
+  if (tab) query.set("tab", tab);
+  if (page) query.set("page", page);
+  const queryString = query.toString();
 
   try {
     const { data, status, setCookie } = await railsFetch(
-      `/api/v1/teacher/students/${studentId}`,
+      `/api/v1/teacher/students/${studentId}${queryString ? `?${queryString}` : ""}`,
     );
 
     const res = NextResponse.json(data, { status });
@@ -19,13 +27,6 @@ export async function GET(
 
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
-    return NextResponse.json(
-      { message: "INTERNAL_SERVER_ERROR" },
-      { status: 500 },
-    );
+    return handleRailsRouteError(error, "生徒情報の取得に失敗しました");
   }
 }
