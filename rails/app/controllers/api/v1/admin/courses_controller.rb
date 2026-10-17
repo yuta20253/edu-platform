@@ -21,8 +21,7 @@ module Api
             questions_counts = {}
           else
             units_counts = Unit.active.where(course_id: course_ids).group(:course_id).count
-            questions_counts = Question.active
-                                       .joins(:unit).merge(Unit.active)
+            questions_counts = Question.in_active_units
                                        .where(units: { course_id: course_ids })
                                        .group('units.course_id').count
           end
@@ -45,8 +44,7 @@ module Api
 
         def show
           course = Course.includes(:subject).find(params[:id])
-          questions_counts = Question.active
-                                     .joins(:unit).merge(Unit.active)
+          questions_counts = Question.in_active_units
                                      .where(units: { course_id: course.id })
                                      .group(:unit_id).count
 
