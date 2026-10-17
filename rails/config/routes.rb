@@ -45,6 +45,9 @@ Rails.application.routes.draw do
         resources :courses, only: :index
         resources :announcements, only: [:index, :show]
         resources :analytics, only: :index
+        namespace :analytics do
+          resource :summary, only: :show
+        end
         resources :interview_requests, only: [:index, :show, :create, :destroy] do
           resources :messages, only: [:index, :create], controller: 'interview_request_messages'
         end
