@@ -20,7 +20,7 @@ import Link from "next/link";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { CreateInterviewForm, Teacher } from "./types";
 
-// Rails の InterviewRequest#reason_detail の上限と合わせる
+// バックエンドの InterviewRequest#reason_detail の上限と合わせる
 const REASON_DETAIL_MAX_LENGTH = 2000;
 
 type Props = {

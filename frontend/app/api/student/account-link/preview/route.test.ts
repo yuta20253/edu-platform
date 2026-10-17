@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/error";
 import { POST } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/fetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const post = (body: unknown) =>
@@ -24,8 +24,8 @@ describe("POST /api/student/account-link/preview", () => {
     vi.clearAllMocks();
   });
 
-  it("student_numberをRailsへ転送し、成功時のレスポンスをそのまま返す", async () => {
-    vi.mocked(railsFetch).mockResolvedValue({
+  it("student_numberをバックエンドへ転送し、成功時のレスポンスをそのまま返す", async () => {
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: {
         high_school_name: "北海道札幌西高等学校",
@@ -37,7 +37,7 @@ describe("POST /api/student/account-link/preview", () => {
 
     const res = await post({ student_number: "AB12-CD3456" });
 
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/account_link/preview",
       {
         method: "POST",
@@ -52,11 +52,11 @@ describe("POST /api/student/account-link/preview", () => {
     });
   });
 
-  it("Rails側のエラー(400/404など)をそのまま転送する", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
+  it("バックエンド側のエラー(400/404など)をそのまま転送する", async () => {
+    vi.mocked(backendFetch).mockRejectedValue(
+      new BackendFetchError(
         404,
-        "Rails request failed: 404",
+        "Backend request failed: 404",
         JSON.stringify({
           errors: [
             "見つからないか、すでに使用されています。心当たりがある場合は学校へお問い合わせください",
@@ -76,7 +76,7 @@ describe("POST /api/student/account-link/preview", () => {
   });
 
   it("未ログインのとき401を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
 
     const res = await post({ student_number: "AB12-CD3456" });
 

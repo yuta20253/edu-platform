@@ -11,7 +11,7 @@ export type CalendarEventType = (typeof CALENDAR_EVENT_TYPES)[number];
 
 type CalendarEventBase = {
   id: number;
-  // Rails の Student::CalendarService が "YYYY/MM/DD" 形式で返す
+  // バックエンドの Student::CalendarService が "YYYY/MM/DD" 形式で返す
   date: string;
   title: string;
 };

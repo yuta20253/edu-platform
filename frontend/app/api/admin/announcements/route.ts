@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 // 管理者お知らせ一覧の取得（page / per_page / q / status をバックエンドへ引き継ぐ）
@@ -20,12 +20,12 @@ export async function GET(request: NextRequest) {
       status: upstreamStatus,
       data,
       setCookie,
-    } = await railsFetch(`/api/v1/admin/announcements?${params.toString()}`);
+    } = await backendFetch(`/api/v1/admin/announcements?${params.toString()}`);
 
     const res = NextResponse.json(data, { status: upstreamStatus });
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせ一覧の取得に失敗しました");
+    return handleBackendRouteError(error, "お知らせ一覧の取得に失敗しました");
   }
 }

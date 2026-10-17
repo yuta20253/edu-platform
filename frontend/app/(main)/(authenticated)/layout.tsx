@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getMeFromRails } from "@/libs/server/me";
+import { getMeFromBackend } from "@/libs/server/me";
 
 export default async function AuthenticatedLayout({
   children,
@@ -13,7 +13,7 @@ export default async function AuthenticatedLayout({
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const user = await getMeFromRails(cookieHeader);
+  const user = await getMeFromBackend(cookieHeader);
 
   if (!user) {
     redirect("/login");

@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   if (perPage) query.set("per_page", perPage);
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/interview_requests/${interviewRequestId}/messages?${query.toString()}`,
     );
 
@@ -26,11 +26,11 @@ export async function GET(req: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "メッセージの取得に失敗しました");
+    return handleBackendRouteError(error, "メッセージの取得に失敗しました");
   }
 }
 
-// Railsはparams.require(:interview_request_message)を要求するため、bodyをラップしてforwardする。
+// バックエンドはparams.require(:interview_request_message)を要求するため、bodyをラップしてforwardする。
 export async function POST(req: NextRequest, { params }: Params) {
   const { interviewRequestId } = await params;
 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/interview_requests/${interviewRequestId}/messages`,
       {
         method: "POST",
@@ -57,6 +57,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "メッセージの送信に失敗しました");
+    return handleBackendRouteError(error, "メッセージの送信に失敗しました");
   }
 }

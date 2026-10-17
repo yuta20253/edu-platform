@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ schoolId: string; teacherId: string }> };
@@ -10,7 +10,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   try {
     const body = await request.json();
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/high_schools/${schoolId}/teachers/${teacherId}`,
       { method: "PATCH", body },
     );
@@ -19,6 +19,6 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "教師の更新に失敗しました");
+    return handleBackendRouteError(error, "教師の更新に失敗しました");
   }
 }

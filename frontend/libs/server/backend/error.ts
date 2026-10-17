@@ -1,17 +1,17 @@
-export class RailsUnauthorizedError extends Error {
+export class BackendUnauthorizedError extends Error {
   constructor(message = "UNAUTHORIZED") {
     super(message);
-    this.name = "RailsUnauthorizedError";
+    this.name = "BackendUnauthorizedError";
   }
 }
 
-export class RailsFetchError extends Error {
+export class BackendFetchError extends Error {
   status: number;
   bodyText?: string;
 
   constructor(status: number, message: string, bodyText?: string) {
     super(message);
-    this.name = "RailsFetchError";
+    this.name = "BackendFetchError";
     this.status = status;
     this.bodyText = bodyText;
   }

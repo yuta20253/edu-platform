@@ -16,7 +16,7 @@ export const interviewStatusDefinitions: Record<
   cancelled: { label: "キャンセル", color: "default" },
 };
 
-// 絞り込みの選択肢などに使う、Rails の enum と同じ順序のステータス一覧。
+// 絞り込みの選択肢などに使う、バックエンドの enum と同じ順序のステータス一覧。
 export const interviewStatuses = Object.keys(
   interviewStatusDefinitions,
 ) as InterviewStatus[];
@@ -35,7 +35,7 @@ export const interviewReasonCategoryLabel: Record<
   other: "その他",
 };
 
-// 申請フォームの選択肢に使う、Rails の enum と同じ順序の相談カテゴリ一覧。
+// 申請フォームの選択肢に使う、バックエンドの enum と同じ順序の相談カテゴリ一覧。
 export const interviewReasonCategories = Object.keys(
   interviewReasonCategoryLabel,
 ) as InterviewReasonCategory[];

@@ -1,4 +1,4 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { highSchoolId } = await params;
 
-    const { status, data } = await railsFetch(
+    const { status, data } = await backendFetch(
       `/api/v1/high_schools/${highSchoolId}/grades`,
       {
         method: "GET",

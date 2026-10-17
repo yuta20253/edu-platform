@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (unitId) params.set("unit_id", unitId);
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/analytics?${params.toString()}`,
     );
 
@@ -21,6 +21,6 @@ export async function GET(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "分析画面への遷移に失敗しました");
+    return handleBackendRouteError(error, "分析画面への遷移に失敗しました");
   }
 }

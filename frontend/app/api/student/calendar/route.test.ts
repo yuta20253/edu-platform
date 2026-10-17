@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import {
-  RailsFetchError,
-  RailsUnauthorizedError,
-} from "@/libs/server/rails/railsError";
+  BackendFetchError,
+  BackendUnauthorizedError,
+} from "@/libs/server/backend/error";
 import { GET } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/fetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const get = (query: string) =>
@@ -17,7 +17,7 @@ const get = (query: string) =>
 describe("GET /api/student/calendar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: [],
       setCookie: null,
@@ -26,14 +26,14 @@ describe("GET /api/student/calendar", () => {
 
   it("from・to をバックエンドへ転送する", async () => {
     await get("?from=2026-09-27&to=2026-11-07");
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/calendar?from=2026-09-27&to=2026-11-07",
     );
   });
 
   it("from・to 以外のクエリは転送しない", async () => {
     await get("?from=2026-09-27&to=2026-11-07&user_id=2");
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/calendar?from=2026-09-27&to=2026-11-07",
     );
   });
@@ -48,7 +48,7 @@ describe("GET /api/student/calendar", () => {
         status: "in_progress",
       },
     ];
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: events,
       setCookie: "session=abc",
@@ -62,15 +62,15 @@ describe("GET /api/student/calendar", () => {
   });
 
   it("401 のときは UNAUTHORIZED を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
     const res = await get("?from=2026-09-27&to=2026-11-07");
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
   });
 
   it("422 のときはバックエンドのエラー内容をそのまま返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(
-      new RailsFetchError(
+    vi.mocked(backendFetch).mockRejectedValue(
+      new BackendFetchError(
         422,
         "Unprocessable",
         JSON.stringify({ errors: ["Toはfrom以降の日付を指定してください"] }),
@@ -94,12 +94,12 @@ describe("GET /api/student/calendar", () => {
     const res = await get(query);
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
-  it("形式が正しければ実在しない日付でもバックエンドへ転送する(日付の妥当性は Rails で判定する)", async () => {
+  it("形式が正しければ実在しない日付でもバックエンドへ転送する(日付の妥当性は バックエンドで判定する)", async () => {
     await get("?from=2026-02-30&to=2026-03-31");
-    expect(railsFetch).toHaveBeenCalledWith(
+    expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/student/calendar?from=2026-02-30&to=2026-03-31",
     );
   });

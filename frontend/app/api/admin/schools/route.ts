@@ -1,5 +1,5 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   if (perPage) params.set("per_page", perPage);
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/high_schools?${params.toString()}`,
     );
 
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 

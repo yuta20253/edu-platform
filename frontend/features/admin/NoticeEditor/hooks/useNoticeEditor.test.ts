@@ -178,7 +178,7 @@ describe("useNoticeEditor", () => {
       expect(pushMock).toHaveBeenCalledWith("/admin/notices");
     });
 
-    it("予約配信中のお知らせで下書き保存するとRailsが遷移を拒否しsubmitErrorに反映される", async () => {
+    it("予約配信中のお知らせで下書き保存するとバックエンドが遷移を拒否しsubmitErrorに反映される", async () => {
       const scheduledNotice = {
         ...draftNotice,
         status: "scheduled" as const,
@@ -191,7 +191,7 @@ describe("useNoticeEditor", () => {
         response: {
           status: 422,
           data: {
-            // Rails側にstatus属性の日本語訳がなく、human_attribute_nameが
+            // バックエンド側にstatus属性の日本語訳がなく、human_attribute_nameが
             // "Status"にフォールバックするため、実際のfull_messagesはこの形になる
             errors: ["Status scheduled から draft へは変更できません"],
           },

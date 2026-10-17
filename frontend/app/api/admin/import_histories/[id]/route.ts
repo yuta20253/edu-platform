@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { isNumericId } from "@/libs/server/routeParams";
 import { NextResponse } from "next/server";
 
@@ -9,13 +9,13 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
 
-  // id は数値IDのみ許容。不正値は Rails へ問い合わせる前に弾く
+  // id は数値IDのみ許容。不正値は バックエンドへ問い合わせる前に弾く
   if (!isNumericId(id)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/import_histories/${id}`,
     );
 
@@ -23,6 +23,6 @@ export async function GET(_request: Request, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "インポート履歴の取得に失敗しました");
+    return handleBackendRouteError(error, "インポート履歴の取得に失敗しました");
   }
 }

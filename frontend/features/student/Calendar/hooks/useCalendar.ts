@@ -8,7 +8,7 @@ import { apiClient } from "@/libs/http/apiClient";
 import { getFetchRange, getThisMonth } from "../calendarUtils";
 import { CALENDAR_EVENT_TYPES, type CalendarEvent } from "../types";
 
-// Rails 側で種別が追加されても、表示定義の無い種別で画面がクラッシュしないよう除外する
+// バックエンド側で種別が追加されても、表示定義の無い種別で画面がクラッシュしないよう除外する
 const isKnownEventType = (event: { type: string }) =>
   (CALENDAR_EVENT_TYPES as readonly string[]).includes(event.type);
 

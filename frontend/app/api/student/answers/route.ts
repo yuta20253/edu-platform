@@ -1,5 +1,5 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 import { isAnswerRequestBody } from "./validation";
 
@@ -19,7 +19,7 @@ async function forwardAnswerRequest(method: "POST" | "PATCH", req: Request) {
       return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
     }
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/tasks/${body.task_id}/units/${body.unit_id}/answers`,
       {
         method,
@@ -33,7 +33,7 @@ async function forwardAnswerRequest(method: "POST" | "PATCH", req: Request) {
 
     return nextResponse;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
