@@ -7,7 +7,7 @@ import Link from "next/link";
 import { colors } from "@/app/theme/colors";
 import { cardSx, radius } from "@/app/theme/studentTheme";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatDayLabelWithWeekday } from "../calendarFormat";
+import { formatDayLabelWithWeekday } from "@/libs/calendar/calendarFormat";
 import { calendarEventHref } from "../calendarUtils";
 import { eventTypeMeta, statusDefinitionsByType } from "../constants";
 import type { CalendarEvent } from "../types";

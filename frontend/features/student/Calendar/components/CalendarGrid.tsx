@@ -5,8 +5,8 @@ import { alpha } from "@mui/material/styles";
 import { isSameDay, isSameMonth } from "date-fns";
 import { colors } from "@/app/theme/colors";
 import { cardSx, radius } from "@/app/theme/studentTheme";
-import { formatDayLabel, toDateKey } from "../calendarFormat";
-import { buildMonthWeeks } from "../calendarUtils";
+import { formatDayLabel, toDateKey } from "@/libs/calendar/calendarFormat";
+import { buildMonthWeeks } from "@/libs/calendar/monthGrid";
 import { eventTypeMeta } from "../constants";
 import type { CalendarEvent } from "../types";
 
