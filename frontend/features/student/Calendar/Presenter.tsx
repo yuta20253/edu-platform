@@ -5,7 +5,7 @@ import { Box, Button, IconButton, Typography } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { isSameMonth } from "date-fns";
-import { formatMonthLabel, toDateKey } from "./calendarFormat";
+import { formatMonthLabel, toDateKey } from "@/libs/calendar/calendarFormat";
 import { groupEventsByDate } from "./calendarUtils";
 import { CalendarGrid } from "./components/CalendarGrid";
 import { DayEventList } from "./components/DayEventList";
