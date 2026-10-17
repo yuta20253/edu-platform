@@ -34,7 +34,6 @@ module Student
       def question_histories
         @user
           .question_histories
-          .active
           .where(answered_at: jst_range)
       end
     end

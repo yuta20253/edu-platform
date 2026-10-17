@@ -86,14 +86,12 @@ RSpec.describe Student::Analytics::SubjectProgress do
     context '集計の対象にならない解答がある場合' do
       before do
         answer(english_grammar, '2026-09-08 10:00:00', correct: true)
-        # 論理削除済み
-        answer(english_grammar, '2026-09-08 11:00:00', correct: false, deleted_at: Time.current)
         # 他のユーザー
         answer(english_grammar, '2026-09-08 12:00:00', correct: false, target_user: create(:user))
         answer(math_course, '2026-09-08 12:00:00', correct: false, target_user: create(:user))
       end
 
-      it '論理削除済み・他のユーザーの解答は含めない' do
+      it '他のユーザーの解答は含めない' do
         expect(result).to eq([{ subject_name: '英語', correct_rate: 100.0 }])
       end
     end
