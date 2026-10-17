@@ -26,6 +26,15 @@ module Api
         def applicant_cannot_process_own_request
           render json: { errors: ['自身の申請は承認・却下できません'] }, status: :forbidden
         end
+
+        def pagination_meta(collection)
+          {
+            current_page: collection.current_page,
+            total_pages: collection.total_pages,
+            total_count: collection.total_count,
+            per_page: collection.limit_value
+          }
+        end
       end
     end
   end
