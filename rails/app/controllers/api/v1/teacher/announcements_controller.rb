@@ -13,7 +13,6 @@ module Api
         }.freeze
 
         before_action :set_announcement, only: %i[edit update]
-        before_action :authorize_announcement, only: %i[edit update]
         # お知らせ一覧取得(関係するお知らせのみ)
         def index
           announcements = announcement_scope
@@ -96,13 +95,7 @@ module Api
         private
 
         def set_announcement
-          @announcement = Announcement
-                          .where(publisher_id: User.teachers.select(:id))
-                          .find(params[:id])
-        end
-
-        def authorize_announcement
-          authorize @announcement
+          @announcement = current_user.announcements.find(params[:id])
         end
 
         def create_announcement_params
