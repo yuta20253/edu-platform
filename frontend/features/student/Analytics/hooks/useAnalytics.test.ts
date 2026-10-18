@@ -145,4 +145,18 @@ describe("useAnalytics(順位)", () => {
     expect(result.current.loading).toBe(false);
     expect(result.current.data).toBeNull();
   });
+  it("取得中に選択が未完成に戻ったらローディングを解除する", async () => {
+    vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
+    const { result } = renderHook(() => useAnalytics());
+    act(() => {
+      result.current.setCourseId(5);
+    });
+    expect(result.current.loading).toBe(true);
+
+    act(() => {
+      result.current.setSubject("英語");
+    });
+
+    expect(result.current.loading).toBe(false);
+  });
 });

@@ -47,8 +47,10 @@ export const useAnalytics = () => {
 
   useEffect(() => {
     if (!canFetch) {
+      // 取得中に選択が未完成へ戻ると、中断したリクエストは loading を戻さないためここで戻す
       setData(null);
       setError(false);
+      setLoading(false);
       return;
     }
 
