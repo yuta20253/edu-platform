@@ -22,7 +22,6 @@ export const useCumulativeAnalytics = () => {
   const [understandingScore, setUnderstandingScore] =
     useState<UnderstandingScoreData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -41,17 +40,13 @@ export const useCumulativeAnalytics = () => {
         return;
       }
 
-      // 片方が失敗しても、取得できた方は表示する
+      // 片方が失敗しても、取得できた方は表示する(失敗した方は null のまま)
       if (gradeAverageResult.status === "fulfilled") {
         setGradeAverage(gradeAverageResult.value);
       }
       if (understandingScoreResult.status === "fulfilled") {
         setUnderstandingScore(understandingScoreResult.value);
       }
-      setError(
-        gradeAverageResult.status === "rejected" ||
-          understandingScoreResult.status === "rejected",
-      );
       setLoading(false);
     });
 
@@ -60,5 +55,5 @@ export const useCumulativeAnalytics = () => {
     };
   }, [router]);
 
-  return { gradeAverage, understandingScore, loading, error };
+  return { gradeAverage, understandingScore, loading };
 };

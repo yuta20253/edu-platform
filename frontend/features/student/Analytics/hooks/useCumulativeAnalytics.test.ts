@@ -56,7 +56,6 @@ describe("useCumulativeAnalytics", () => {
     });
     expect(result.current.gradeAverage).toEqual(gradeAverage);
     expect(result.current.understandingScore).toEqual(understandingScore);
-    expect(result.current.error).toBe(false);
   });
 
   it("片方の取得に失敗しても、もう片方は表示できるよう返す", async () => {
@@ -69,7 +68,6 @@ describe("useCumulativeAnalytics", () => {
 
     expect(result.current.gradeAverage).toBeNull();
     expect(result.current.understandingScore).toEqual(understandingScore);
-    expect(result.current.error).toBe(true);
   });
 
   it("401 のときはログイン画面へ遷移する", async () => {
