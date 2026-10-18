@@ -19,12 +19,17 @@ const items = [
   { label: "プロフィール", icon: <PersonIcon />, href: "/profile" },
 ];
 
+// 面談詳細はトーク画面として入力バーを最下部に固定するため、タブを出さない
+const isInterviewDetail = (pathName: string) =>
+  /^\/interviews\/\d+$/.test(pathName);
+
 export const Footer = (): React.JSX.Element => {
   const pathName = usePathname();
   const hidden =
     pathName === "/login" ||
     pathName.endsWith("/signup") ||
-    pathName.startsWith("/password/reset");
+    pathName.startsWith("/password/reset") ||
+    isInterviewDetail(pathName);
 
   if (hidden) return <></>;
 
