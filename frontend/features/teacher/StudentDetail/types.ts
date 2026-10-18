@@ -60,7 +60,7 @@ export type StudentGoal = {
 };
 
 // 解答状況。未解答(answered_count が0)のときは correct_rate が null になる
-export type AnswerProgress = {
+type AnswerProgress = {
   total_questions: number;
   answered_count: number;
   correct_count: number;
