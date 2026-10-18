@@ -720,6 +720,173 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
     end
   end
 
+  describe 'GET /api/v1/teacher/announcements/:id/edit' do
+    let!(:high_school) { create(:high_school) }
+    let!(:grade1) { create(:grade, high_school: high_school, year: 1) }
+    let!(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade1) }
+    let(:cookie) { login_and_get_cookie(teacher) }
+
+    let!(:student) do
+      create(:user, :student, high_school: high_school, grade: grade1, name: '山田太郎')
+    end
+
+    let!(:announcement) do
+      create(:announcement, :draft, publisher: teacher, title: '下書きタイトル', content: '下書き本文')
+    end
+
+    let!(:grade_target) do
+      create(:announcement_target, announcement: announcement, target_type: :by_grade,
+                                   grade_id: grade1.id, user_role_id: student.user_role_id)
+    end
+
+    let!(:user_target) do
+      create(:announcement_target, announcement: announcement, target_type: :by_user, user_id: student.id)
+    end
+
+    def get_edit(id, request_cookie = cookie)
+      request_headers = request_cookie ? headers.merge('Cookie' => request_cookie) : headers
+      get "/api/v1/teacher/announcements/#{id}/edit", headers: request_headers
+    end
+
+    context '正常系 - 自分が作成したdraftのお知らせ' do
+      it '200が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'announcementとannouncement_targetsのみが返り、配信先ピッカー用データは返らない' do
+        get_edit(announcement.id)
+
+        expect(response.parsed_body.keys).to contain_exactly('announcement', 'announcement_targets')
+      end
+
+      it 'お知らせのid・title・content・status・scheduled_atが返る' do
+        get_edit(announcement.id)
+
+        expect(response.parsed_body['announcement']).to eq(
+          'id' => announcement.id,
+          'title' => '下書きタイトル',
+          'content' => '下書き本文',
+          'status' => 'draft',
+          'scheduled_at' => nil
+        )
+      end
+
+      it '配信先が返る' do
+        get_edit(announcement.id)
+
+        targets = response.parsed_body['announcement_targets']
+        expect(targets.pluck('id')).to contain_exactly(grade_target.id, user_target.id)
+
+        by_grade = targets.find { |t| t['id'] == grade_target.id }
+        expect(by_grade).to include(
+          'target_type' => 'by_grade',
+          'grade_id' => grade1.id,
+          'user_role_id' => student.user_role_id,
+          'user_id' => nil
+        )
+      end
+
+      it 'by_userの配信先には生徒名が返る' do
+        get_edit(announcement.id)
+
+        by_user = response.parsed_body['announcement_targets'].find { |t| t['id'] == user_target.id }
+        expect(by_user).to include('target_type' => 'by_user', 'user_id' => student.id, 'user_name' => '山田太郎')
+      end
+
+      it 'by_user以外の配信先のuser_nameはnullになる' do
+        get_edit(announcement.id)
+
+        by_grade = response.parsed_body['announcement_targets'].find { |t| t['id'] == grade_target.id }
+        expect(by_grade['user_name']).to be_nil
+      end
+    end
+
+    context '正常系 - 自分が作成したscheduledのお知らせ' do
+      let!(:announcement) { create(:announcement, :scheduled, publisher: teacher) }
+
+      it '200が返りstatusとscheduled_atが返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body['announcement']
+        expect(json['status']).to eq('scheduled')
+        expect(Time.zone.parse(json['scheduled_at']).to_i).to eq(announcement.scheduled_at.to_i)
+      end
+    end
+
+    context '異常系 - 配信済みのお知らせ' do
+      let!(:announcement) { create(:announcement, :published, publisher: teacher) }
+
+      it '404が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 他の教員が作成したお知らせ' do
+      let!(:announcement) do
+        create(:announcement, :draft, publisher: create(:user, :teacher, high_school: high_school))
+      end
+
+      it '404が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 他校の教員が作成したお知らせ' do
+      let!(:announcement) do
+        create(:announcement, :draft, publisher: create(:user, :teacher, high_school: create(:high_school)))
+      end
+
+      it '404が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 管理者が作成したお知らせ' do
+      let!(:announcement) { create(:announcement, :draft, publisher: create(:user, :admin)) }
+
+      it '404が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 存在しないお知らせ' do
+      it '404が返る' do
+        get_edit(0)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '異常系 - 未認証' do
+      it '401が返る' do
+        get_edit(announcement.id, nil)
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '異常系 - teacher以外' do
+      let(:cookie) { login_and_get_cookie(student) }
+
+      it '403が返る' do
+        get_edit(announcement.id)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
   describe 'POST /api/v1/teacher/announcements' do
     let!(:high_school) { create(:high_school) }
 
@@ -1057,172 +1224,331 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
   end
 
   describe 'PATCH /api/v1/teacher/announcements/:id' do
-    let!(:teacher) { create(:user, :teacher) }
+    let!(:high_school) { create(:high_school) }
+    let!(:grade1) { create(:grade, high_school: high_school, year: 1) }
+    let!(:grade2) { create(:grade, high_school: high_school, year: 2) }
+    let!(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade1) }
     let(:cookie) { login_and_get_cookie(teacher) }
 
+    let!(:student) { create(:user, :student, high_school: high_school, grade: grade1) }
+
     let!(:announcement) do
-      create(
-        :announcement,
-        :draft,
-        publisher: teacher
-      )
+      create(:announcement, :draft, publisher: teacher, title: '更新前タイトル', content: '更新前本文')
+    end
+
+    let!(:old_target) do
+      create(:announcement_target, announcement: announcement, target_type: :by_school,
+                                   high_school_id: high_school.id)
+    end
+
+    let(:announcement_targets) do
+      [{ target_type: 'by_grade', grade_id: grade1.id, user_role_id: student.user_role_id }]
     end
 
     let(:params) do
       {
         announcement: {
-          status: 'published'
+          title: '更新後タイトル',
+          content: '更新後本文',
+          status: 'draft',
+          announcement_targets: announcement_targets
         }
       }
     end
 
+    def patch_announcement(id = announcement.id, request_cookie = cookie)
+      request_headers = request_cookie ? headers.merge('Cookie' => request_cookie) : headers
+      patch "/api/v1/teacher/announcements/#{id}", params: params.to_json, headers: request_headers
+    end
+
     context '正常系' do
       it '200が返る' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+        patch_announcement
 
         expect(response).to have_http_status(:ok)
       end
 
-      it 'statusが更新される' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+      it 'メッセージが返る' do
+        patch_announcement
 
-        expect(announcement.reload.status).to eq('published')
+        expect(response.parsed_body['message']).to eq('お知らせを更新しました。')
       end
 
-      it 'publishedにしたときpublished_atが設定される' do
+      it 'titleとcontentが更新される' do
+        patch_announcement
+
+        announcement.reload
+        expect(announcement.title).to eq('更新後タイトル')
+        expect(announcement.content).to eq('更新後本文')
+      end
+
+      it '既存の配信先は削除される' do
+        patch_announcement
+
+        expect(AnnouncementTarget.exists?(old_target.id)).to be false
+      end
+
+      it '指定した配信先に置き換わる' do
+        patch_announcement
+
+        targets = announcement.reload.announcement_targets
+        expect(targets.size).to eq(1)
+        expect(targets.first).to have_attributes(
+          target_type: 'by_grade', grade_id: grade1.id, user_role_id: student.user_role_id
+        )
+      end
+
+      it '複数の配信先を指定した場合はすべて作成される' do
+        params[:announcement][:announcement_targets] = [
+          { target_type: 'by_grade', grade_id: grade1.id, user_role_id: student.user_role_id },
+          { target_type: 'by_user', user_id: student.id }
+        ]
+
+        patch_announcement
+
+        expect(announcement.reload.announcement_targets.pluck(:target_type)).to contain_exactly('by_grade', 'by_user')
+      end
+
+      it 'by_schoolの場合high_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [{ target_type: 'by_school' }]
+
+        patch_announcement
+
+        target = announcement.reload.announcement_targets.first
+        expect(target.target_type).to eq('by_school')
+        expect(target.high_school_id).to eq(high_school.id)
+      end
+
+      it 'all_usersの場合も他校に配信されないよう自校のhigh_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [{ target_type: 'all_users' }]
+
+        patch_announcement
+
+        target = announcement.reload.announcement_targets.first
+        expect(target.target_type).to eq('all_users')
+        expect(target.high_school_id).to eq(high_school.id)
+      end
+
+      it 'by_roleの場合も他校に配信されないよう自校のhigh_school_idが保存される' do
+        params[:announcement][:announcement_targets] = [
+          { target_type: 'by_role', user_role_id: teacher.user_role_id }
+        ]
+
+        patch_announcement
+
+        target = announcement.reload.announcement_targets.first
+        expect(target.target_type).to eq('by_role')
+        expect(target.user_role_id).to eq(teacher.user_role_id)
+        expect(target.high_school_id).to eq(high_school.id)
+      end
+
+      it '内容と同時にstatusをscheduledにしてscheduled_atを保存できる' do
+        time = 2.days.from_now
+        params[:announcement].merge!(status: 'scheduled', scheduled_at: time)
+
+        patch_announcement
+
+        announcement.reload
+        expect(announcement.title).to eq('更新後タイトル')
+        expect(announcement.status).to eq('scheduled')
+        expect(announcement.scheduled_at.to_i).to eq(time.to_i)
+      end
+
+      it '内容と同時にpublishedにするとpublished_atが設定される' do
+        params[:announcement][:status] = 'published'
+
         freeze_time do
-          patch "/api/v1/teacher/announcements/#{announcement.id}",
-                params: {
-                  announcement: { status: 'published' }
-                }.to_json,
-                headers: headers.merge('Cookie' => cookie)
+          patch_announcement
 
           announcement.reload
+          expect(announcement.title).to eq('更新後タイトル')
+          expect(announcement.status).to eq('published')
           expect(announcement.published_at).to eq(Time.current)
         end
       end
 
-      it '既にpublished_atがある場合は更新されない' do
-        time = 1.day.ago
-        announcement.update!(published_at: time)
+      context 'scheduledのお知らせの場合' do
+        let!(:announcement) { create(:announcement, :scheduled, publisher: teacher) }
 
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: {
-                announcement: { status: 'published' }
-              }.to_json,
-              headers: headers.merge('Cookie' => cookie)
+        it 'publishedに変更できる' do
+          params[:announcement][:status] = 'published'
 
-        expect(announcement.reload.published_at.to_i).to eq(time.to_i)
-      end
+          patch_announcement
 
-      it 'scheduled_atが更新される' do
-        time = 2.days.from_now
-
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: {
-                announcement: {
-                  status: 'scheduled',
-                  scheduled_at: time
-                }
-              }.to_json,
-              headers: headers.merge('Cookie' => cookie)
-
-        expect(announcement.reload.scheduled_at.to_i).to eq(time.to_i)
-      end
-
-      it 'draftからscheduledに変更できる' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: {
-                announcement: { status: 'scheduled', scheduled_at: 1.day.from_now }
-              }.to_json,
-              headers: headers.merge('Cookie' => cookie)
-
-        expect(announcement.reload.status).to eq('scheduled')
-      end
-
-      it 'scheduledからpublishedに変更できる' do
-        announcement.update!(status: :scheduled, scheduled_at: 1.minute.from_now)
-
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: {
-                announcement: { status: 'published' }
-              }.to_json,
-              headers: headers.merge('Cookie' => cookie)
-
-        expect(announcement.reload.status).to eq('published')
-      end
-
-      it 'メッセージが返る' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers.merge('Cookie' => cookie)
-
-        json = response.parsed_body
-
-        expect(json['message']).to eq('お知らせのステータスを更新しました。')
+          expect(announcement.reload.status).to eq('published')
+        end
       end
     end
 
-    context '異常系 - 不正なstatus' do
-      let(:params) do
-        {
-          announcement: {
-            status: 'invalid'
-          }
-        }
-      end
-
+    shared_examples '更新されない' do
       it '422が返る' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+        patch_announcement
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
+
+      it 'お知らせの内容と配信先は変わらない' do
+        patch_announcement
+
+        announcement.reload
+        expect(announcement.title).not_to eq('更新後タイトル')
+        expect(announcement.announcement_targets.pluck(:id)).to eq([old_target.id])
+      end
+    end
+
+    context '異常系 - 配信済みのお知らせ' do
+      let!(:announcement) { create(:announcement, :published, publisher: teacher) }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - announcement_targetsを指定しない(statusのみの更新)' do
+      let(:params) { { announcement: { status: 'published' } } }
+
+      it_behaves_like '更新されない'
+
+      it 'statusも変わらない' do
+        patch_announcement
+
+        expect(announcement.reload.status).to eq('draft')
+      end
+    end
+
+    context '異常系 - announcement_targetsが空' do
+      let(:announcement_targets) { [] }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - titleが空' do
+      before { params[:announcement][:title] = '' }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - contentが空' do
+      before { params[:announcement][:content] = '' }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 不正なstatus' do
+      before { params[:announcement][:status] = 'invalid' }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 予約配信のscheduled_atが過去' do
+      before { params[:announcement].merge!(status: 'scheduled', scheduled_at: 1.day.ago) }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 不正なtarget_type' do
+      let(:announcement_targets) { [{ target_type: 'invalid' }] }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 他校の学年を指定' do
+      let(:other_grade) { create(:grade) }
+      let(:announcement_targets) do
+        [{ target_type: 'by_grade', grade_id: other_grade.id, user_role_id: student.user_role_id }]
+      end
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 他校のユーザーを指定' do
+      let(:other_student) { create(:user, :student) }
+      let(:announcement_targets) { [{ target_type: 'by_user', user_id: other_student.id }] }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 学年制限のある教員が自分の学年以外を指定' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :own_grade) }
+      let(:announcement_targets) do
+        [{ target_type: 'by_grade', grade_id: grade2.id, user_role_id: student.user_role_id }]
+      end
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 学年制限のある教員が学年で絞り込めない配信先を指定' do
+      let!(:teacher_permission) { create(:teacher_permission, user: teacher, grade_scope: :own_grade) }
+      let(:announcement_targets) { [{ target_type: 'by_school' }] }
+
+      it_behaves_like '更新されない'
+    end
+
+    context '異常系 - 配信先の作成中にエラーが発生した場合' do
+      before do
+        # 既存の配信先を削除した後に失敗しても、トランザクションで元に戻ることを確認する
+        allow_any_instance_of(AnnouncementTarget) # rubocop:disable RSpec/AnyInstance
+          .to receive(:save!).and_raise(ActiveRecord::RecordInvalid.new(AnnouncementTarget.new))
+      end
+
+      it_behaves_like '更新されない'
     end
 
     context '異常系 - 未認証' do
       it '401が返る' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers
+        patch_announcement(announcement.id, nil)
 
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
     context '異常系 - teacher以外' do
-      let!(:student) { create(:user) }
       let(:cookie) { login_and_get_cookie(student) }
 
       it '403が返る' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+        patch_announcement
 
         expect(response).to have_http_status(:forbidden)
       end
     end
 
     context '異常系 - 自分のお知らせではない' do
-      let!(:other_teacher) { create(:user, :teacher) }
-
-      let!(:announcement) do
-        create(
-          :announcement,
-          :draft,
-          publisher: other_teacher
-        )
-      end
+      let!(:other_teacher) { create(:user, :teacher, high_school: high_school) }
+      let!(:announcement) { create(:announcement, :draft, publisher: other_teacher) }
 
       it '404が返る' do
-        patch "/api/v1/teacher/announcements/#{announcement.id}",
-              params: params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+        patch_announcement
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'お知らせは更新されない' do
+        patch_announcement
+
+        expect(announcement.reload.title).not_to eq('更新後タイトル')
+      end
+    end
+
+    context '異常系 - 他校の教員が作成したお知らせ' do
+      let!(:other_school_teacher) { create(:user, :teacher, high_school: create(:high_school)) }
+      let!(:announcement) { create(:announcement, :draft, publisher: other_school_teacher) }
+
+      it '404が返る' do
+        patch_announcement
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'お知らせは更新されない' do
+        patch_announcement
+
+        expect(announcement.reload.title).not_to eq('更新後タイトル')
+      end
+    end
+
+    context '異常系 - 管理者が作成したお知らせ' do
+      let!(:announcement) { create(:announcement, :draft, publisher: create(:user, :admin)) }
+
+      it '404が返る' do
+        patch_announcement
 
         expect(response).to have_http_status(:not_found)
       end

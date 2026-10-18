@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { getMeFromRails } from "@/libs/server/me";
+import { getMeFromBackend } from "@/libs/server/me";
 import { getPrefectures } from "@/libs/server/prefectures";
 import { AdminDetail } from "@/features/admin/AdminDetail";
 
@@ -16,7 +16,7 @@ const AdminAdminDetailPage = async ({ params }: Props) => {
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
-  const me = await getMeFromRails(cookieHeader);
+  const me = await getMeFromBackend(cookieHeader);
 
   // 住所カスケードの都道府県プルダウン用
   const prefectures = await getPrefectures(cookieHeader);

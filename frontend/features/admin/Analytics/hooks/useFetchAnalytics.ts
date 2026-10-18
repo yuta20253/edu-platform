@@ -25,7 +25,7 @@ type CoursesResponse = PagedMeta & {
 const OPTIONS_PER_PAGE = 100;
 const FALLBACK_VALIDATION_MESSAGE = "指定した条件では集計できません";
 
-// 選択肢用に全ページを取得する（Rails 側の per_page 上限は 100）。
+// 選択肢用に全ページを取得する（バックエンド側の per_page 上限は 100）。
 const fetchAllPages = async <TResponse extends PagedMeta, TItem>(
   url: string,
   pick: (response: TResponse) => TItem[],

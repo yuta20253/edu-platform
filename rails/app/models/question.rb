@@ -22,4 +22,5 @@ class Question < ApplicationRecord
   default_scope { where(deleted_at: nil) }
 
   scope :active, -> { where(deleted_at: nil) }
+  scope :in_active_units, -> { joins(:unit).merge(Unit.active) }
 end

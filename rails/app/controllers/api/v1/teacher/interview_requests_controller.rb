@@ -6,9 +6,10 @@ module Api
       class InterviewRequestsController < Api::V1::Teacher::BaseController
         before_action :require_valid_update_status!, only: :update
         before_action :require_lock_version!, only: %i[update destroy]
+        before_action :require_valid_period!, only: :index
 
         def index
-          requests = scoped_interview_requests.order(created_at: :desc).page(sanitized_page).per(sanitized_per_page)
+          requests = listed_interview_requests.page(sanitized_page).per(sanitized_per_page)
           render json: {
             interview_requests: ActiveModelSerializers::SerializableResource.new(
               requests, each_serializer: InterviewRequestSerializer
@@ -76,6 +77,28 @@ module Api
           relation
         end
 
+        def period_requested?
+          params[:from].present? || params[:to].present?
+        end
+
+        def listed_interview_requests
+          return scoped_interview_requests.order(created_at: :desc) unless period_requested?
+
+          InterviewRequestsQuery.new(scoped_interview_requests)
+                                .within_period(from: period_form.from_date, to: period_form.to_date)
+                                .exclude_cancelled
+                                .result
+                                .order(:scheduled_at, :id)
+        end
+
+        def period_form
+          @period_form ||= ::CalendarPeriodForm.new(period_params)
+        end
+
+        def period_params
+          params.permit(:from, :to).to_h.symbolize_keys
+        end
+
         def create_interview_request_params
           params.require(:interview_request).permit(:student_id, :reason_detail)
         end
@@ -93,6 +116,13 @@ module Api
           return if update_interview_request_params[:status].in?(allowed_statuses)
 
           render json: { errors: ['指定できないステータスです'] }, status: :unprocessable_content
+        end
+
+        def require_valid_period!
+          return unless period_requested?
+          return if period_form.valid?
+
+          render json: { errors: period_form.errors.full_messages }, status: :unprocessable_content
         end
 
         def require_lock_version!

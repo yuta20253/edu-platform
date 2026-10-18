@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
 import { POST } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/fetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const post = (body: unknown) =>
@@ -19,7 +19,7 @@ const post = (body: unknown) =>
 describe("POST /api/teacher/announcements", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 201,
       data: { message: "お知らせを下書きで作成しました。" },
       setCookie: null,
@@ -33,7 +33,7 @@ describe("POST /api/teacher/announcements", () => {
       announcement_targets: [{ target_type: "all_users" }],
     };
     await post(body);
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/teacher/announcements", {
+    expect(backendFetch).toHaveBeenCalledWith("/api/v1/teacher/announcements", {
       method: "POST",
       body: { announcement: body },
     });
@@ -56,11 +56,11 @@ describe("POST /api/teacher/announcements", () => {
     );
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it("401 のときは UNAUTHORIZED を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
     const res = await post({ title: "テスト", content: "本文" });
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });

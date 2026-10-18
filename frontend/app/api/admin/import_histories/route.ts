@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 const FORWARD_PARAM_KEYS = [
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/admin/import_histories?${params.toString()}`,
     );
 
@@ -33,6 +33,6 @@ export async function GET(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "インポート履歴の取得に失敗しました");
+    return handleBackendRouteError(error, "インポート履歴の取得に失敗しました");
   }
 }

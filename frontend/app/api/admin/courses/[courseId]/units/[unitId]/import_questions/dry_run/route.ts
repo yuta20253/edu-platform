@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetchMultipart } from "@/libs/server/rails/railsFetchMultipart";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetchMultipart } from "@/libs/server/backend/fetchMultipart";
 import { isNumericId } from "@/libs/server/routeParams";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   const formData = await request.formData();
 
   try {
-    const { status, data, setCookie } = await railsFetchMultipart(
+    const { status, data, setCookie } = await backendFetchMultipart(
       `/api/v1/admin/courses/${courseId}/units/${unitId}/import_questions/dry_run`,
       formData,
     );
@@ -24,6 +24,6 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "CSVの検証に失敗しました");
+    return handleBackendRouteError(error, "CSVの検証に失敗しました");
   }
 }

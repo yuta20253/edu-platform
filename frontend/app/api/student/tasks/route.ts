@@ -1,5 +1,5 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   if (taskStatus) params.set("status", taskStatus);
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/tasks?${params.toString()}`,
     );
 
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     return res;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       "/api/v1/student/tasks",
       {
         method: "POST",
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     return nextResponse;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHRIZED" }, { status: 401 });
     }
 

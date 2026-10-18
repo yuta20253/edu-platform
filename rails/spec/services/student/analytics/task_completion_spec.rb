@@ -36,4 +36,28 @@ RSpec.describe Student::Analytics::TaskCompletion, type: :model do
       end
     end
   end
+
+  describe '#call(期間を指定した場合)' do
+    subject(:analytics) do
+      described_class.new(user, from: Date.new(2026, 10, 5), to: Date.new(2026, 10, 11)).call
+    end
+
+    let(:user) { create(:user) }
+    let!(:goal) { create(:goal, user: user) }
+
+    before do
+      create(:task, :completed, user: user, goal: goal, due_date: Date.new(2026, 10, 6))
+      create(:task, user: user, goal: goal, due_date: Date.new(2026, 10, 7))
+      create(:task, user: user, goal: goal, due_date: Date.new(2026, 10, 8))
+      create(:task, :completed, user: user, goal: goal, due_date: Date.new(2026, 10, 1))
+    end
+
+    it 'due_dateが期間内のタスクだけで完了状況を返す' do
+      expect(analytics).to eq(
+        completed_count: 1,
+        total_count: 3,
+        completion_rate: 33.3
+      )
+    end
+  end
 end

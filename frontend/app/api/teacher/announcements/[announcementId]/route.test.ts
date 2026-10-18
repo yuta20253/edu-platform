@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
 import { PATCH } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/fetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 const patch = (announcementId: string, body: unknown) =>
@@ -20,7 +20,7 @@ const patch = (announcementId: string, body: unknown) =>
 describe("PATCH /api/teacher/announcements/[announcementId]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { message: "お知らせのステータスを更新しました。" },
       setCookie: null,
@@ -30,10 +30,13 @@ describe("PATCH /api/teacher/announcements/[announcementId]", () => {
   it("リクエストボディを announcement キーでラップしてバックエンドへ転送する", async () => {
     const body = { status: "published" };
     await patch("1", body);
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/teacher/announcements/1", {
-      method: "PATCH",
-      body: { announcement: body },
-    });
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/announcements/1",
+      {
+        method: "PATCH",
+        body: { announcement: body },
+      },
+    );
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {
@@ -48,7 +51,7 @@ describe("PATCH /api/teacher/announcements/[announcementId]", () => {
     const res = await patch("abc", { status: "published" });
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it("リクエストボディが不正なJSONのときは BAD_REQUEST を返しバックエンドへ転送しない", async () => {
@@ -61,11 +64,11 @@ describe("PATCH /api/teacher/announcements/[announcementId]", () => {
     );
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(railsFetch).not.toHaveBeenCalled();
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it("401 のときは UNAUTHORIZED を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
     const res = await patch("1", { status: "published" });
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });

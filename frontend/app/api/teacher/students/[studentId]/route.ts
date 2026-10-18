@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -17,8 +17,8 @@ export async function GET(
   const queryString = query.toString();
 
   try {
-    const { data, status, setCookie } = await railsFetch(
-      `/api/v1/teacher/students/${studentId}${queryString ? `?${queryString}` : ""}`,
+    const { data, status, setCookie } = await backendFetch(
+      `/api/v1/teacher/students/${studentId}`,
     );
 
     const res = NextResponse.json(data, { status });
@@ -27,6 +27,13 @@ export async function GET(
 
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "生徒情報の取得に失敗しました");
+    if (error instanceof BackendUnauthorizedError) {
+      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
+    }
+
+    return NextResponse.json(
+      { message: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
   }
 }

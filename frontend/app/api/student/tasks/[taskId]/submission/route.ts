@@ -1,5 +1,5 @@
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
@@ -9,7 +9,7 @@ export async function PATCH(
   try {
     const { taskId } = await params;
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/tasks/${taskId}/submission`,
       {
         method: "PATCH",
@@ -22,6 +22,6 @@ export async function PATCH(
 
     return nextResponse;
   } catch (error) {
-    return handleRailsRouteError(error, "タスクの状態更新に失敗しました");
+    return handleBackendRouteError(error, "タスクの状態更新に失敗しました");
   }
 }

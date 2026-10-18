@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
 import { GET } from "./route";
 
-vi.mock("@/libs/server/rails/railsFetch", () => ({
-  railsFetch: vi.fn(),
+vi.mock("@/libs/server/backend/fetch", () => ({
+  backendFetch: vi.fn(),
 }));
 
 describe("GET /api/teacher/me", () => {
@@ -13,7 +13,7 @@ describe("GET /api/teacher/me", () => {
   });
 
   it("/api/v1/meへ転送する", async () => {
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { user: { id: 1 } },
       setCookie: null,
@@ -21,11 +21,11 @@ describe("GET /api/teacher/me", () => {
 
     await GET();
 
-    expect(railsFetch).toHaveBeenCalledWith("/api/v1/me");
+    expect(backendFetch).toHaveBeenCalledWith("/api/v1/me");
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {
-    vi.mocked(railsFetch).mockResolvedValue({
+    vi.mocked(backendFetch).mockResolvedValue({
       status: 200,
       data: { user: { id: 1, name: "山田太郎" } },
       setCookie: null,
@@ -38,7 +38,7 @@ describe("GET /api/teacher/me", () => {
   });
 
   it("401のときはUNAUTHORIZEDを返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new RailsUnauthorizedError());
+    vi.mocked(backendFetch).mockRejectedValue(new BackendUnauthorizedError());
 
     const res = await GET();
 
@@ -47,7 +47,7 @@ describe("GET /api/teacher/me", () => {
   });
 
   it("想定外のエラー時は500を返す", async () => {
-    vi.mocked(railsFetch).mockRejectedValue(new Error("network error"));
+    vi.mocked(backendFetch).mockRejectedValue(new Error("network error"));
 
     const res = await GET();
 

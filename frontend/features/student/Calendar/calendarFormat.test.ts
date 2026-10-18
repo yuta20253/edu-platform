@@ -27,7 +27,7 @@ describe("calendarFormat", () => {
     expect(toApiDate(new Date(2026, 8, 3))).toBe("2026-09-03");
   });
 
-  it("toDateKey は Rails のレスポンスと照合する YYYY/MM/DD を返す", () => {
+  it("toDateKey は バックエンドのレスポンスと照合する YYYY/MM/DD を返す", () => {
     expect(toDateKey(new Date(2026, 8, 3))).toBe("2026/09/03");
   });
 

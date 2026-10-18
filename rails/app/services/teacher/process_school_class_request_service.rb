@@ -14,7 +14,7 @@ module Teacher
       return false unless school_class_request.pending?
       raise ApplicantCannotProcessOwnRequestError if applicant?
 
-      result = ActiveRecord::Base.transaction do
+      ActiveRecord::Base.transaction do
         update_school_class_request
 
         process_school_class_request if school_class_request.approved?
@@ -22,7 +22,7 @@ module Teacher
 
       notify_applicant
 
-      result
+      true
     end
 
     private
@@ -80,6 +80,8 @@ module Teacher
       @school_class ||= school_class_request.school_class
     end
 
+    # lock_versionに画面を開いた時点の値を明示的に代入すると、UPDATEのWHERE句にその値が使われる。
+    # その後に他の教員が更新していればlock_versionがずれて0件更新となり、StaleObjectError(409)になる
     def update_school_class_request
       school_class_request.update!(
         status: @attributes[:status],

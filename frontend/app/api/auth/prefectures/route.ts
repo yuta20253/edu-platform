@@ -1,9 +1,9 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const { data, status } = await railsFetch("/api/v1/prefectures", {
+    const { data, status } = await backendFetch("/api/v1/prefectures", {
       method: "GET",
     });
 

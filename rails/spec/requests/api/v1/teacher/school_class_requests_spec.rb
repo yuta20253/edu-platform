@@ -39,6 +39,307 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
     response.headers['Set-Cookie']&.split(';')&.first
   end
 
+  describe 'GET /api/v1/teacher/school_class_requests' do
+    let!(:other_teacher) { create(:user, :teacher, high_school: high_school) }
+    let!(:own_request) do
+      create(:school_class_request, applicant: teacher, grade: grade, action: :creation, status: :pending, name: '1組')
+    end
+    let!(:other_teacher_request) do
+      create(:school_class_request, applicant: other_teacher, grade: grade, action: :creation, status: :pending,
+                                    name: '2組')
+    end
+
+    let!(:other_high_school) { create(:high_school) }
+    let!(:other_grade) { create(:grade, high_school: other_high_school) }
+    let!(:other_school_teacher) { create(:user, :teacher, high_school: other_high_school) }
+    let!(:other_school_request) do
+      create(:school_class_request, applicant: other_school_teacher, grade: other_grade, action: :creation,
+                                    status: :pending, name: '3組')
+    end
+
+    def request_ids
+      response.parsed_body['school_class_requests'].pluck('id')
+    end
+
+    context '承認権限がある場合' do
+      it '200が返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '同じ高校の全教員の申請が返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to contain_exactly(own_request.id, other_teacher_request.id)
+      end
+
+      it '申請日時の新しい順に返る' do
+        # id順(own_request → other_teacher_request)とは逆になるように作成日時をずらす
+        own_request.update_column(:created_at, 2.days.ago)
+        other_teacher_request.update_column(:created_at, 1.day.ago)
+
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to eq([other_teacher_request.id, own_request.id])
+      end
+
+      it '申請日時が同じ場合はidの大きい順に返る' do
+        same_time = 1.day.ago
+        own_request.update_column(:created_at, same_time)
+        other_teacher_request.update_column(:created_at, same_time)
+
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to eq([other_teacher_request.id, own_request.id])
+      end
+
+      context 'statusを指定した場合' do
+        before { other_teacher_request.update_column(:status, SchoolClassRequest.statuses[:rejected]) }
+
+        it '指定したstatusの申請だけが返る' do
+          get '/api/v1/teacher/school_class_requests',
+              params: { status: 'rejected' },
+              headers: headers.merge('Cookie' => cookie)
+
+          expect(request_ids).to contain_exactly(other_teacher_request.id)
+        end
+      end
+
+      context 'per_pageとpageを指定した場合' do
+        it '指定したページの申請とページ情報が返る' do
+          get '/api/v1/teacher/school_class_requests',
+              params: { page: 2, per_page: 1 },
+              headers: headers.merge('Cookie' => cookie)
+
+          expect(request_ids.size).to eq(1)
+          expect(response.parsed_body['meta']).to eq(
+            'current_page' => 2,
+            'total_pages' => 2,
+            'total_count' => 2,
+            'per_page' => 1
+          )
+        end
+      end
+
+      it '件数によらずクエリ件数が増えない(N+1にならない)' do
+        request_headers = headers.merge('Cookie' => cookie)
+
+        count_queries = lambda do
+          queries = []
+          callback = ->(_n, _s, _f, _id, payload) { queries << payload[:sql] if payload[:name] != 'SCHEMA' }
+          ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+            get '/api/v1/teacher/school_class_requests', headers: request_headers
+          end
+          queries.size
+        end
+
+        # 申請者・承認者・学級・学年がそれぞれ別のレコードになる申請を作る
+        create_processed_request = lambda do |i|
+          applicant = create(:user, :teacher, high_school: high_school)
+          approver = create(:user, :teacher, high_school: high_school)
+          extra_grade = create(:grade, high_school: high_school)
+          extra_school_class = create(:school_class, grade: extra_grade, name: "追加#{i}組")
+          create(:school_class_request, applicant: applicant, approver: approver, grade: extra_grade,
+                                        school_class: extra_school_class, action: :modification,
+                                        status: :approved, name: "変更#{i}組")
+        end
+
+        # 承認者・学級が1件も無いとpreloadのクエリ自体が省かれるため、比較の基準にも1件含めておく
+        create_processed_request.call(0)
+        base_count = count_queries.call
+
+        (1..3).each { |i| create_processed_request.call(i) }
+
+        expect(count_queries.call).to eq(base_count)
+      end
+
+      context '存在しないstatusを指定した場合' do
+        it '申請が1件も返らない' do
+          get '/api/v1/teacher/school_class_requests',
+              params: { status: 'unknown' },
+              headers: headers.merge('Cookie' => cookie)
+
+          expect(response).to have_http_status(:ok)
+          expect(request_ids).to be_empty
+        end
+      end
+    end
+
+    context '承認権限がない場合' do
+      before { teacher_permission.update!(manage_other_teachers: false) }
+
+      it '200が返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '自分の申請だけが返る' do
+        get '/api/v1/teacher/school_class_requests', headers: headers.merge('Cookie' => cookie)
+
+        expect(request_ids).to contain_exactly(own_request.id)
+      end
+    end
+  end
+
+  describe 'GET /api/v1/teacher/school_class_requests/:id' do
+    let!(:other_teacher) { create(:user, :teacher, high_school: high_school, name: '申請 太郎') }
+    let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
+    let!(:school_class_request) do
+      create(:school_class_request, applicant: other_teacher, grade: grade, school_class: school_class,
+                                    action: :modification, status: :pending, name: 'B組',
+                                    approved_at: nil, cancelled_at: nil)
+    end
+
+    context '承認権限がある場合' do
+      it '200が返る' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '申請の詳細が返る' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body).to include(
+          'id' => school_class_request.id,
+          'action' => 'modification',
+          'status' => 'pending',
+          'name' => 'B組',
+          'reason' => nil,
+          'lock_version' => school_class_request.lock_version,
+          'grade' => { 'id' => grade.id, 'year' => grade.year, 'display_name' => grade.display_name },
+          'school_class' => { 'id' => school_class.id, 'name' => 'A組' },
+          'applicant' => { 'id' => other_teacher.id, 'name' => '申請 太郎' },
+          'approver' => nil
+        )
+      end
+
+      it 'statusパラメータを付けても、申請のstatusに関係なく取得できる' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            params: { status: 'approved' },
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '新設の申請ではschool_classがnullで返る' do
+        creation_request = create(:school_class_request, applicant: other_teacher, grade: grade, action: :creation,
+                                                         status: :pending, name: 'E組')
+
+        get "/api/v1/teacher/school_class_requests/#{creation_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['school_class']).to be_nil
+      end
+
+      it '承認済みの申請では承認者が返る' do
+        school_class_request.update_columns(status: SchoolClassRequest.statuses[:approved], approver_id: teacher.id)
+
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['approver']).to eq('id' => teacher.id, 'name' => teacher.name)
+      end
+    end
+
+    context '承認権限がない場合' do
+      before { teacher_permission.update!(manage_other_teachers: false) }
+
+      it '自分の申請は取得できる' do
+        own_request = create(:school_class_request, applicant: teacher, grade: grade, action: :creation,
+                                                    status: :pending, name: 'C組')
+
+        get "/api/v1/teacher/school_class_requests/#{own_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it '他の教員の申請は404が返る' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    describe '操作できるかどうか(can_process / can_cancel)' do
+      let!(:own_request) do
+        create(:school_class_request, applicant: teacher, grade: grade, action: :creation, status: :pending,
+                                      name: 'F組')
+      end
+
+      def fetch_permissions(request)
+        get "/api/v1/teacher/school_class_requests/#{request.id}", headers: headers.merge('Cookie' => cookie)
+
+        response.parsed_body.slice('can_process', 'can_cancel')
+      end
+
+      context '承認権限がある場合' do
+        it '他の教員の承認待ちの申請は、承認/却下できて取り消せない' do
+          expect(fetch_permissions(school_class_request)).to eq('can_process' => true, 'can_cancel' => false)
+        end
+
+        it '自分の承認待ちの申請は、承認/却下できず取り消せる' do
+          expect(fetch_permissions(own_request)).to eq('can_process' => false, 'can_cancel' => true)
+        end
+
+        it '処理済みの申請は、承認/却下も取消もできない' do
+          school_class_request.update_column(:status, SchoolClassRequest.statuses[:rejected])
+          own_request.update_column(:status, SchoolClassRequest.statuses[:cancelled])
+
+          expect(fetch_permissions(school_class_request)).to eq('can_process' => false, 'can_cancel' => false)
+          expect(fetch_permissions(own_request)).to eq('can_process' => false, 'can_cancel' => false)
+        end
+      end
+
+      context '承認権限がない場合' do
+        before { teacher_permission.update!(manage_other_teachers: false) }
+
+        it '自分の承認待ちの申請は、承認/却下できず取り消せる' do
+          expect(fetch_permissions(own_request)).to eq('can_process' => false, 'can_cancel' => true)
+        end
+      end
+    end
+
+    context '他校の申請の場合' do
+      let!(:other_high_school) { create(:high_school) }
+      let!(:other_grade) { create(:grade, high_school: other_high_school) }
+      let!(:other_school_teacher) { create(:user, :teacher, high_school: other_high_school) }
+      let!(:other_school_request) do
+        create(:school_class_request, applicant: other_school_teacher, grade: other_grade, action: :creation,
+                                      status: :pending, name: 'D組')
+      end
+
+      it '404が返る' do
+        get "/api/v1/teacher/school_class_requests/#{other_school_request.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '存在しない申請の場合' do
+      it '404が返る' do
+        get '/api/v1/teacher/school_class_requests/999999', headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '未認証の場合' do
+      it 'アクセスできない' do
+        get "/api/v1/teacher/school_class_requests/#{school_class_request.id}", headers: headers
+
+        expect(response).not_to have_http_status(:ok)
+      end
+    end
+  end
+
   describe 'POST /api/v1/teacher/school_class_requests' do
     let(:params) do
       {
@@ -533,6 +834,42 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
 
+    context 'lock_versionを指定しない場合' do
+      let(:request_params) { { school_class_request: { status: 'approved' } } }
+
+      it '422が返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'エラーメッセージが返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response.parsed_body['errors']).to include('lock_versionは必須です')
+      end
+
+      it '申請が更新されない' do
+        expect do
+          patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                params: request_params.to_json,
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to(change { school_class_request.reload.status })
+      end
+
+      it '学級が作成されない' do
+        expect do
+          patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                params: request_params.to_json,
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to change(SchoolClass, :count)
+      end
+    end
+
     context '承認権限がない場合' do
       before do
         teacher.teacher_permission.update!(manage_other_teachers: false)
@@ -651,38 +988,82 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
       end
     end
 
-    context '申請がpendingではない場合' do
-      let(:status) { 'approved' }
-
-      before do
-        school_class_request.update!(status: :approved)
-      end
-
-      it '200が返る' do
+    shared_examples '処理済みの申請として409を返す' do
+      it '409が返る' do
         patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
               params: request_params.to_json,
-              headers: headers.merge('Cookie' => cookie)
+              headers: headers.merge('Cookie' => approver_cookie)
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:conflict)
+      end
+
+      it '処理済みであることを示すエラーメッセージが返る' do
+        patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+              params: request_params.to_json,
+              headers: headers.merge('Cookie' => approver_cookie)
+
+        expect(response.parsed_body['errors']).to include('この申請はすでに処理されています。再読み込みしてください')
       end
 
       it '申請が更新されない' do
         expect do
           patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
                 params: request_params.to_json,
-                headers: headers.merge('Cookie' => cookie)
-        end.not_to(change do
-          school_class_request.reload.status
-        end)
+                headers: headers.merge('Cookie' => approver_cookie)
+        end.not_to(change { school_class_request.reload.attributes })
       end
 
       it '学級が作成されない' do
         expect do
           patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
                 params: request_params.to_json,
-                headers: headers.merge('Cookie' => cookie)
+                headers: headers.merge('Cookie' => approver_cookie)
         end.not_to change(SchoolClass, :count)
       end
+    end
+
+    context '申請がpendingではない場合(最新のlock_versionを送った場合)' do
+      let(:status) { 'approved' }
+
+      before do
+        school_class_request.update!(status: :approved)
+      end
+
+      it_behaves_like '処理済みの申請として409を返す'
+    end
+
+    context '他の教員が先に処理した場合' do
+      let(:status) { 'approved' }
+      # 画面を開いた時点のlock_versionを送る
+      let!(:request_lock_version) { school_class_request.lock_version }
+      let!(:other_approver) do
+        create(:user, :teacher, high_school: high_school).tap do |user|
+          create(:teacher_permission, user: user, manage_other_teachers: true)
+        end
+      end
+
+      before do
+        Teacher::ProcessSchoolClassRequestService.new(
+          user: other_approver,
+          id: school_class_request.id,
+          status: 'rejected',
+          lock_version: request_lock_version
+        ).call
+      end
+
+      it_behaves_like '処理済みの申請として409を返す'
+    end
+
+    context '申請者が先に取り消した場合' do
+      let(:status) { 'approved' }
+      # 画面を開いた時点のlock_versionを送る
+      let!(:request_lock_version) { school_class_request.lock_version }
+
+      before do
+        Teacher::CancelSchoolClassRequestService.new(user: teacher, id: school_class_request.id).call
+      end
+
+      it_behaves_like '処理済みの申請として409を返す'
     end
 
     context 'lock_versionが古い場合' do

@@ -1,12 +1,12 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
 
-    const { status, data, setCookie } = await railsFetch(`/api/v1/profile`, {
+    const { status, data, setCookie } = await backendFetch(`/api/v1/profile`, {
       method: "PATCH",
       body,
     });
@@ -18,7 +18,7 @@ export async function PATCH(req: Request) {
     return nextResponse;
   } catch (error) {
     console.error(error);
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 

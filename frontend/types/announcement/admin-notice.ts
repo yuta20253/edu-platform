@@ -32,7 +32,7 @@ export type CreateNoticeInput = {
 
 // PATCH /api/admin/notices/:id（更新）で送る入力。
 // statusとscheduled_atは配信タイミングを変更する場合のみ含める。
-// 省略した場合、Rails側は該当フィールドを変更しない（部分更新）。
+// 省略した場合、バックエンド側は該当フィールドを変更しない（部分更新）。
 export type UpdateNoticeInput = {
   title: string;
   content: string;
