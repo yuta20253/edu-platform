@@ -12,7 +12,9 @@ vi.mock("@/libs/server/backend/fetch", () => ({
 }));
 
 const get = (query: string) =>
-  GET(new NextRequest(`http://localhost/api/student/analytics/summary${query}`));
+  GET(
+    new NextRequest(`http://localhost/api/student/analytics/summary${query}`),
+  );
 
 describe("GET /api/student/analytics/summary", () => {
   beforeEach(() => {

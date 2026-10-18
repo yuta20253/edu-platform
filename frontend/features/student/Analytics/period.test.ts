@@ -24,9 +24,9 @@ describe("detectPreset", () => {
   });
 
   it("プリセットと一致する期間ならその日数を返す", () => {
-    expect(
-      detectPreset({ from: "2026-09-19", to: "2026-10-18" }, today),
-    ).toBe(30);
+    expect(detectPreset({ from: "2026-09-19", to: "2026-10-18" }, today)).toBe(
+      30,
+    );
   });
 
   it("どのプリセットとも一致しない期間なら null を返す", () => {

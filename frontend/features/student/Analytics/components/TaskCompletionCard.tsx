@@ -24,7 +24,12 @@ export const TaskCompletionCard = ({ taskCompletion }: Props) => {
         <TrendLabel trend={trend} />
       </Box>
       <Typography
-        sx={{ mt: 1, fontSize: 12, color: "text.secondary", textAlign: "center" }}
+        sx={{
+          mt: 1,
+          fontSize: 12,
+          color: "text.secondary",
+          textAlign: "center",
+        }}
       >
         期限がこの期間内のタスクで集計しています
       </Typography>

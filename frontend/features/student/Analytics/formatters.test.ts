@@ -33,7 +33,10 @@ describe("rateTrend", () => {
   });
 
   it("前期間のデータがないときは「前期間なし」を返す", () => {
-    expect(rateTrend(50, null)).toEqual({ direction: "none", text: "前期間なし" });
+    expect(rateTrend(50, null)).toEqual({
+      direction: "none",
+      text: "前期間なし",
+    });
   });
 });
 

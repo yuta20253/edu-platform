@@ -17,7 +17,12 @@ export const SubjectProgressCard = ({ subjectProgress }: Props) => (
 
     {subjectProgress.length === 0 ? (
       <Typography
-        sx={{ py: 2, fontSize: 13, color: "text.secondary", textAlign: "center" }}
+        sx={{
+          py: 2,
+          fontSize: 13,
+          color: "text.secondary",
+          textAlign: "center",
+        }}
       >
         この期間に解いた問題はありません
       </Typography>

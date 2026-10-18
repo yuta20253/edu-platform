@@ -125,7 +125,9 @@ describe("AnalyticsPresenter", () => {
 
   it("summary の取得に失敗したときは期間別のカードの位置にだけエラーを出す", () => {
     render(<Presenter {...baseProps} summary={null} summaryError />);
-    expect(screen.getByText("学習分析の取得に失敗しました")).toBeInTheDocument();
+    expect(
+      screen.getByText("学習分析の取得に失敗しました"),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "7日間" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "累計" })).toBeInTheDocument();
   });
