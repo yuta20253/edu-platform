@@ -77,6 +77,15 @@ describe("PeriodChips", () => {
     });
   });
 
+  it("選択中のチップを押しても onChange を呼ばない(同じ期間を取得し直さない)", () => {
+    const onChange = vi.fn();
+    render(<PeriodChips {...defaultProps} onChange={onChange} />);
+
+    fireEvent.click(chip("7日間"));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("検証メッセージがあればチップの直下に表示する", () => {
     render(
       <PeriodChips

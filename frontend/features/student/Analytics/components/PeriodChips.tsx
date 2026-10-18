@@ -36,7 +36,9 @@ export const PeriodChips = ({ period, onChange, validationErrors }: Props) => {
             aria-pressed={preset === days}
             color={preset === days ? "primary" : "default"}
             variant={preset === days ? "filled" : "outlined"}
-            onClick={() => onChange(presetRange(days))}
+            onClick={() => {
+              if (preset !== days) onChange(presetRange(days));
+            }}
             sx={{ fontWeight: 700 }}
           />
         ))}
