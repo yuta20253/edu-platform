@@ -3,7 +3,6 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { useStudent } from "./hooks";
-import type { StudentDetailTab } from "./types";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -44,9 +43,11 @@ describe("useStudent", () => {
   it("プロフィールタブではtabパラメータなしで取得する", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockStudent });
 
-    const { result } = renderHook(() => useStudent(1, "profile", 1));
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.tab).toBe("profile");
+    expect(result.current.page).toBe(1);
     expect(result.current.data).toEqual({ tab: "profile", data: mockStudent });
     expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/students/1", {
@@ -55,30 +56,58 @@ describe("useStudent", () => {
     });
   });
 
-  it("目標タブではtab=goalsを付けて取得する", async () => {
-    vi.mocked(apiClient.get).mockResolvedValue({ data: mockGoalsData });
+  it("タスクタブではtab=tasksとpageを付けて取得する", async () => {
+    vi.mocked(apiClient.get)
+      .mockResolvedValueOnce({ data: mockStudent })
+      .mockResolvedValue({ data: mockTasksData });
 
-    const { result } = renderHook(() => useStudent(1, "goals", 1));
-
+    const { result } = renderHook(() => useStudent(1));
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual({ tab: "goals", data: mockGoalsData });
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/students/1", {
-      params: { tab: "goals" },
-      signal: expect.any(AbortSignal),
+
+    act(() => {
+      result.current.changeTab("tasks");
     });
+    await waitFor(() => expect(result.current.data?.tab).toBe("tasks"));
+
+    act(() => {
+      result.current.setPage(2);
+    });
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/teacher/students/1",
+        {
+          params: { tab: "tasks", page: "2" },
+          signal: expect.any(AbortSignal),
+        },
+      ),
+    );
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.page).toBe(2);
+    expect(result.current.data).toEqual({ tab: "tasks", data: mockTasksData });
   });
 
-  it("タスクタブではtab=tasksとpageを付けて取得する", async () => {
-    vi.mocked(apiClient.get).mockResolvedValue({ data: mockTasksData });
+  it("タブを変えるとpageを1に戻す", async () => {
+    vi.mocked(apiClient.get)
+      .mockResolvedValueOnce({ data: mockStudent })
+      .mockResolvedValue({ data: mockTasksData });
 
-    const { result } = renderHook(() => useStudent(1, "tasks", 2));
-
+    const { result } = renderHook(() => useStudent(1));
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual({ tab: "tasks", data: mockTasksData });
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/students/1", {
-      params: { tab: "tasks", page: "2" },
-      signal: expect.any(AbortSignal),
+
+    act(() => {
+      result.current.changeTab("tasks");
     });
+    act(() => {
+      result.current.setPage(2);
+    });
+    await waitFor(() => expect(result.current.page).toBe(2));
+
+    act(() => {
+      result.current.changeTab("goals");
+    });
+
+    expect(result.current.tab).toBe("goals");
+    expect(result.current.page).toBe(1);
   });
 
   it("タブが変わるとそのタブのデータを取得し直す", async () => {
@@ -86,10 +115,7 @@ describe("useStudent", () => {
       .mockResolvedValueOnce({ data: mockStudent })
       .mockResolvedValueOnce({ data: mockGoalsData });
 
-    const { result, rerender } = renderHook(
-      ({ tab }: { tab: StudentDetailTab }) => useStudent(1, tab, 1),
-      { initialProps: { tab: "profile" } },
-    );
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() =>
       expect(result.current.data).toEqual({
@@ -99,7 +125,7 @@ describe("useStudent", () => {
     );
 
     act(() => {
-      rerender({ tab: "goals" });
+      result.current.changeTab("goals");
     });
 
     await waitFor(() =>
@@ -128,16 +154,13 @@ describe("useStudent", () => {
       return Promise.resolve({ data: mockGoalsData });
     });
 
-    const { result, rerender } = renderHook(
-      ({ tab }: { tab: StudentDetailTab }) => useStudent(1, tab, 1),
-      { initialProps: { tab: "profile" } },
-    );
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(1));
     const firstSignal = vi.mocked(apiClient.get).mock.calls[0][1]?.signal;
 
     act(() => {
-      rerender({ tab: "goals" });
+      result.current.changeTab("goals");
     });
 
     expect(firstSignal?.aborted).toBe(true);
@@ -151,7 +174,7 @@ describe("useStudent", () => {
       response: { status: 401 },
     });
 
-    const { result } = renderHook(() => useStudent(1, "profile", 1));
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -163,7 +186,7 @@ describe("useStudent", () => {
       response: { status: 500 },
     });
 
-    const { result } = renderHook(() => useStudent(1, "profile", 1));
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBe(true);
@@ -176,15 +199,12 @@ describe("useStudent", () => {
       .mockResolvedValueOnce({ data: mockStudent })
       .mockRejectedValueOnce({ response: { status: 500 } });
 
-    const { result, rerender } = renderHook(
-      ({ tab }: { tab: StudentDetailTab }) => useStudent(1, tab, 1),
-      { initialProps: { tab: "profile" } },
-    );
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
-      rerender({ tab: "tasks" });
+      result.current.changeTab("tasks");
     });
 
     await waitFor(() => expect(result.current.error).toBe(true));
@@ -197,15 +217,12 @@ describe("useStudent", () => {
       .mockRejectedValueOnce({ response: { status: 500 } })
       .mockResolvedValueOnce({ data: mockGoalsData });
 
-    const { result, rerender } = renderHook(
-      ({ tab }: { tab: StudentDetailTab }) => useStudent(1, tab, 1),
-      { initialProps: { tab: "profile" } },
-    );
+    const { result } = renderHook(() => useStudent(1));
 
     await waitFor(() => expect(result.current.error).toBe(true));
 
     act(() => {
-      rerender({ tab: "goals" });
+      result.current.changeTab("goals");
     });
 
     await waitFor(() => expect(result.current.data).not.toBeNull());

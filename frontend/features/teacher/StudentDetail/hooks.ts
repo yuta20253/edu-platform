@@ -12,11 +12,9 @@ import {
   StudentTasksData,
 } from "./types";
 
-export const useStudent = (
-  studentId: number,
-  tab: StudentDetailTab,
-  page: number,
-) => {
+export const useStudent = (studentId: number) => {
+  const [tab, setTab] = useState<StudentDetailTab>("profile");
+  const [page, setPage] = useState(1);
   const [data, setData] = useState<StudentDetailResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -62,5 +60,11 @@ export const useStudent = (
     };
   }, [router, studentId, tab, page]);
 
-  return { data, loading, error };
+  // ページはタスクタブだけで使うため、タブを変えたら1ページ目に戻す
+  const changeTab = (nextTab: StudentDetailTab) => {
+    setTab(nextTab);
+    setPage(1);
+  };
+
+  return { data, tab, page, loading, error, changeTab, setPage };
 };
