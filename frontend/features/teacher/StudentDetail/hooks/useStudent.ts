@@ -10,7 +10,7 @@ import {
   StudentDetailTab,
   StudentGoalsData,
   StudentTasksData,
-} from "./types";
+} from "../types";
 
 export const useStudent = (studentId: number) => {
   const [tab, setTab] = useState<StudentDetailTab>("profile");

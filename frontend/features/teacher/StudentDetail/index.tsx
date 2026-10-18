@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { Presenter } from "./Presenter";
-import { useStudent } from "./hooks";
+import { useStudent } from "./hooks/useStudent";
 
 type Props = {
   studentId: number;
