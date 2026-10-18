@@ -10,7 +10,7 @@ module Admin
 
     def units
       counts = instance_options[:questions_counts] || {}
-      object.units.order(:id).map do |unit|
+      object.units.active.order(:id).map do |unit|
         {
           id: unit.id,
           unit_name: unit.unit_name,
