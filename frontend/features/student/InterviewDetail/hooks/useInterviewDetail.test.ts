@@ -220,7 +220,7 @@ describe("useInterviewDetail", () => {
       );
     });
 
-    it("409(楽観ロックの競合)のときは cancelError に Rails のメッセージをセットし、最新の面談を取り直す", async () => {
+    it("409(楽観ロックの競合)のときは cancelError にバックエンドのメッセージをセットし、最新の面談を取り直す", async () => {
       const conflict =
         "他のユーザーによってデータが更新されています。再読み込みしてください";
       vi.mocked(apiClient.delete).mockRejectedValue({

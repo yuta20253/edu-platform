@@ -4,7 +4,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { Alert, Box, Button, TextField } from "@mui/material";
 import { useForm } from "react-hook-form";
 
-// Rails の InterviewRequestMessage#body の上限と合わせる
+// バックエンドの InterviewRequestMessage#body の上限と合わせる
 const MESSAGE_MAX_LENGTH = 2000;
 
 type Props = {

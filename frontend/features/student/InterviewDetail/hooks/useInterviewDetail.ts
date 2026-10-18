@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 const isStaleInterviewError = (status?: number) =>
   status === 409 || status === 422;
 
-// メッセージはスレッドとして1画面に全件並べるため、Rails の上限件数ずつ取得する
+// メッセージはスレッドとして1画面に全件並べるため、バックエンドの上限件数ずつ取得する
 const MESSAGES_PER_PAGE = "100";
 
 type MessagesData = {
@@ -38,7 +38,7 @@ export const useInterviewDetail = (interviewId: string) => {
 
   const basePath = `/api/student/interview-requests/${interviewId}`;
 
-  // Rails は古い順にページングするため、1ページ目だけだと最新のメッセージが欠ける。残りのページもまとめて取得する
+  // バックエンドは古い順にページングするため、1ページ目だけだと最新のメッセージが欠ける。残りのページもまとめて取得する
   const fetchAllMessages = useCallback(async () => {
     const fetchPage = (page: number) =>
       apiClient.get<MessagesData>(`${basePath}/messages`, {
