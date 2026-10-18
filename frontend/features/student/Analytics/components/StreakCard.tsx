@@ -21,7 +21,7 @@ export const StreakCard = ({ streakDays }: Props) => (
       </Typography>
     </Box>
     <Typography sx={{ mt: 0.5, fontSize: 12, color: "text.secondary" }}>
-      期間に関係なく、今日まで続けて学習した日数
+      期間に関係なく、毎日続けて学習している日数
     </Typography>
   </DashboardCard>
 );

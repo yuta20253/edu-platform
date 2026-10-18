@@ -17,6 +17,6 @@ describe("StreakCard", () => {
 
   it("期間の選択とは関係ないことを表示する", () => {
     render(<StreakCard streakDays={5} />);
-    expect(card()).toHaveTextContent("期間に関係なく、今日まで続けて学習した日数");
+    expect(card()).toHaveTextContent("期間に関係なく、毎日続けて学習している日数");
   });
 });
