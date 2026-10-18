@@ -12,18 +12,12 @@ import { isSameDay, isSameMonth } from "date-fns";
 import { colors } from "@/app/theme/colors";
 import { formatDayLabel, toDateKey } from "@/libs/calendar/calendarFormat";
 import { buildMonthWeeks } from "@/libs/calendar/monthGrid";
+import { WEEKDAY_LABELS, weekdayColor } from "@/libs/calendar/weekday";
 import { formatInterviewTime } from "../calendarUtils";
 import type { ScheduledInterview } from "../types";
 
-const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 // セル内に表示する面談の上限。超過分は「+N」で示し、詳細は選択日の面談一覧で確認する
 const MAX_VISIBLE_INTERVIEWS = 3;
-
-const weekdayColor = (index: number) => {
-  if (index === 0) return colors.status.error;
-  if (index === 6) return colors.status.info;
-  return colors.text.secondary;
-};
 
 type Props = {
   month: Date;

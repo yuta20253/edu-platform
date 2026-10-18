@@ -7,19 +7,13 @@ import { colors } from "@/app/theme/colors";
 import { cardSx, radius } from "@/app/theme/studentTheme";
 import { formatDayLabel, toDateKey } from "@/libs/calendar/calendarFormat";
 import { buildMonthWeeks } from "@/libs/calendar/monthGrid";
+import { WEEKDAY_LABELS, weekdayColor } from "@/libs/calendar/weekday";
 import { eventTypeMeta } from "../constants";
 import type { CalendarEvent } from "../types";
 
-const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 // セル内に表示する予定の上限。超過分は「+N」で示し、詳細は下の予定一覧で確認する
 const MAX_VISIBLE_EVENTS = 2;
 const MAX_VISIBLE_DOTS = 3;
-
-const weekdayColor = (index: number) => {
-  if (index === 0) return colors.status.error;
-  if (index === 6) return colors.status.info;
-  return colors.text.secondary;
-};
 
 type Props = {
   month: Date;
