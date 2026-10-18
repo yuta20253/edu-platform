@@ -38,7 +38,6 @@ const baseProps = {
   },
   understandingScore: { subjects: [] },
   cumulativeLoading: false,
-  cumulativeError: false,
   rankSection: <div>順位の中身</div>,
 };
 
@@ -132,9 +131,7 @@ describe("AnalyticsPresenter", () => {
   });
 
   it("学年平均の取得に失敗したときはそのカードにだけエラーを出す", () => {
-    render(
-      <Presenter {...baseProps} gradeAverage={null} cumulativeError />,
-    );
+    render(<Presenter {...baseProps} gradeAverage={null} />);
     expect(
       screen.getByRole("region", { name: "学年平均との比較" }),
     ).toHaveTextContent("取得に失敗しました");

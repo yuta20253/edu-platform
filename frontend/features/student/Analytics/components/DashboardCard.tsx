@@ -11,17 +11,23 @@ export const cardSx = {
 
 type Props = {
   title: string;
+  // 累計セクションの中に置くカードは h3 にする
+  headingLevel?: "h2" | "h3";
   children: ReactNode;
 };
 
-export const DashboardCard = ({ title, children }: Props) => {
+export const DashboardCard = ({
+  title,
+  headingLevel = "h2",
+  children,
+}: Props) => {
   const titleId = useId();
 
   return (
     <Box component="section" aria-labelledby={titleId} sx={{ ...cardSx, p: 2 }}>
       <Typography
         id={titleId}
-        variant="h2"
+        variant={headingLevel}
         sx={{ fontSize: 15, fontWeight: 800, mb: 1.5 }}
       >
         {title}
