@@ -1,6 +1,5 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
 import { Presenter } from "./Presenter";
 import { useAnalytics } from "./hooks/useAnalytics";
 import { AnalyticsContent } from "./components/AnalyticsContent";
@@ -22,38 +21,6 @@ export const Analytics = () => {
     error,
   } = useAnalytics();
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
   return (
     <Presenter
       type={type}
@@ -69,9 +36,11 @@ export const Analytics = () => {
     >
       <AnalyticsContent
         type={type}
-        result={data}
+        data={data}
         courseId={courseId}
         unitId={unitId}
+        loading={loading}
+        error={error}
       />
     </Presenter>
   );

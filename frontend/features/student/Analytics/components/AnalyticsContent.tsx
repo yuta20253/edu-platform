@@ -1,40 +1,50 @@
-import { Typography } from "@mui/material";
-import { needsCourse, needsUnit } from "../selectionRequirements";
-import { TaskCompletionChart } from "./TaskCompletionChart";
-import { UnderstandingScoreChart } from "./UnderstandingScoreChart";
-import { GradeAverageChart } from "./GradeAverageChart";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { RankChart } from "./RankChart";
-import { AnalyticsResult, AnalyticsType } from "../types";
+import { RankData, RankType } from "../types";
 
 type Props = {
-  type: AnalyticsType;
-  result: AnalyticsResult | null;
+  type: RankType;
+  data: RankData | null;
   courseId: number | null;
   unitId: number | null;
+  loading: boolean;
+  error: boolean;
 };
 
-export const AnalyticsContent = ({ type, result, courseId, unitId }: Props) => {
-  if (result === null) {
+const Message = ({ children }: { children: string }) => (
+  <Typography sx={{ textAlign: "center", py: 4, fontSize: 14 }}>
+    {children}
+  </Typography>
+);
+
+export const AnalyticsContent = ({
+  type,
+  data,
+  courseId,
+  unitId,
+  loading,
+  error,
+}: Props) => {
+  if (type === "unit_rank" && (courseId === null || unitId === null)) {
+    return <Message>コースと単元を選択してください</Message>;
+  }
+  if (courseId === null) {
+    return <Message>教科とコースを選択してください</Message>;
+  }
+  if (loading) {
     return (
-      <Typography sx={{ textAlign: "center", py: 4 }}>
-        {needsUnit(type) && (courseId === null || unitId === null)
-          ? "コースと単元を選択してください"
-          : needsCourse(type) && courseId === null
-            ? "教科とコースを選択してください"
-            : "データがありません"}
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+        <CircularProgress size={28} />
+      </Box>
     );
   }
-
-  switch (result.type) {
-    case "task_completion":
-      return <TaskCompletionChart data={result.data} />;
-    case "understanding_score":
-      return <UnderstandingScoreChart data={result.data} />;
-    case "grade_average":
-      return <GradeAverageChart data={result.data} />;
-    case "course_rank":
-    case "unit_rank":
-      return <RankChart data={result.data} />;
+  // 順位の取得失敗は画面全体ではなく、このセクションの中だけで伝える
+  if (error) {
+    return <Message>順位の取得に失敗しました</Message>;
   }
+  if (data === null) {
+    return <Message>データがありません</Message>;
+  }
+
+  return <RankChart data={data} />;
 };

@@ -1,12 +1,5 @@
-const ANALYTICS_TYPES = [
-  "task_completion",
-  "understanding_score",
-  "grade_average",
-  "course_rank",
-  "unit_rank",
-] as const;
-
-export type AnalyticsType = (typeof ANALYTICS_TYPES)[number];
+// 順位だけは教科・コース・単元を選んで1種類ずつ表示する
+export type RankType = "course_rank" | "unit_rank";
 
 export type TaskCompletionData = {
   completed_count: number;
@@ -43,21 +36,6 @@ export type RankData = {
   rank: number | null;
   total_users: number;
 };
-
-export type AnalyticsDataMap = {
-  task_completion: TaskCompletionData;
-  understanding_score: UnderstandingScoreData;
-  grade_average: GradeAverageData;
-  course_rank: RankData;
-  unit_rank: RankData;
-};
-
-export type AnalyticsResult =
-  | { type: "task_completion"; data: TaskCompletionData }
-  | { type: "understanding_score"; data: UnderstandingScoreData }
-  | { type: "grade_average"; data: GradeAverageData }
-  | { type: "course_rank"; data: RankData }
-  | { type: "unit_rank"; data: RankData };
 
 type PeriodComparison<T> = {
   current: T;

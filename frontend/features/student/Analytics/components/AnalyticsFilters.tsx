@@ -12,20 +12,16 @@ import { Course } from "@/types/tasks/course";
 import { Unit } from "@/types/tasks/unit";
 import { SubjectName } from "@/constants/subject";
 import { subjectLists } from "@/constants/subject";
-import { needsCourse, needsUnit } from "../selectionRequirements";
-import { AnalyticsType } from "../types";
+import { RankType } from "../types";
 
-const typeLabels: Record<AnalyticsType, string> = {
-  task_completion: "タスク達成率",
-  understanding_score: "理解度スコア",
-  grade_average: "学年平均との比較",
+const typeLabels: Record<RankType, string> = {
   course_rank: "コース内順位",
   unit_rank: "単元内順位",
 };
 
 type Props = {
-  type: AnalyticsType;
-  setType: (type: AnalyticsType) => void;
+  type: RankType;
+  setType: (type: RankType) => void;
   subject: SubjectName | null;
   setSubject: (subject: SubjectName) => void;
   courseId: number | null;
@@ -51,13 +47,13 @@ export const AnalyticsFilters = ({
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
       <FormControl size="small" sx={{ minWidth: 180 }}>
-        <InputLabel id="analytics-type-label">表示切替</InputLabel>
+        <InputLabel id="analytics-type-label">順位の種類</InputLabel>
         <Select
           labelId="analytics-type-label"
-          label="表示切替"
+          label="順位の種類"
           value={type}
           onChange={(e: SelectChangeEvent) =>
-            setType(e.target.value as AnalyticsType)
+            setType(e.target.value as RankType)
           }
         >
           {Object.entries(typeLabels).map(([value, label]) => (
@@ -68,27 +64,25 @@ export const AnalyticsFilters = ({
         </Select>
       </FormControl>
 
-      {needsCourse(type) && (
-        <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel id="analytics-subject-label">教科</InputLabel>
-          <Select
-            labelId="analytics-subject-label"
-            label="教科"
-            value={subject ?? ""}
-            onChange={(e: SelectChangeEvent) =>
-              setSubject(e.target.value as SubjectName)
-            }
-          >
-            {subjectLists.map((name) => (
-              <MenuItem key={name} value={name}>
-                {name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )}
+      <FormControl size="small" sx={{ minWidth: 160 }}>
+        <InputLabel id="analytics-subject-label">教科</InputLabel>
+        <Select
+          labelId="analytics-subject-label"
+          label="教科"
+          value={subject ?? ""}
+          onChange={(e: SelectChangeEvent) =>
+            setSubject(e.target.value as SubjectName)
+          }
+        >
+          {subjectLists.map((name) => (
+            <MenuItem key={name} value={name}>
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-      {needsCourse(type) && subject !== null && courses !== null && (
+      {subject !== null && courses !== null && (
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="analytics-course-label">コース</InputLabel>
           <Select
@@ -108,7 +102,7 @@ export const AnalyticsFilters = ({
         </FormControl>
       )}
 
-      {needsUnit(type) && courseId !== null && (
+      {type === "unit_rank" && courseId !== null && (
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="analytics-unit-label">単元</InputLabel>
           <Select

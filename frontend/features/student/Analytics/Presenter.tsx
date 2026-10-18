@@ -8,7 +8,7 @@ import { Course } from "@/types/tasks/course";
 import { Unit } from "@/types/tasks/unit";
 import { SubjectName } from "@/constants/subject";
 import { AnalyticsFilters } from "./components/AnalyticsFilters";
-import { AnalyticsType } from "./types";
+import { RankType } from "./types";
 
 const cardSx = {
   bgcolor: colors.surface.white,
@@ -17,8 +17,8 @@ const cardSx = {
 } as const;
 
 type Props = {
-  type: AnalyticsType;
-  setType: (type: AnalyticsType) => void;
+  type: RankType;
+  setType: (type: RankType) => void;
   subject: SubjectName | null;
   setSubject: (subject: SubjectName) => void;
   courseId: number | null;

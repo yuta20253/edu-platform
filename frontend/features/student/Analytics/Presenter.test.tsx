@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
-import type { AnalyticsType } from "./types";
+import type { RankType } from "./types";
 
 const baseProps = {
-  type: "task_completion" as AnalyticsType,
+  type: "course_rank" as RankType,
   setType: vi.fn(),
   subject: null,
   setSubject: vi.fn(),
