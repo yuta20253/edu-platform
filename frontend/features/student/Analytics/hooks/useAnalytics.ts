@@ -74,7 +74,10 @@ export const useAnalytics = () => {
         params,
         signal: controller.signal,
       })
-      .then((res) => setData(res.data))
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setData(res.data);
+      })
       .catch((err) => {
         if (axios.isCancel(err)) return;
         if (err.response?.status === 401) {
