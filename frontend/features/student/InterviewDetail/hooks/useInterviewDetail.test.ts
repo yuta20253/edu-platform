@@ -155,6 +155,42 @@ describe("useInterviewDetail", () => {
       expect(succeeded).toBe(false);
       expect(result.current.sendError).toBe("本文を入力してください");
     });
+
+    it("422(面談が終了済み等)のときは最新の面談を取り直す", async () => {
+      vi.mocked(apiClient.post).mockRejectedValue({
+        response: {
+          status: 422,
+          data: { errors: ["終了した面談にはメッセージを送信できません"] },
+        },
+      });
+      const { result } = await renderLoaded();
+      mockGet({
+        interview: { ...interview, status: "cancelled", lock_version: 4 },
+      });
+
+      await act(async () => {
+        await result.current.sendMessage("こんにちは");
+      });
+
+      await waitFor(() =>
+        expect(result.current.interview?.status).toBe("cancelled"),
+      );
+    });
+
+    it("409・422 以外の失敗のときは再取得しない", async () => {
+      vi.mocked(apiClient.post).mockRejectedValue({
+        response: { status: 500 },
+      });
+      const { result } = await renderLoaded();
+      vi.mocked(apiClient.get).mockClear();
+
+      await act(async () => {
+        await result.current.sendMessage("こんにちは");
+      });
+
+      expect(result.current.sendError).toBe("メッセージの送信に失敗しました");
+      expect(apiClient.get).not.toHaveBeenCalled();
+    });
   });
 
   describe("キャンセル", () => {
@@ -207,7 +243,7 @@ describe("useInterviewDetail", () => {
       );
     });
 
-    it("409 以外の失敗のときは cancelError をセットし再取得しない", async () => {
+    it("422(先生が先にキャンセルした等)のときも cancelError をセットし、最新の面談を取り直す", async () => {
       vi.mocked(apiClient.delete).mockRejectedValue({
         response: {
           status: 422,
@@ -215,7 +251,9 @@ describe("useInterviewDetail", () => {
         },
       });
       const { result } = await renderLoaded();
-      vi.mocked(apiClient.get).mockClear();
+      mockGet({
+        interview: { ...interview, status: "cancelled", lock_version: 4 },
+      });
 
       await act(async () => {
         await result.current.cancel("都合が悪くなった");
@@ -224,6 +262,23 @@ describe("useInterviewDetail", () => {
       expect(result.current.cancelError).toBe(
         "進行中の面談のみキャンセルできます",
       );
+      await waitFor(() =>
+        expect(result.current.interview?.status).toBe("cancelled"),
+      );
+    });
+
+    it("409・422 以外の失敗のときは cancelError をセットし再取得しない", async () => {
+      vi.mocked(apiClient.delete).mockRejectedValue({
+        response: { status: 500 },
+      });
+      const { result } = await renderLoaded();
+      vi.mocked(apiClient.get).mockClear();
+
+      await act(async () => {
+        await result.current.cancel("都合が悪くなった");
+      });
+
+      expect(result.current.cancelError).toBe("面談のキャンセルに失敗しました");
       expect(apiClient.get).not.toHaveBeenCalled();
     });
 

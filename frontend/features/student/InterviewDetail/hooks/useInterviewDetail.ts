@@ -12,6 +12,12 @@ import type {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+// 409: 楽観ロックの競合(先生側で日程調整が進んだ等)
+// 422: 先生が先にキャンセルした・面談が終了した等で、既に操作できない状態になっている
+// いずれも画面の面談情報が古いため、最新の状態を取り直す
+const isStaleInterviewError = (status?: number) =>
+  status === 409 || status === 422;
+
 // メッセージはスレッドとして1画面に全件並べるため、Rails の上限件数ずつ取得する
 const MESSAGES_PER_PAGE = "100";
 
@@ -88,6 +94,7 @@ export const useInterviewDetail = (interviewId: string) => {
         return false;
       }
       setSendError(buildErrorMessage(errors, "メッセージの送信に失敗しました"));
+      if (isStaleInterviewError(status)) await fetchDetail();
       return false;
     }
   };
@@ -112,8 +119,7 @@ export const useInterviewDetail = (interviewId: string) => {
       setCancelError(
         buildErrorMessage(errors, "面談のキャンセルに失敗しました"),
       );
-      // 楽観ロックの競合(先生側で日程調整が進んだ等)は、最新の状態を取り直して再操作できるようにする
-      if (status === 409) await fetchDetail();
+      if (isStaleInterviewError(status)) await fetchDetail();
       return false;
     }
   };
