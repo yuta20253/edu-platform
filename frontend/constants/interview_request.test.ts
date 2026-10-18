@@ -17,7 +17,7 @@ describe("interviewStatusDefinitions", () => {
 });
 
 describe("interviewStatuses", () => {
-  it("Rails の enum と同じ順序でステータスを返す", () => {
+  it("バックエンドの enum と同じ順序でステータスを返す", () => {
     expect(interviewStatuses).toEqual([
       "requested",
       "scheduling",
@@ -29,7 +29,7 @@ describe("interviewStatuses", () => {
 });
 
 describe("interviewReasonCategories", () => {
-  it("Rails の enum と同じ順序で相談カテゴリを返す", () => {
+  it("バックエンドの enum と同じ順序で相談カテゴリを返す", () => {
     expect(interviewReasonCategories).toEqual([
       "study_method",
       "study_plan",

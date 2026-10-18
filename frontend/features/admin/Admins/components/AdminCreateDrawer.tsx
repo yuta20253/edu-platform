@@ -20,7 +20,7 @@ type Props = {
   onClose: () => void;
   onCreate: (input: CreateAdminInput) => void;
   creating: boolean;
-  // API（Rails）から返るバリデーションエラー文言の配列
+  // API（バックエンド）から返るバリデーションエラー文言の配列
   createErrors: string[];
 };
 

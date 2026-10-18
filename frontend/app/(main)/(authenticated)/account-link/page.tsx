@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getMeFromRails } from "@/libs/server/me";
+import { getMeFromBackend } from "@/libs/server/me";
 import { AccountLink } from "@/features/student/AccountLink";
 
 export default async function AccountLinkPage() {
@@ -9,7 +9,7 @@ export default async function AccountLinkPage() {
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
-  const me = await getMeFromRails(cookieHeader);
+  const me = await getMeFromBackend(cookieHeader);
 
   if (me?.account_linked) {
     redirect("/profile");

@@ -48,7 +48,7 @@ describe("useCreateInterview", () => {
     expect(pushMock).toHaveBeenCalledWith("/interviews");
   });
 
-  it("422 のときは Rails のエラー内容を submitError にセットし遷移しない", async () => {
+  it("422 のときは バックエンドのエラー内容を submitError にセットし遷移しない", async () => {
     vi.mocked(apiClient.post).mockRejectedValue({
       response: {
         status: 422,

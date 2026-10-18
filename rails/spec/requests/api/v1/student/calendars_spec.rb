@@ -56,8 +56,9 @@ RSpec.describe 'Api::V1::Student::Calendars', type: :request do
       it '他の生徒のデータは含まれない' do
         request
 
-        ids = response.parsed_body.pluck('id')
-        expect(ids).not_to include(other_goal.id)
+        # goalとtaskはテーブルが別でidが重なりうるため、typeとidの組で比較する
+        type_and_ids = response.parsed_body.map { |item| [item['type'], item['id']] }
+        expect(type_and_ids).not_to include(['goal', other_goal.id])
       end
     end
 

@@ -8,7 +8,7 @@ import {
 const DATE_FORMAT = "yyyy-MM-dd";
 const DEFAULT_PRESET: PeriodPreset = 30;
 
-// 当日を含む N 日間。Rails 側の既定値（直近30日=29日前〜当日）と揃える。
+// 当日を含む N 日間。バックエンド側の既定値（直近30日=29日前〜当日）と揃える。
 export const presetRange = (days: PeriodPreset, today: Date = new Date()) => ({
   from: format(subDays(today, days - 1), DATE_FORMAT),
   to: format(today, DATE_FORMAT),

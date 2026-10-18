@@ -1,6 +1,6 @@
-import { RailsUnauthorizedError } from "@/libs/server/rails/railsError";
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { BackendUnauthorizedError } from "@/libs/server/backend/error";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { goalId } = await params;
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/goals/${goalId}`,
       {
         method: "GET",
@@ -23,7 +23,7 @@ export async function GET(
 
     return nextResponse;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 
@@ -41,7 +41,7 @@ export async function DELETE(
   try {
     const { goalId } = await params;
 
-    const { status, setCookie } = await railsFetch(
+    const { status, setCookie } = await backendFetch(
       `/api/v1/student/goals/${goalId}`,
       { method: "DELETE" },
     );
@@ -52,7 +52,7 @@ export async function DELETE(
 
     return nextResponse;
   } catch (error) {
-    return handleRailsRouteError(error, "目標の削除に失敗しました");
+    return handleBackendRouteError(error, "目標の削除に失敗しました");
   }
 }
 
@@ -64,7 +64,7 @@ export async function PATCH(
     const body = await req.json();
     const { goalId } = await params;
 
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/student/goals/${goalId}`,
       {
         method: "PATCH",
@@ -78,7 +78,7 @@ export async function PATCH(
 
     return nextResponse;
   } catch (error) {
-    if (error instanceof RailsUnauthorizedError) {
+    if (error instanceof BackendUnauthorizedError) {
       return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
 

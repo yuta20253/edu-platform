@@ -1,5 +1,5 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
-import { handleRailsRouteError } from "@/libs/server/rails/handleRailsRouteError";
+import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   if (tab) params.set("tab", tab);
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       `/api/v1/teacher/announcements?${params.toString()}`,
     );
 
@@ -19,11 +19,11 @@ export async function GET(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせの取得に失敗しました");
+    return handleBackendRouteError(error, "お知らせの取得に失敗しました");
   }
 }
 
-// お知らせの新規作成。Railsはparams.require(:announcement)を要求するため
+// お知らせの新規作成。バックエンドはparams.require(:announcement)を要求するため
 // リクエストボディをannouncementキーでラップしてforwardする。
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => undefined);
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { status, data, setCookie } = await railsFetch(
+    const { status, data, setCookie } = await backendFetch(
       "/api/v1/teacher/announcements",
       { method: "POST", body: { announcement: body } },
     );
@@ -41,6 +41,6 @@ export async function POST(request: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", setCookie);
     return res;
   } catch (error) {
-    return handleRailsRouteError(error, "お知らせの作成に失敗しました");
+    return handleBackendRouteError(error, "お知らせの作成に失敗しました");
   }
 }

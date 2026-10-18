@@ -1,4 +1,4 @@
-import { railsFetch } from "@/libs/server/rails/railsFetch";
+import { backendFetch } from "@/libs/server/backend/fetch";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     const keyword = searchParams.get("keyword") ?? "";
     const prefectureId = searchParams.get("prefectureId") ?? "";
 
-    const { status, data } = await railsFetch(
+    const { status, data } = await backendFetch(
       `/api/v1/high_schools?prefecture_id=${prefectureId}&keyword=${keyword}`,
       {
         method: "GET",

@@ -2,7 +2,7 @@ import "server-only";
 import { API_ORIGIN } from "./apiFetch";
 import { MeUser } from "@/types/common/me";
 
-export const getMeFromRails = async (
+export const getMeFromBackend = async (
   cookieHeader: string,
 ): Promise<MeUser | null> => {
   const response = await fetch(`${API_ORIGIN}/api/v1/me`, {

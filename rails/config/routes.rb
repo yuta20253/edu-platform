@@ -45,6 +45,9 @@ Rails.application.routes.draw do
         resources :courses, only: :index
         resources :announcements, only: [:index, :show]
         resources :analytics, only: :index
+        namespace :analytics do
+          resource :summary, only: :show
+        end
         resources :interview_requests, only: [:index, :show, :create, :destroy] do
           resources :messages, only: [:index, :create], controller: 'interview_request_messages'
         end
@@ -59,7 +62,7 @@ Rails.application.routes.draw do
         resources :colleagues, controller: "teachers"
         resources :students
         resources :permissions, only: [:index, :show, :update]
-        resources :announcements, only: [:index, :show, :create, :update, :new]
+        resources :announcements, only: [:index, :show, :create, :update, :new, :edit]
         resources :teacher_notifications
         resources :teacher_notification_results
         resources :grades, only: :index

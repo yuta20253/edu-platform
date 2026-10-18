@@ -6,6 +6,6 @@ import type { InterviewStatus } from "@/types/interview/interviewRequest";
 export const isInterviewStatus = (value: string): value is InterviewStatus =>
   (interviewStatuses as string[]).includes(value);
 
-// キャンセルできるのは進行中(申請中・日程調整中・確定)の面談のみ。Rails の InterviewRequest#active? と対応
+// キャンセルできるのは進行中(申請中・日程調整中・確定)の面談のみ。バックエンドの InterviewRequest#active? と対応
 export const isActiveInterviewStatus = (status: InterviewStatus) =>
   status === "requested" || status === "scheduling" || status === "confirmed";

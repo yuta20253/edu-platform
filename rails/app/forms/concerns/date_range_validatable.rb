@@ -1,0 +1,62 @@
+# frozen_string_literal: true
+
+module DateRangeValidatable
+  extend ActiveSupport::Concern
+
+  DATE_FORMAT = /\A\d{4}-\d{2}-\d{2}\z/
+  DATE_STRPTIME_FORMAT = '%Y-%m-%d'
+
+  included do
+    validate :from_must_be_valid_date
+    validate :to_must_be_valid_date
+    validate :validate_from_before_to
+    validate :validate_period_within_max_range
+  end
+
+  def from_date
+    @from_date ||= parse_date(from)
+  end
+
+  def to_date
+    @to_date ||= parse_date(to)
+  end
+
+  private
+
+  def from_must_be_valid_date
+    return if from.blank?
+
+    errors.add(:from, 'は正しい日付を入力してください') if from_date.nil?
+  end
+
+  def to_must_be_valid_date
+    return if to.blank?
+
+    errors.add(:to, 'は正しい日付を入力してください') if to_date.nil?
+  end
+
+  def validate_from_before_to
+    return if from_date.nil? || to_date.nil?
+
+    errors.add(:to, 'はfrom以降の日付を指定してください') if from_date > to_date
+  end
+
+  def parse_date(value)
+    return nil unless value.is_a?(String)
+    return nil unless value.match?(DATE_FORMAT)
+
+    Date.strptime(value, DATE_STRPTIME_FORMAT)
+  rescue ArgumentError
+    nil
+  end
+
+  def validate_period_within_max_range
+    max_days = self.class::MAX_RANGE_DAYS
+
+    return if from_date.nil? || to_date.nil?
+
+    return unless (to_date - from_date).to_i > max_days - 1
+
+    errors.add(:base, "取得期間は#{max_days}日以内で指定してください")
+  end
+end

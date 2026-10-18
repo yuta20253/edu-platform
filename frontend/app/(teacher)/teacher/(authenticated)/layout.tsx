@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getMeFromRails } from "@/libs/server/me";
+import { getMeFromBackend } from "@/libs/server/me";
 import { TeacherSidebar } from "@/components/teacher/TeacherSidebar";
 import { Box } from "@mui/material";
 
@@ -15,7 +15,7 @@ export default async function TeacherAuthenticatedLayout({
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const user = await getMeFromRails(cookieHeader);
+  const user = await getMeFromBackend(cookieHeader);
 
   if (!user || user.user_role?.name !== "teacher") {
     redirect("/login");
