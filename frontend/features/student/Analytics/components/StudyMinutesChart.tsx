@@ -6,6 +6,8 @@ import type { AnalyticsSummary } from "../types";
 import { DashboardCard } from "./DashboardCard";
 import { TrendLabel } from "./TrendLabel";
 
+const EMPTY_Y_MAX = 60;
+
 type Unit = AnalyticsSummary["study_minutes"]["unit"];
 
 type Props = {
@@ -50,14 +52,21 @@ export const StudyMinutesChart = ({ studyMinutes }: Props) => {
       <BarChart
         height={200}
         hideLegend
-        margin={{ left: 0, right: 8, top: 8, bottom: 0 }}
+        margin={{ left: 0, right: 16, top: 8, bottom: 0 }}
         xAxis={[
           {
             scaleType: "band",
             data: series.map((point) => axisLabel(point.date, unit)),
           },
         ]}
-        yAxis={[{ min: 0, width: 32 }]}
+        // 全日0分だと目盛りが出ず軸だけになるため、そのときは上限を決めて0の位置が分かるようにする
+        yAxis={[
+          {
+            min: 0,
+            max: total.current === 0 ? EMPTY_Y_MAX : undefined,
+            width: 32,
+          },
+        ]}
         series={[
           {
             label: "学習時間(分)",
