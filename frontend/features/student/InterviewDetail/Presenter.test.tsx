@@ -171,33 +171,53 @@ describe("InterviewDetailPresenter", () => {
       expect(screen.getByText("送信に失敗しました")).toBeInTheDocument();
     });
 
-    it.each(["completed", "cancelled"] as const)(
-      "%s の面談では送信フォームを表示しない",
-      (status) => {
+    it.each([
+      ["completed", "この面談は完了しました"],
+      ["cancelled", "この面談はキャンセルされました"],
+    ] as const)(
+      "%s の面談では送信フォームの代わりに案内を表示する",
+      (status, notice) => {
         render(
           <Presenter {...defaultProps} interview={{ ...interview, status }} />,
         );
         expect(
           screen.queryByRole("textbox", { name: "メッセージを入力" }),
         ).not.toBeInTheDocument();
+        expect(screen.getByText(notice)).toBeInTheDocument();
       },
     );
+
+    it("送信の失敗で面談が終了済みに切り替わっても sendError を表示する", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          interview={{ ...interview, status: "cancelled" }}
+          sendError="終了した面談にはメッセージを送信できません"
+        />,
+      );
+      expect(
+        screen.getByText("終了した面談にはメッセージを送信できません"),
+      ).toBeInTheDocument();
+    });
   });
 
   describe("キャンセル", () => {
     const openDialog = () => {
-      fireEvent.click(screen.getByRole("button", { name: "面談をキャンセル" }));
+      fireEvent.click(screen.getByRole("button", { name: "メニュー" }));
+      fireEvent.click(
+        screen.getByRole("menuitem", { name: "面談をキャンセル" }),
+      );
       return screen.getByRole("dialog");
     };
 
     it.each(["completed", "cancelled"] as const)(
-      "%s の面談ではキャンセルボタンを表示しない",
+      "%s の面談ではキャンセルのメニューを表示しない",
       (status) => {
         render(
           <Presenter {...defaultProps} interview={{ ...interview, status }} />,
         );
         expect(
-          screen.queryByRole("button", { name: "面談をキャンセル" }),
+          screen.queryByRole("button", { name: "メニュー" }),
         ).not.toBeInTheDocument();
       },
     );

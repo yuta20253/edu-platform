@@ -1,7 +1,8 @@
 "use client";
 
+import { colors } from "@/app/theme/colors";
 import SendIcon from "@mui/icons-material/Send";
-import { Alert, Box, Button, TextField } from "@mui/material";
+import { Alert, Box, IconButton, TextField } from "@mui/material";
 import { useForm } from "react-hook-form";
 
 // バックエンドの InterviewRequestMessage#body の上限と合わせる
@@ -28,39 +29,50 @@ export const MessageForm = ({ onSend, error }: Props) => {
     if (succeeded) reset();
   });
 
+  // 1行の入力欄と送信ボタンを横並びにする。改行は Enter で入れられる(スマホ前提のため Enter 送信にはしない)
   return (
     <Box component="form" noValidate onSubmit={submit}>
       {error && (
-        <Alert severity="error" sx={{ mb: 1.5, whiteSpace: "pre-line" }}>
+        <Alert severity="error" sx={{ mb: 1, whiteSpace: "pre-line" }}>
           {error}
         </Alert>
       )}
-      <TextField
-        multiline
-        minRows={2}
-        fullWidth
-        placeholder="メッセージを入力"
-        slotProps={{ htmlInput: { "aria-label": "メッセージを入力" } }}
-        {...register("body", {
-          validate: (value) =>
-            value.trim() !== "" || "メッセージを入力してください",
-          maxLength: {
-            value: MESSAGE_MAX_LENGTH,
-            message: `メッセージは${MESSAGE_MAX_LENGTH}文字以内で入力してください`,
-          },
-        })}
-        error={!!errors.body}
-        helperText={errors.body?.message}
-      />
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-        <Button
+      <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
+        <TextField
+          multiline
+          minRows={1}
+          maxRows={4}
+          fullWidth
+          size="small"
+          placeholder="メッセージを入力"
+          slotProps={{ htmlInput: { "aria-label": "メッセージを入力" } }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "20px",
+              bgcolor: colors.surface.light,
+            },
+            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+          }}
+          {...register("body", {
+            validate: (value) =>
+              value.trim() !== "" || "メッセージを入力してください",
+            maxLength: {
+              value: MESSAGE_MAX_LENGTH,
+              message: `メッセージは${MESSAGE_MAX_LENGTH}文字以内で入力してください`,
+            },
+          })}
+          error={!!errors.body}
+          helperText={errors.body?.message}
+        />
+        <IconButton
           type="submit"
-          variant="contained"
-          endIcon={<SendIcon />}
+          aria-label="送信"
+          color="primary"
           disabled={isSubmitting}
+          sx={{ flex: "none", mb: errors.body ? 3 : 0 }}
         >
-          送信
-        </Button>
+          <SendIcon />
+        </IconButton>
       </Box>
     </Box>
   );
