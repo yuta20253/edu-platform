@@ -1,5 +1,5 @@
-import { BackendUnauthorizedError } from "@/libs/server/backend/error";
 import { backendFetch } from "@/libs/server/backend/fetch";
+import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -18,7 +18,7 @@ export async function GET(
 
   try {
     const { data, status, setCookie } = await backendFetch(
-      `/api/v1/teacher/students/${studentId}`,
+      `/api/v1/teacher/students/${studentId}${queryString ? `?${queryString}` : ""}`,
     );
 
     const res = NextResponse.json(data, { status });
@@ -27,13 +27,6 @@ export async function GET(
 
     return res;
   } catch (error) {
-    if (error instanceof BackendUnauthorizedError) {
-      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
-    }
-
-    return NextResponse.json(
-      { message: "INTERNAL_SERVER_ERROR" },
-      { status: 500 },
-    );
+    return handleBackendRouteError(error, "生徒情報の取得に失敗しました");
   }
 }
