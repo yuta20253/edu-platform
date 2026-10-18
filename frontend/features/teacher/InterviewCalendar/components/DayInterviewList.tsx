@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import Link from "next/link";
 import { colors } from "@/app/theme/colors";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -11,7 +11,6 @@ import {
 } from "@/constants/interview_request";
 import { formatDayLabelWithWeekday } from "@/libs/calendar/calendarFormat";
 import { formatInterviewTime, interviewDetailHref } from "../calendarUtils";
-import { cardSx } from "../constants";
 import type { ScheduledInterview } from "../types";
 
 type Props = {
@@ -32,7 +31,10 @@ export const DayInterviewList = ({ date, interviews }: Props) => {
         {formatDayLabelWithWeekday(date)}の面談
       </Typography>
 
-      <Box sx={{ ...cardSx, overflow: "hidden" }}>
+      <Card
+        elevation={0}
+        sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
+      >
         {interviews.length === 0 ? (
           <Box
             sx={{
@@ -101,7 +103,7 @@ export const DayInterviewList = ({ date, interviews }: Props) => {
             </Box>
           ))
         )}
-      </Box>
+      </Card>
     </Box>
   );
 };

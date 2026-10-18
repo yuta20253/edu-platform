@@ -1,13 +1,18 @@
 "use client";
 
-import { Box, ButtonBase, LinearProgress, Typography } from "@mui/material";
+import {
+  Box,
+  ButtonBase,
+  Card,
+  LinearProgress,
+  Typography,
+} from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { isSameDay, isSameMonth } from "date-fns";
 import { colors } from "@/app/theme/colors";
 import { formatDayLabel, toDateKey } from "@/libs/calendar/calendarFormat";
 import { buildMonthWeeks } from "@/libs/calendar/monthGrid";
 import { formatInterviewTime } from "../calendarUtils";
-import { cardSx } from "../constants";
 import type { ScheduledInterview } from "../types";
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
@@ -40,7 +45,10 @@ export const CalendarGrid = ({
   const weeks = buildMonthWeeks(month);
 
   return (
-    <Box sx={{ ...cardSx, overflow: "hidden" }}>
+    <Card
+      elevation={0}
+      sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
+    >
       <Box sx={{ height: 4 }}>{isLoading && <LinearProgress />}</Box>
 
       <Box
@@ -179,6 +187,6 @@ export const CalendarGrid = ({
           })}
         </Box>
       ))}
-    </Box>
+    </Card>
   );
 };

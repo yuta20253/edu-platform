@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
 import { getFetchRange, getThisMonth } from "@/libs/calendar/monthGrid";
 import { isScheduled } from "../calendarUtils";
-import type { InterviewCalendarResponse, ScheduledInterview } from "../types";
+import type { InterviewCalendarData, ScheduledInterview } from "../types";
 
 export const useInterviewCalendar = () => {
   // 今日と表示月はブラウザでの描画後に決める。サーバー(例: UTC)とブラウザ(JST)で
@@ -41,7 +41,7 @@ export const useInterviewCalendar = () => {
     setInterviews([]);
 
     apiClient
-      .get<InterviewCalendarResponse>("/api/teacher/calendar", {
+      .get<InterviewCalendarData>("/api/teacher/calendar", {
         params: getFetchRange(month),
         signal: controller.signal,
       })

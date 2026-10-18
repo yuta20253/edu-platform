@@ -2,7 +2,7 @@ import type { InterviewRequest } from "@/types/interview/interviewRequest";
 import type { PaginationMeta } from "@/types/common/pagination";
 
 // GET /api/teacher/calendar のレスポンス(バックエンドの教員面談一覧APIをそのまま返す)
-export type InterviewCalendarResponse = {
+export type InterviewCalendarData = {
   interview_requests: InterviewRequest[];
   meta: PaginationMeta;
 };
