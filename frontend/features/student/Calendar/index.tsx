@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress } from "@mui/material";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { toMonthKey } from "./calendarFormat";
+import { toMonthKey } from "@/libs/calendar/calendarFormat";
 import { useCalendar } from "./hooks/useCalendar";
 import { Presenter } from "./Presenter";
 

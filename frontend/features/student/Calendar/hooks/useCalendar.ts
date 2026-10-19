@@ -5,7 +5,7 @@ import { addMonths, subMonths } from "date-fns";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import { getFetchRange, getThisMonth } from "../calendarUtils";
+import { getFetchRange, getThisMonth } from "@/libs/calendar/monthGrid";
 import { CALENDAR_EVENT_TYPES, type CalendarEvent } from "../types";
 
 // バックエンド側で種別が追加されても、表示定義の無い種別で画面がクラッシュしないよう除外する
