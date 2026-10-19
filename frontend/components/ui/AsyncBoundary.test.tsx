@@ -44,4 +44,19 @@ describe("AsyncBoundary", () => {
       screen.queryByRole("button", { name: "再試行" }),
     ).not.toBeInTheDocument();
   });
+
+  it("dataもerrorもなければスピナーを表示しchildrenは呼ばない", () => {
+    const children = vi.fn(() => <div>成功</div>);
+    render(<AsyncBoundary data={null}>{children}</AsyncBoundary>);
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(children).not.toHaveBeenCalled();
+  });
+
+  it("dataがundefinedでもスピナーを表示する", () => {
+    render(
+      <AsyncBoundary data={undefined}>{() => <div>成功</div>}</AsyncBoundary>,
+    );
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
 });
