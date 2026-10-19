@@ -59,4 +59,58 @@ describe("AsyncBoundary", () => {
     );
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
+
+  it("dataがあればchildrenにdataを渡して成功表示にする", () => {
+    render(
+      <AsyncBoundary data={{ name: "山田" }}>
+        {(data) => <div>{data.name}</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("山田")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("0や空配列などfalsyなdataもローディングにせず成功表示にする", () => {
+    const { rerender } = render(
+      <AsyncBoundary data={0}>
+        {(data) => <div>件数:{data}</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("件数:0")).toBeInTheDocument();
+
+    rerender(
+      <AsyncBoundary data={[] as string[]}>
+        {(data) => <div>要素数:{data.length}</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("要素数:0")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+  });
+
+  it("再取得中もdataが残っていれば前回の内容を表示し続ける", () => {
+    const { rerender } = render(
+      <AsyncBoundary data={{ page: 1 }}>
+        {(data) => <div>ページ{data.page}</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("ページ1")).toBeInTheDocument();
+
+    // 再取得中: dataは前回のまま、errorもない
+    rerender(
+      <AsyncBoundary data={{ page: 1 }} error={false}>
+        {(data) => <div>ページ{data.page}</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("ページ1")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+
+    // 取得完了: 新しいdataに切り替わる
+    rerender(
+      <AsyncBoundary data={{ page: 2 }}>
+        {(data) => <div>ページ{data.page}</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("ページ2")).toBeInTheDocument();
+  });
 });
