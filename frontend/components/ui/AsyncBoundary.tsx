@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Box, CircularProgress } from "@mui/material";
 import { ErrorState } from "./ErrorState";
 
 type Props<T> = {
@@ -21,5 +22,22 @@ export const AsyncBoundary = <T,>({
     return <ErrorState onRetry={onRetry} />;
   }
 
-  return <>{children(data as T)}</>;
+  // data も error もない状態をローディングとみなす(loading フラグに依存しない)。
+  // 0 や [] は有効な data なので、null / undefined だけで判定する。
+  if (data === null || data === undefined) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 240,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return <>{children(data)}</>;
 };
