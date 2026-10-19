@@ -11,10 +11,13 @@ vi.mock("@/libs/server/backend/fetch", () => ({
   backendFetch: vi.fn(),
 }));
 
-const get = (query: string) =>
-  GET(new NextRequest(`http://localhost/api/teacher/students/1${query}`), {
-    params: Promise.resolve({ studentId: "1" }),
-  });
+const get = (query: string, studentId = "1") =>
+  GET(
+    new NextRequest(
+      `http://localhost/api/teacher/students/${studentId}${query}`,
+    ),
+    { params: Promise.resolve({ studentId }) },
+  );
 
 describe("GET /api/teacher/students/:studentId", () => {
   beforeEach(() => {
@@ -43,6 +46,20 @@ describe("GET /api/teacher/students/:studentId", () => {
     expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/teacher/students/1?tab=tasks&page=2",
     );
+  });
+
+  it("studentId が数値でないときは 400 を返し、バックエンドへ問い合わせない", async () => {
+    const res = await get("", "abc");
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+    expect(backendFetch).not.toHaveBeenCalled();
+  });
+
+  it("tab が profile / goals / tasks 以外のときは 400 を返し、バックエンドへ問い合わせない", async () => {
+    const res = await get("?tab=unknown");
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 
   it("バックエンドのレスポンスをそのまま返す", async () => {

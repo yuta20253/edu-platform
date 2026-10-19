@@ -1,5 +1,7 @@
 import { backendFetch } from "@/libs/server/backend/fetch";
 import { handleBackendRouteError } from "@/libs/server/backend/handleRouteError";
+import { isNumericId } from "@/libs/server/routeParams";
+import { isStudentDetailTab } from "@/features/teacher/StudentDetail/types";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -10,6 +12,11 @@ export async function GET(
   const { searchParams } = req.nextUrl;
   const tab = searchParams.get("tab");
   const page = searchParams.get("page");
+
+  // studentId は数値ID、tab は既知の値のみ許容。不正値は バックエンドへ問い合わせる前に弾く
+  if (!isNumericId(studentId) || (tab && !isStudentDetailTab(tab))) {
+    return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
+  }
 
   const query = new URLSearchParams();
   if (tab) query.set("tab", tab);

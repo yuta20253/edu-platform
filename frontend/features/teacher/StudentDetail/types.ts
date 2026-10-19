@@ -33,7 +33,12 @@ export type Student = {
   };
 };
 
-export type StudentDetailTab = "profile" | "goals" | "tasks";
+const STUDENT_DETAIL_TABS = ["profile", "goals", "tasks"] as const;
+
+export type StudentDetailTab = (typeof STUDENT_DETAIL_TABS)[number];
+
+export const isStudentDetailTab = (value: string): value is StudentDetailTab =>
+  (STUDENT_DETAIL_TABS as readonly string[]).includes(value);
 
 type StudentSummary = {
   id: number;
