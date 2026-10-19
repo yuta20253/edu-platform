@@ -136,7 +136,7 @@ describe("AsyncBoundary", () => {
       expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     });
 
-    it("skeletonPropsで行数・列数・行数(カード)を変更できる", () => {
+    it("skeletonPropsでテーブルの行数・列数とカードの行数を変更できる", () => {
       const { unmount } = render(
         <AsyncBoundary
           data={null}
