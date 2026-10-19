@@ -65,23 +65,13 @@ export const Presenter = ({
             {studentName.charAt(0)}
           </Avatar>
 
-          <Box>
-            <Typography
-              variant="caption"
-              fontWeight={600}
-              sx={{ display: "block", color: colors.text.muted }}
-            >
-              生徒詳細
-            </Typography>
-
-            <Typography
-              variant="h5"
-              fontWeight={700}
-              sx={{ color: colors.text.primary }}
-            >
-              {studentName}
-            </Typography>
-          </Box>
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            sx={{ color: colors.text.primary }}
+          >
+            {studentName}
+          </Typography>
         </Box>
 
         <Button

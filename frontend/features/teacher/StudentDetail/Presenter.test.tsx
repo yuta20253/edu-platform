@@ -159,8 +159,9 @@ describe("StudentDetailPresenter", () => {
         tab: "goals",
         data: { tab: "goals", data: mockGoalsData },
       });
-      expect(screen.getByText("生徒詳細")).toBeInTheDocument();
-      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "山田太郎" }),
+      ).toBeInTheDocument();
     });
 
     it("ヘッダーに生徒名の頭文字のアバターが表示される", () => {
