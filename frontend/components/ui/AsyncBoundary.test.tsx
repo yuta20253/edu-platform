@@ -113,4 +113,63 @@ describe("AsyncBoundary", () => {
     );
     expect(screen.getByText("ページ2")).toBeInTheDocument();
   });
+
+  describe("fallback", () => {
+    it("card-skeletonを指定するとカードのスケルトンを表示しスピナーは出さない", () => {
+      render(
+        <AsyncBoundary data={null} fallback="card-skeleton">
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(document.querySelectorAll(".MuiSkeleton-root")).toHaveLength(3);
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("table-skeletonを指定するとテーブルのスケルトンを表示しスピナーは出さない", () => {
+      render(
+        <AsyncBoundary data={null} fallback="table-skeleton">
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getByRole("table")).toBeInTheDocument();
+      expect(screen.getAllByRole("row")).toHaveLength(5);
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("skeletonPropsで行数・列数・行数(カード)を変更できる", () => {
+      const { unmount } = render(
+        <AsyncBoundary
+          data={null}
+          fallback="table-skeleton"
+          skeletonProps={{ rows: 2, columns: 3 }}
+        >
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getAllByRole("row")).toHaveLength(2);
+      expect(document.querySelectorAll(".MuiSkeleton-root")).toHaveLength(6);
+      unmount();
+
+      render(
+        <AsyncBoundary
+          data={null}
+          fallback="card-skeleton"
+          skeletonProps={{ lines: 5 }}
+        >
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(document.querySelectorAll(".MuiSkeleton-root")).toHaveLength(5);
+    });
+
+    it("errorがあればfallbackに関わらずエラー表示を優先する", () => {
+      render(
+        <AsyncBoundary data={null} error={true} fallback="table-skeleton">
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    });
+  });
 });
