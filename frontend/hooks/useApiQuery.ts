@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
@@ -15,6 +15,7 @@ type Options = {
 export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
   // params は呼び出し側がリテラルで渡しても再取得が走り続けないよう、値で比較する
   const paramsKey = JSON.stringify(options.params ?? null);
@@ -44,7 +45,9 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
       });
 
     return () => controller.abort();
-  }, [url, paramsKey, router]);
+  }, [url, paramsKey, reloadKey, router]);
 
-  return { data, error };
+  const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
+
+  return { data, error, refetch };
 };
