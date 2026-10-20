@@ -19,7 +19,8 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
 
     apiClient
       .get<T>(url, { params, signal: controller.signal })
-      .then((res) => setData(res.data));
+      .then((res) => setData(res.data))
+      .catch(() => setError(true));
   }, [url, params]);
 
   return { data, error };
