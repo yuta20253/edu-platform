@@ -52,4 +52,15 @@ describe("useApiQuery", () => {
     expect(result.current.data).toBeNull();
     expect(pushMock).not.toHaveBeenCalled();
   });
+
+  it("401のときは/loginに遷移しエラー表示にはしない", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 401 },
+    });
+    const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+    expect(result.current.error).toBe(false);
+    expect(result.current.data).toBeNull();
+  });
 });
