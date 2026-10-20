@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
 import { extractApiError } from "@/libs/http/extractApiError";
@@ -22,8 +23,13 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
 
     apiClient
       .get<T>(url, { params, signal: controller.signal })
-      .then((res) => setData(res.data))
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setData(res.data);
+      })
       .catch((err) => {
+        // 中断されたリクエストの結果は、新しい表示を上書きしないよう無視する
+        if (axios.isCancel(err) || controller.signal.aborted) return;
         if (extractApiError(err).status === 401) {
           router.push("/login");
           return;
@@ -31,6 +37,8 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
 
         setError(true);
       });
+
+    return () => controller.abort();
   }, [url, params, router]);
 
   return { data, error };
