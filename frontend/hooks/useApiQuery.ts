@@ -12,6 +12,10 @@ type Options = {
 
 // データ取得の状態を data と error だけで表す。loading フラグは持たず、
 // 「data がなく error もない」状態をローディングとみなす(AsyncBoundary と組み合わせる)。
+// 再取得中(url・params の変更、refetch)は前回の data を残す。ページや絞り込みの
+// 切替では望ましい動作だが、url 自体が別の対象に変わる場合(例: /items/1 → /items/2)も
+// 新しい data が届くまで前の対象の内容が残る。その場合は呼び出し側で key を変えて
+// コンポーネントごと作り直すなど、前の内容を見せない工夫をすること。
 export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(false);
