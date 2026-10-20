@@ -194,5 +194,39 @@ describe("useApiQuery", () => {
 
       await waitFor(() => expect(result.current.error).toBe(false));
     });
+
+    it("refetchで手動再取得でき、取得中も前回のdataを残す", async () => {
+      let resolveSecond: (value: { data: Item }) => void = () => {};
+      vi.mocked(apiClient.get)
+        .mockResolvedValueOnce({ data: { id: 1 } })
+        .mockReturnValueOnce(
+          new Promise((resolve) => {
+            resolveSecond = resolve;
+          }),
+        );
+      const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      act(() => result.current.refetch());
+      await flushPromises();
+      expect(apiClient.get).toHaveBeenCalledTimes(2);
+      expect(result.current.data).toEqual({ id: 1 });
+
+      resolveSecond({ data: { id: 2 } });
+      await waitFor(() => expect(result.current.data).toEqual({ id: 2 }));
+    });
+
+    it("失敗後にrefetchするとerrorを解除して再取得する", async () => {
+      vi.mocked(apiClient.get)
+        .mockRejectedValueOnce({ response: { status: 500 } })
+        .mockResolvedValueOnce({ data: { id: 1 } });
+      const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+      await waitFor(() => expect(result.current.error).toBe(true));
+
+      act(() => result.current.refetch());
+
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+      expect(result.current.error).toBe(false);
+    });
   });
 });
