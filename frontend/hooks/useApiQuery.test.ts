@@ -130,4 +130,69 @@ describe("useApiQuery", () => {
       expect(result.current.error).toBe(false);
     });
   });
+
+  describe("再取得", () => {
+    it("paramsの値が同じなら新しいオブジェクトを渡しても再取得しない", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: { id: 1 } });
+      const { result, rerender } = renderHook(() =>
+        useApiQuery<Item>("/api/items", { params: { page: 1 } }),
+      );
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      rerender();
+      await flushPromises();
+
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
+    });
+
+    it("paramsの値が変わると自動で再取得する", async () => {
+      vi.mocked(apiClient.get)
+        .mockResolvedValueOnce({ data: { id: 1 } })
+        .mockResolvedValueOnce({ data: { id: 2 } });
+      const { result, rerender } = renderHook(
+        ({ page }) => useApiQuery<Item>("/api/items", { params: { page } }),
+        { initialProps: { page: 1 } },
+      );
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      rerender({ page: 2 });
+
+      await waitFor(() => expect(result.current.data).toEqual({ id: 2 }));
+      expect(apiClient.get).toHaveBeenLastCalledWith("/api/items", {
+        params: { page: 2 },
+        signal: expect.any(AbortSignal),
+      });
+    });
+
+    it("再取得中は前回のdataを残す", async () => {
+      vi.mocked(apiClient.get)
+        .mockResolvedValueOnce({ data: { id: 1 } })
+        .mockReturnValueOnce(new Promise(() => {}));
+      const { result, rerender } = renderHook(
+        ({ page }) => useApiQuery<Item>("/api/items", { params: { page } }),
+        { initialProps: { page: 1 } },
+      );
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      rerender({ page: 2 });
+      await flushPromises();
+
+      expect(result.current.data).toEqual({ id: 1 });
+    });
+
+    it("再取得の開始時にerrorを消す", async () => {
+      vi.mocked(apiClient.get)
+        .mockRejectedValueOnce({ response: { status: 500 } })
+        .mockReturnValueOnce(new Promise(() => {}));
+      const { result, rerender } = renderHook(
+        ({ page }) => useApiQuery<Item>("/api/items", { params: { page } }),
+        { initialProps: { page: 1 } },
+      );
+      await waitFor(() => expect(result.current.error).toBe(true));
+
+      rerender({ page: 2 });
+
+      await waitFor(() => expect(result.current.error).toBe(false));
+    });
+  });
 });
