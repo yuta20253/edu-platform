@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 
 type Options = {
   params?: Record<string, unknown>;
@@ -13,6 +15,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(false);
   const { params } = options;
+  const router = useRouter();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -20,8 +23,15 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
     apiClient
       .get<T>(url, { params, signal: controller.signal })
       .then((res) => setData(res.data))
-      .catch(() => setError(true));
-  }, [url, params]);
+      .catch((err) => {
+        if (extractApiError(err).status === 401) {
+          router.push("/login");
+          return;
+        }
+
+        setError(true);
+      });
+  }, [url, params, router]);
 
   return { data, error };
 };
