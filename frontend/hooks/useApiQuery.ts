@@ -15,11 +15,16 @@ type Options = {
 export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(false);
-  const { params } = options;
   const router = useRouter();
+  // params は呼び出し側がリテラルで渡しても再取得が走り続けないよう、値で比較する
+  const paramsKey = JSON.stringify(options.params ?? null);
 
   useEffect(() => {
     const controller = new AbortController();
+    const params = JSON.parse(paramsKey) ?? undefined;
+
+    // 再取得の開始時は error だけ消し、data は残す(画面が空にならない)
+    setError(false);
 
     apiClient
       .get<T>(url, { params, signal: controller.signal })
@@ -39,7 +44,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
       });
 
     return () => controller.abort();
-  }, [url, params, router]);
+  }, [url, paramsKey, router]);
 
   return { data, error };
 };
