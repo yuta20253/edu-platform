@@ -41,4 +41,15 @@ describe("useApiQuery", () => {
       signal: expect.any(AbortSignal),
     });
   });
+
+  it("401以外で失敗するとerrorがtrueになりdataはnullのまま、遷移しない", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 500 },
+    });
+    const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.data).toBeNull();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
 });
