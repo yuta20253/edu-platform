@@ -1,6 +1,10 @@
 // 順位だけは教科・コース・単元を選んで1種類ずつ表示する
 export type RankType = "course_rank" | "unit_rank";
 
+export type RankParams =
+  | { type: "course_rank"; course_id: string }
+  | { type: "unit_rank"; course_id: string; unit_id: string };
+
 export type TaskCompletionData = {
   completed_count: number;
   total_count: number;

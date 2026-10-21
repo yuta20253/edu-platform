@@ -2,7 +2,7 @@
 
 import { Box } from "@mui/material";
 import { Presenter } from "./Presenter";
-import { useAnalytics } from "./hooks/useAnalytics";
+import { useRankSelection } from "./hooks/useRankSelection";
 import { useAnalyticsSummary } from "./hooks/useAnalyticsSummary";
 import { useCumulativeAnalytics } from "./hooks/useCumulativeAnalytics";
 import { usePeriodQuery } from "./hooks/usePeriodQuery";
@@ -22,7 +22,7 @@ export const Analytics = () => {
     understandingScore,
     loading: cumulativeLoading,
   } = useCumulativeAnalytics();
-  const rank = useAnalytics();
+  const rank = useRankSelection();
 
   return (
     <Presenter
@@ -49,14 +49,7 @@ export const Analytics = () => {
             courses={rank.courses}
             units={rank.units}
           />
-          <AnalyticsContent
-            type={rank.type}
-            data={rank.data}
-            courseId={rank.courseId}
-            unitId={rank.unitId}
-            loading={rank.loading}
-            error={rank.error}
-          />
+          <AnalyticsContent type={rank.type} params={rank.params} />
         </Box>
       }
     />
