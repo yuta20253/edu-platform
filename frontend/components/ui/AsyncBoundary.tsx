@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { Box, CircularProgress, Table } from "@mui/material";
 import { CardSkeleton } from "./CardSkeleton";
 import { ErrorState } from "./ErrorState";
@@ -22,8 +22,8 @@ type Props<T> = {
   onRetry?: () => void;
   // エラー表示のメッセージ。省略時は ErrorState のデフォルト文言。
   errorMessage?: string;
-  // ローディング表示の種類。デフォルトはスピナー。
-  fallback?: Fallback;
+  // ローディング表示。種類(デフォルトはスピナー)か、画面固有のスケルトン要素を渡す。
+  fallback?: Fallback | ReactElement;
   skeletonProps?: SkeletonProps;
   children: (data: T) => ReactNode;
 };
@@ -32,9 +32,13 @@ const Loading = ({
   fallback,
   skeletonProps,
 }: {
-  fallback: Fallback;
+  fallback: Fallback | ReactElement;
   skeletonProps?: SkeletonProps;
 }) => {
+  if (typeof fallback === "object") {
+    return fallback;
+  }
+
   if (fallback === "card-skeleton") {
     return <CardSkeleton lines={skeletonProps?.lines} />;
   }
