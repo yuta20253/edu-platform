@@ -1,25 +1,15 @@
 "use client";
 
-import { useApiQuery } from "@/hooks/useApiQuery";
 import { Presenter } from "./Presenter";
-import { ANALYTICS_URL } from "./constants";
 import { useFetchAnalyticsSummary } from "./hooks/useFetchAnalyticsSummary";
+import { useFetchCumulativeAnalytics } from "./hooks/useFetchCumulativeAnalytics";
 import { useFetchRank } from "./hooks/useFetchRank";
 import { usePeriodQuery } from "./hooks/usePeriodQuery";
-import { GradeAverageData, UnderstandingScoreData } from "./types";
 
 export const Analytics = () => {
   const { period, setPeriod } = usePeriodQuery();
   const summary = useFetchAnalyticsSummary(period);
-  // 学年平均・理解度はバックエンドが期間を受け取らない累計の集計なので、
-  // 期間チップとは連動させず、画面を開いたときに取得する
-  const gradeAverage = useApiQuery<GradeAverageData>(ANALYTICS_URL, {
-    params: { type: "grade_average" },
-  });
-  const understandingScore = useApiQuery<UnderstandingScoreData>(
-    ANALYTICS_URL,
-    { params: { type: "understanding_score" } },
-  );
+  const { gradeAverage, understandingScore } = useFetchCumulativeAnalytics();
   const rank = useFetchRank();
 
   return (
