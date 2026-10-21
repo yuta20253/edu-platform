@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box } from "@mui/material";
-import { CardSkeleton } from "@/components/ui/CardSkeleton";
-import { ErrorState } from "@/components/ui/ErrorState";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useToast } from "@/components/ui/ToastProvider";
 import { apiClient } from "@/libs/http/apiClient";
 import { Presenter } from "./Presenter";
@@ -65,26 +63,24 @@ export const Schools = () => {
     setPage(1);
   };
 
-  if (!data) {
-    if (error) {
-      return <ErrorState onRetry={() => setReloadKey((prev) => prev + 1)} />;
-    }
-
-    return (
-      <Box sx={{ p: 3 }}>
-        <CardSkeleton lines={5} />
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
+    <AsyncBoundary
       data={data}
-      prefectures={prefectures}
-      selectedPrefectureId={selectedPrefectureId}
-      page={page}
-      onPrefectureChange={handlePrefectureChange}
-      onPageChange={setPage}
-    />
+      error={error}
+      onRetry={() => setReloadKey((prev) => prev + 1)}
+      fallback="card-skeleton"
+      skeletonProps={{ lines: 5 }}
+    >
+      {(schools) => (
+        <Presenter
+          data={schools}
+          prefectures={prefectures}
+          selectedPrefectureId={selectedPrefectureId}
+          page={page}
+          onPrefectureChange={handlePrefectureChange}
+          onPageChange={setPage}
+        />
+      )}
+    </AsyncBoundary>
   );
 };
