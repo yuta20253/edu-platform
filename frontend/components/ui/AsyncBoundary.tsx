@@ -40,7 +40,12 @@ const Loading = ({
   }
 
   if (fallback === "card-skeleton") {
-    return <CardSkeleton lines={skeletonProps?.lines} />;
+    // ErrorState と同じ余白(p: 3)で包み、エラー表示と切り替わっても位置がずれないようにする
+    return (
+      <Box sx={{ p: 3 }}>
+        <CardSkeleton lines={skeletonProps?.lines} />
+      </Box>
+    );
   }
 
   if (fallback === "table-skeleton") {
