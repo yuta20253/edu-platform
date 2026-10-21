@@ -87,4 +87,29 @@ describe("Dashboard", () => {
     expect(screen.getByText("ダッシュボード")).toBeInTheDocument();
     expect(screen.getByText("120")).toBeInTheDocument();
   });
+
+  it("再取得中(loading)でも前回のデータがあれば内容を表示し続ける", () => {
+    vi.mocked(useFetchDashboard).mockReturnValue({
+      data: mockData,
+      loading: true,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<Dashboard />);
+    expect(screen.getByText("120")).toBeInTheDocument();
+    expect(screen.queryByTestId("kpi-card-skeleton")).not.toBeInTheDocument();
+  });
+
+  it("dataもerrorもなければloadingがfalseでも空白にせずスケルトンを表示する", () => {
+    vi.mocked(useFetchDashboard).mockReturnValue({
+      data: null,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<Dashboard />);
+    expect(screen.getAllByTestId("kpi-card-skeleton")).toHaveLength(4);
+  });
 });
