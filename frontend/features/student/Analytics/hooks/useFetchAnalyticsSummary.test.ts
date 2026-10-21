@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import type { AnalyticsSummary } from "../types";
-import { useAnalyticsSummary } from "./useAnalyticsSummary";
+import { useFetchAnalyticsSummary } from "./useFetchAnalyticsSummary";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -20,14 +20,14 @@ const period = { from: "2026-10-12", to: "2026-10-18" };
 const httpError = (status: number, data: unknown = {}) =>
   Object.assign(new Error(`status ${status}`), { response: { status, data } });
 
-describe("useAnalyticsSummary", () => {
+describe("useFetchAnalyticsSummary", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(apiClient.get).mockResolvedValue({ data: summary });
   });
 
   it("期間を指定して summary を取得する", async () => {
-    const { result } = renderHook(() => useAnalyticsSummary(period));
+    const { result } = renderHook(() => useFetchAnalyticsSummary(period));
 
     // data も error もない間がローディング
     expect(result.current.data).toBeNull();
@@ -42,7 +42,7 @@ describe("useAnalyticsSummary", () => {
 
   it("期間が空のときはクエリを付けずに取得する(バックエンドの既定値で集計する)", async () => {
     const { result } = renderHook(() =>
-      useAnalyticsSummary({ from: "", to: "" }),
+      useFetchAnalyticsSummary({ from: "", to: "" }),
     );
     await waitFor(() => expect(result.current.data).toEqual(summary));
 
@@ -63,7 +63,7 @@ describe("useAnalyticsSummary", () => {
       .mockResolvedValueOnce({ data: newSummary });
 
     const { result, rerender } = renderHook(
-      ({ current }) => useAnalyticsSummary(current),
+      ({ current }) => useFetchAnalyticsSummary(current),
       { initialProps: { current: period } },
     );
     const firstSignal = vi.mocked(apiClient.get).mock.calls[0][1]
@@ -80,7 +80,7 @@ describe("useAnalyticsSummary", () => {
 
   it("401 のときはログイン画面へ遷移する", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(httpError(401));
-    renderHook(() => useAnalyticsSummary(period));
+    renderHook(() => useFetchAnalyticsSummary(period));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
@@ -89,7 +89,7 @@ describe("useAnalyticsSummary", () => {
     vi.mocked(apiClient.get).mockRejectedValue(
       httpError(422, { errors: ["取得期間は366日以内で指定してください"] }),
     );
-    const { result } = renderHook(() => useAnalyticsSummary(period));
+    const { result } = renderHook(() => useFetchAnalyticsSummary(period));
     await waitFor(() =>
       expect(result.current.validationErrors).not.toEqual([]),
     );
@@ -103,7 +103,7 @@ describe("useAnalyticsSummary", () => {
 
   it("422 でメッセージが無いときは代わりの文言を返す", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(httpError(422));
-    const { result } = renderHook(() => useAnalyticsSummary(period));
+    const { result } = renderHook(() => useFetchAnalyticsSummary(period));
 
     await waitFor(() =>
       expect(result.current.validationErrors).toEqual([
@@ -117,7 +117,7 @@ describe("useAnalyticsSummary", () => {
       .mockRejectedValueOnce(httpError(422, { errors: ["エラー"] }))
       .mockResolvedValueOnce({ data: summary });
     const { result, rerender } = renderHook(
-      ({ current }) => useAnalyticsSummary(current),
+      ({ current }) => useFetchAnalyticsSummary(current),
       { initialProps: { current: period } },
     );
     await waitFor(() =>
@@ -131,7 +131,7 @@ describe("useAnalyticsSummary", () => {
 
   it("それ以外のエラーのときは error を返す", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(httpError(500));
-    const { result } = renderHook(() => useAnalyticsSummary(period));
+    const { result } = renderHook(() => useFetchAnalyticsSummary(period));
     await waitFor(() => expect(result.current.error).toBe(true));
 
     expect(result.current.data).toBeNull();
@@ -140,7 +140,7 @@ describe("useAnalyticsSummary", () => {
 
   it("期間を切り替えている間は前の期間の data を残し、refreshing を返す", async () => {
     const { result, rerender } = renderHook(
-      ({ current }) => useAnalyticsSummary(current),
+      ({ current }) => useFetchAnalyticsSummary(current),
       { initialProps: { current: period } },
     );
     await waitFor(() => expect(result.current.data).toEqual(summary));
@@ -157,7 +157,7 @@ describe("useAnalyticsSummary", () => {
     vi.mocked(apiClient.get)
       .mockRejectedValueOnce(httpError(500))
       .mockResolvedValueOnce({ data: summary });
-    const { result } = renderHook(() => useAnalyticsSummary(period));
+    const { result } = renderHook(() => useFetchAnalyticsSummary(period));
     await waitFor(() => expect(result.current.error).toBe(true));
 
     act(() => {

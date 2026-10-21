@@ -12,7 +12,7 @@ const FALLBACK_VALIDATION_MESSAGE = "指定した期間では集計できませ�
 
 // 422 を見分けてチップの直下に出す必要があるため、useApiQuery は使わずに取得する。
 // 表示の考え方(loading フラグを持たない・401 は /login)は useApiQuery に揃える
-export const useAnalyticsSummary = ({ from, to }: AnalyticsPeriod) => {
+export const useFetchAnalyticsSummary = ({ from, to }: AnalyticsPeriod) => {
   // どの期間の結果かを一緒に持ち、期間の切替中(前の期間の結果を表示中)を判定する
   const [result, setResult] = useState<{
     periodKey: string;

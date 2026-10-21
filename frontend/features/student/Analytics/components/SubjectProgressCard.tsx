@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { colors } from "@/app/theme/colors";
 import { rateTrend } from "../formatters";

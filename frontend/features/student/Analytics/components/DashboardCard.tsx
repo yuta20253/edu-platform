@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Typography } from "@mui/material";
 import { ReactNode, useId } from "react";
 import { colors } from "@/app/theme/colors";

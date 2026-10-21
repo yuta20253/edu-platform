@@ -2,7 +2,12 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
-import type { AnalyticsSummary, SummaryState } from "./types";
+import type {
+  AnalyticsSummary,
+  GradeAverageData,
+  RankData,
+  UnderstandingScoreData,
+} from "./types";
 
 const summary: AnalyticsSummary = {
   streak_days: 5,
@@ -26,38 +31,38 @@ const summary: AnalyticsSummary = {
   },
 };
 
-const summaryProps: SummaryState = {
-  data: summary,
-  refreshing: false,
-  error: false,
-  validationErrors: [],
-  refetch: vi.fn(),
-};
-
 const baseProps = {
   period: { from: "", to: "" },
   onPeriodChange: vi.fn(),
-  summary: summaryProps,
+  summary: summary as AnalyticsSummary | null,
+  summaryRefreshing: false,
+  summaryError: false,
+  validationErrors: [] as string[],
+  onSummaryRetry: vi.fn(),
   gradeAverage: {
-    data: {
-      correct_rate: { my: 60, average: 55 },
-      task_completion_rate: { my: 50, average: 45 },
-    },
-    error: false,
-    refetch: vi.fn(),
-  },
-  understandingScore: {
-    data: { subjects: [] },
-    error: false,
-    refetch: vi.fn(),
-  },
-  rankSection: <div>順位の中身</div>,
+    correct_rate: { my: 60, average: 55 },
+    task_completion_rate: { my: 50, average: 45 },
+  } as GradeAverageData | null,
+  gradeAverageError: false,
+  onGradeAverageRetry: vi.fn(),
+  understandingScore: { subjects: [] } as UnderstandingScoreData | null,
+  understandingScoreError: false,
+  onUnderstandingScoreRetry: vi.fn(),
+  rankType: "course_rank" as const,
+  onRankTypeChange: vi.fn(),
+  rankSubject: null,
+  onRankSubjectChange: vi.fn(),
+  rankCourseId: null,
+  onRankCourseIdChange: vi.fn(),
+  rankUnitId: null,
+  onRankUnitIdChange: vi.fn(),
+  rankCourses: null,
+  rankUnits: [],
+  rankSelected: false,
+  rank: null as RankData | null,
+  rankError: false,
+  onRankRetry: vi.fn(),
 };
-
-const summaryState = (overrides: Partial<SummaryState>): SummaryState => ({
-  ...baseProps.summary,
-  ...overrides,
-});
 
 const regionNames = () =>
   screen
@@ -99,15 +104,31 @@ describe("AnalyticsPresenter", () => {
     );
   });
 
-  it("順位セクションに順位の中身を表示する", () => {
+  it("順位セクションに選択欄と、選択前の案内を表示する", () => {
     render(<Presenter {...baseProps} />);
+    const section = screen.getByRole("region", { name: "順位" });
+    expect(
+      within(section).getByRole("combobox", { name: "教科" }),
+    ).toBeInTheDocument();
+    expect(section).toHaveTextContent("教科とコースを選択してください");
+  });
+
+  it("順位を選び終えて取得できたら順位を表示する", () => {
+    render(
+      <Presenter
+        {...baseProps}
+        rankCourseId={1}
+        rankSelected
+        rank={{ rank: 3, total_users: 30 }}
+      />,
+    );
     expect(screen.getByRole("region", { name: "順位" })).toHaveTextContent(
-      "順位の中身",
+      "30人中 3位",
     );
   });
 
   it("summary を初めて取得している間はカードの代わりにローディングを表示する", () => {
-    render(<Presenter {...baseProps} summary={summaryState({ data: null })} />);
+    render(<Presenter {...baseProps} summary={null} />);
     expect(
       screen.queryByRole("region", { name: "連続学習日数" }),
     ).not.toBeInTheDocument();
@@ -115,9 +136,7 @@ describe("AnalyticsPresenter", () => {
   });
 
   it("期間を切り替えて再取得している間は前のカードを残し、取得中であることを示す", () => {
-    render(
-      <Presenter {...baseProps} summary={summaryState({ refreshing: true })} />,
-    );
+    render(<Presenter {...baseProps} summaryRefreshing />);
     expect(screen.getByTestId("summary-cards")).toHaveAttribute(
       "aria-busy",
       "true",
@@ -131,10 +150,8 @@ describe("AnalyticsPresenter", () => {
     render(
       <Presenter
         {...baseProps}
-        summary={summaryState({
-          data: null,
-          validationErrors: ["取得期間は366日以内で指定してください"],
-        })}
+        summary={null}
+        validationErrors={["取得期間は366日以内で指定してください"]}
       />,
     );
     expect(screen.getByRole("alert")).toHaveTextContent(
@@ -150,7 +167,9 @@ describe("AnalyticsPresenter", () => {
     render(
       <Presenter
         {...baseProps}
-        summary={summaryState({ data: null, error: true, refetch })}
+        summary={null}
+        summaryError
+        onSummaryRetry={refetch}
       />,
     );
     expect(screen.getByRole("alert")).toBeInTheDocument();
@@ -165,7 +184,9 @@ describe("AnalyticsPresenter", () => {
     render(
       <Presenter
         {...baseProps}
-        gradeAverage={{ data: null, error: true, refetch }}
+        gradeAverage={null}
+        gradeAverageError
+        onGradeAverageRetry={refetch}
       />,
     );
     const card = screen.getByRole("region", { name: "学年平均との比較" });
@@ -181,8 +202,8 @@ describe("AnalyticsPresenter", () => {
     render(
       <Presenter
         {...baseProps}
-        gradeAverage={{ ...baseProps.gradeAverage, data: null }}
-        understandingScore={{ ...baseProps.understandingScore, data: null }}
+        gradeAverage={null}
+        understandingScore={null}
       />,
     );
     expect(

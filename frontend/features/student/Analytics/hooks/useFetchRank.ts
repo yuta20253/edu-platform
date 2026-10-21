@@ -1,13 +1,14 @@
 "use client";
 
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { useCourses } from "@/hooks/useCourses";
 import { SubjectName } from "@/constants/subject";
 import { useState } from "react";
-import { RankParams, RankType } from "../types";
+import { ANALYTICS_URL } from "../constants";
+import { RankData, RankParams, RankType } from "../types";
 
-// 順位(コース内・単元内)を出すための教科→コース(→単元)の選択を持つ。
-// 選択が揃ったら params を返し、取得は表示側(AnalyticsContent)で行う
-export const useRankSelection = () => {
+// 順位(コース内・単元内)を取得する。教科→コース(→単元)を選び終えたら取得する
+export const useFetchRank = () => {
   const [type, setTypeState] = useState<RankType>("course_rank");
   const [subject, setSubjectState] = useState<SubjectName | null>(null);
   const [courseId, setCourseIdState] = useState<number | null>(null);
@@ -37,6 +38,12 @@ export const useRankSelection = () => {
   const units = selectedCourse?.units ?? [];
 
   const params = toRankParams(type, courseId, unitId);
+  const { data, error, refetch } = useApiQuery<RankData>(ANALYTICS_URL, {
+    params: params ?? undefined,
+    enabled: params !== null,
+    // 選択が変わると別の対象の順位になるため、前の順位を残さない
+    keepPreviousData: false,
+  });
 
   return {
     type,
@@ -49,7 +56,11 @@ export const useRankSelection = () => {
     setUnitId,
     courses,
     units,
-    params,
+    // 選択が揃っているか(揃うまでは案内メッセージを出す)
+    selected: params !== null,
+    data,
+    error,
+    refetch,
   };
 };
 

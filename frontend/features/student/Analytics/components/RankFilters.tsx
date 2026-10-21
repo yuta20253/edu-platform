@@ -32,7 +32,7 @@ type Props = {
   units: Unit[];
 };
 
-export const AnalyticsFilters = ({
+export const RankFilters = ({
   type,
   setType,
   subject,

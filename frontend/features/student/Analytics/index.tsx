@@ -1,20 +1,16 @@
 "use client";
 
-import { Box } from "@mui/material";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { Presenter } from "./Presenter";
-import { useAnalyticsSummary } from "./hooks/useAnalyticsSummary";
+import { ANALYTICS_URL } from "./constants";
+import { useFetchAnalyticsSummary } from "./hooks/useFetchAnalyticsSummary";
+import { useFetchRank } from "./hooks/useFetchRank";
 import { usePeriodQuery } from "./hooks/usePeriodQuery";
-import { useRankSelection } from "./hooks/useRankSelection";
-import { AnalyticsContent } from "./components/AnalyticsContent";
-import { AnalyticsFilters } from "./components/AnalyticsFilters";
 import { GradeAverageData, UnderstandingScoreData } from "./types";
-
-const ANALYTICS_URL = "/api/student/analytics";
 
 export const Analytics = () => {
   const { period, setPeriod } = usePeriodQuery();
-  const summary = useAnalyticsSummary(period);
+  const summary = useFetchAnalyticsSummary(period);
   // 学年平均・理解度はバックエンドが期間を受け取らない累計の集計なので、
   // 期間チップとは連動させず、画面を開いたときに取得する
   const gradeAverage = useApiQuery<GradeAverageData>(ANALYTICS_URL, {
@@ -24,32 +20,37 @@ export const Analytics = () => {
     ANALYTICS_URL,
     { params: { type: "understanding_score" } },
   );
-  const rank = useRankSelection();
+  const rank = useFetchRank();
 
   return (
     <Presenter
       period={period}
       onPeriodChange={setPeriod}
-      summary={summary}
-      gradeAverage={gradeAverage}
-      understandingScore={understandingScore}
-      rankSection={
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <AnalyticsFilters
-            type={rank.type}
-            setType={rank.setType}
-            subject={rank.subject}
-            setSubject={rank.setSubject}
-            courseId={rank.courseId}
-            setCourseId={rank.setCourseId}
-            unitId={rank.unitId}
-            setUnitId={rank.setUnitId}
-            courses={rank.courses}
-            units={rank.units}
-          />
-          <AnalyticsContent type={rank.type} params={rank.params} />
-        </Box>
-      }
+      summary={summary.data}
+      summaryRefreshing={summary.refreshing}
+      summaryError={summary.error}
+      validationErrors={summary.validationErrors}
+      onSummaryRetry={summary.refetch}
+      gradeAverage={gradeAverage.data}
+      gradeAverageError={gradeAverage.error}
+      onGradeAverageRetry={gradeAverage.refetch}
+      understandingScore={understandingScore.data}
+      understandingScoreError={understandingScore.error}
+      onUnderstandingScoreRetry={understandingScore.refetch}
+      rankType={rank.type}
+      onRankTypeChange={rank.setType}
+      rankSubject={rank.subject}
+      onRankSubjectChange={rank.setSubject}
+      rankCourseId={rank.courseId}
+      onRankCourseIdChange={rank.setCourseId}
+      rankUnitId={rank.unitId}
+      onRankUnitIdChange={rank.setUnitId}
+      rankCourses={rank.courses}
+      rankUnits={rank.units}
+      rankSelected={rank.selected}
+      rank={rank.data}
+      rankError={rank.error}
+      onRankRetry={rank.refetch}
     />
   );
 };
