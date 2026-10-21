@@ -31,9 +31,12 @@ describe("useSchoolClasses", () => {
 
     const { result } = renderHook(() => useSchoolClasses());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual(mockData);
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/school-classes");
+    await waitFor(() => expect(result.current.data).toEqual(mockData));
+    expect(result.current.error).toBe(false);
+    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/school-classes", {
+      params: undefined,
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {
@@ -44,5 +47,17 @@ describe("useSchoolClasses", () => {
     renderHook(() => useSchoolClasses());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+  });
+
+  it("401以外で失敗するとerrorがtrueになる", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 500 },
+    });
+
+    const { result } = renderHook(() => useSchoolClasses());
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.data).toBeNull();
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
