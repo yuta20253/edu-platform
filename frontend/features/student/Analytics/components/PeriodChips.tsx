@@ -4,8 +4,10 @@ import { Alert, Box, Chip, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   AnalyticsPeriod,
+  DEFAULT_PRESET,
   PERIOD_PRESETS,
   detectPreset,
+  isDefaultPeriod,
   presetRange,
 } from "../period";
 
@@ -18,12 +20,17 @@ type Props = {
 
 export const PeriodChips = ({ period, onChange, validationErrors }: Props) => {
   // 「今日」はブラウザの日付で決まり、サーバー描画(UTC)とずれるとハイドレーション
-  // 不一致になる。プリセットの選択状態はマウント後に決める
+  // 不一致になる。日付を指定したときのプリセットの選択状態はマウント後に決める
   const [today, setToday] = useState<Date | null>(null);
   useEffect(() => {
     setToday(new Date());
   }, []);
-  const preset = today ? detectPreset(period, today) : null;
+  // 未指定なら今日に関係なく既定の期間なので、サーバー描画の時点から選択状態にする
+  const preset = isDefaultPeriod(period)
+    ? DEFAULT_PRESET
+    : today
+      ? detectPreset(period, today)
+      : null;
 
   return (
     <Box>

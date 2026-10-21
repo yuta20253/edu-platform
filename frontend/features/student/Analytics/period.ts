@@ -11,8 +11,10 @@ export type AnalyticsPeriod = {
 };
 
 const DATE_FORMAT = "yyyy-MM-dd";
-const DEFAULT_PRESET: PeriodPreset = 7;
+export const DEFAULT_PRESET: PeriodPreset = 7;
 const DEFAULT_PERIOD: AnalyticsPeriod = { from: "", to: "" };
+
+export const isDefaultPeriod = ({ from, to }: AnalyticsPeriod) => !from && !to;
 
 // 今日を含む N 日間。バックエンドの既定値(直近7日=6日前〜今日)と揃える
 export const presetRange = (
@@ -27,7 +29,7 @@ export const detectPreset = (
   { from, to }: AnalyticsPeriod,
   today: Date = new Date(),
 ): PeriodPreset | null => {
-  if (!from && !to) return DEFAULT_PRESET;
+  if (isDefaultPeriod({ from, to })) return DEFAULT_PRESET;
 
   const match = PERIOD_PRESETS.find((days) => {
     const range = presetRange(days, today);
