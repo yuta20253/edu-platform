@@ -172,4 +172,31 @@ describe("AsyncBoundary", () => {
       expect(screen.queryByRole("table")).not.toBeInTheDocument();
     });
   });
+
+  it("errorMessageを渡すとエラー表示のメッセージを上書きできる", () => {
+    render(
+      <AsyncBoundary
+        data={null}
+        error={true}
+        errorMessage="ダッシュボードの取得に失敗しました"
+      >
+        {() => <div>成功</div>}
+      </AsyncBoundary>,
+    );
+    expect(
+      screen.getByText("ダッシュボードの取得に失敗しました"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("データの取得に失敗しました"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("errorMessageを渡さなければデフォルトのメッセージを表示する", () => {
+    render(
+      <AsyncBoundary data={null} error={true}>
+        {() => <div>成功</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("データの取得に失敗しました")).toBeInTheDocument();
+  });
 });
