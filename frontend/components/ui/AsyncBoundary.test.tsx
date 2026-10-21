@@ -125,6 +125,15 @@ describe("AsyncBoundary", () => {
       expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     });
 
+    it("card-skeletonはErrorStateと同じ余白(24px)で包んで表示する", () => {
+      const { container } = render(
+        <AsyncBoundary data={null} fallback="card-skeleton">
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(container.firstElementChild).toHaveStyle({ padding: "24px" });
+    });
+
     it("table-skeletonを指定するとテーブルのスケルトンを表示しスピナーは出さない", () => {
       render(
         <AsyncBoundary data={null} fallback="table-skeleton">
