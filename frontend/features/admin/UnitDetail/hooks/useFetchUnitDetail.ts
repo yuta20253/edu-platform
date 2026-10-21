@@ -19,9 +19,6 @@ export const useFetchUnitDetail = (courseId: number, unitId: number) => {
     // 古い応答で新しい表示を上書きしないようにする
     const controller = new AbortController();
 
-    // courseId / unitId の切り替え中に前の単元の内容が表示され続けないよう、
-    // 取得開始時点で一旦クリアする
-    setUnit(null);
     setLoading(true);
     setError(false);
 
