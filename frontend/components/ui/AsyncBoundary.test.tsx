@@ -162,6 +162,29 @@ describe("AsyncBoundary", () => {
       expect(document.querySelectorAll(".MuiSkeleton-root")).toHaveLength(5);
     });
 
+    it("fallbackに要素を渡すと、その要素をローディング表示にする", () => {
+      render(
+        <AsyncBoundary data={null} fallback={<div>独自のスケルトン</div>}>
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getByText("独自のスケルトン")).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("fallbackに要素を渡してもdataがあれば成功表示にする", () => {
+      render(
+        <AsyncBoundary
+          data={{ name: "a" }}
+          fallback={<div>独自のスケルトン</div>}
+        >
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getByText("成功")).toBeInTheDocument();
+      expect(screen.queryByText("独自のスケルトン")).not.toBeInTheDocument();
+    });
+
     it("errorがあればfallbackに関わらずエラー表示を優先する", () => {
       render(
         <AsyncBoundary data={null} error={true} fallback="table-skeleton">
