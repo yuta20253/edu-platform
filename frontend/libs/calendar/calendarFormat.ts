@@ -16,7 +16,8 @@ export const formatDayLabelWithWeekday = (date: Date) =>
 // API の from / to に渡す形式(例: 2026-10-06)
 export const toApiDate = (date: Date) => format(date, "yyyy-MM-dd");
 
-// バックエンドのレスポンス(date: "YYYY/MM/DD")と突き合わせるためのキー
+// 日付ごとに予定をまとめるキー(例: 2026/10/06)。生徒カレンダーAPIの date と同じ形式で、
+// 教員カレンダーでは scheduled_at をこの形式に変換してまとめる
 export const toDateKey = (date: Date) => format(date, "yyyy/MM/dd");
 
 // 月単位のキー(例: 2026-10)

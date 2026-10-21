@@ -1,17 +1,39 @@
 "use client";
 
-import { useStudent } from "./hooks";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { Presenter } from "./Presenter";
+import { useStudent } from "./hooks/useStudent";
 
 type Props = {
   studentId: number;
 };
 
 export const StudentDetail = ({ studentId }: Props) => {
-  const { student, loading, error } = useStudent(studentId);
+  const { data, tab, page, loading, error, changeTab, setPage } =
+    useStudent(studentId);
 
-  if (loading) {
+  // 最初の読み込みの間とその失敗だけ画面全体で出す。
+  // タブ切り替え中・切り替え後の失敗は、ヘッダーを残したままPresenterの中で出す
+  if (!data) {
+    if (error) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            データの取得に失敗しました
+          </Typography>
+        </Box>
+      );
+    }
+
     return (
       <Box
         sx={{
@@ -26,24 +48,15 @@ export const StudentDetail = ({ studentId }: Props) => {
     );
   }
 
-  if (error || !student) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          データの取得に失敗しました
-        </Typography>
-      </Box>
-    );
-  }
-
-  return <Presenter student={student} />;
+  return (
+    <Presenter
+      tab={tab}
+      data={data}
+      loading={loading}
+      error={error}
+      page={page}
+      onTabChange={changeTab}
+      onPageChange={setPage}
+    />
+  );
 };

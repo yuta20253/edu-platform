@@ -101,4 +101,19 @@ describe("Footer", () => {
     const { container } = render(<Footer />);
     expect(container.querySelector("footer")).toBeNull();
   });
+
+  it("面談詳細(トーク画面)では表示されない", () => {
+    mockPathname("/interviews/12");
+    const { container } = render(<Footer />);
+    expect(container.querySelector("footer")).toBeNull();
+  });
+
+  it.each(["/interviews", "/interviews/new"])(
+    "面談一覧・申請(%s)では表示される",
+    (path) => {
+      mockPathname(path);
+      const { container } = render(<Footer />);
+      expect(container.querySelector("footer")).not.toBeNull();
+    },
+  );
 });
