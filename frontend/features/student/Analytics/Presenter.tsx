@@ -1,11 +1,14 @@
 "use client";
 
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { ReactNode, useId } from "react";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { AnalyticsPeriod } from "./period";
 import {
   AnalyticsSummary,
   GradeAverageData,
+  QueryState,
+  SummaryState,
   UnderstandingScoreData,
 } from "./types";
 import { DashboardCard } from "./components/DashboardCard";
@@ -20,70 +23,48 @@ import { UnderstandingScoreChart } from "./components/UnderstandingScoreChart";
 type Props = {
   period: AnalyticsPeriod;
   onPeriodChange: (period: AnalyticsPeriod) => void;
-  summary: AnalyticsSummary | null;
-  summaryLoading: boolean;
-  summaryError: boolean;
-  validationErrors: string[];
-  gradeAverage: GradeAverageData | null;
-  understandingScore: UnderstandingScoreData | null;
-  cumulativeLoading: boolean;
+  summary: SummaryState;
+  gradeAverage: QueryState<GradeAverageData>;
+  understandingScore: QueryState<UnderstandingScoreData>;
   rankSection: ReactNode;
 };
 
-const Loading = ({ testId }: { testId?: string }) => (
-  <Box
-    data-testid={testId}
-    sx={{ display: "flex", justifyContent: "center", py: 4 }}
-  >
-    <CircularProgress size={28} />
-  </Box>
-);
-
-const Message = ({ children }: { children: string }) => (
-  <Typography
-    sx={{ py: 3, fontSize: 14, color: "text.secondary", textAlign: "center" }}
-  >
-    {children}
-  </Typography>
-);
-
 type CumulativeCardProps<T> = {
   title: string;
-  data: T | null;
-  loading: boolean;
+  query: QueryState<T>;
   children: (data: T) => ReactNode;
 };
 
+// 片方の取得に失敗しても、もう片方のカードは表示できるようカードごとに分岐する
 const CumulativeCard = <T,>({
   title,
-  data,
-  loading,
+  query,
   children,
 }: CumulativeCardProps<T>) => (
   <DashboardCard title={title} headingLevel="h3">
-    {data !== null ? (
-      children(data)
-    ) : loading ? (
-      <Loading />
-    ) : (
-      <Message>取得に失敗しました</Message>
-    )}
+    <AsyncBoundary
+      data={query.data}
+      error={query.error}
+      onRetry={query.refetch}
+    >
+      {children}
+    </AsyncBoundary>
   </DashboardCard>
 );
 
 const SummaryCards = ({
   summary,
-  loading,
+  refreshing,
 }: {
   summary: AnalyticsSummary;
-  loading: boolean;
+  refreshing: boolean;
 }) => (
   // 期間を切り替えて再取得している間も前のカードを残し、レイアウトが跳ねないようにする
   <Stack
     data-testid="summary-cards"
-    aria-busy={loading}
+    aria-busy={refreshing}
     spacing={2}
-    sx={{ opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}
+    sx={{ opacity: refreshing ? 0.5 : 1, transition: "opacity 0.2s" }}
   >
     <StreakCard streakDays={summary.streak_days} />
     <TaskCompletionCard taskCompletion={summary.task_completion} />
@@ -96,25 +77,11 @@ export const Presenter = ({
   period,
   onPeriodChange,
   summary,
-  summaryLoading,
-  summaryError,
-  validationErrors,
   gradeAverage,
   understandingScore,
-  cumulativeLoading,
   rankSection,
 }: Props) => {
   const cumulativeTitleId = useId();
-
-  const summaryArea = () => {
-    if (summary !== null) {
-      return <SummaryCards summary={summary} loading={summaryLoading} />;
-    }
-    if (summaryLoading) return <Loading testId="summary-loading" />;
-    // 422 はチップの直下にメッセージを出すので、ここでは何も出さない
-    if (summaryError) return <Message>学習分析の取得に失敗しました</Message>;
-    return null;
-  };
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto" }}>
@@ -130,10 +97,21 @@ export const Presenter = ({
         <PeriodChips
           period={period}
           onChange={onPeriodChange}
-          validationErrors={validationErrors}
+          validationErrors={summary.validationErrors}
         />
 
-        {summaryArea()}
+        {/* 422 はチップの直下にメッセージを出すので、ここでは何も出さない */}
+        {summary.validationErrors.length === 0 && (
+          <AsyncBoundary
+            data={summary.data}
+            error={summary.error}
+            onRetry={summary.refetch}
+          >
+            {(data) => (
+              <SummaryCards summary={data} refreshing={summary.refreshing} />
+            )}
+          </AsyncBoundary>
+        )}
 
         <Box
           component="section"
@@ -152,18 +130,10 @@ export const Presenter = ({
           </Typography>
 
           <Stack spacing={2}>
-            <CumulativeCard
-              title="学年平均との比較"
-              data={gradeAverage}
-              loading={cumulativeLoading}
-            >
+            <CumulativeCard title="学年平均との比較" query={gradeAverage}>
               {(data) => <GradeAverageChart data={data} />}
             </CumulativeCard>
-            <CumulativeCard
-              title="単元別の理解度"
-              data={understandingScore}
-              loading={cumulativeLoading}
-            >
+            <CumulativeCard title="単元別の理解度" query={understandingScore}>
               {(data) => <UnderstandingScoreChart data={data} />}
             </CumulativeCard>
             <DashboardCard title="順位" headingLevel="h3">

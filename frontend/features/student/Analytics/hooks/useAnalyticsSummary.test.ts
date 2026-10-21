@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import type { AnalyticsSummary } from "../types";
@@ -29,21 +29,22 @@ describe("useAnalyticsSummary", () => {
   it("期間を指定して summary を取得する", async () => {
     const { result } = renderHook(() => useAnalyticsSummary(period));
 
-    expect(result.current.loading).toBe(true);
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    // data も error もない間がローディング
+    expect(result.current.data).toBeNull();
+    expect(result.current.error).toBe(false);
+    await waitFor(() => expect(result.current.data).toEqual(summary));
 
     expect(apiClient.get).toHaveBeenCalledWith(
       "/api/student/analytics/summary",
       { params: period, signal: expect.any(AbortSignal) },
     );
-    expect(result.current.summary).toEqual(summary);
   });
 
   it("期間が空のときはクエリを付けずに取得する(バックエンドの既定値で集計する)", async () => {
     const { result } = renderHook(() =>
       useAnalyticsSummary({ from: "", to: "" }),
     );
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).toEqual(summary));
 
     expect(apiClient.get).toHaveBeenCalledWith(
       "/api/student/analytics/summary",
@@ -69,12 +70,12 @@ describe("useAnalyticsSummary", () => {
       ?.signal as AbortSignal;
 
     rerender({ current: { from: "2026-09-19", to: "2026-10-18" } });
-    await waitFor(() => expect(result.current.summary).toEqual(newSummary));
+    await waitFor(() => expect(result.current.data).toEqual(newSummary));
 
     expect(firstSignal.aborted).toBe(true);
     resolveOld({ data: oldSummary });
     await Promise.resolve();
-    expect(result.current.summary).toEqual(newSummary);
+    expect(result.current.data).toEqual(newSummary);
   });
 
   it("401 のときはログイン画面へ遷移する", async () => {
@@ -89,10 +90,12 @@ describe("useAnalyticsSummary", () => {
       httpError(422, { errors: ["取得期間は366日以内で指定してください"] }),
     );
     const { result } = renderHook(() => useAnalyticsSummary(period));
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() =>
+      expect(result.current.validationErrors).not.toEqual([]),
+    );
 
     expect(result.current.error).toBe(false);
-    expect(result.current.summary).toBeNull();
+    expect(result.current.data).toBeNull();
     expect(result.current.validationErrors).toEqual([
       "取得期間は366日以内で指定してください",
     ]);
@@ -101,11 +104,12 @@ describe("useAnalyticsSummary", () => {
   it("422 でメッセージが無いときは代わりの文言を返す", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(httpError(422));
     const { result } = renderHook(() => useAnalyticsSummary(period));
-    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(result.current.validationErrors).toEqual([
-      "指定した期間では集計できません",
-    ]);
+    await waitFor(() =>
+      expect(result.current.validationErrors).toEqual([
+        "指定した期間では集計できません",
+      ]),
+    );
   });
 
   it("422 のあとで取得に成功したら検証メッセージを消す", async () => {
@@ -121,17 +125,46 @@ describe("useAnalyticsSummary", () => {
     );
 
     rerender({ current: { from: "", to: "" } });
-    await waitFor(() => expect(result.current.summary).toEqual(summary));
+    await waitFor(() => expect(result.current.data).toEqual(summary));
     expect(result.current.validationErrors).toEqual([]);
   });
 
   it("それ以外のエラーのときは error を返す", async () => {
     vi.mocked(apiClient.get).mockRejectedValue(httpError(500));
     const { result } = renderHook(() => useAnalyticsSummary(period));
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.error).toBe(true));
 
-    expect(result.current.error).toBe(true);
-    expect(result.current.summary).toBeNull();
+    expect(result.current.data).toBeNull();
     expect(result.current.validationErrors).toEqual([]);
+  });
+
+  it("期間を切り替えている間は前の期間の data を残し、refreshing を返す", async () => {
+    const { result, rerender } = renderHook(
+      ({ current }) => useAnalyticsSummary(current),
+      { initialProps: { current: period } },
+    );
+    await waitFor(() => expect(result.current.data).toEqual(summary));
+    expect(result.current.refreshing).toBe(false);
+    vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
+
+    rerender({ current: { from: "2026-09-19", to: "2026-10-18" } });
+
+    expect(result.current.data).toEqual(summary);
+    expect(result.current.refreshing).toBe(true);
+  });
+
+  it("refetch で取得し直せる", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce(httpError(500))
+      .mockResolvedValueOnce({ data: summary });
+    const { result } = renderHook(() => useAnalyticsSummary(period));
+    await waitFor(() => expect(result.current.error).toBe(true));
+
+    act(() => {
+      result.current.refetch();
+    });
+
+    expect(result.current.error).toBe(false);
+    await waitFor(() => expect(result.current.data).toEqual(summary));
   });
 });

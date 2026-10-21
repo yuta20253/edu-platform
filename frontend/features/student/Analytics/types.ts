@@ -77,3 +77,17 @@ export type AnalyticsSummary = {
     previous_to: string;
   };
 };
+
+// useApiQuery の戻り値と同じ形。Presenter に取得状態ごと渡す
+export type QueryState<T> = {
+  data: T | null;
+  error: boolean;
+  refetch: () => void;
+};
+
+export type SummaryState = QueryState<AnalyticsSummary> & {
+  // 期間の切替中で、data は前の期間の結果
+  refreshing: boolean;
+  // 422(期間不正)のメッセージ。期間チップの直下に出す
+  validationErrors: string[];
+};

@@ -1,27 +1,29 @@
 "use client";
 
 import { Box } from "@mui/material";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { Presenter } from "./Presenter";
-import { useRankSelection } from "./hooks/useRankSelection";
 import { useAnalyticsSummary } from "./hooks/useAnalyticsSummary";
-import { useCumulativeAnalytics } from "./hooks/useCumulativeAnalytics";
 import { usePeriodQuery } from "./hooks/usePeriodQuery";
+import { useRankSelection } from "./hooks/useRankSelection";
 import { AnalyticsContent } from "./components/AnalyticsContent";
 import { AnalyticsFilters } from "./components/AnalyticsFilters";
+import { GradeAverageData, UnderstandingScoreData } from "./types";
+
+const ANALYTICS_URL = "/api/student/analytics";
 
 export const Analytics = () => {
   const { period, setPeriod } = usePeriodQuery();
-  const {
-    summary,
-    loading: summaryLoading,
-    error: summaryError,
-    validationErrors,
-  } = useAnalyticsSummary(period);
-  const {
-    gradeAverage,
-    understandingScore,
-    loading: cumulativeLoading,
-  } = useCumulativeAnalytics();
+  const summary = useAnalyticsSummary(period);
+  // 学年平均・理解度はバックエンドが期間を受け取らない累計の集計なので、
+  // 期間チップとは連動させず、画面を開いたときに取得する
+  const gradeAverage = useApiQuery<GradeAverageData>(ANALYTICS_URL, {
+    params: { type: "grade_average" },
+  });
+  const understandingScore = useApiQuery<UnderstandingScoreData>(
+    ANALYTICS_URL,
+    { params: { type: "understanding_score" } },
+  );
   const rank = useRankSelection();
 
   return (
@@ -29,12 +31,8 @@ export const Analytics = () => {
       period={period}
       onPeriodChange={setPeriod}
       summary={summary}
-      summaryLoading={summaryLoading}
-      summaryError={summaryError}
-      validationErrors={validationErrors}
       gradeAverage={gradeAverage}
       understandingScore={understandingScore}
-      cumulativeLoading={cumulativeLoading}
       rankSection={
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <AnalyticsFilters

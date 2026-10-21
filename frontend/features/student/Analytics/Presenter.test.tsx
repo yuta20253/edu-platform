@@ -1,7 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
-import type { AnalyticsSummary } from "./types";
+import type { AnalyticsSummary, SummaryState } from "./types";
 
 const summary: AnalyticsSummary = {
   streak_days: 5,
@@ -25,21 +26,38 @@ const summary: AnalyticsSummary = {
   },
 };
 
+const summaryProps: SummaryState = {
+  data: summary,
+  refreshing: false,
+  error: false,
+  validationErrors: [],
+  refetch: vi.fn(),
+};
+
 const baseProps = {
   period: { from: "", to: "" },
   onPeriodChange: vi.fn(),
-  summary,
-  summaryLoading: false,
-  summaryError: false,
-  validationErrors: [] as string[],
+  summary: summaryProps,
   gradeAverage: {
-    correct_rate: { my: 60, average: 55 },
-    task_completion_rate: { my: 50, average: 45 },
+    data: {
+      correct_rate: { my: 60, average: 55 },
+      task_completion_rate: { my: 50, average: 45 },
+    },
+    error: false,
+    refetch: vi.fn(),
   },
-  understandingScore: { subjects: [] },
-  cumulativeLoading: false,
+  understandingScore: {
+    data: { subjects: [] },
+    error: false,
+    refetch: vi.fn(),
+  },
   rankSection: <div>順位の中身</div>,
 };
+
+const summaryState = (overrides: Partial<SummaryState>): SummaryState => ({
+  ...baseProps.summary,
+  ...overrides,
+});
 
 const regionNames = () =>
   screen
@@ -89,15 +107,17 @@ describe("AnalyticsPresenter", () => {
   });
 
   it("summary を初めて取得している間はカードの代わりにローディングを表示する", () => {
-    render(<Presenter {...baseProps} summary={null} summaryLoading />);
+    render(<Presenter {...baseProps} summary={summaryState({ data: null })} />);
     expect(
       screen.queryByRole("region", { name: "連続学習日数" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("summary-loading")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
   it("期間を切り替えて再取得している間は前のカードを残し、取得中であることを示す", () => {
-    render(<Presenter {...baseProps} summaryLoading />);
+    render(
+      <Presenter {...baseProps} summary={summaryState({ refreshing: true })} />,
+    );
     expect(screen.getByTestId("summary-cards")).toHaveAttribute(
       "aria-busy",
       "true",
@@ -111,8 +131,10 @@ describe("AnalyticsPresenter", () => {
     render(
       <Presenter
         {...baseProps}
-        summary={null}
-        validationErrors={["取得期間は366日以内で指定してください"]}
+        summary={summaryState({
+          data: null,
+          validationErrors: ["取得期間は366日以内で指定してください"],
+        })}
       />,
     );
     expect(screen.getByRole("alert")).toHaveTextContent(
@@ -123,20 +145,33 @@ describe("AnalyticsPresenter", () => {
     expect(screen.getByRole("region", { name: "順位" })).toBeInTheDocument();
   });
 
-  it("summary の取得に失敗したときは期間別のカードの位置にだけエラーを出す", () => {
-    render(<Presenter {...baseProps} summary={null} summaryError />);
-    expect(
-      screen.getByText("学習分析の取得に失敗しました"),
-    ).toBeInTheDocument();
+  it("summary の取得に失敗したときは期間別のカードの位置にだけエラーを出し、再試行できる", async () => {
+    const refetch = vi.fn();
+    render(
+      <Presenter
+        {...baseProps}
+        summary={summaryState({ data: null, error: true, refetch })}
+      />,
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "再試行" }));
+    expect(refetch).toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "7日間" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "累計" })).toBeInTheDocument();
   });
 
-  it("学年平均の取得に失敗したときはそのカードにだけエラーを出す", () => {
-    render(<Presenter {...baseProps} gradeAverage={null} />);
-    expect(
-      screen.getByRole("region", { name: "学年平均との比較" }),
-    ).toHaveTextContent("取得に失敗しました");
+  it("学年平均の取得に失敗したときはそのカードにだけエラーを出し、再試行できる", async () => {
+    const refetch = vi.fn();
+    render(
+      <Presenter
+        {...baseProps}
+        gradeAverage={{ data: null, error: true, refetch }}
+      />,
+    );
+    const card = screen.getByRole("region", { name: "学年平均との比較" });
+    expect(within(card).getByRole("alert")).toBeInTheDocument();
+    await userEvent.click(within(card).getByRole("button", { name: "再試行" }));
+    expect(refetch).toHaveBeenCalled();
     expect(
       screen.getByRole("region", { name: "単元別の理解度" }),
     ).toHaveTextContent("学習履歴がありません");
@@ -146,9 +181,8 @@ describe("AnalyticsPresenter", () => {
     render(
       <Presenter
         {...baseProps}
-        gradeAverage={null}
-        understandingScore={null}
-        cumulativeLoading
+        gradeAverage={{ ...baseProps.gradeAverage, data: null }}
+        understandingScore={{ ...baseProps.understandingScore, data: null }}
       />,
     );
     expect(

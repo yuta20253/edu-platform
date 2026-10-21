@@ -1,37 +1,37 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { extractApiError } from "@/libs/http/extractApiError";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnalyticsPeriod, periodToSearchParams } from "../period";
 import { AnalyticsSummary } from "../types";
 
 const FALLBACK_VALIDATION_MESSAGE = "指定した期間では集計できません";
 
-const validationMessages = (err: unknown): string[] => {
-  const errors = (err as { response?: { data?: { errors?: unknown } } })
-    .response?.data?.errors;
-  return Array.isArray(errors) && errors.length > 0
-    ? errors.map(String)
-    : [FALLBACK_VALIDATION_MESSAGE];
-};
-
+// 422 を見分けてチップの直下に出す必要があるため、useApiQuery は使わずに取得する。
+// 表示の考え方(loading フラグを持たない・401 は /login)は useApiQuery に揃える
 export const useAnalyticsSummary = ({ from, to }: AnalyticsPeriod) => {
-  const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  // どの期間の結果かを一緒に持ち、期間の切替中(前の期間の結果を表示中)を判定する
+  const [result, setResult] = useState<{
+    periodKey: string;
+    summary: AnalyticsSummary;
+  } | null>(null);
   const [error, setError] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
+  const periodKey = periodToSearchParams({ from, to }).toString();
 
   useEffect(() => {
     // 期間を続けて切り替えた際、古い応答で新しい期間の結果を上書きしないよう
     // 前のリクエストをキャンセルする
     const controller = new AbortController();
-    const params = Object.fromEntries(periodToSearchParams({ from, to }));
+    const params = Object.fromEntries(new URLSearchParams(periodKey));
 
-    setLoading(true);
     setError(false);
+    setValidationErrors([]);
 
     apiClient
       .get<AnalyticsSummary>("/api/student/analytics/summary", {
@@ -40,36 +40,37 @@ export const useAnalyticsSummary = ({ from, to }: AnalyticsPeriod) => {
       })
       .then((res) => {
         if (controller.signal.aborted) return;
-        setSummary(res.data);
-        setValidationErrors([]);
+        setResult({ periodKey, summary: res.data });
       })
       .catch((err) => {
         if (axios.isCancel(err) || controller.signal.aborted) return;
-        const status = err.response?.status;
+        const { status, errors } = extractApiError(err);
         if (status === 401) {
           router.push("/login");
           return;
         }
 
         // 前の期間のデータを残すと、新しい期間の結果のように見えてしまうため消す
-        setSummary(null);
+        setResult(null);
         // 期間不正は画面全体をエラーにせず、期間チップの直下にメッセージを出す
         if (status === 422) {
-          setValidationErrors(validationMessages(err));
+          setValidationErrors(errors ?? [FALLBACK_VALIDATION_MESSAGE]);
           return;
         }
-        setValidationErrors([]);
         setError(true);
-      })
-      .finally(() => {
-        if (controller.signal.aborted) return;
-        setLoading(false);
       });
 
-    return () => {
-      controller.abort();
-    };
-  }, [from, to, router]);
+    return () => controller.abort();
+  }, [periodKey, reloadKey, router]);
 
-  return { summary, loading, error, validationErrors };
+  const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
+
+  return {
+    data: result?.summary ?? null,
+    // 新しい期間の結果が届くまで、前の期間の結果を表示している
+    refreshing: result !== null && result.periodKey !== periodKey,
+    error,
+    validationErrors,
+    refetch,
+  };
 };
