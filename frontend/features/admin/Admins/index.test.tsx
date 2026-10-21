@@ -49,4 +49,17 @@ describe("Admins", () => {
 
     expect(screen.getByTestId("presenter")).toBeInTheDocument();
   });
+
+  it("データ表示中の再取得に失敗した場合もエラー表示を優先する", () => {
+    useFetchAdminsMock.mockReturnValue({
+      data: { admins: [], meta: {} },
+      error: true,
+      refetch: vi.fn(),
+    });
+
+    render(<Admins />);
+
+    expect(screen.getByText("データの取得に失敗しました")).toBeInTheDocument();
+    expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
+  });
 });
