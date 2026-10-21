@@ -8,6 +8,10 @@ import { extractApiError } from "@/libs/http/extractApiError";
 
 type Options = {
   params?: Record<string, unknown>;
+  // false の間は取得しない(条件が揃うまで待つ場合)。デフォルトは true
+  enabled?: boolean;
+  // false にすると再取得の開始時に前回の data を消す。デフォルトは true
+  keepPreviousData?: boolean;
 };
 
 // データ取得の状態を data と error だけで表す。loading フラグは持たず、
@@ -15,7 +19,7 @@ type Options = {
 // 再取得中(url・params の変更、refetch)は前回の data を残す。ページや絞り込みの
 // 切替では望ましい動作だが、url 自体が別の対象に変わる場合(例: /items/1 → /items/2)も
 // 新しい data が届くまで前の対象の内容が残る。その場合は呼び出し側で key を変えて
-// コンポーネントごと作り直すなど、前の内容を見せない工夫をすること。
+// コンポーネントごと作り直すか、keepPreviousData: false を指定して前の内容を見せないこと。
 export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(false);
@@ -23,13 +27,17 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const router = useRouter();
   // params は呼び出し側がリテラルで渡しても再取得が走り続けないよう、値で比較する
   const paramsKey = JSON.stringify(options.params ?? null);
+  const { enabled = true, keepPreviousData = true } = options;
 
   useEffect(() => {
+    if (!enabled) return;
+
     const controller = new AbortController();
     const params = JSON.parse(paramsKey) ?? undefined;
 
     // 再取得の開始時は error だけ消し、data は残す(画面が空にならない)
     setError(false);
+    if (!keepPreviousData) setData(null);
 
     apiClient
       .get<T>(url, { params, signal: controller.signal })
@@ -49,7 +57,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
       });
 
     return () => controller.abort();
-  }, [url, paramsKey, reloadKey, router]);
+  }, [url, paramsKey, reloadKey, enabled, keepPreviousData, router]);
 
   const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
 
