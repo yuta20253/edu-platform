@@ -20,6 +20,8 @@ type Props<T> = {
   data: T | null | undefined;
   error?: boolean | Error | null;
   onRetry?: () => void;
+  // エラー表示のメッセージ。省略時は ErrorState のデフォルト文言。
+  errorMessage?: string;
   // ローディング表示の種類。デフォルトはスピナー。
   fallback?: Fallback;
   skeletonProps?: SkeletonProps;
@@ -67,12 +69,13 @@ export const AsyncBoundary = <T,>({
   data,
   error,
   onRetry,
+  errorMessage,
   fallback = "spinner",
   skeletonProps,
   children,
 }: Props<T>) => {
   if (error) {
-    return <ErrorState onRetry={onRetry} />;
+    return <ErrorState message={errorMessage} onRetry={onRetry} />;
   }
 
   // data も error もない状態をローディングとみなす(loading フラグに依存しない)。
