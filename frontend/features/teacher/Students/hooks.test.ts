@@ -34,10 +34,11 @@ describe("useStudents", () => {
 
     const { result } = renderHook(() => useStudents());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual(mockData);
+    await waitFor(() => expect(result.current.data).toEqual(mockData));
+    expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/students", {
       params: { page: "1" },
+      signal: expect.any(AbortSignal),
     });
   });
 
@@ -50,16 +51,19 @@ describe("useStudents", () => {
     });
 
     const { result } = renderHook(() => useStudents());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
       result.current.setPage(2);
     });
 
     await waitFor(() => expect(result.current.page).toBe(2));
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/students", {
-      params: { page: "2" },
-    });
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/students", {
+        params: { page: "2" },
+        signal: expect.any(AbortSignal),
+      }),
+    );
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {
@@ -70,6 +74,18 @@ describe("useStudents", () => {
     const { result } = renderHook(() => useStudents());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
-    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBe(false);
+  });
+
+  it("401以外で失敗するとerrorがtrueになる", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 500 },
+    });
+
+    const { result } = renderHook(() => useStudents());
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.data).toBeNull();
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
