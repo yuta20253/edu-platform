@@ -22,7 +22,11 @@ vi.mock("@/components/ui/ToastProvider", () => ({
 }));
 
 vi.mock("./Presenter", () => ({
-  Presenter: () => <div data-testid="presenter" />,
+  Presenter: ({ onPageChange }: { onPageChange: (page: number) => void }) => (
+    <div data-testid="presenter">
+      <button onClick={() => onPageChange(2)}>次のページ</button>
+    </div>
+  ),
 }));
 
 const schoolsData = {
@@ -93,5 +97,24 @@ describe("Schools", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
     expect(showMock).not.toHaveBeenCalled();
+  });
+
+  it("データ表示中の再取得(ページ切替)に失敗した場合もエラー表示を優先する", async () => {
+    let schoolCalls = 0;
+    getMock.mockImplementation((url: string) => {
+      if (url !== "/api/admin/schools") return Promise.resolve({ data: [] });
+      schoolCalls += 1;
+      return schoolCalls === 1
+        ? Promise.resolve({ data: schoolsData })
+        : Promise.reject({ response: { status: 500 } });
+    });
+
+    render(<Schools />);
+    fireEvent.click(await screen.findByRole("button", { name: "次のページ" }));
+
+    expect(
+      await screen.findByText("データの取得に失敗しました"),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
   });
 });
