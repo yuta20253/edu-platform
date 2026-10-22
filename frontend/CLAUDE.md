@@ -20,6 +20,8 @@ frontend(Next.js)の実装・レビュー時に守るルール。
 
    `AsyncBoundary`(`components/ui/AsyncBoundary.tsx`)は、上記の規約1〜4の分岐(エラー → ローディング → 成功)をまとめた共通コンポーネント。既存画面の移行は別チケットで行う。
 
+   **例外(ヘッダーを残したまま中身だけエラーにする画面)**: [`features/teacher/StudentDetail`](features/teacher/StudentDetail/index.tsx) は、最初の取得とその失敗だけ `AsyncBoundary` で画面全体に出す(`error={!data && error}`)。タブ切り替え後の失敗は、生徒名のヘッダーを残すため Presenter の中で表示する。`AsyncBoundary` に `data` があるときの `error` を渡すと、ヘッダーごとエラー表示に置き換わるので渡さない。
+
 ### 良い例
 
 ```tsx
