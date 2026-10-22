@@ -125,6 +125,15 @@ describe("AsyncBoundary", () => {
       expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     });
 
+    it("card-skeletonはErrorStateと同じ余白(24px)で包んで表示する", () => {
+      const { container } = render(
+        <AsyncBoundary data={null} fallback="card-skeleton">
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(container.firstElementChild).toHaveStyle({ padding: "24px" });
+    });
+
     it("table-skeletonを指定するとテーブルのスケルトンを表示しスピナーは出さない", () => {
       render(
         <AsyncBoundary data={null} fallback="table-skeleton">
@@ -162,6 +171,29 @@ describe("AsyncBoundary", () => {
       expect(document.querySelectorAll(".MuiSkeleton-root")).toHaveLength(5);
     });
 
+    it("fallbackに要素を渡すと、その要素をローディング表示にする", () => {
+      render(
+        <AsyncBoundary data={null} fallback={<div>独自のスケルトン</div>}>
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getByText("独自のスケルトン")).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("fallbackに要素を渡してもdataがあれば成功表示にする", () => {
+      render(
+        <AsyncBoundary
+          data={{ name: "a" }}
+          fallback={<div>独自のスケルトン</div>}
+        >
+          {() => <div>成功</div>}
+        </AsyncBoundary>,
+      );
+      expect(screen.getByText("成功")).toBeInTheDocument();
+      expect(screen.queryByText("独自のスケルトン")).not.toBeInTheDocument();
+    });
+
     it("errorがあればfallbackに関わらずエラー表示を優先する", () => {
       render(
         <AsyncBoundary data={null} error={true} fallback="table-skeleton">
@@ -171,5 +203,32 @@ describe("AsyncBoundary", () => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
       expect(screen.queryByRole("table")).not.toBeInTheDocument();
     });
+  });
+
+  it("errorMessageを渡すとエラー表示のメッセージを上書きできる", () => {
+    render(
+      <AsyncBoundary
+        data={null}
+        error={true}
+        errorMessage="ダッシュボードの取得に失敗しました"
+      >
+        {() => <div>成功</div>}
+      </AsyncBoundary>,
+    );
+    expect(
+      screen.getByText("ダッシュボードの取得に失敗しました"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("データの取得に失敗しました"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("errorMessageを渡さなければデフォルトのメッセージを表示する", () => {
+    render(
+      <AsyncBoundary data={null} error={true}>
+        {() => <div>成功</div>}
+      </AsyncBoundary>,
+    );
+    expect(screen.getByText("データの取得に失敗しました")).toBeInTheDocument();
   });
 });

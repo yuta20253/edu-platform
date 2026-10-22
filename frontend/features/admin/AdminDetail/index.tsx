@@ -1,8 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
-import { CardSkeleton } from "@/components/ui/CardSkeleton";
-import { ErrorState } from "@/components/ui/ErrorState";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useToast } from "@/components/ui/ToastProvider";
 import { Presenter } from "./Presenter";
 import { useFetchAdminDetail } from "./hooks/useFetchAdminDetail";
@@ -60,38 +58,33 @@ export const AdminDetail = ({
       }),
   });
 
-  if (fetchError) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <ErrorState message={fetchError} onRetry={refetch} />
-      </Box>
-    );
-  }
-
-  if (!admin) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <CardSkeleton lines={6} />
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
-      admin={admin}
-      prefectures={prefectures}
-      isSelf={currentAdminId === admin.id}
-      onUpdate={handleUpdate}
-      updating={updating}
-      updateErrors={updateErrors}
-      onPasswordReset={handlePasswordReset}
-      resettingPassword={resettingPassword}
-      deleteDialogOpen={deleteDialogOpen}
-      onDeleteClick={handleDeleteClick}
-      onDeleteDialogClose={handleDeleteDialogClose}
-      onDeleteConfirm={handleDeleteConfirm}
-      deleting={deleting}
-      deleteErrors={deleteErrors}
-    />
+    <AsyncBoundary
+      data={admin}
+      error={fetchError !== null}
+      errorMessage={fetchError ?? undefined}
+      onRetry={refetch}
+      fallback="card-skeleton"
+      skeletonProps={{ lines: 6 }}
+    >
+      {(detail) => (
+        <Presenter
+          admin={detail}
+          prefectures={prefectures}
+          isSelf={currentAdminId === detail.id}
+          onUpdate={handleUpdate}
+          updating={updating}
+          updateErrors={updateErrors}
+          onPasswordReset={handlePasswordReset}
+          resettingPassword={resettingPassword}
+          deleteDialogOpen={deleteDialogOpen}
+          onDeleteClick={handleDeleteClick}
+          onDeleteDialogClose={handleDeleteDialogClose}
+          onDeleteConfirm={handleDeleteConfirm}
+          deleting={deleting}
+          deleteErrors={deleteErrors}
+        />
+      )}
+    </AsyncBoundary>
   );
 };

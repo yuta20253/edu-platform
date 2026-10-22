@@ -1,8 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
-import { CardSkeleton } from "@/components/ui/CardSkeleton";
-import { ErrorState } from "@/components/ui/ErrorState";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { Presenter } from "./Presenter";
 import { useAdminSearch } from "./hooks/useAdminSearch";
 import { useCreateAdmin } from "./hooks/useCreateAdmin";
@@ -27,31 +25,29 @@ export const Admins = () => {
     handleCreate,
   } = useCreateAdmin({ onCreated: refetch });
 
-  if (!data) {
-    if (error) {
-      return <ErrorState onRetry={refetch} />;
-    }
-
-    return (
-      <Box sx={{ p: 3 }}>
-        <CardSkeleton lines={5} />
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
+    <AsyncBoundary
       data={data}
-      page={page}
-      query={query}
-      onQueryChange={handleQueryChange}
-      onPageChange={setPage}
-      drawerOpen={drawerOpen}
-      onAddClick={handleAddClick}
-      onDrawerClose={handleDrawerClose}
-      onCreate={handleCreate}
-      creating={creating}
-      createErrors={createErrors}
-    />
+      error={error}
+      onRetry={refetch}
+      fallback="card-skeleton"
+      skeletonProps={{ lines: 5 }}
+    >
+      {(admins) => (
+        <Presenter
+          data={admins}
+          page={page}
+          query={query}
+          onQueryChange={handleQueryChange}
+          onPageChange={setPage}
+          drawerOpen={drawerOpen}
+          onAddClick={handleAddClick}
+          onDrawerClose={handleDrawerClose}
+          onCreate={handleCreate}
+          creating={creating}
+          createErrors={createErrors}
+        />
+      )}
+    </AsyncBoundary>
   );
 };

@@ -1,8 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
-import { CardSkeleton } from "@/components/ui/CardSkeleton";
-import { ErrorState } from "@/components/ui/ErrorState";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { Presenter } from "./Presenter";
 import { useFetchHistoryDetail } from "./hooks/useFetchHistoryDetail";
 
@@ -14,17 +12,15 @@ export const ImportHistoryDetail = ({ historyId }: Props) => {
   const { data, error, onRetry, ...handlers } =
     useFetchHistoryDetail(historyId);
 
-  if (error) {
-    return <ErrorState onRetry={onRetry} />;
-  }
-
-  if (!data) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <CardSkeleton lines={5} />
-      </Box>
-    );
-  }
-
-  return <Presenter data={data} {...handlers} />;
+  return (
+    <AsyncBoundary
+      data={data}
+      error={error}
+      onRetry={onRetry}
+      fallback="card-skeleton"
+      skeletonProps={{ lines: 5 }}
+    >
+      {(detail) => <Presenter data={detail} {...handlers} />}
+    </AsyncBoundary>
+  );
 };
