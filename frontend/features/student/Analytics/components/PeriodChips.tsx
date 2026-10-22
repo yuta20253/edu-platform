@@ -2,6 +2,7 @@
 
 import { Alert, Box, Chip, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
+import { tokyoToday } from "@/libs/date/tokyoDate";
 import {
   AnalyticsPeriod,
   DEFAULT_PRESET,
@@ -19,11 +20,11 @@ type Props = {
 };
 
 export const PeriodChips = ({ period, onChange, validationErrors }: Props) => {
-  // 「今日」はブラウザの日付で決まり、サーバー描画(UTC)とずれるとハイドレーション
+  // 「今日」は描画した時刻で決まり、サーバー描画と日付をまたぐとハイドレーション
   // 不一致になる。日付を指定したときのプリセットの選択状態はマウント後に決める
   const [today, setToday] = useState<Date | null>(null);
   useEffect(() => {
-    setToday(new Date());
+    setToday(tokyoToday());
   }, []);
   // 未指定なら今日に関係なく既定の期間なので、サーバー描画の時点から選択状態にする
   const preset = isDefaultPeriod(period)
@@ -44,7 +45,9 @@ export const PeriodChips = ({ period, onChange, validationErrors }: Props) => {
             color={preset === days ? "primary" : "default"}
             variant={preset === days ? "filled" : "outlined"}
             onClick={() => {
-              if (preset !== days) onChange(presetRange(days));
+              // 選択状態の判定と同じ today を使い、日付をまたいでもずれないようにする
+              if (preset !== days)
+                onChange(presetRange(days, today ?? tokyoToday()));
             }}
             sx={{ fontWeight: 700 }}
           />
