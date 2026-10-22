@@ -18,39 +18,36 @@ describe("useTeacherDetail", () => {
     vi.clearAllMocks();
   });
 
-  it("教員詳細を取得しteacherにセットする", async () => {
+  it("教員詳細を取得しdataにセットする", async () => {
     const teacher = { id: 1, name: "山田太郎" };
     vi.mocked(apiClient.get).mockResolvedValue({ data: teacher });
 
     const { result } = renderHook(() => useTeacherDetail(1));
 
-    expect(result.current.loading).toBe(true);
-
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.teacher).toEqual(teacher);
+    await waitFor(() => expect(result.current.data).toEqual(teacher));
     expect(result.current.error).toBe(false);
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/teachers/1");
+    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/teachers/1", {
+      params: undefined,
+      signal: expect.any(AbortSignal),
+    });
   });
 
-  it("取得に失敗するとerrorがtrueになりteacherはnullになる", async () => {
-    vi.mocked(apiClient.get).mockRejectedValue({
-      response: { status: 500 },
-    });
+  it("取得に失敗するとerrorがtrueになりdataはnullのままになる", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
 
     const { result } = renderHook(() => useTeacherDetail(1));
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.error).toBe(true);
-    expect(result.current.teacher).toBeNull();
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.data).toBeNull();
+    expect(pushMock).not.toHaveBeenCalled();
   });
 
-  it("401エラー時はログイン画面へリダイレクトする", async () => {
-    vi.mocked(apiClient.get).mockRejectedValue({
-      response: { status: 401 },
-    });
+  it("401エラー時はログイン画面へリダイレクトし、エラー状態にはしない", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 401 } });
 
-    renderHook(() => useTeacherDetail(1));
+    const { result } = renderHook(() => useTeacherDetail(1));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+    expect(result.current.error).toBe(false);
   });
 });
