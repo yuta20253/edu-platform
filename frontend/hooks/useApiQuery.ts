@@ -10,7 +10,8 @@ type Options = {
   params?: Record<string, unknown>;
   // false の間は取得しない(条件が揃うまで待つ場合)。デフォルトは true
   enabled?: boolean;
-  // false にすると再取得の開始時に前回の data を消す。デフォルトは true
+  // false にすると再取得の開始時と enabled が false に変わったときに
+  // 前回の data と error を消す。デフォルトは true
   keepPreviousData?: boolean;
 };
 
@@ -30,7 +31,14 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const { enabled = true, keepPreviousData = true } = options;
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      // 取得条件が外れたら、前回の結果を見せない指定のときだけ消す
+      if (!keepPreviousData) {
+        setData(null);
+        setError(false);
+      }
+      return;
+    }
 
     const controller = new AbortController();
     const params = JSON.parse(paramsKey) ?? undefined;
