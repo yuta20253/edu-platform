@@ -1,7 +1,8 @@
 "use client";
 
 import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
-import { useAnnouncement } from "./hooks/useAnnouncement";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { Announcement } from "@/types/announcement/announcement";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -9,7 +10,9 @@ type Props = {
 };
 
 export const AnnouncementDetail = ({ announcementId }: Props) => {
-  const { data, error, refetch } = useAnnouncement(announcementId);
+  const { data, error, refetch } = useApiQuery<Announcement>(
+    `/api/teacher/announcements/${announcementId}`,
+  );
 
   return (
     <AsyncBoundary data={data} error={error} onRetry={refetch}>
