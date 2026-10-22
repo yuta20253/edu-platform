@@ -30,7 +30,7 @@ export const formatStudyMinutes = (minutes: number) => {
 export const rateTrend = (current: number, previous: number | null): Trend =>
   previous === null ? NO_PREVIOUS : signedTrend(current - previous, "pt");
 
-// 前期間が0分のときは増減率を計算できないため「前期間なし」とする
+// 前期間・今期間ともに0分なら「±0%」。前期間だけ0分のときは増減率を計算できないため「前期間なし」とする
 export const minutesTrend = (current: number, previous: number): Trend => {
   if (current === previous) return { direction: "flat", text: "±0%" };
   if (previous === 0) return NO_PREVIOUS;
