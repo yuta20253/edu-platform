@@ -18,7 +18,7 @@ describe("useAnnouncement", () => {
     vi.clearAllMocks();
   });
 
-  it("お知らせ詳細を取得しannouncementにセットする", async () => {
+  it("お知らせ詳細を取得しdataにセットする", async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {
         id: 1,
@@ -31,31 +31,28 @@ describe("useAnnouncement", () => {
 
     const { result } = renderHook(() => useAnnouncement(1));
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.announcement?.title).toBe("お知らせ");
+    await waitFor(() => expect(result.current.data?.title).toBe("お知らせ"));
     expect(result.current.error).toBe(false);
-    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/announcements/1");
+    expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/announcements/1", {
+      params: undefined,
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it("401エラー時はログイン画面へリダイレクトする", async () => {
-    vi.mocked(apiClient.get).mockRejectedValue({
-      response: { status: 401 },
-    });
+    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 401 } });
 
     renderHook(() => useAnnouncement(1));
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
 
-  it("401以外のエラー時はerrorをtrueにしannouncementをnullにする", async () => {
-    vi.mocked(apiClient.get).mockRejectedValue({
-      response: { status: 500 },
-    });
+  it("401以外のエラー時はerrorをtrueにしdataをnullのままにする", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
 
     const { result } = renderHook(() => useAnnouncement(1));
 
     await waitFor(() => expect(result.current.error).toBe(true));
-    expect(result.current.announcement).toBeNull();
-    expect(result.current.loading).toBe(false);
+    expect(result.current.data).toBeNull();
   });
 });
