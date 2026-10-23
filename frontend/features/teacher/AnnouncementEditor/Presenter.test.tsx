@@ -503,7 +503,7 @@ describe("AnnouncementEditorPresenter", () => {
         "山田太郎",
       );
     });
-  
+
     it("予約投稿の編集では、下書きの配信タイミングと「下書き保存」ボタンを選べない", () => {
       render(
         <Presenter
@@ -525,8 +525,12 @@ describe("AnnouncementEditorPresenter", () => {
       expect(
         screen.queryByRole("button", { name: "下書き保存" }),
       ).not.toBeInTheDocument();
-      expect(screen.getByRole("radio", { name: "即時公開" })).toBeInTheDocument();
-      expect(screen.getByRole("radio", { name: "予約投稿" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("radio", { name: "即時公開" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("radio", { name: "予約投稿" }),
+      ).toBeInTheDocument();
     });
 
     it("下書きの編集では、下書きの配信タイミングと「下書き保存」ボタンを選べる", () => {
@@ -539,7 +543,7 @@ describe("AnnouncementEditorPresenter", () => {
         screen.getByRole("button", { name: "下書き保存" }),
       ).toBeInTheDocument();
     });
-  
+
     it("学年制限のある教員は、編集時も配信先の種類を学年別・個人からしか選べない", () => {
       render(
         <Presenter

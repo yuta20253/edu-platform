@@ -86,9 +86,7 @@ describe("AnnouncementEditor", () => {
 
     render(<AnnouncementEditor announcementId={9} />);
 
-    expect(screen.getByTestId("presenter")).toHaveTextContent(
-      "既存のお知らせ",
-    );
+    expect(screen.getByTestId("presenter")).toHaveTextContent("既存のお知らせ");
   });
 
   it("取得に失敗したらエラーを表示し、再試行でrefetchが呼ばれる", () => {
