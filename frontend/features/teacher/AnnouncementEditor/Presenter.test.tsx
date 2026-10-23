@@ -503,5 +503,41 @@ describe("AnnouncementEditorPresenter", () => {
         "山田太郎",
       );
     });
+  
+    it("予約投稿の編集では、下書きの配信タイミングと「下書き保存」ボタンを選べない", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={{
+            ...draftEditData,
+            announcement: {
+              ...draftEditData.announcement,
+              status: "scheduled",
+              scheduled_at: "2099-01-01T00:00:00.000Z",
+            },
+          }}
+        />,
+      );
+
+      expect(
+        screen.queryByRole("radio", { name: "配信しない(下書き)" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "下書き保存" }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("radio", { name: "即時公開" })).toBeInTheDocument();
+      expect(screen.getByRole("radio", { name: "予約投稿" })).toBeInTheDocument();
+    });
+
+    it("下書きの編集では、下書きの配信タイミングと「下書き保存」ボタンを選べる", () => {
+      render(<Presenter {...defaultProps} editData={draftEditData} />);
+
+      expect(
+        screen.getByRole("radio", { name: "配信しない(下書き)" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "下書き保存" }),
+      ).toBeInTheDocument();
+    });
   });
 });
