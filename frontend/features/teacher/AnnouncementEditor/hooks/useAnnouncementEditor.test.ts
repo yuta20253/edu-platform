@@ -1,17 +1,41 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useAnnouncementEditor } from "./useAnnouncementEditor";
-import type { AnnouncementFormValues } from "../types";
+import type { AnnouncementEditData, AnnouncementFormValues } from "../types";
 
 const pushMock = vi.fn();
+const replaceMock = vi.fn();
+// 実際のrouterと同じく、描画ごとに同じオブジェクトを返す(取得のeffectが再実行され続けないように)
+const router = { push: pushMock, replace: replaceMock };
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => router,
 }));
 
 vi.mock("@/libs/http/apiClient", () => ({
-  apiClient: { post: vi.fn(), patch: vi.fn() },
+  apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn() },
 }));
+
+const editData: AnnouncementEditData = {
+  announcement: {
+    id: 9,
+    title: "既存のお知らせ",
+    content: "既存の本文",
+    status: "draft",
+    scheduled_at: null,
+  },
+  announcement_targets: [
+    {
+      id: 10,
+      target_type: "by_user",
+      high_school_id: null,
+      grade_id: null,
+      user_role_id: null,
+      user_id: 5,
+      user_name: "山田太郎",
+    },
+  ],
+};
 
 const baseValues: AnnouncementFormValues = {
   title: "お知らせ",
@@ -147,5 +171,68 @@ describe("useAnnouncementEditor", () => {
     });
 
     expect(pushMock).toHaveBeenCalledWith("/login");
+  });
+
+  it("新規作成時は編集データを取得しない", () => {
+    const { result } = renderHook(() => useAnnouncementEditor());
+
+    expect(result.current.isEditMode).toBe(false);
+    expect(apiClient.get).not.toHaveBeenCalled();
+  });
+
+  describe("編集時の取得", () => {
+    it("編集データを取得してeditDataに入れる", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: editData });
+      const { result } = renderHook(() => useAnnouncementEditor(9));
+
+      expect(result.current.isEditMode).toBe(true);
+      await waitFor(() => expect(result.current.editData).toEqual(editData));
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/api/teacher/announcements/9/edit",
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      );
+      expect(result.current.fetchError).toBeNull();
+    });
+
+    it("404(配信済み・存在しない)のときは一覧へリダイレクトする", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 404 } });
+      const { result } = renderHook(() => useAnnouncementEditor(9));
+
+      await waitFor(() =>
+        expect(replaceMock).toHaveBeenCalledWith("/teacher/announcements"),
+      );
+      expect(result.current.fetchError).toBeNull();
+    });
+
+    it("403(他の教員のお知らせ)のときはfetchErrorがforbiddenになる", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 403 } });
+      const { result } = renderHook(() => useAnnouncementEditor(9));
+
+      await waitFor(() => expect(result.current.fetchError).toBe("forbidden"));
+      expect(result.current.editData).toBeNull();
+    });
+
+    it("401のときはログイン画面へ遷移しエラーにしない", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 401 } });
+      const { result } = renderHook(() => useAnnouncementEditor(9));
+
+      await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+      expect(result.current.fetchError).toBeNull();
+    });
+
+    it("その他の失敗はfetchErrorがfailedになり、refetchで再取得できる", async () => {
+      vi.mocked(apiClient.get).mockRejectedValueOnce({
+        response: { status: 500 },
+      });
+      const { result } = renderHook(() => useAnnouncementEditor(9));
+
+      await waitFor(() => expect(result.current.fetchError).toBe("failed"));
+
+      vi.mocked(apiClient.get).mockResolvedValueOnce({ data: editData });
+      act(() => result.current.refetch());
+
+      await waitFor(() => expect(result.current.editData).toEqual(editData));
+      expect(result.current.fetchError).toBeNull();
+    });
   });
 });
