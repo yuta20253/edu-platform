@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { AnnouncementEditData, AnnouncementFormValues } from "../types";
 
 // 編集データの取得エラー。forbiddenは他の教員のお知らせで、再試行しても取得できない。
-export type EditFetchError = "forbidden" | "failed";
+type EditFetchError = "forbidden" | "failed";
 
 type Delivery =
   | { status: "draft" }
