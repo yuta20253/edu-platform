@@ -1,5 +1,5 @@
 import { format, isValid, parse, subDays } from "date-fns";
-import { tokyoToday } from "@/libs/date/tokyoDate";
+import { tokyoTodayAsLocalDate } from "@/libs/date/tokyoDate";
 
 export type PeriodPreset = 7 | 30 | 90;
 
@@ -18,10 +18,10 @@ const DEFAULT_PERIOD: AnalyticsPeriod = { from: "", to: "" };
 export const isDefaultPeriod = ({ from, to }: AnalyticsPeriod) => !from && !to;
 
 // 今日を含む N 日間。バックエンドの既定値(直近7日=6日前〜今日)と揃える。
-// today は日本時間の今日(tokyoToday)を渡す
+// today は日本時間の今日(tokyoTodayAsLocalDate)を渡す
 export const presetRange = (
   days: PeriodPreset,
-  today: Date = tokyoToday(),
+  today: Date = tokyoTodayAsLocalDate(),
 ): AnalyticsPeriod => ({
   from: format(subDays(today, days - 1), DATE_FORMAT),
   to: format(today, DATE_FORMAT),
@@ -29,7 +29,7 @@ export const presetRange = (
 
 export const detectPreset = (
   { from, to }: AnalyticsPeriod,
-  today: Date = tokyoToday(),
+  today: Date = tokyoTodayAsLocalDate(),
 ): PeriodPreset | null => {
   if (isDefaultPeriod({ from, to })) return DEFAULT_PRESET;
 

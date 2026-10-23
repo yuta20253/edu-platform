@@ -8,11 +8,11 @@ const tokyoDateFormatter = new Intl.DateTimeFormat("en-CA", {
 });
 
 // 指定した時刻の日本時間での日付を yyyy-MM-dd で返す
-export const formatTokyoDate = (date: Date) => tokyoDateFormatter.format(date);
+const formatTokyoDate = (date: Date) => tokyoDateFormatter.format(date);
 
 // 日本時間の今日の日付を、端末のタイムゾーンの 0 時の Date として返す。
 // date-fns の subDays・format などで日付単位の計算をそのまま行えるようにする
-export const tokyoToday = (now: Date = new Date()) => {
+export const tokyoTodayAsLocalDate = (now: Date = new Date()) => {
   const [year, month, day] = formatTokyoDate(now).split("-").map(Number);
   return new Date(year, month - 1, day);
 };
