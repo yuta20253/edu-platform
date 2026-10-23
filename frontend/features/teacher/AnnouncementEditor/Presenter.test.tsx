@@ -13,6 +13,17 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+// 「個人」の行の生徒検索はAPIを呼ぶため、検索結果が空の状態に固定する
+vi.mock("./hooks/useStudentSearch", () => ({
+  useStudentSearch: () => ({
+    query: "",
+    handleQueryChange: vi.fn(),
+    page: 1,
+    setPage: vi.fn(),
+    students: null,
+  }),
+}));
+
 vi.mock("@mui/x-date-pickers/DateTimePicker", () => ({
   DateTimePicker: ({
     value,
@@ -464,6 +475,32 @@ describe("AnnouncementEditorPresenter", () => {
       expect(screen.getByRole("radio", { name: "予約投稿" })).toBeChecked();
       expect(screen.getByLabelText("配信日時")).toHaveValue(
         "2099-01-01T00:00:00.000Z",
+      );
+    });
+  
+    it("選択済みの「個人」配信先は、生徒の検索結果に関係なくuser_nameで表示される", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={{
+            ...draftEditData,
+            announcement_targets: [
+              {
+                id: 12,
+                target_type: "by_user",
+                high_school_id: null,
+                grade_id: null,
+                user_role_id: null,
+                user_id: 5,
+                user_name: "山田太郎",
+              },
+            ],
+          }}
+        />,
+      );
+
+      expect(screen.getByRole("combobox", { name: "生徒" })).toHaveTextContent(
+        "山田太郎",
       );
     });
   });

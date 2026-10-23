@@ -64,9 +64,11 @@ const mockStudentSearch = (base: AnnouncementTargetOptions = options) => {
 const Host = ({
   defaultValues,
   opts = options,
+  selectedStudentNames,
 }: {
   defaultValues: AnnouncementFormValues;
   opts?: AnnouncementTargetOptions | null;
+  selectedStudentNames?: Record<number, string>;
 }) => {
   const { control, watch } = useForm<AnnouncementFormValues>({
     defaultValues,
@@ -74,7 +76,11 @@ const Host = ({
   return (
     <>
       <pre data-testid="targets">{JSON.stringify(watch("targets"))}</pre>
-      <TargetPicker control={control} options={opts} />
+      <TargetPicker
+        control={control}
+        options={opts}
+        selectedStudentNames={selectedStudentNames}
+      />
     </>
   );
 };
@@ -342,5 +348,24 @@ describe("TargetPicker", () => {
     expect(
       screen.getAllByRole("combobox", { name: "配信先の種類" }),
     ).toHaveLength(1);
+  });
+
+  it("初期値で選択済みの生徒が検索結果のページにいなくても、渡された名前で表示される", async () => {
+    render(
+      <Host
+        defaultValues={{
+          ...baseValues,
+          targets: [{ target_type: "by_user", user_id: 99 }],
+        }}
+        selectedStudentNames={{ 99: "鈴木一郎" }}
+      />,
+    );
+
+    // 検索結果(山田太郎のみ)が届いた後も、選択済みの生徒の名前が表示される
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalled());
+    expect(screen.getByRole("combobox", { name: "生徒" })).toHaveTextContent(
+      "鈴木一郎",
+    );
+    expect(currentTargets()).toEqual([{ target_type: "by_user", user_id: 99 }]);
   });
 });
