@@ -235,4 +235,107 @@ describe("useAnnouncementEditor", () => {
       expect(result.current.fetchError).toBeNull();
     });
   });
+
+  describe("編集時の保存", () => {
+    const editValues: AnnouncementFormValues = {
+      ...baseValues,
+      targets: [{ target_type: "by_user", user_id: 5 }],
+    };
+
+    const renderEditHook = async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: editData });
+      vi.mocked(apiClient.patch).mockResolvedValue({
+        data: { message: "お知らせを更新しました。" },
+      });
+      const hook = renderHook(() => useAnnouncementEditor(9));
+      await waitFor(() => expect(hook.result.current.editData).not.toBeNull());
+      return hook;
+    };
+
+    it("下書き保存は全項目をstatus: draftで1回PATCHし一覧へ遷移する", async () => {
+      const { result } = await renderEditHook();
+
+      await act(async () => {
+        await result.current.onSaveDraft(editValues);
+      });
+
+      expect(apiClient.patch).toHaveBeenCalledTimes(1);
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/api/teacher/announcements/9",
+        {
+          title: "お知らせ",
+          content: "本文",
+          announcement_targets: [{ target_type: "by_user", user_id: 5 }],
+          status: "draft",
+          scheduled_at: null,
+        },
+      );
+      expect(apiClient.post).not.toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/teacher/announcements");
+    });
+
+    it("即時配信は全項目をstatus: publishedで1回PATCHする", async () => {
+      const { result } = await renderEditHook();
+
+      await act(async () => {
+        await result.current.onDeliver({
+          ...editValues,
+          deliveryTiming: "immediate",
+        });
+      });
+
+      expect(apiClient.patch).toHaveBeenCalledTimes(1);
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/api/teacher/announcements/9",
+        expect.objectContaining({ status: "published", scheduled_at: null }),
+      );
+      expect(apiClient.post).not.toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/teacher/announcements");
+    });
+
+    it("予約配信は全項目をstatus: scheduledとscheduled_atで1回PATCHする", async () => {
+      const { result } = await renderEditHook();
+      const scheduledAt = new Date("2099-01-01T00:00:00.000Z");
+
+      await act(async () => {
+        await result.current.onDeliver({
+          ...editValues,
+          deliveryTiming: "scheduled",
+          scheduledAt,
+        });
+      });
+
+      expect(apiClient.patch).toHaveBeenCalledTimes(1);
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        "/api/teacher/announcements/9",
+        {
+          title: "お知らせ",
+          content: "本文",
+          announcement_targets: [{ target_type: "by_user", user_id: 5 }],
+          status: "scheduled",
+          scheduled_at: scheduledAt.toISOString(),
+        },
+      );
+      expect(apiClient.post).not.toHaveBeenCalled();
+    });
+
+    it("422エラーが返るとsubmitErrorに反映され遷移しない", async () => {
+      const { result } = await renderEditHook();
+      vi.mocked(apiClient.patch).mockRejectedValue({
+        response: {
+          status: 422,
+          data: { errors: ["配信済みのお知らせは編集できません"] },
+        },
+      });
+
+      await act(async () => {
+        await result.current.onSaveDraft(editValues);
+      });
+
+      expect(result.current.submitError).toBe(
+        "配信済みのお知らせは編集できません",
+      );
+      expect(pushMock).not.toHaveBeenCalled();
+    });
+  });
 });
