@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { apiClient } from "@/libs/http/apiClient";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ export const useStudent = (studentId: number) => {
   const [data, setData] = useState<StudentDetailResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export const useStudent = (studentId: number) => {
     return () => {
       controller.abort();
     };
-  }, [router, studentId, tab, page]);
+  }, [router, studentId, tab, page, reloadKey]);
 
   // ページはタスクタブだけで使うため、タブを変えたら1ページ目に戻す
   const changeTab = (nextTab: StudentDetailTab) => {
@@ -66,5 +67,7 @@ export const useStudent = (studentId: number) => {
     setPage(1);
   };
 
-  return { data, tab, page, loading, error, changeTab, setPage };
+  const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
+
+  return { data, tab, page, loading, error, changeTab, setPage, refetch };
 };

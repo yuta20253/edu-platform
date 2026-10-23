@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useFetchPermissions } from "./hooks/useFetchPermissions";
 import { usePermissionForm } from "./hooks/usePermissionForm";
 import { useUpdatePermission } from "./hooks/useUpdatePermission";
@@ -22,50 +22,24 @@ export const Permissions = () => {
     handleSnackbarClose,
   } = useUpdatePermission({ onUpdated: refetch, form });
 
-  if (error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
-  if (!data) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
-      data={data}
-      page={page}
-      onPageChange={setPage}
-      editingTeacher={editingTeacher}
-      onEditClick={handleEditClick}
-      onDrawerClose={handleDrawerClose}
-      onUpdate={handleUpdate}
-      updating={updating}
-      updateErrors={updateErrors}
-      snackbar={snackbar}
-      onSnackbarClose={handleSnackbarClose}
-      form={form}
-    />
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(permissions) => (
+        <Presenter
+          data={permissions}
+          page={page}
+          onPageChange={setPage}
+          editingTeacher={editingTeacher}
+          onEditClick={handleEditClick}
+          onDrawerClose={handleDrawerClose}
+          onUpdate={handleUpdate}
+          updating={updating}
+          updateErrors={updateErrors}
+          snackbar={snackbar}
+          onSnackbarClose={handleSnackbarClose}
+          form={form}
+        />
+      )}
+    </AsyncBoundary>
   );
 };

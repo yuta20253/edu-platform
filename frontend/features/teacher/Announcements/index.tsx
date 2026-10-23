@@ -1,44 +1,38 @@
 "use client";
 
-import { CircularProgress } from "@mui/material";
-import Box from "@mui/material/Box";
 import { useState } from "react";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useAnnouncements } from "./hooks/useAnnouncements";
 import { Presenter } from "./Presenter";
 import { AnnouncementTab } from "./types";
 
-export const Announcements = () => {
-  const [tab, setTab] = useState<AnnouncementTab>("received");
+type ListProps = {
+  tab: AnnouncementTab;
+  onTabChange: (tab: AnnouncementTab) => void;
+};
+
+const AnnouncementList = ({ tab, onTabChange }: ListProps) => {
   const [page, setPage] = useState(1);
-  const { data, loading } = useAnnouncements(tab, page);
-
-  const handleTabChange = (nextTab: AnnouncementTab) => {
-    setTab(nextTab);
-    setPage(1);
-  };
-
-  if (loading || !data) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const { data, error, refetch } = useAnnouncements(tab, page);
 
   return (
-    <Presenter
-      tab={tab}
-      data={data}
-      page={page}
-      onTabChange={handleTabChange}
-      onPageChange={setPage}
-    />
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(result) => (
+        <Presenter
+          tab={tab}
+          data={result}
+          page={page}
+          onTabChange={onTabChange}
+          onPageChange={setPage}
+        />
+      )}
+    </AsyncBoundary>
   );
+};
+
+export const Announcements = () => {
+  const [tab, setTab] = useState<AnnouncementTab>("received");
+
+  // タブごとに作り直し、ページも1ページ目に戻す(タブをまたいで data を引き継がない)
+  return <AnnouncementList key={tab} tab={tab} onTabChange={setTab} />;
 };

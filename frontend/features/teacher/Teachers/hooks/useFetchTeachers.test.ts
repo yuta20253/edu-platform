@@ -32,6 +32,7 @@ describe("useFetchTeachers", () => {
     expect(result.current.data).toEqual(teachersData);
     expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/teachers", {
       params: { page: "1" },
+      signal: expect.any(AbortSignal),
     });
   });
 
@@ -54,6 +55,7 @@ describe("useFetchTeachers", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/teachers", {
         params: { page: "2" },
+        signal: expect.any(AbortSignal),
       }),
     );
   });

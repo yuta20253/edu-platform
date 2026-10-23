@@ -1,49 +1,22 @@
 "use client";
 
-import { useSchoolClass } from "./hooks/useSchoolClass";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { Presenter } from "./Presenter";
+import { SchoolClassDetailType } from "./types";
 
 type Props = {
   schoolClassId: number;
 };
 
 export const SchoolClassDetail = ({ schoolClassId }: Props) => {
-  const { schoolClass, loading, error } = useSchoolClass(schoolClassId);
+  const { data, error, refetch } = useApiQuery<SchoolClassDetailType>(
+    `/api/teacher/school-classes/${schoolClassId}`,
+  );
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error || !schoolClass) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          データの取得に失敗しました
-        </Typography>
-      </Box>
-    );
-  }
-
-  return <Presenter schoolClass={schoolClass} />;
+  return (
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(schoolClass) => <Presenter schoolClass={schoolClass} />}
+    </AsyncBoundary>
+  );
 };
