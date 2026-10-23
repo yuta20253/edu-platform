@@ -539,5 +539,25 @@ describe("AnnouncementEditorPresenter", () => {
         screen.getByRole("button", { name: "下書き保存" }),
       ).toBeInTheDocument();
     });
+  
+    it("学年制限のある教員は、編集時も配信先の種類を学年別・個人からしか選べない", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          options={{ ...options, own_grade_restriction: 1 }}
+          editData={{
+            ...draftEditData,
+            announcement_targets: [draftEditData.announcement_targets[0]],
+          }}
+        />,
+      );
+
+      const targetType = screen.getByRole("combobox", { name: "配信先の種類" });
+      expect(targetType).toHaveTextContent("学年別");
+      fireEvent.mouseDown(targetType);
+      expect(
+        screen.getAllByRole("option").map((option) => option.textContent),
+      ).toEqual(["学年別", "個人"]);
+    });
   });
 });
