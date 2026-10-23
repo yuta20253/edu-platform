@@ -229,4 +229,107 @@ describe("useApiQuery", () => {
       expect(result.current.error).toBe(false);
     });
   });
+
+  describe("enabled", () => {
+    it("falseの間は取得しない", async () => {
+      const { result } = renderHook(() =>
+        useApiQuery<Item>("/api/items", { enabled: false }),
+      );
+      await flushPromises();
+
+      expect(apiClient.get).not.toHaveBeenCalled();
+      expect(result.current.data).toBeNull();
+      expect(result.current.error).toBe(false);
+    });
+
+    it("trueに変わったら取得する", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: { id: 1 } });
+      const { result, rerender } = renderHook(
+        ({ enabled }) => useApiQuery<Item>("/api/items", { enabled }),
+        { initialProps: { enabled: false } },
+      );
+
+      rerender({ enabled: true });
+
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+    });
+
+    it("取得中にfalseに変わったらリクエストを中断する", async () => {
+      vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
+      const { rerender } = renderHook(
+        ({ enabled }) => useApiQuery<Item>("/api/items", { enabled }),
+        { initialProps: { enabled: true } },
+      );
+      const signal = vi.mocked(apiClient.get).mock.calls[0][1]
+        ?.signal as AbortSignal;
+
+      rerender({ enabled: false });
+
+      expect(signal.aborted).toBe(true);
+    });
+
+    it("取得後にfalseに変わってもkeepPreviousData省略時はdataを残す", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: { id: 1 } });
+      const { result, rerender } = renderHook(
+        ({ enabled }) => useApiQuery<Item>("/api/items", { enabled }),
+        { initialProps: { enabled: true } },
+      );
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      rerender({ enabled: false });
+      await flushPromises();
+
+      expect(result.current.data).toEqual({ id: 1 });
+    });
+  });
+
+  describe("keepPreviousData", () => {
+    it("falseなら再取得の開始時に前回のdataを消す", async () => {
+      vi.mocked(apiClient.get)
+        .mockResolvedValueOnce({ data: { id: 1 } })
+        .mockReturnValueOnce(new Promise(() => {}));
+      const { result, rerender } = renderHook(
+        ({ id }) =>
+          useApiQuery<Item>("/api/items", {
+            params: { id },
+            keepPreviousData: false,
+          }),
+        { initialProps: { id: 1 } },
+      );
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      rerender({ id: 2 });
+
+      expect(result.current.data).toBeNull();
+    });
+
+    it("falseなら取得後にenabledがfalseに変わるとdataを消す", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: { id: 1 } });
+      const { result, rerender } = renderHook(
+        ({ enabled }) =>
+          useApiQuery<Item>("/api/items", { enabled, keepPreviousData: false }),
+        { initialProps: { enabled: true } },
+      );
+      await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
+
+      rerender({ enabled: false });
+
+      expect(result.current.data).toBeNull();
+      expect(result.current.error).toBe(false);
+    });
+
+    it("falseなら失敗後にenabledがfalseに変わるとerrorを消す", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
+      const { result, rerender } = renderHook(
+        ({ enabled }) =>
+          useApiQuery<Item>("/api/items", { enabled, keepPreviousData: false }),
+        { initialProps: { enabled: true } },
+      );
+      await waitFor(() => expect(result.current.error).toBe(true));
+
+      rerender({ enabled: false });
+
+      expect(result.current.error).toBe(false);
+    });
+  });
 });

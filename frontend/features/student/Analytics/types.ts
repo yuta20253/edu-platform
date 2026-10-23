@@ -58,3 +58,40 @@ export type AnalyticsResult =
   | { type: "grade_average"; data: GradeAverageData }
   | { type: "course_rank"; data: RankData }
   | { type: "unit_rank"; data: RankData };
+
+type PeriodComparison<T> = {
+  current: T;
+  // 前期間に該当データがない科目は null
+  previous: T | null;
+};
+
+export type StudyMinutesPoint = {
+  date: string;
+  minutes: number;
+};
+
+export type SubjectProgress = {
+  subject_name: string;
+  correct_rate: PeriodComparison<number>;
+};
+
+export type AnalyticsSummary = {
+  streak_days: number;
+  task_completion: {
+    current: TaskCompletionData;
+    previous: TaskCompletionData;
+  };
+  study_minutes: {
+    // 31日以下は日別、それより長い期間は週別(date は週の初日)
+    unit: "day" | "week";
+    series: StudyMinutesPoint[];
+    total: { current: number; previous: number };
+  };
+  subject_progress: SubjectProgress[];
+  meta: {
+    from: string;
+    to: string;
+    previous_from: string;
+    previous_to: string;
+  };
+};
