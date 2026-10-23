@@ -10,11 +10,12 @@ export const AnnouncementEditor = () => {
     "",
     1,
   );
-  const { submitting, submitError, onSaveDraft, onDeliver } =
+  const { editData, submitting, submitError, onSaveDraft, onDeliver } =
     useAnnouncementEditor();
 
   return (
     <Presenter
+      editData={editData}
       options={options}
       submitting={submitting}
       submitError={submitError}

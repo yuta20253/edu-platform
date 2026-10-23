@@ -27,14 +27,19 @@ import {
   DELIVERY_TIMING_OPTIONS,
 } from "./constants";
 import type {
+  AnnouncementEditData,
   AnnouncementFormValues,
+  AnnouncementTargetInput,
   AnnouncementTargetOptions,
+  EditableAnnouncementTarget,
 } from "./types";
 
 const TITLE_MAX_LENGTH = 255;
 const CONTENT_MAX_LENGTH = 10_000;
 
 type Props = {
+  // 編集対象の現在の値。新規作成時はnull
+  editData: AnnouncementEditData | null;
   options: AnnouncementTargetOptions | null;
   submitting: boolean;
   submitError: string | null;
@@ -44,7 +49,35 @@ type Props = {
   onDeliver: (values: AnnouncementFormValues) => void;
 };
 
+// id・high_school_id・user_nameは表示用のため、フォームの値(=PATCHで送る値)には入れない
+const toTargetInput = (
+  target: EditableAnnouncementTarget,
+): AnnouncementTargetInput => ({
+  target_type: target.target_type,
+  ...(target.grade_id !== null && { grade_id: target.grade_id }),
+  ...(target.user_role_id !== null && { user_role_id: target.user_role_id }),
+  ...(target.user_id !== null && { user_id: target.user_id }),
+});
+
+const buildDefaultValues = (
+  editData: AnnouncementEditData | null,
+): AnnouncementFormValues => {
+  if (!editData) return DEFAULT_ANNOUNCEMENT_FORM_VALUES;
+
+  const { announcement, announcement_targets } = editData;
+  return {
+    title: announcement.title,
+    content: announcement.content,
+    targets: announcement_targets.map(toTargetInput),
+    deliveryTiming: announcement.status,
+    scheduledAt: announcement.scheduled_at
+      ? new Date(announcement.scheduled_at)
+      : null,
+  };
+};
+
 export const Presenter = ({
+  editData,
   options,
   submitting,
   submitError,
@@ -60,7 +93,7 @@ export const Presenter = ({
     setError,
     formState: { errors },
   } = useForm<AnnouncementFormValues>({
-    defaultValues: DEFAULT_ANNOUNCEMENT_FORM_VALUES,
+    defaultValues: buildDefaultValues(editData),
   });
 
   const deliveryTiming = watch("deliveryTiming");
@@ -91,7 +124,7 @@ export const Presenter = ({
         fontWeight={700}
         sx={{ color: colors.text.primary, mb: 3 }}
       >
-        お知らせを作成
+        {editData ? "お知らせを編集" : "お知らせを作成"}
       </Typography>
 
       {optionsError && (
