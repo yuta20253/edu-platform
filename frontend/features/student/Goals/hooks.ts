@@ -1,43 +1,20 @@
 "use client";
 
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { apiClient } from "@/libs/http/apiClient";
 import { extractApiError } from "@/libs/http/extractApiError";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { GoalsData } from "./types";
 
 export const useGetGoals = () => {
-  const [data, setData] = useState<GoalsData | null>(null);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
-  const router = useRouter();
+  const { data, error, refetch } = useApiQuery<GoalsData>(
+    "/api/student/goals",
+    { params: { page: String(page) } },
+  );
 
-  const fetchGoals = useCallback(() => {
-    const params: Record<string, string> = { page: String(page) };
-    setLoading(true);
-    setError(false);
-
-    apiClient
-      .get<GoalsData>("/api/student/goals", { params })
-      .then((res) => setData(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-          return;
-        }
-
-        setError(true);
-        setData(null);
-      })
-      .finally(() => setLoading(false));
-  }, [page, router]);
-
-  useEffect(() => {
-    fetchGoals();
-  }, [fetchGoals]);
-
-  return { data, page, setPage, loading, error, refetch: fetchGoals };
+  return { data, page, setPage, error, refetch };
 };
 
 type UseDeleteGoalParams = {
