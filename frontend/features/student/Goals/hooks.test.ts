@@ -35,13 +35,11 @@ describe("useGetGoals", () => {
 
     const { result } = renderHook(() => useGetGoals());
 
-    expect(result.current.loading).toBe(true);
-
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual(mockData);
+    await waitFor(() => expect(result.current.data).toEqual(mockData));
     expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/goals", {
       params: { page: "1" },
+      signal: expect.any(AbortSignal),
     });
   });
 
@@ -50,8 +48,7 @@ describe("useGetGoals", () => {
 
     const { result } = renderHook(() => useGetGoals());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.error).toBe(true);
+    await waitFor(() => expect(result.current.error).toBe(true));
     expect(result.current.data).toBeNull();
   });
 
@@ -74,7 +71,7 @@ describe("useGetGoals", () => {
     });
 
     const { result } = renderHook(() => useGetGoals());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
       result.current.setPage(2);
@@ -83,6 +80,7 @@ describe("useGetGoals", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenCalledWith("/api/student/goals", {
         params: { page: "2" },
+        signal: expect.any(AbortSignal),
       }),
     );
     expect(result.current.page).toBe(2);

@@ -43,9 +43,10 @@ describe("useGetAnnouncements", () => {
 
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data?.announcements).toHaveLength(1);
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/student/announcements", {
       params: { page: "1" },
+      signal: expect.any(AbortSignal),
     });
   });
 
@@ -57,17 +58,17 @@ describe("useGetAnnouncements", () => {
     const { result } = renderHook(() => useGetAnnouncements());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).toBe(false);
   });
 
-  it("401以外のエラー時はerrorにセットする", async () => {
+  it("401以外のエラー時はerrorがtrueになる", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({
       response: { status: 500 },
     });
 
     const { result } = renderHook(() => useGetAnnouncements());
 
-    await waitFor(() => expect(result.current.error).not.toBeNull());
+    await waitFor(() => expect(result.current.error).toBe(true));
     expect(pushMock).not.toHaveBeenCalled();
   });
 
@@ -90,7 +91,7 @@ describe("useGetAnnouncements", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith(
         "/api/student/announcements",
-        { params: { page: "2" } },
+        { params: { page: "2" }, signal: expect.any(AbortSignal) },
       ),
     );
   });

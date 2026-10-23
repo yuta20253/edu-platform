@@ -64,7 +64,7 @@ export const Items = () => {
 };
 ```
 
-実装の参考: [`features/student/Interviews`](features/student/Interviews/index.tsx)(分岐の順序・`data` の保持。再試行は未対応)
+実装の参考: [`features/student/Tasks`](features/student/Tasks/index.tsx)(`AsyncBoundary` + `useApiQuery`。分岐の順序・`data` の保持・再試行)
 
 ### 悪い例
 
