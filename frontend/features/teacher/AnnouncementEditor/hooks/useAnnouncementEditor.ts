@@ -64,7 +64,7 @@ export const useAnnouncementEditor = (announcementId?: number) => {
 
   const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
 
-  const create = useCallback(
+  const save = useCallback(
     async (
       values: AnnouncementFormValues,
       delivery: Delivery,
@@ -73,16 +73,29 @@ export const useAnnouncementEditor = (announcementId?: number) => {
       setSubmitting(true);
       setSubmitError(null);
 
+      const payload = {
+        title: values.title,
+        content: values.content,
+        announcement_targets: values.targets,
+        ...delivery,
+      };
+
       try {
-        await apiClient.post<{ announcement_id: number }>(
-          "/api/teacher/announcements",
-          {
-            title: values.title,
-            content: values.content,
-            announcement_targets: values.targets,
-            ...delivery,
-          },
-        );
+        if (isEditMode) {
+          // 編集時のPATCHは全項目必須のため、予約以外でもscheduled_atをnullで明示的に送る
+          await apiClient.patch(
+            `/api/teacher/announcements/${announcementId}`,
+            {
+              scheduled_at: null,
+              ...payload,
+            },
+          );
+        } else {
+          await apiClient.post<{ announcement_id: number }>(
+            "/api/teacher/announcements",
+            payload,
+          );
+        }
         router.push("/teacher/announcements");
       } catch (err) {
         const { status, errors } = extractApiError(err);
@@ -97,20 +110,20 @@ export const useAnnouncementEditor = (announcementId?: number) => {
         setSubmitting(false);
       }
     },
-    [router],
+    [isEditMode, announcementId, router],
   );
 
   const onSaveDraft = useCallback(
     (values: AnnouncementFormValues) =>
-      create(values, { status: "draft" }, "下書きの保存に失敗しました"),
-    [create],
+      save(values, { status: "draft" }, "下書きの保存に失敗しました"),
+    [save],
   );
 
   const onDeliver = useCallback(
     (values: AnnouncementFormValues) => {
       if (values.deliveryTiming === "scheduled") {
         if (!values.scheduledAt) return;
-        return create(
+        return save(
           values,
           {
             status: "scheduled",
@@ -119,13 +132,13 @@ export const useAnnouncementEditor = (announcementId?: number) => {
           "予約配信の設定に失敗しました",
         );
       }
-      return create(
+      return save(
         values,
         { status: "published" },
         "お知らせの配信に失敗しました",
       );
     },
-    [create],
+    [save],
   );
 
   return {
