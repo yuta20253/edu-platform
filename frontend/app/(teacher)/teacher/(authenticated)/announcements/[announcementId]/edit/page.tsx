@@ -6,7 +6,7 @@ type Props = {
   params: Promise<{ announcementId: string }>;
 };
 
-const TeacherAnnouncementEditPage = async ({ params }: Props) => {
+export default async function TeacherAnnouncementEditPage({ params }: Props) {
   const { announcementId } = await params;
 
   // announcementIdが数値でない場合はBFFへ問い合わせず404にする
@@ -15,6 +15,4 @@ const TeacherAnnouncementEditPage = async ({ params }: Props) => {
   }
 
   return <AnnouncementEditor announcementId={Number(announcementId)} />;
-};
-
-export default TeacherAnnouncementEditPage;
+}
