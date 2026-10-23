@@ -110,6 +110,12 @@ export const Presenter = ({
   });
 
   const deliveryTiming = watch("deliveryTiming");
+  // 予約投稿は下書きに戻せない(バックエンドがscheduled→draftの遷移を拒否する)ため、
+  // 送信して422になる前に下書きの選択肢と「下書き保存」ボタンを出さない
+  const canSaveDraft = editData?.announcement.status !== "scheduled";
+  const deliveryTimingOptions = canSaveDraft
+    ? DELIVERY_TIMING_OPTIONS
+    : DELIVERY_TIMING_OPTIONS.filter((option) => option.value !== "draft");
   // 学年制限(own_grade_restriction)は選択肢の取得後に確定するため、取得できるまでは送信させない
   const submitDisabled = submitting || options === null;
 
@@ -224,7 +230,7 @@ export const Presenter = ({
                 control={control}
                 render={({ field }) => (
                   <RadioGroup {...field}>
-                    {DELIVERY_TIMING_OPTIONS.map((option) => (
+                    {deliveryTimingOptions.map((option) => (
                       <FormControlLabel
                         key={option.value}
                         value={option.value}
@@ -281,13 +287,15 @@ export const Presenter = ({
         >
           キャンセル
         </Button>
-        <Button
-          variant="outlined"
-          disabled={submitDisabled}
-          onClick={handleSubmit((values) => onSaveDraft(values))}
-        >
-          下書き保存
-        </Button>
+        {canSaveDraft && (
+          <Button
+            variant="outlined"
+            disabled={submitDisabled}
+            onClick={handleSubmit((values) => onSaveDraft(values))}
+          >
+            下書き保存
+          </Button>
+        )}
         <Button
           variant="contained"
           disabled={submitDisabled || deliveryTiming === "draft"}
