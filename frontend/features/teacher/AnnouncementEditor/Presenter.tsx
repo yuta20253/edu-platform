@@ -76,6 +76,19 @@ const buildDefaultValues = (
   };
 };
 
+// 選択済みの「個人」配信先の名前。生徒一覧はページングされていて選択済みの生徒が
+// 表示中のページにいるとは限らないため、編集データのuser_nameを使う
+const buildSelectedStudentNames = (
+  editData: AnnouncementEditData | null,
+): Record<number, string> =>
+  Object.fromEntries(
+    (editData?.announcement_targets ?? []).flatMap((target) =>
+      target.user_id !== null && target.user_name !== null
+        ? [[target.user_id, target.user_name]]
+        : [],
+    ),
+  );
+
 export const Presenter = ({
   editData,
   options,
@@ -190,7 +203,11 @@ export const Presenter = ({
             </CardContent>
           </Card>
 
-          <TargetPicker control={control} options={options} />
+          <TargetPicker
+            control={control}
+            options={options}
+            selectedStudentNames={buildSelectedStudentNames(editData)}
+          />
         </Stack>
 
         <Box sx={{ flex: "1 1 280px" }}>

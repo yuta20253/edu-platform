@@ -477,7 +477,7 @@ describe("AnnouncementEditorPresenter", () => {
         "2099-01-01T00:00:00.000Z",
       );
     });
-  
+
     it("選択済みの「個人」配信先は、生徒の検索結果に関係なくuser_nameで表示される", () => {
       render(
         <Presenter

@@ -55,12 +55,15 @@ const validateTargets = (targets: AnnouncementTargetInput[]) => {
 type Props = {
   control: Control<AnnouncementFormValues>;
   options: AnnouncementTargetOptions | null;
+  // 編集時に最初から選択済みの「個人」配信先の名前(user_id→名前)
+  selectedStudentNames?: Record<number, string>;
 };
 
 type RowProps = {
   control: Control<AnnouncementFormValues>;
   index: number;
   options: AnnouncementTargetOptions | null;
+  selectedStudentNames?: Record<number, string>;
   onUpdate: UseFieldArrayUpdate<AnnouncementFormValues, "targets">;
   onRemove: () => void;
 };
@@ -69,6 +72,7 @@ const TargetRow = ({
   control,
   index,
   options,
+  selectedStudentNames,
   onUpdate,
   onRemove,
 }: RowProps) => {
@@ -169,7 +173,11 @@ const TargetRow = ({
       )}
 
       {targetType === "by_user" && (
-        <StudentPicker control={control} index={index} />
+        <StudentPicker
+          control={control}
+          index={index}
+          selectedStudentNames={selectedStudentNames}
+        />
       )}
 
       <IconButton aria-label="削除" onClick={onRemove}>
@@ -179,7 +187,11 @@ const TargetRow = ({
   );
 };
 
-export const TargetPicker = ({ control, options }: Props) => {
+export const TargetPicker = ({
+  control,
+  options,
+  selectedStudentNames,
+}: Props) => {
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: "targets",
@@ -204,6 +216,7 @@ export const TargetPicker = ({ control, options }: Props) => {
               control={control}
               index={index}
               options={options}
+              selectedStudentNames={selectedStudentNames}
               onUpdate={update}
               onRemove={() => remove(index)}
             />
