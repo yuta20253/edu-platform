@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
-import type { AnnouncementTargetOptions } from "./types";
+import type { AnnouncementEditData, AnnouncementTargetOptions } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -50,6 +50,7 @@ const options: AnnouncementTargetOptions = {
 };
 
 const defaultProps = {
+  editData: null,
   options,
   submitting: false,
   submitError: null,
@@ -345,5 +346,125 @@ describe("AnnouncementEditorPresenter", () => {
       "href",
       "/teacher/announcements",
     );
+  });
+
+  describe("編集時", () => {
+    const draftEditData: AnnouncementEditData = {
+      announcement: {
+        id: 9,
+        title: "既存のお知らせ",
+        content: "既存の本文",
+        status: "draft",
+        scheduled_at: null,
+      },
+      announcement_targets: [
+        {
+          id: 10,
+          target_type: "by_grade",
+          high_school_id: null,
+          grade_id: 1,
+          user_role_id: 1,
+          user_id: null,
+          user_name: null,
+        },
+        {
+          id: 11,
+          target_type: "all_users",
+          high_school_id: 3,
+          grade_id: null,
+          user_role_id: null,
+          user_id: null,
+          user_name: null,
+        },
+      ],
+    };
+
+    it("新規作成時の見出しは「お知らせを作成」", () => {
+      render(<Presenter {...defaultProps} />);
+      expect(
+        screen.getByRole("heading", { name: "お知らせを作成" }),
+      ).toBeInTheDocument();
+    });
+
+    it("見出しが「お知らせを編集」になり、タイトル・本文が現在の値で表示される", () => {
+      render(<Presenter {...defaultProps} editData={draftEditData} />);
+
+      expect(
+        screen.getByRole("heading", { name: "お知らせを編集" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("textbox", { name: "タイトル" })).toHaveValue(
+        "既存のお知らせ",
+      );
+      expect(screen.getByRole("textbox", { name: "本文" })).toHaveValue(
+        "既存の本文",
+      );
+      expect(
+        screen.getByRole("radio", { name: "配信しない(下書き)" }),
+      ).toBeChecked();
+    });
+
+    it("配信先が現在の値で表示される", () => {
+      render(<Presenter {...defaultProps} editData={draftEditData} />);
+
+      const targetTypes = screen.getAllByRole("combobox", {
+        name: "配信先の種類",
+      });
+      expect(targetTypes).toHaveLength(2);
+      expect(targetTypes[0]).toHaveTextContent("学年別");
+      expect(targetTypes[1]).toHaveTextContent("全員");
+      expect(screen.getByRole("combobox", { name: "学年" })).toHaveTextContent(
+        "1年",
+      );
+      expect(screen.getByRole("combobox", { name: "権限" })).toHaveTextContent(
+        "生徒",
+      );
+    });
+
+    it("変更せずに保存すると、配信先は表示用の項目を除いた値で渡される", async () => {
+      const onSaveDraft = vi.fn();
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={draftEditData}
+          onSaveDraft={onSaveDraft}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+      await waitFor(() =>
+        expect(onSaveDraft).toHaveBeenCalledWith({
+          title: "既存のお知らせ",
+          content: "既存の本文",
+          targets: [
+            { target_type: "by_grade", grade_id: 1, user_role_id: 1 },
+            { target_type: "all_users" },
+          ],
+          deliveryTiming: "draft",
+          scheduledAt: null,
+        }),
+      );
+    });
+
+    it("予約投稿は配信タイミングが予約投稿で、配信日時が現在の値で表示される", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={{
+            ...draftEditData,
+            announcement: {
+              ...draftEditData.announcement,
+              status: "scheduled",
+              scheduled_at: "2099-01-01T00:00:00.000Z",
+            },
+          }}
+        />,
+      );
+
+      expect(screen.getByRole("radio", { name: "予約投稿" })).toBeChecked();
+      expect(screen.getByLabelText("配信日時")).toHaveValue(
+        "2099-01-01T00:00:00.000Z",
+      );
+    });
   });
 });
