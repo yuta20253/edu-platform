@@ -96,7 +96,9 @@ describe("student/Question", () => {
   });
 
   it("回答の送信に失敗すると、取得エラーとは別の文言を表示する", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     vi.mocked(apiClient.get).mockResolvedValue(QUESTIONS);
     vi.mocked(apiClient.post).mockRejectedValue({ response: { status: 500 } });
     render(renderQuestion());
@@ -108,6 +110,7 @@ describe("student/Question", () => {
       await screen.findByText("回答の送信に失敗しました"),
     ).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    consoleError.mockRestore();
   });
 
   // render() は effect を流し切ってから返るため、初回描画だけを見るにはサーバー描画を使う
