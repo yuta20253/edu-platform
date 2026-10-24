@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'rails/**'
+      - '.github/workflows/rails-ci.yml'
 
 defaults:
   run:
