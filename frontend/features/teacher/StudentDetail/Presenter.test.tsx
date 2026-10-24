@@ -179,6 +179,19 @@ describe("StudentDetailPresenter", () => {
         "/teacher/students",
       );
     });
+
+    it.each([
+      ["プロフィール", () => renderPresenter()],
+      ["目標", () => renderGoals([])],
+    ])(
+      "%sタブでも「面談を申請」リンクがこの生徒を選択した申請画面を指している",
+      (_, renderTab) => {
+        renderTab();
+        expect(
+          screen.getByRole("link", { name: "面談を申請" }),
+        ).toHaveAttribute("href", "/teacher/interviews/new?student_id=1");
+      },
+    );
   });
 
   describe("タブ切り替え中・失敗時", () => {

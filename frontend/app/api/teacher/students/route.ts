@@ -8,6 +8,11 @@ export async function GET(req: NextRequest) {
   const page = searchParams.get("page") ?? "1";
 
   const params = new URLSearchParams({ page });
+  // 面談申請フォームの生徒検索で使う。件数の上限は バックエンドで制限する
+  const perPage = searchParams.get("per_page");
+  if (perPage) params.set("per_page", perPage);
+  const keyword = searchParams.get("keyword");
+  if (keyword) params.set("keyword", keyword);
 
   try {
     const { status, data, setCookie } = await backendFetch(
