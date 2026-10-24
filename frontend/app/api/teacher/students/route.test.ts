@@ -46,6 +46,13 @@ describe("GET /api/teacher/students", () => {
     );
   });
 
+  it("per_page を指定したときはバックエンドへ転送する", async () => {
+    await get("?page=1&per_page=100");
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students?page=1&per_page=100",
+    );
+  });
+
   it("バックエンドのレスポンスをそのまま返す", async () => {
     const res = await get("?page=1");
     expect(res.status).toBe(200);
