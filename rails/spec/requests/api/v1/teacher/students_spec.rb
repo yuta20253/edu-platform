@@ -75,6 +75,71 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
     end
   end
 
+  describe 'GET /api/v1/teacher/students(keyword指定)' do
+    subject do
+      get '/api/v1/teacher/students',
+          params: params,
+          headers: headers.merge('Cookie' => cookie)
+    end
+
+    let!(:grade) { create(:grade, high_school: high_school, year: 1) }
+    let!(:other_grade) { create(:grade, high_school: high_school, year: 2) }
+    let!(:yamada) do
+      create(:user, :student, high_school: high_school, grade: grade, name: '山田太郎', name_kana: 'ヤマダタロウ')
+    end
+    let!(:sato) do
+      create(:user, :student, high_school: high_school, grade: grade, name: '佐藤花子', name_kana: 'サトウハナコ')
+    end
+    let!(:other_grade_yamada) do
+      create(:user, :student, high_school: high_school, grade: other_grade, name: '山田次郎', name_kana: 'ヤマダジロウ')
+    end
+    let(:student_names) { response.parsed_body['students'].pluck('name') }
+
+    context 'keywordを指定した場合' do
+      let(:params) { { keyword: '山田' } }
+
+      it '名前が部分一致する生徒だけを返す' do
+        subject
+
+        expect(student_names).to contain_exactly('山田太郎', '山田次郎')
+      end
+    end
+
+    context 'keywordにカナを指定した場合' do
+      let(:params) { { keyword: 'サトウ' } }
+
+      it 'カナが部分一致する生徒を返す' do
+        subject
+
+        expect(student_names).to contain_exactly('佐藤花子')
+      end
+    end
+
+    context 'keywordが空の場合' do
+      let(:params) { { keyword: '' } }
+
+      it '絞り込まずに返す' do
+        subject
+
+        expect(student_names).to contain_exactly('山田太郎', '佐藤花子', '山田次郎')
+      end
+    end
+
+    context 'own_gradeの教員がkeywordを指定した場合' do
+      let!(:teacher) { create(:user, :teacher, high_school: high_school, grade: grade) }
+      let!(:teacher_permission) do
+        create(:teacher_permission, user: teacher, grade_scope: :own_grade)
+      end
+      let(:params) { { keyword: '山田' } }
+
+      it '担当学年の生徒だけを返す' do
+        subject
+
+        expect(student_names).to contain_exactly('山田太郎')
+      end
+    end
+  end
+
   describe 'POST /api/v1/teacher/students' do
     subject do
       post '/api/v1/teacher/students',
