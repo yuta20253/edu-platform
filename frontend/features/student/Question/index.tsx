@@ -1,9 +1,9 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
-import { useGetQuestions } from "./hooks/useGetQuestions";
-import { Presenter } from "./Presenter";
-import { useQuestion } from "./hooks/useQuestion";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { QuestionType } from "@/types/question/question";
+import { QuestionBody } from "./QuestionBody";
 
 type Props = {
   taskId: number;
@@ -13,108 +13,23 @@ type Props = {
 };
 
 export const Question = ({ goalId, taskId, unitId, studyLogId }: Props) => {
-  const { questions, loading, error } = useGetQuestions({ taskId, unitId });
-  const {
-    currentQuestion,
-    currentIndex,
-    selectedChoiceId,
-    isCorrect,
-    correctChoiceNumber,
-    isAnswered,
-    isLastQuestion,
-    openedHintStep,
-    hasError,
-    isSubmitting,
-    setOpenedHintStep,
-    handleNextQuestion,
-    handleSkip,
-    handleAnswer,
-  } = useQuestion({ questions, taskId, unitId, goalId, studyLogId });
+  const { data, error, refetch } = useApiQuery<QuestionType[]>(
+    `/api/student/tasks/${taskId}/units/${unitId}/questions`,
+  );
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!questions || error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
-  if (!currentQuestion) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        問題が存在しません
-      </Box>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        回答の送信に失敗しました
-      </Box>
-    );
-  }
-
+  // refetch は取得失敗時の再試行にだけ使う。成功後に再取得して
+  // questions が差し替わり、出題の位置がずれることがないようにする
   return (
-    <Presenter
-      goalId={goalId}
-      taskId={taskId}
-      unitId={unitId}
-      question={currentQuestion}
-      currentIndex={currentIndex}
-      totalCount={questions.length}
-      selectedChoiceId={selectedChoiceId}
-      isCorrect={isCorrect}
-      correctChoiceNumber={correctChoiceNumber}
-      isAnswered={isAnswered}
-      isLastQuestion={isLastQuestion}
-      openedHintStep={openedHintStep}
-      isSubmitting={isSubmitting}
-      onAnswer={handleAnswer}
-      onSkip={handleSkip}
-      onNextQuestion={handleNextQuestion}
-      onOpenHint={setOpenedHintStep}
-      onCloseHint={() => setOpenedHintStep(0)}
-    />
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(questions) => (
+        <QuestionBody
+          questions={questions}
+          taskId={taskId}
+          unitId={unitId}
+          goalId={goalId}
+          studyLogId={studyLogId}
+        />
+      )}
+    </AsyncBoundary>
   );
 };

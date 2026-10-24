@@ -1,8 +1,10 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
-import { useGetUnit, useStartStudyLog } from "./hooks";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useStartStudyLog } from "./hooks";
 import { Presenter } from "./Presenter";
+import { UnitType } from "./types";
 
 type Props = {
   goalId?: number;
@@ -11,53 +13,27 @@ type Props = {
 };
 
 export const Unit = ({ goalId, taskId, unitId }: Props) => {
-  const { unit, loading, error } = useGetUnit({ taskId, unitId });
+  const { data, error, refetch } = useApiQuery<UnitType>(
+    `/api/student/tasks/${taskId}/units/${unitId}`,
+  );
   const { handleStart, isStarting } = useStartStudyLog({
     taskId,
     unitId,
     goalId,
   });
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!unit || error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
-      goalId={goalId}
-      taskId={taskId}
-      unitId={unitId}
-      unit={unit}
-      onStart={handleStart}
-      isStarting={isStarting}
-    />
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(unit) => (
+        <Presenter
+          goalId={goalId}
+          taskId={taskId}
+          unitId={unitId}
+          unit={unit}
+          onStart={handleStart}
+          isStarting={isStarting}
+        />
+      )}
+    </AsyncBoundary>
   );
 };

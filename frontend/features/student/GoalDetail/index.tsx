@@ -1,15 +1,19 @@
 "use client";
 
-import { Box, CircularProgress, Typography } from "@mui/material";
-import { useGoal, useDeleteGoal } from "./hooks";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useDeleteGoal } from "./hooks";
 import { Presenter } from "./Presenter";
+import { Goal } from "./types";
 
 type Props = {
   goalId: number;
 };
 
 export const GoalDetail = ({ goalId }: Props) => {
-  const { goal, loading, error } = useGoal(goalId);
+  const { data, error, refetch } = useApiQuery<Goal>(
+    `/api/student/goals/${goalId}`,
+  );
 
   const {
     deleteDialogOpen,
@@ -20,49 +24,19 @@ export const GoalDetail = ({ goalId }: Props) => {
     confirmDelete,
   } = useDeleteGoal({ goalId });
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error || !goal) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          データの取得に失敗しました
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
-      goal={goal}
-      deleteDialogOpen={deleteDialogOpen}
-      deleting={deleting}
-      deleteError={deleteError}
-      onDeleteClick={openDeleteDialog}
-      onDeleteDialogClose={closeDeleteDialog}
-      onDeleteConfirm={confirmDelete}
-    />
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(goal) => (
+        <Presenter
+          goal={goal}
+          deleteDialogOpen={deleteDialogOpen}
+          deleting={deleting}
+          deleteError={deleteError}
+          onDeleteClick={openDeleteDialog}
+          onDeleteDialogClose={closeDeleteDialog}
+          onDeleteConfirm={confirmDelete}
+        />
+      )}
+    </AsyncBoundary>
   );
 };
