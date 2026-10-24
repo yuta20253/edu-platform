@@ -60,6 +60,16 @@ describe("useApiQuery", () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
+  it("失敗するとerrorStatusにレスポンスのステータスをセットする", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 404 },
+    });
+    const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.errorStatus).toBe(404);
+  });
+
   it("401のときは/loginに遷移しエラー表示にはしない", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({
       response: { status: 401 },
