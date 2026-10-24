@@ -1,7 +1,8 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
-import { useGetAnnouncement } from "./hooks/useGetAnnouncement";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { Announcement } from "@/types/announcement/announcement";
 import { Presenter } from "./Presenter";
 
 type Props = {
@@ -9,39 +10,13 @@ type Props = {
 };
 
 export const AnnouncementDetail = ({ announcementId }: Props) => {
-  const { announcement, loading, error } = useGetAnnouncement(announcementId);
+  const { data, error, refetch } = useApiQuery<Announcement>(
+    `/api/student/announcements/${announcementId}`,
+  );
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!announcement || error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
-  return <Presenter announcement={announcement} />;
+  return (
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(announcement) => <Presenter announcement={announcement} />}
+    </AsyncBoundary>
+  );
 };
