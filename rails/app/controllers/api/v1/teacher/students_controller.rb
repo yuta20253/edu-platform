@@ -11,7 +11,7 @@ module Api
         DEFAULT_PER_PAGE = 10
 
         def index
-          students = students_scope.page(sanitized_page).per(sanitized_per_page)
+          students = students_scope(keyword: params[:keyword]).page(sanitized_page).per(sanitized_per_page)
           render json: {
             students: ActiveModelSerializers::SerializableResource.new(
               students, each_serializer: StudentSerializer
