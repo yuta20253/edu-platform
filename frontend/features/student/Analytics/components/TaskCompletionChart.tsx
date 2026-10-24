@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Typography } from "@mui/material";
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 import { colors } from "@/app/theme/colors";

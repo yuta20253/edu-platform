@@ -1,78 +1,46 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
 import { Presenter } from "./Presenter";
-import { useAnalytics } from "./hooks/useAnalytics";
-import { AnalyticsContent } from "./components/AnalyticsContent";
+import { useFetchAnalyticsSummary } from "./hooks/useFetchAnalyticsSummary";
+import { useFetchCumulativeAnalytics } from "./hooks/useFetchCumulativeAnalytics";
+import { useFetchRank } from "./hooks/useFetchRank";
+import { usePeriodQuery } from "./hooks/usePeriodQuery";
 
 export const Analytics = () => {
-  const {
-    type,
-    setType,
-    subject,
-    setSubject,
-    courseId,
-    setCourseId,
-    unitId,
-    setUnitId,
-    courses,
-    units,
-    data,
-    loading,
-    error,
-  } = useAnalytics();
-
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
+  const { period, setPeriod } = usePeriodQuery();
+  const summary = useFetchAnalyticsSummary(period);
+  const { gradeAverage, understandingScore } = useFetchCumulativeAnalytics();
+  const rank = useFetchRank();
 
   return (
     <Presenter
-      type={type}
-      setType={setType}
-      subject={subject}
-      setSubject={setSubject}
-      courseId={courseId}
-      setCourseId={setCourseId}
-      unitId={unitId}
-      setUnitId={setUnitId}
-      courses={courses}
-      units={units}
-    >
-      <AnalyticsContent
-        type={type}
-        result={data}
-        courseId={courseId}
-        unitId={unitId}
-      />
-    </Presenter>
+      period={period}
+      onPeriodChange={setPeriod}
+      summary={summary.data}
+      summaryRefreshing={summary.refreshing}
+      summaryError={summary.error}
+      validationErrors={summary.validationErrors}
+      onSummaryRetry={summary.refetch}
+      gradeAverage={gradeAverage.data}
+      gradeAverageError={gradeAverage.error}
+      onGradeAverageRetry={gradeAverage.refetch}
+      understandingScore={understandingScore.data}
+      understandingScoreError={understandingScore.error}
+      onUnderstandingScoreRetry={understandingScore.refetch}
+      rankType={rank.type}
+      onRankTypeChange={rank.setType}
+      rankSubject={rank.subject}
+      onRankSubjectChange={rank.setSubject}
+      rankCourseId={rank.courseId}
+      onRankCourseIdChange={rank.setCourseId}
+      rankUnitId={rank.unitId}
+      onRankUnitIdChange={rank.setUnitId}
+      rankCourses={rank.courses}
+      rankUnits={rank.units}
+      rankSelected={rank.selected}
+      rank={rank.data}
+      rankError={rank.error}
+      onRankRetry={rank.refetch}
+    />
   );
 };

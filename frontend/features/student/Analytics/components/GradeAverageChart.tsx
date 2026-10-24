@@ -1,3 +1,5 @@
+"use client";
+
 import { BarChart } from "@mui/x-charts/BarChart";
 import { colors } from "@/app/theme/colors";
 import { GradeAverageData } from "../types";

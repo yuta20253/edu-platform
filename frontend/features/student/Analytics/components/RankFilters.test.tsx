@@ -1,11 +1,11 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { AnalyticsFilters } from "./AnalyticsFilters";
+import { RankFilters } from "./RankFilters";
 import type { Course } from "@/types/tasks/course";
-import type { AnalyticsType } from "../types";
+import type { RankType } from "../types";
 
 const baseProps = {
-  type: "task_completion" as AnalyticsType,
+  type: "course_rank" as RankType,
   setType: vi.fn(),
   subject: null,
   setSubject: vi.fn(),
@@ -17,20 +17,48 @@ const baseProps = {
   units: [],
 };
 
-describe("AnalyticsFilters", () => {
-  it("course_rank選択時は教科セレクトが表示される", () => {
-    render(<AnalyticsFilters {...baseProps} type="course_rank" />);
+describe("RankFilters(順位)", () => {
+  it("順位の種類としてコース内順位と単元内順位だけを選べる", () => {
+    render(<RankFilters {...baseProps} />);
+
+    fireEvent.mouseDown(screen.getByLabelText("順位の種類"));
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent),
+    ).toEqual(["コース内順位", "単元内順位"]);
+  });
+
+  it("順位の種類を選択するとsetTypeが呼ばれる", () => {
+    const setType = vi.fn();
+    render(<RankFilters {...baseProps} setType={setType} />);
+
+    fireEvent.mouseDown(screen.getByLabelText("順位の種類"));
+    fireEvent.click(screen.getByRole("option", { name: "単元内順位" }));
+
+    expect(setType).toHaveBeenCalledWith("unit_rank");
+  });
+
+  it("教科セレクトが表示される", () => {
+    render(<RankFilters {...baseProps} type="course_rank" />);
     expect(screen.getByLabelText("教科")).toBeInTheDocument();
+  });
+
+  it("コース内順位のときは単元セレクトを表示しない", () => {
+    render(
+      <RankFilters
+        {...baseProps}
+        type="course_rank"
+        courseId={1}
+        units={[{ id: 10, course_id: 1, unit_name: "一次関数" }]}
+      />,
+    );
+    expect(screen.queryByLabelText("単元")).not.toBeInTheDocument();
   });
 
   it("教科を選択するとsetSubjectが呼ばれる", () => {
     const setSubject = vi.fn();
     render(
-      <AnalyticsFilters
-        {...baseProps}
-        type="course_rank"
-        setSubject={setSubject}
-      />,
+      <RankFilters {...baseProps} type="course_rank" setSubject={setSubject} />,
     );
 
     fireEvent.mouseDown(screen.getByLabelText("教科"));
@@ -50,7 +78,7 @@ describe("AnalyticsFilters", () => {
       },
     ];
     render(
-      <AnalyticsFilters
+      <RankFilters
         {...baseProps}
         type="course_rank"
         subject="数学"
@@ -71,7 +99,7 @@ describe("AnalyticsFilters", () => {
       },
     ];
     render(
-      <AnalyticsFilters
+      <RankFilters
         {...baseProps}
         type="course_rank"
         subject={null}
@@ -82,13 +110,13 @@ describe("AnalyticsFilters", () => {
   });
 
   it("unit_rankでコース未選択の間は単元セレクトを表示しない", () => {
-    render(<AnalyticsFilters {...baseProps} type="unit_rank" />);
+    render(<RankFilters {...baseProps} type="unit_rank" />);
     expect(screen.queryByLabelText("単元")).not.toBeInTheDocument();
   });
 
   it("unit_rankでコースが選択されると単元セレクトが表示される", () => {
     render(
-      <AnalyticsFilters
+      <RankFilters
         {...baseProps}
         type="unit_rank"
         courseId={1}
