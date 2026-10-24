@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Presenter } from "./Presenter";
 
@@ -17,21 +18,37 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-const students = [
+const studentOptions = [
   { id: 1, name: "山田太郎" },
   { id: 2, name: "佐藤花子" },
 ];
 
-const selectStudent = (keyword: string, optionName: string) => {
+const renderPresenter = (props: Partial<ComponentProps<typeof Presenter>>) =>
+  render(
+    <Presenter
+      studentOptions={studentOptions}
+      searching={false}
+      searchError={false}
+      onKeywordChange={vi.fn()}
+      onSubmit={vi.fn()}
+      {...props}
+    />,
+  );
+
+const typeStudent = (keyword: string) => {
   const input = screen.getByRole("combobox", { name: "生徒" });
   fireEvent.focus(input);
   fireEvent.change(input, { target: { value: keyword } });
+};
+
+const selectStudent = (keyword: string, optionName: string) => {
+  typeStudent(keyword);
   fireEvent.click(screen.getByRole("option", { name: optionName }));
 };
 
 describe("teacher/CreateInterview Presenter", () => {
   it("見出しと入力項目、一覧へ戻るキャンセルリンクを表示する", () => {
-    render(<Presenter students={students} onSubmit={vi.fn()} />);
+    renderPresenter({});
 
     expect(
       screen.getByRole("heading", { name: "面談を申請", level: 1 }),
@@ -44,21 +61,56 @@ describe("teacher/CreateInterview Presenter", () => {
     );
   });
 
-  it("生徒名の一部を入力すると候補が絞り込まれる", () => {
-    render(<Presenter students={students} onSubmit={vi.fn()} />);
+  it("生徒名を入力すると onKeywordChange を呼び、検索結果をそのまま候補に出す", () => {
+    const onKeywordChange = vi.fn();
+    renderPresenter({ onKeywordChange });
 
-    const input = screen.getByRole("combobox", { name: "生徒" });
-    fireEvent.focus(input);
-    fireEvent.change(input, { target: { value: "佐藤" } });
+    typeStudent("佐藤");
 
+    expect(onKeywordChange).toHaveBeenLastCalledWith("佐藤");
+    // 絞り込みはサーバーで行うため、入力と一致しない候補も消さない
     expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "山田太郎",
       "佐藤花子",
     ]);
   });
 
+  it("候補を選んでも、選んだ名前で検索し直さない", () => {
+    const onKeywordChange = vi.fn();
+    renderPresenter({ onKeywordChange });
+
+    selectStudent("佐藤", "佐藤花子");
+
+    expect(onKeywordChange).not.toHaveBeenCalledWith("佐藤花子");
+  });
+
+  it("検索中は検索中の表示を出す", () => {
+    renderPresenter({ studentOptions: [], searching: true });
+
+    typeStudent("山田");
+
+    expect(screen.getByText("検索中…")).toBeInTheDocument();
+  });
+
+  it("該当する生徒がいないときはその旨を表示する", () => {
+    renderPresenter({ studentOptions: [] });
+
+    typeStudent("存在しない");
+
+    expect(screen.getByText("該当する生徒がいません")).toBeInTheDocument();
+  });
+
+  it("検索に失敗したときは失敗した旨を表示する", () => {
+    renderPresenter({ studentOptions: [], searchError: true });
+
+    typeStudent("山田");
+
+    expect(screen.getByText("生徒の取得に失敗しました")).toBeInTheDocument();
+  });
+
   it("未入力で送信するとバリデーションエラーを表示し onSubmit は呼ばない", async () => {
     const onSubmit = vi.fn();
-    render(<Presenter students={students} onSubmit={onSubmit} />);
+    renderPresenter({ onSubmit });
 
     fireEvent.click(screen.getByRole("button", { name: "申請する" }));
 
@@ -71,7 +123,7 @@ describe("teacher/CreateInterview Presenter", () => {
 
   it("相談内容が2000文字を超えるとバリデーションエラーになる", async () => {
     const onSubmit = vi.fn();
-    render(<Presenter students={students} onSubmit={onSubmit} />);
+    renderPresenter({ onSubmit });
     selectStudent("山田", "山田太郎");
     fireEvent.change(screen.getByLabelText("相談内容"), {
       target: { value: "あ".repeat(2001) },
@@ -87,7 +139,7 @@ describe("teacher/CreateInterview Presenter", () => {
 
   it("生徒と相談内容を入力して送信すると、生徒の id と相談内容で onSubmit を呼ぶ", async () => {
     const onSubmit = vi.fn();
-    render(<Presenter students={students} onSubmit={onSubmit} />);
+    renderPresenter({ onSubmit });
     selectStudent("佐藤", "佐藤花子");
     fireEvent.change(screen.getByLabelText("相談内容"), {
       target: { value: "最近の成績について話したい" },
@@ -103,18 +155,15 @@ describe("teacher/CreateInterview Presenter", () => {
     );
   });
 
-  it("initialStudentId が候補にあれば、その生徒を選択した状態で表示する", async () => {
+  it("initialStudent が検索結果に無くても、その生徒を選択した状態で送信できる", async () => {
     const onSubmit = vi.fn();
-    render(
-      <Presenter
-        students={students}
-        initialStudentId={1}
-        onSubmit={onSubmit}
-      />,
-    );
+    renderPresenter({
+      initialStudent: { id: 150, name: "鈴木一郎" },
+      onSubmit,
+    });
 
     expect(screen.getByRole("combobox", { name: "生徒" })).toHaveValue(
-      "山田太郎",
+      "鈴木一郎",
     );
 
     fireEvent.change(screen.getByLabelText("相談内容"), {
@@ -124,43 +173,16 @@ describe("teacher/CreateInterview Presenter", () => {
 
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(
-        { student_id: 1, reason_detail: "面談したい" },
+        { student_id: 150, reason_detail: "面談したい" },
         expect.anything(),
       ),
     );
   });
 
-  it("initialStudentId が候補に無いときは未選択で表示する", () => {
-    render(
-      <Presenter
-        students={students}
-        initialStudentId={999}
-        onSubmit={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByRole("combobox", { name: "生徒" })).toHaveValue("");
-  });
-
-  it("申請できる生徒がいないときは案内を表示し、送信できない", () => {
-    render(<Presenter students={[]} onSubmit={vi.fn()} />);
-
-    expect(
-      screen.getByText(
-        "申請できる生徒がいません。担当する生徒が登録されているか確認してください",
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "申請する" })).toBeDisabled();
-  });
-
   it("送信エラーがあれば表示する", () => {
-    render(
-      <Presenter
-        students={students}
-        onSubmit={vi.fn()}
-        submitError="この生徒との進行中の面談が既に存在します"
-      />,
-    );
+    renderPresenter({
+      submitError: "この生徒との進行中の面談が既に存在します",
+    });
 
     expect(screen.getByRole("alert")).toHaveTextContent(
       "この生徒との進行中の面談が既に存在します",

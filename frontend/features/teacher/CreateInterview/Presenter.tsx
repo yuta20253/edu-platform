@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { CreateInterviewForm, StudentOption } from "./types";
 
@@ -20,16 +21,23 @@ import { CreateInterviewForm, StudentOption } from "./types";
 const REASON_DETAIL_MAX_LENGTH = 2000;
 
 type Props = {
-  students: StudentOption[];
-  // 生徒詳細から遷移したときに選択しておく生徒。候補に無ければ未選択にする
-  initialStudentId?: number;
+  // サーバーで生徒名を検索した結果。クライアント側では絞り込まない
+  studentOptions: StudentOption[];
+  searching: boolean;
+  searchError: boolean;
+  onKeywordChange: (keyword: string) => void;
+  // 生徒詳細から遷移したときに選択しておく生徒
+  initialStudent?: StudentOption | null;
   onSubmit: SubmitHandler<CreateInterviewForm>;
   submitError?: string;
 };
 
 export const Presenter = ({
-  students,
-  initialStudentId,
+  studentOptions,
+  searching,
+  searchError,
+  onKeywordChange,
+  initialStudent = null,
   onSubmit,
   submitError,
 }: Props) => {
@@ -39,14 +47,15 @@ export const Presenter = ({
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CreateInterviewForm>({
-    defaultValues: {
-      student_id: students.some((s) => s.id === initialStudentId)
-        ? initialStudentId
-        : undefined,
-    },
+    defaultValues: { student_id: initialStudent?.id },
   });
+  const [selectedStudent, setSelectedStudent] = useState(initialStudent);
 
-  const noStudents = students.length === 0;
+  // 選択中の生徒が検索結果に無くても表示できるよう、候補の先頭に含める
+  const options =
+    selectedStudent && !studentOptions.some((s) => s.id === selectedStudent.id)
+      ? [selectedStudent, ...studentOptions]
+      : studentOptions;
 
   return (
     <Box sx={{ p: 3, maxWidth: 560, mx: "auto" }}>
@@ -64,11 +73,6 @@ export const Presenter = ({
         sx={{ border: `1px solid ${colors.border.light}`, borderRadius: 2 }}
       >
         <CardContent>
-          {noStudents && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              申請できる生徒がいません。担当する生徒が登録されているか確認してください
-            </Alert>
-          )}
           {submitError && (
             <Alert severity="error" sx={{ mb: 2, whiteSpace: "pre-line" }}>
               {submitError}
@@ -83,16 +87,31 @@ export const Presenter = ({
                 rules={{ required: "生徒を選択してください" }}
                 render={({ field }) => (
                   <Autocomplete
-                    options={students}
+                    options={options}
                     getOptionLabel={(student) => student.name}
                     isOptionEqualToValue={(option, value) =>
                       option.id === value.id
                     }
-                    value={students.find((s) => s.id === field.value) ?? null}
-                    onChange={(_, student) => field.onChange(student?.id)}
+                    filterOptions={(x) => x}
+                    value={selectedStudent}
+                    onChange={(_, student) => {
+                      setSelectedStudent(student);
+                      field.onChange(student?.id);
+                    }}
+                    onInputChange={(_, value, reason) => {
+                      // 候補を選んだときの表示の書き換えでは検索し直さない
+                      if (reason === "input" || reason === "clear") {
+                        onKeywordChange(value);
+                      }
+                    }}
                     onBlur={field.onBlur}
-                    disabled={noStudents}
-                    noOptionsText="該当する生徒がいません"
+                    loading={searching}
+                    loadingText="検索中…"
+                    noOptionsText={
+                      searchError
+                        ? "生徒の取得に失敗しました"
+                        : "該当する生徒がいません"
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -137,7 +156,7 @@ export const Presenter = ({
                   type="submit"
                   variant="contained"
                   fullWidth
-                  disabled={noStudents || isSubmitting}
+                  disabled={isSubmitting}
                 >
                   申請する
                 </Button>
