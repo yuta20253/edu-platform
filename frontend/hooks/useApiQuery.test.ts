@@ -60,6 +60,24 @@ describe("useApiQuery", () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
+  it("失敗するとerrorStatusにレスポンスのステータスをセットする", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({
+      response: { status: 404 },
+    });
+    const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.errorStatus).toBe(404);
+  });
+
+  it("レスポンスがない失敗ではerrorはtrueでerrorStatusはundefined", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue(new Error("Network Error"));
+    const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.errorStatus).toBeUndefined();
+  });
+
   it("401のときは/loginに遷移しエラー表示にはしない", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({
       response: { status: 401 },
@@ -68,6 +86,7 @@ describe("useApiQuery", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
     expect(result.current.error).toBe(false);
+    expect(result.current.errorStatus).toBeUndefined();
     expect(result.current.data).toBeNull();
   });
 
@@ -228,6 +247,19 @@ describe("useApiQuery", () => {
       await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
       expect(result.current.error).toBe(false);
     });
+
+    it("refetchの開始時にerrorStatusを消す", async () => {
+      vi.mocked(apiClient.get)
+        .mockRejectedValueOnce({ response: { status: 404 } })
+        .mockReturnValueOnce(new Promise(() => {}));
+      const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+      await waitFor(() => expect(result.current.errorStatus).toBe(404));
+
+      act(() => result.current.refetch());
+
+      await waitFor(() => expect(result.current.errorStatus).toBeUndefined());
+      expect(result.current.error).toBe(false);
+    });
   });
 
   describe("enabled", () => {
@@ -318,7 +350,7 @@ describe("useApiQuery", () => {
       expect(result.current.error).toBe(false);
     });
 
-    it("falseなら失敗後にenabledがfalseに変わるとerrorを消す", async () => {
+    it("falseなら失敗後にenabledがfalseに変わるとerrorとerrorStatusを消す", async () => {
       vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
       const { result, rerender } = renderHook(
         ({ enabled }) =>
@@ -326,10 +358,12 @@ describe("useApiQuery", () => {
         { initialProps: { enabled: true } },
       );
       await waitFor(() => expect(result.current.error).toBe(true));
+      expect(result.current.errorStatus).toBe(500);
 
       rerender({ enabled: false });
 
       expect(result.current.error).toBe(false);
+      expect(result.current.errorStatus).toBeUndefined();
     });
   });
 });
