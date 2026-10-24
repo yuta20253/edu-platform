@@ -42,9 +42,10 @@ describe("useFetchPermissions", () => {
 
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data).toEqual(mockData);
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).toBe(false);
     expect(apiClient.get).toHaveBeenCalledWith("/api/teacher/permissions", {
       params: { page: "1" },
+      signal: expect.any(AbortSignal),
     });
   });
 
@@ -61,7 +62,7 @@ describe("useFetchPermissions", () => {
     await waitFor(() =>
       expect(apiClient.get).toHaveBeenLastCalledWith(
         "/api/teacher/permissions",
-        { params: { page: "2" } },
+        { params: { page: "2" }, signal: expect.any(AbortSignal) },
       ),
     );
   });
@@ -74,17 +75,17 @@ describe("useFetchPermissions", () => {
     const { result } = renderHook(() => useFetchPermissions());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).toBe(false);
     expect(result.current.data).toBeNull();
   });
 
-  it("401以外のエラー時はerrorにセットされる", async () => {
+  it("401以外のエラー時はerrorがtrueになる", async () => {
     const apiError = { response: { status: 500 } };
     vi.mocked(apiClient.get).mockRejectedValue(apiError);
 
     const { result } = renderHook(() => useFetchPermissions());
 
-    await waitFor(() => expect(result.current.error).not.toBeNull());
+    await waitFor(() => expect(result.current.error).toBe(true));
     expect(pushMock).not.toHaveBeenCalled();
     expect(result.current.data).toBeNull();
   });

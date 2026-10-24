@@ -34,13 +34,14 @@ describe("useNotificationResults", () => {
 
     const { result } = renderHook(() => useNotificationResults());
 
-    expect(result.current.loading).toBe(true);
+    expect(result.current.data).toBeNull();
+    expect(result.current.error).toBe(false);
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toHaveLength(1);
+    await waitFor(() => expect(result.current.data).toHaveLength(1));
     expect(result.current.data?.[0].email).toBe("sato@example.com");
     expect(apiClient.get).toHaveBeenCalledWith(
       "/api/teacher/teacher_notification_results",
+      { params: undefined, signal: expect.any(AbortSignal) },
     );
   });
 
@@ -52,18 +53,18 @@ describe("useNotificationResults", () => {
     const { result } = renderHook(() => useNotificationResults());
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
-    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBe(false);
     expect(result.current.data).toBeNull();
   });
 
-  it("401以外のエラー時はリダイレクトせずloadingが解除される", async () => {
+  it("401以外のエラー時はリダイレクトせずerrorがtrueになる", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({
       response: { status: 500 },
     });
 
     const { result } = renderHook(() => useNotificationResults());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.error).toBe(true));
     expect(pushMock).not.toHaveBeenCalled();
     expect(result.current.data).toBeNull();
   });

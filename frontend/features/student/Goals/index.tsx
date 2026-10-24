@@ -1,11 +1,11 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { Presenter } from "./Presenter";
 import { useGetGoals, useDeleteGoal } from "./hooks";
 
 export const Goals = () => {
-  const { data, page, setPage, loading, error, refetch } = useGetGoals();
+  const { data, page, setPage, error, refetch } = useGetGoals();
 
   const {
     deleteTarget,
@@ -16,49 +16,21 @@ export const Goals = () => {
     confirmDelete,
   } = useDeleteGoal({ onDeleted: refetch });
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!data || error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
   return (
-    <Presenter
-      data={data}
-      page={page}
-      onPageChange={setPage}
-      onDeleteClick={openDeleteDialog}
-      deleteTarget={deleteTarget}
-      deleting={deleting}
-      deleteError={deleteError}
-      onDeleteDialogClose={closeDeleteDialog}
-      onDeleteConfirm={confirmDelete}
-    />
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(goals) => (
+        <Presenter
+          data={goals}
+          page={page}
+          onPageChange={setPage}
+          onDeleteClick={openDeleteDialog}
+          deleteTarget={deleteTarget}
+          deleting={deleting}
+          deleteError={deleteError}
+          onDeleteDialogClose={closeDeleteDialog}
+          onDeleteConfirm={confirmDelete}
+        />
+      )}
+    </AsyncBoundary>
   );
 };

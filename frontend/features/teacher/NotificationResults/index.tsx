@@ -1,26 +1,15 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { Presenter } from "./Presenter";
 import { useNotificationResults } from "./hooks";
 
 export const NotificationResults = () => {
-  const { data, loading } = useNotificationResults();
+  const { data, error, refetch } = useNotificationResults();
 
-  if (loading || !data) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  return <Presenter data={data} />;
+  return (
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(results) => <Presenter data={results} />}
+    </AsyncBoundary>
+  );
 };

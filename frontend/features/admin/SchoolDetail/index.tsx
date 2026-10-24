@@ -1,8 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
-import { CardSkeleton } from "@/components/ui/CardSkeleton";
-import { ErrorState } from "@/components/ui/ErrorState";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { Presenter } from "./Presenter";
 import { useSchoolDetail } from "./hooks";
 
@@ -13,17 +11,15 @@ type Props = {
 export const SchoolDetail = ({ schoolId }: Props) => {
   const { school, error, retry } = useSchoolDetail(schoolId);
 
-  if (!school) {
-    if (error) {
-      return <ErrorState onRetry={retry} />;
-    }
-
-    return (
-      <Box sx={{ p: 3 }}>
-        <CardSkeleton lines={5} />
-      </Box>
-    );
-  }
-
-  return <Presenter school={school} />;
+  return (
+    <AsyncBoundary
+      data={school}
+      error={error}
+      onRetry={retry}
+      fallback="card-skeleton"
+      skeletonProps={{ lines: 5 }}
+    >
+      {(detail) => <Presenter school={detail} />}
+    </AsyncBoundary>
+  );
 };

@@ -14,9 +14,9 @@ const chip = (name: string) => screen.getByRole("button", { name });
 describe("PeriodChips", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // プリセットの期間は今日基準で決まるため 2026-10-18 に固定する
+    // プリセットの期間は日本時間の今日基準で決まるため 2026-10-18 12:00(JST)に固定する
     vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(new Date(2026, 9, 18));
+    vi.setSystemTime(new Date("2026-10-18T03:00:00Z"));
   });
 
   afterEach(() => {
@@ -85,6 +85,41 @@ describe("PeriodChips", () => {
     const onChange = vi.fn();
     render(<PeriodChips {...defaultProps} onChange={onChange} />);
 
+    fireEvent.click(chip("90日間"));
+
+    expect(onChange).toHaveBeenCalledWith({
+      from: "2026-07-21",
+      to: "2026-10-18",
+    });
+  });
+
+  it("端末が日本以外のタイムゾーンでも、日本時間の今日を終端にする", () => {
+    // vitest.setup.ts で Asia/Tokyo に固定しているため、海外の端末を再現する
+    const originalTZ = process.env.TZ;
+    process.env.TZ = "America/Los_Angeles";
+    try {
+      // ロサンゼルスでは 10/17 の夜、日本時間では 10/18
+      vi.setSystemTime(new Date("2026-10-18T03:00:00Z"));
+      const onChange = vi.fn();
+      render(<PeriodChips {...defaultProps} onChange={onChange} />);
+
+      fireEvent.click(chip("30日間"));
+
+      expect(onChange).toHaveBeenCalledWith({
+        from: "2026-09-19",
+        to: "2026-10-18",
+      });
+    } finally {
+      process.env.TZ = originalTZ;
+    }
+  });
+
+  it("表示後に日付をまたいでも、選択状態の判定と同じ今日で期間を渡す", () => {
+    vi.setSystemTime(new Date("2026-10-18T14:59:59Z"));
+    const onChange = vi.fn();
+    render(<PeriodChips {...defaultProps} onChange={onChange} />);
+
+    vi.setSystemTime(new Date("2026-10-18T15:00:01Z"));
     fireEvent.click(chip("90日間"));
 
     expect(onChange).toHaveBeenCalledWith({

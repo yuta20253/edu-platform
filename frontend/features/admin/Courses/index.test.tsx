@@ -47,4 +47,17 @@ describe("Courses", () => {
 
     expect(screen.getByTestId("presenter")).toBeInTheDocument();
   });
+
+  it("データ表示中の再取得に失敗した場合もエラー表示を優先する", () => {
+    useFetchCoursesMock.mockReturnValue({
+      data: { courses: [], meta: {} },
+      error: true,
+      onRetry: vi.fn(),
+    });
+
+    render(<Courses />);
+
+    expect(screen.getByText("データの取得に失敗しました")).toBeInTheDocument();
+    expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
+  });
 });

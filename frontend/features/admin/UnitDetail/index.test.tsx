@@ -57,4 +57,16 @@ describe("UnitDetail", () => {
 
     expect(screen.getByTestId("presenter")).toBeInTheDocument();
   });
+
+  it("再取得中(loading)でも前回のデータがあれば内容を表示し続ける", () => {
+    useFetchUnitDetailMock.mockReturnValue({
+      unit: {},
+      loading: true,
+      error: false,
+    });
+
+    render(<UnitDetail courseId={1} unitId={2} />);
+
+    expect(screen.getByTestId("presenter")).toBeInTheDocument();
+  });
 });

@@ -1,41 +1,17 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useGetAnnouncements } from "./hooks/useGetAnnouncements";
 import { Presenter } from "./Presenter";
 
 export const Announcements = () => {
-  const { data, page, setPage, error } = useGetAnnouncements();
+  const { data, page, setPage, error, refetch } = useGetAnnouncements();
 
-  if (error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
-  if (!data) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  return <Presenter data={data} page={page} onPageChange={setPage} />;
+  return (
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(announcements) => (
+        <Presenter data={announcements} page={page} onPageChange={setPage} />
+      )}
+    </AsyncBoundary>
+  );
 };

@@ -228,4 +228,26 @@ describe("useStudent", () => {
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.error).toBe(false);
   });
+
+  it("refetch を呼ぶと同じ条件で再取得する", async () => {
+    vi.mocked(apiClient.get)
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({ data: mockStudent });
+
+    const { result } = renderHook(() => useStudent(1));
+    await waitFor(() => expect(result.current.error).toBe(true));
+
+    act(() => {
+      result.current.refetch();
+    });
+
+    await waitFor(() =>
+      expect(result.current.data).toEqual({
+        tab: "profile",
+        data: mockStudent,
+      }),
+    );
+    expect(result.current.error).toBe(false);
+    expect(apiClient.get).toHaveBeenCalledTimes(2);
+  });
 });
