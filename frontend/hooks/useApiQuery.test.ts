@@ -350,7 +350,7 @@ describe("useApiQuery", () => {
       expect(result.current.error).toBe(false);
     });
 
-    it("falseなら失敗後にenabledがfalseに変わるとerrorを消す", async () => {
+    it("falseなら失敗後にenabledがfalseに変わるとerrorとerrorStatusを消す", async () => {
       vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 500 } });
       const { result, rerender } = renderHook(
         ({ enabled }) =>
@@ -358,10 +358,12 @@ describe("useApiQuery", () => {
         { initialProps: { enabled: true } },
       );
       await waitFor(() => expect(result.current.error).toBe(true));
+      expect(result.current.errorStatus).toBe(500);
 
       rerender({ enabled: false });
 
       expect(result.current.error).toBe(false);
+      expect(result.current.errorStatus).toBeUndefined();
     });
   });
 });
