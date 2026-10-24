@@ -24,6 +24,7 @@ const students = [
 
 const selectStudent = (keyword: string, optionName: string) => {
   const input = screen.getByRole("combobox", { name: "生徒" });
+  fireEvent.focus(input);
   fireEvent.change(input, { target: { value: keyword } });
   fireEvent.click(screen.getByRole("option", { name: optionName }));
 };
@@ -46,9 +47,9 @@ describe("teacher/CreateInterview Presenter", () => {
   it("生徒名の一部を入力すると候補が絞り込まれる", () => {
     render(<Presenter students={students} onSubmit={vi.fn()} />);
 
-    fireEvent.change(screen.getByRole("combobox", { name: "生徒" }), {
-      target: { value: "佐藤" },
-    });
+    const input = screen.getByRole("combobox", { name: "生徒" });
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "佐藤" } });
 
     expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
       "佐藤花子",
