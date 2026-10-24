@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'rails/**'
+      - '.github/workflows/rails-ci.yml'
 
 defaults:
   run:
@@ -21,7 +22,6 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version-file: rails/.ruby-version
           bundler-cache: true
           working-directory: rails
 
@@ -72,7 +72,6 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version-file: rails/.ruby-version
           bundler-cache: true
           working-directory: rails
 
@@ -99,7 +98,6 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version-file: rails/.ruby-version
           bundler-cache: true
           working-directory: rails
 
@@ -117,7 +115,6 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version-file: rails/.ruby-version
           bundler-cache: true
           working-directory: rails
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { Box, CircularProgress } from "@mui/material";
-import { useGetTask } from "./hooks";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { Presenter } from "./Presenter";
+import { Task } from "./types";
 
 type Props = {
   taskId: number;
@@ -10,39 +11,13 @@ type Props = {
 };
 
 export const TaskDetail = ({ goalId, taskId }: Props) => {
-  const { task, loading, error } = useGetTask(taskId);
+  const { data, error, refetch } = useApiQuery<Task>(
+    `/api/student/tasks/${taskId}`,
+  );
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!task || error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        データの取得に失敗しました
-      </Box>
-    );
-  }
-
-  return <Presenter task={task} goalId={goalId} />;
+  return (
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(task) => <Presenter task={task} goalId={goalId} />}
+    </AsyncBoundary>
+  );
 };
