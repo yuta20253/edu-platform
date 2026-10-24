@@ -46,7 +46,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
     const controller = new AbortController();
     const params = JSON.parse(paramsKey) ?? undefined;
 
-    // 再取得の開始時は error だけ消し、data は残す(画面が空にならない)
+    // 再取得の開始時は error と errorStatus だけ消し、data は残す(画面が空にならない)
     setError(false);
     setErrorStatus(undefined);
     if (!keepPreviousData) setData(null);
