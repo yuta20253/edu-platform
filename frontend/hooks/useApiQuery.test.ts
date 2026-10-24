@@ -238,6 +238,19 @@ describe("useApiQuery", () => {
       await waitFor(() => expect(result.current.data).toEqual({ id: 1 }));
       expect(result.current.error).toBe(false);
     });
+
+    it("refetchの開始時にerrorStatusを消す", async () => {
+      vi.mocked(apiClient.get)
+        .mockRejectedValueOnce({ response: { status: 404 } })
+        .mockReturnValueOnce(new Promise(() => {}));
+      const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+      await waitFor(() => expect(result.current.errorStatus).toBe(404));
+
+      act(() => result.current.refetch());
+
+      await waitFor(() => expect(result.current.errorStatus).toBeUndefined());
+      expect(result.current.error).toBe(false);
+    });
   });
 
   describe("enabled", () => {
