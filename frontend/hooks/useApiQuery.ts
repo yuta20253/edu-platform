@@ -38,6 +38,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
       if (!keepPreviousData) {
         setData(null);
         setError(false);
+        setErrorStatus(undefined);
       }
       return;
     }
@@ -47,6 +48,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
 
     // 再取得の開始時は error だけ消し、data は残す(画面が空にならない)
     setError(false);
+    setErrorStatus(undefined);
     if (!keepPreviousData) setData(null);
 
     apiClient
