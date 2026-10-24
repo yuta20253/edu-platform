@@ -70,6 +70,14 @@ describe("useApiQuery", () => {
     expect(result.current.errorStatus).toBe(404);
   });
 
+  it("レスポンスがない失敗ではerrorはtrueでerrorStatusはundefined", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue(new Error("Network Error"));
+    const { result } = renderHook(() => useApiQuery<Item>("/api/items"));
+
+    await waitFor(() => expect(result.current.error).toBe(true));
+    expect(result.current.errorStatus).toBeUndefined();
+  });
+
   it("401のときは/loginに遷移しエラー表示にはしない", async () => {
     vi.mocked(apiClient.get).mockRejectedValue({
       response: { status: 401 },
@@ -78,6 +86,7 @@ describe("useApiQuery", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
     expect(result.current.error).toBe(false);
+    expect(result.current.errorStatus).toBeUndefined();
     expect(result.current.data).toBeNull();
   });
 
