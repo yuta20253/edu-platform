@@ -21,6 +21,7 @@ export const NoticeEdit = ({ noticeId }: Props) => {
     <AsyncBoundary
       data={data?.announcement ?? null}
       error={error}
+      errorMessage="お知らせの取得に失敗しました"
       onRetry={refetch}
       fallback="card-skeleton"
       skeletonProps={{ lines: 6 }}
