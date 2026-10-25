@@ -51,6 +51,16 @@ export const useInterviewDetail = (interviewId: string) => {
     fetchDetail();
   }, [fetchDetail]);
 
+  // 再試行は表示を初期状態(スピナー)に戻してから取り直す。
+  // 失敗状態のまま取り直すと、押しても成功するまで画面が変わらず、
+  // 取り直しの失敗のあとは更新前の面談やメッセージが最新のように見えてしまう。
+  const refetch = async () => {
+    setError(false);
+    setInterview(null);
+    setMessages([]);
+    await fetchDetail();
+  };
+
   // メッセージ送信で面談が「申請中→日程調整中」に進み lock_version も変わるため、送信後は面談ごと取り直す
   const sendMessage = async (body: string): Promise<boolean> => {
     setSendError("");
@@ -101,7 +111,7 @@ export const useInterviewDetail = (interviewId: string) => {
     interview,
     messages,
     error,
-    refetch: fetchDetail,
+    refetch,
     sendMessage,
     sendError,
     cancel,
