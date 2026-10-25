@@ -28,8 +28,8 @@ import {
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CancelInterviewDialog } from "./components/CancelInterviewDialog";
-import { MessageForm } from "./components/MessageForm";
-import { MessageThread } from "./components/MessageThread";
+import { MessageForm } from "@/components/interview/MessageForm";
+import { MessageThread } from "@/components/interview/MessageThread";
 
 type Props = {
   interview: InterviewRequest;

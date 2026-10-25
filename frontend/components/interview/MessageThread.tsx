@@ -9,7 +9,7 @@ import { ja } from "date-fns/locale";
 
 type Props = {
   messages: InterviewRequestMessage[];
-  // 自分(生徒)のメッセージを右寄せにするための判定に使う
+  // 自分(閲覧しているユーザー)のメッセージを右寄せにするための判定に使う
   currentUserId: number;
 };
 
