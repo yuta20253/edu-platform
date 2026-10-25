@@ -13,6 +13,7 @@ export const InterviewDetail = ({ interviewId }: Props) => {
     interview,
     messages,
     error,
+    refetch,
     sendMessage,
     sendError,
     cancel,
@@ -21,7 +22,7 @@ export const InterviewDetail = ({ interviewId }: Props) => {
   } = useInterviewDetail(interviewId);
 
   return (
-    <AsyncBoundary data={interview} error={error}>
+    <AsyncBoundary data={interview} error={error} onRetry={refetch}>
       {(loaded) => (
         <Presenter
           interview={loaded}

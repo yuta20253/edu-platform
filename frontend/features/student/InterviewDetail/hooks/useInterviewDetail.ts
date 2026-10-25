@@ -101,6 +101,7 @@ export const useInterviewDetail = (interviewId: string) => {
     interview,
     messages,
     error,
+    refetch: fetchDetail,
     sendMessage,
     sendError,
     cancel,
