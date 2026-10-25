@@ -118,6 +118,55 @@ describe("useInterviewDetail", () => {
     });
   });
 
+  describe("再試行(refetch)", () => {
+    const detailCalls = () =>
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.filter(
+          ([url]) => url === "/api/student/interview-requests/1",
+        ).length;
+
+    it("取得中に連打しても取得は並列に走らず、完了後は再び再試行できる", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue({
+        response: { status: 500 },
+      });
+      const { result } = renderHook(() => useInterviewDetail("1"));
+      await waitFor(() => expect(result.current.error).toBe(true));
+      const before = detailCalls();
+
+      // 再試行の取得を保留にして、1回目の完了前に2回呼ぶ
+      let release: () => void = () => {};
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url.endsWith("/messages")) {
+          return Promise.resolve({
+            data: { interview_request_messages: [message], meta: {} },
+          });
+        }
+        return new Promise((resolve) => {
+          release = () => resolve({ data: interview });
+        });
+      });
+      act(() => {
+        void result.current.refetch();
+        void result.current.refetch();
+      });
+
+      expect(detailCalls()).toBe(before + 1);
+
+      await act(async () => {
+        release();
+      });
+      await waitFor(() => expect(result.current.interview).toEqual(interview));
+
+      // 完了したあとは、もう一度再試行できる
+      mockGet();
+      await act(async () => {
+        await result.current.refetch();
+      });
+      expect(detailCalls()).toBe(before + 2);
+    });
+  });
+
   describe("メッセージ送信", () => {
     it("本文を送信し、成功したら面談とメッセージを再取得して true を返す", async () => {
       vi.mocked(apiClient.post).mockResolvedValue({ data: message });
