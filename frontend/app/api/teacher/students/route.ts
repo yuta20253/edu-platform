@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
   // 面談申請フォームの生徒検索で使う。件数の上限は バックエンドで制限する
   const perPage = searchParams.get("per_page");
   if (perPage) params.set("per_page", perPage);
-  const keyword = searchParams.get("keyword");
+  // 生徒名の検索なので、長い文字列をそのまま LIKE 検索へ渡さないよう 100 文字までにする
+  const keyword = searchParams.get("keyword")?.trim().slice(0, 100);
   if (keyword) params.set("keyword", keyword);
 
   try {
