@@ -137,6 +137,18 @@ describe("student/InterviewDetail", () => {
     expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
   });
 
+  it("401のときは/loginに遷移し、遷移するあいだエラーを表示せずスピナーのままにする", async () => {
+    api.failures.set(1, 401);
+
+    render(<InterviewDetail interviewId="1" />);
+
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+    // 失敗の処理がすべて終わるのを待ってから確かめる
+    await act(async () => {});
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
+
   it("初回描画では、エラー表示を出さずスピナーを出す", () => {
     vi.mocked(apiClient.get).mockReset();
     vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}));
