@@ -81,4 +81,18 @@ describe("NoticeEdit", () => {
     expect(await screen.findByTestId("presenter")).toBeInTheDocument();
     expect(apiClient.get).toHaveBeenCalledTimes(2);
   });
+
+  it("404のときは「お知らせが見つかりませんでした」と再試行ボタンを表示する", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 404 } });
+
+    render(<NoticeEdit noticeId={1} />);
+
+    expect(
+      await screen.findByText("お知らせが見つかりませんでした"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("お知らせの取得に失敗しました"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "再試行" })).toBeInTheDocument();
+  });
 });
