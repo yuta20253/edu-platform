@@ -58,7 +58,7 @@ RSpec.describe 'Api::V1::Student::Dashboards', type: :request do
         subject
 
         task_ids = response.parsed_body['goals'].flat_map { |goal| goal['tasks'].pluck('id') }
-        expect(task_ids).to contain_exactly(*tasks.map(&:id))
+        expect(task_ids).to match_array(tasks.map(&:id))
       end
 
       it '本日の回答がない場合today_answer_countは0' do

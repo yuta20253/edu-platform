@@ -172,7 +172,7 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
         subject
 
         names = response.parsed_body['students'].pluck('name')
-        expect(names).to contain_exactly(*imported_students.map { |is| is.user.name })
+        expect(names).to match_array(imported_students.map { |is| is.user.name })
       end
     end
 
