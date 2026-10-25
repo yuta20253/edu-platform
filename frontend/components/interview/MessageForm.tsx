@@ -29,7 +29,7 @@ export const MessageForm = ({ onSend, error }: Props) => {
     if (succeeded) reset();
   });
 
-  // 1行の入力欄と送信ボタンを横並びにする。改行は Enter で入れられる(スマホ前提のため Enter 送信にはしない)
+  // 1行の入力欄と送信ボタンを横並びにする。Enter は改行にし、送信はボタンで行う(スマホのキーボードでも改行を入れられるようにするため)
   return (
     <Box component="form" noValidate onSubmit={submit}>
       {error && (
