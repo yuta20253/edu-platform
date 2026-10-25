@@ -49,6 +49,9 @@ type CancelKind = NonNullable<TeacherInterviewActions["cancelKind"]>;
 
 const initiatorLabel = { student: "生徒から", teacher: "教員から" } as const;
 
+// この距離以内なら「一番下を見ている」とみなす
+const BOTTOM_THRESHOLD_PX = 40;
+
 // 完了・キャンセル済みで入力欄の代わりに出す案内
 const closedNotice: Partial<Record<InterviewRequest["status"], string>> = {
   completed: "この面談は完了しました",
@@ -104,12 +107,27 @@ export const Presenter = ({
   const [cancelDialogKind, setCancelDialogKind] =
     useState<CancelKind>("cancel");
   const scrollRef = useRef<HTMLDivElement>(null);
+  // 一番下(最新)を見ているか。過去のメッセージを読んでいる最中は、取り直しても勝手にスクロールさせない
+  const atBottomRef = useRef(true);
+  const messageCountRef = useRef(0);
 
-  // 開いたとき・送受信でメッセージが増えたときは最新(一番下)を表示する
+  // 開いたとき・送受信でメッセージが増えたときは最新(一番下)を表示する。
+  // 件数が変わらない取り直し(日程確定の後など)では、一番下を見ているときだけ追従する
   useLayoutEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    const increased = messages.length > messageCountRef.current;
+    messageCountRef.current = messages.length;
+    if (!el || !(increased || atBottomRef.current)) return;
+    el.scrollTop = el.scrollHeight;
+    atBottomRef.current = true;
   }, [messages]);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    atBottomRef.current =
+      el.scrollHeight - el.scrollTop - el.clientHeight < BOTTOM_THRESHOLD_PX;
+  };
 
   const closeDialog = () => {
     setDialog(null);
@@ -260,6 +278,7 @@ export const Presenter = ({
           </Typography>
           <Box
             ref={scrollRef}
+            onScroll={handleScroll}
             sx={{
               height: 420,
               overflowY: "auto",

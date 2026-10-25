@@ -317,6 +317,70 @@ describe("InterviewDetailPresenter", () => {
     });
   });
 
+  describe("メッセージ欄のスクロール", () => {
+    // happy-dom はレイアウトを計算しないため、メッセージ欄の高さを固定で与える
+    const scrollArea = () => {
+      const el = screen.getByRole("list", { name: "メッセージ" })
+        .parentElement as HTMLElement;
+      Object.defineProperty(el, "scrollHeight", {
+        configurable: true,
+        value: 1000,
+      });
+      Object.defineProperty(el, "clientHeight", {
+        configurable: true,
+        value: 400,
+      });
+      return el;
+    };
+    const rerenderWith = (
+      rerender: (ui: React.ReactElement) => void,
+      nextMessages: InterviewRequestMessage[],
+    ) =>
+      rerender(
+        <Presenter {...props} interview={interview} messages={nextMessages} />,
+      );
+    const newMessage: InterviewRequestMessage = {
+      id: 102,
+      body: "金曜はどうですか",
+      sender_id: 10,
+      sender_name: "生徒太郎",
+      created_at: "2026-10-03T09:00:00+09:00",
+    };
+
+    it("過去のメッセージを読んでいる途中で取り直しても(件数が同じ)、スクロール位置を変えない", () => {
+      const { rerender } = renderPresenter();
+      const el = scrollArea();
+      el.scrollTop = 100;
+      fireEvent.scroll(el);
+
+      rerenderWith(rerender, [...messages]);
+
+      expect(el.scrollTop).toBe(100);
+    });
+
+    it("一番下を見ているときは、取り直した後も一番下に合わせる", () => {
+      const { rerender } = renderPresenter();
+      const el = scrollArea();
+      el.scrollTop = 600;
+      fireEvent.scroll(el);
+
+      rerenderWith(rerender, [...messages]);
+
+      expect(el.scrollTop).toBe(1000);
+    });
+
+    it("メッセージが増えたときは、読んでいる途中でも一番下へ移動する", () => {
+      const { rerender } = renderPresenter();
+      const el = scrollArea();
+      el.scrollTop = 100;
+      fireEvent.scroll(el);
+
+      rerenderWith(rerender, [...messages, newMessage]);
+
+      expect(el.scrollTop).toBe(1000);
+    });
+  });
+
   describe("メッセージ", () => {
     it("メッセージのスレッドを表示する", () => {
       renderPresenter();
