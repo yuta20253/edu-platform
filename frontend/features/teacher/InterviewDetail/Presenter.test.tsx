@@ -289,6 +289,20 @@ describe("InterviewDetailPresenter", () => {
       ).toHaveTextContent("進行中の面談のみキャンセルできます");
     });
 
+    it("却下のダイアログは、閉じるアニメーションの間も却下の文言のままにする", () => {
+      renderPresenter();
+
+      fireEvent.click(screen.getByRole("button", { name: "却下" }));
+      fireEvent.click(
+        within(screen.getByRole("dialog")).getByRole("button", {
+          name: "戻る",
+        }),
+      );
+
+      expect(screen.queryByText("面談をキャンセル")).not.toBeInTheDocument();
+      expect(screen.getByText("面談の申請を却下")).toBeInTheDocument();
+    });
+
     it("ダイアログを閉じるとエラーを消す", async () => {
       renderPresenter();
 

@@ -44,11 +44,8 @@ type Props = {
   sendError: string;
 };
 
-type OpenDialog =
-  | { type: "schedule" }
-  | { type: "complete" }
-  | { type: "cancel"; kind: NonNullable<TeacherInterviewActions["cancelKind"]> }
-  | null;
+type OpenDialog = "schedule" | "complete" | "cancel" | null;
+type CancelKind = NonNullable<TeacherInterviewActions["cancelKind"]>;
 
 const initiatorLabel = { student: "生徒から", teacher: "教員から" } as const;
 
@@ -103,6 +100,9 @@ export const Presenter = ({
   // 操作が 409/422 で失敗して面談を取り直し、その操作ができない状態に変わっても、
   // エラーを伝えられるようダイアログは開いたときの種類のまま残す
   const [dialog, setDialog] = useState<OpenDialog>(null);
+  // 却下かキャンセルか。閉じるアニメーションの間に文言が切り替わらないよう、閉じても残す
+  const [cancelDialogKind, setCancelDialogKind] =
+    useState<CancelKind>("cancel");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 開いたとき・送受信でメッセージが増えたときは最新(一番下)を表示する
@@ -214,7 +214,7 @@ export const Presenter = ({
               {canSchedule && (
                 <Button
                   variant="contained"
-                  onClick={() => setDialog({ type: "schedule" })}
+                  onClick={() => setDialog("schedule")}
                 >
                   日程を確定
                 </Button>
@@ -222,7 +222,7 @@ export const Presenter = ({
               {canComplete && (
                 <Button
                   variant="contained"
-                  onClick={() => setDialog({ type: "complete" })}
+                  onClick={() => setDialog("complete")}
                 >
                   完了にする
                 </Button>
@@ -231,12 +231,10 @@ export const Presenter = ({
                 <Button
                   variant="outlined"
                   color="error"
-                  onClick={() =>
-                    setDialog({
-                      type: "cancel",
-                      kind: cancelKind,
-                    })
-                  }
+                  onClick={() => {
+                    setCancelDialogKind(cancelKind);
+                    setDialog("cancel");
+                  }}
                 >
                   {cancelKind === "reject" ? "却下" : "キャンセル"}
                 </Button>
@@ -306,20 +304,20 @@ export const Presenter = ({
       </Box>
 
       <ScheduleInterviewDialog
-        open={dialog?.type === "schedule"}
+        open={dialog === "schedule"}
         onClose={closeDialog}
         onConfirm={onSchedule}
         error={actionError}
       />
       <CompleteInterviewDialog
-        open={dialog?.type === "complete"}
+        open={dialog === "complete"}
         onClose={closeDialog}
         onConfirm={onComplete}
         error={actionError}
       />
       <CancelInterviewDialog
-        open={dialog?.type === "cancel"}
-        kind={dialog?.type === "cancel" ? dialog.kind : "cancel"}
+        open={dialog === "cancel"}
+        kind={cancelDialogKind}
         onClose={closeDialog}
         onConfirm={onCancel}
         error={actionError}
