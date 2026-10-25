@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Presenter } from "./Presenter";
-import type { AnnouncementTargetOptions } from "./types";
+import type { AnnouncementEditData, AnnouncementTargetOptions } from "./types";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -11,6 +11,17 @@ vi.mock("next/link", () => ({
     children: React.ReactNode;
     href: string;
   }) => <a href={href}>{children}</a>,
+}));
+
+// 「個人」の行の生徒検索はAPIを呼ぶため、検索結果が空の状態に固定する
+vi.mock("./hooks/useStudentSearch", () => ({
+  useStudentSearch: () => ({
+    query: "",
+    handleQueryChange: vi.fn(),
+    page: 1,
+    setPage: vi.fn(),
+    students: null,
+  }),
 }));
 
 vi.mock("@mui/x-date-pickers/DateTimePicker", () => ({
@@ -50,6 +61,7 @@ const options: AnnouncementTargetOptions = {
 };
 
 const defaultProps = {
+  editData: null,
   options,
   submitting: false,
   submitError: null,
@@ -345,5 +357,211 @@ describe("AnnouncementEditorPresenter", () => {
       "href",
       "/teacher/announcements",
     );
+  });
+
+  describe("編集時", () => {
+    const draftEditData: AnnouncementEditData = {
+      announcement: {
+        id: 9,
+        title: "既存のお知らせ",
+        content: "既存の本文",
+        status: "draft",
+        scheduled_at: null,
+      },
+      announcement_targets: [
+        {
+          id: 10,
+          target_type: "by_grade",
+          high_school_id: null,
+          grade_id: 1,
+          user_role_id: 1,
+          user_id: null,
+          user_name: null,
+        },
+        {
+          id: 11,
+          target_type: "all_users",
+          high_school_id: 3,
+          grade_id: null,
+          user_role_id: null,
+          user_id: null,
+          user_name: null,
+        },
+      ],
+    };
+
+    it("新規作成時の見出しは「お知らせを作成」", () => {
+      render(<Presenter {...defaultProps} />);
+      expect(
+        screen.getByRole("heading", { name: "お知らせを作成" }),
+      ).toBeInTheDocument();
+    });
+
+    it("見出しが「お知らせを編集」になり、タイトル・本文が現在の値で表示される", () => {
+      render(<Presenter {...defaultProps} editData={draftEditData} />);
+
+      expect(
+        screen.getByRole("heading", { name: "お知らせを編集" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("textbox", { name: "タイトル" })).toHaveValue(
+        "既存のお知らせ",
+      );
+      expect(screen.getByRole("textbox", { name: "本文" })).toHaveValue(
+        "既存の本文",
+      );
+      expect(
+        screen.getByRole("radio", { name: "配信しない(下書き)" }),
+      ).toBeChecked();
+    });
+
+    it("配信先が現在の値で表示される", () => {
+      render(<Presenter {...defaultProps} editData={draftEditData} />);
+
+      const targetTypes = screen.getAllByRole("combobox", {
+        name: "配信先の種類",
+      });
+      expect(targetTypes).toHaveLength(2);
+      expect(targetTypes[0]).toHaveTextContent("学年別");
+      expect(targetTypes[1]).toHaveTextContent("全員");
+      expect(screen.getByRole("combobox", { name: "学年" })).toHaveTextContent(
+        "1年",
+      );
+      expect(screen.getByRole("combobox", { name: "権限" })).toHaveTextContent(
+        "生徒",
+      );
+    });
+
+    it("変更せずに保存すると、配信先は表示用の項目を除いた値で渡される", async () => {
+      const onSaveDraft = vi.fn();
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={draftEditData}
+          onSaveDraft={onSaveDraft}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "下書き保存" }));
+
+      await waitFor(() =>
+        expect(onSaveDraft).toHaveBeenCalledWith({
+          title: "既存のお知らせ",
+          content: "既存の本文",
+          targets: [
+            { target_type: "by_grade", grade_id: 1, user_role_id: 1 },
+            { target_type: "all_users" },
+          ],
+          deliveryTiming: "draft",
+          scheduledAt: null,
+        }),
+      );
+    });
+
+    it("予約投稿は配信タイミングが予約投稿で、配信日時が現在の値で表示される", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={{
+            ...draftEditData,
+            announcement: {
+              ...draftEditData.announcement,
+              status: "scheduled",
+              scheduled_at: "2099-01-01T00:00:00.000Z",
+            },
+          }}
+        />,
+      );
+
+      expect(screen.getByRole("radio", { name: "予約投稿" })).toBeChecked();
+      expect(screen.getByLabelText("配信日時")).toHaveValue(
+        "2099-01-01T00:00:00.000Z",
+      );
+    });
+
+    it("選択済みの「個人」配信先は、生徒の検索結果に関係なくuser_nameで表示される", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={{
+            ...draftEditData,
+            announcement_targets: [
+              {
+                id: 12,
+                target_type: "by_user",
+                high_school_id: null,
+                grade_id: null,
+                user_role_id: null,
+                user_id: 5,
+                user_name: "山田太郎",
+              },
+            ],
+          }}
+        />,
+      );
+
+      expect(screen.getByRole("combobox", { name: "生徒" })).toHaveTextContent(
+        "山田太郎",
+      );
+    });
+
+    it("予約投稿の編集では、下書きの配信タイミングと「下書き保存」ボタンを選べない", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          editData={{
+            ...draftEditData,
+            announcement: {
+              ...draftEditData.announcement,
+              status: "scheduled",
+              scheduled_at: "2099-01-01T00:00:00.000Z",
+            },
+          }}
+        />,
+      );
+
+      expect(
+        screen.queryByRole("radio", { name: "配信しない(下書き)" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "下書き保存" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("radio", { name: "即時公開" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("radio", { name: "予約投稿" }),
+      ).toBeInTheDocument();
+    });
+
+    it("下書きの編集では、下書きの配信タイミングと「下書き保存」ボタンを選べる", () => {
+      render(<Presenter {...defaultProps} editData={draftEditData} />);
+
+      expect(
+        screen.getByRole("radio", { name: "配信しない(下書き)" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "下書き保存" }),
+      ).toBeInTheDocument();
+    });
+
+    it("学年制限のある教員は、編集時も配信先の種類を学年別・個人からしか選べない", () => {
+      render(
+        <Presenter
+          {...defaultProps}
+          options={{ ...options, own_grade_restriction: 1 }}
+          editData={{
+            ...draftEditData,
+            announcement_targets: [draftEditData.announcement_targets[0]],
+          }}
+        />,
+      );
+
+      const targetType = screen.getByRole("combobox", { name: "配信先の種類" });
+      expect(targetType).toHaveTextContent("学年別");
+      fireEvent.mouseDown(targetType);
+      expect(
+        screen.getAllByRole("option").map((option) => option.textContent),
+      ).toEqual(["学年別", "個人"]);
+    });
   });
 });

@@ -3,25 +3,42 @@
 import { colors } from "@/app/theme/colors";
 import { Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import { Controller, type Control } from "react-hook-form";
+import { Controller, useWatch, type Control } from "react-hook-form";
 import { useStudentSearch } from "../hooks/useStudentSearch";
 import type { AnnouncementFormValues, StudentOption } from "../types";
 
 type Props = {
   control: Control<AnnouncementFormValues>;
   index: number;
+  // 編集時に最初から選択済みの生徒の名前(user_id→名前)
+  selectedStudentNames?: Record<number, string>;
 };
+
+type StudentMenuItem = { id: number; label: string };
 
 const studentLabel = (student: StudentOption) =>
   `${student.name}(${student.grade.display_name})`;
 
-export const StudentPicker = ({ control, index }: Props) => {
+export const StudentPicker = ({
+  control,
+  index,
+  selectedStudentNames,
+}: Props) => {
   const { query, handleQueryChange, page, setPage, students } =
     useStudentSearch();
-  // 検索やページ送りで選択済みの生徒が一覧から外れてもSelectの表示が空にならないよう保持する
-  const [selected, setSelected] = useState<StudentOption | null>(null);
+  const initialUserId = useWatch({ control, name: `targets.${index}.user_id` });
+  // 検索やページ送りで選択済みの生徒が一覧から外れてもSelectの表示が空にならないよう保持する。
+  // 編集時の初期値の生徒は、表示中のページにいるとは限らないため渡された名前で表示する
+  const [selected, setSelected] = useState<StudentMenuItem | null>(() => {
+    if (initialUserId === undefined) return null;
+    const name = selectedStudentNames?.[initialUserId];
+    return name === undefined ? null : { id: initialUserId, label: name };
+  });
 
-  const items = students?.items ?? [];
+  const items: StudentMenuItem[] = (students?.items ?? []).map((s) => ({
+    id: s.id,
+    label: studentLabel(s),
+  }));
   const totalPages = students?.meta.total_pages ?? 1;
   const menuStudents =
     selected && !items.some((s) => s.id === selected.id)
@@ -55,7 +72,7 @@ export const StudentPicker = ({ control, index }: Props) => {
           >
             {menuStudents.map((student) => (
               <MenuItem key={student.id} value={student.id}>
-                {studentLabel(student)}
+                {student.label}
               </MenuItem>
             ))}
           </TextField>

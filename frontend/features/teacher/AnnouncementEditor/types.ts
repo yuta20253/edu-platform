@@ -63,3 +63,30 @@ export type AnnouncementTargetOptions = {
   // own_grade権限の教員が選択を許可されている学年ID。nullなら制限なし。
   own_grade_restriction: number | null;
 };
+
+// GET /api/teacher/announcements/:id/edit（編集対象の現在の値）のレスポンス形状。
+// 配信済みのお知らせは404になるため、statusはdraftかscheduledのみ。
+export type EditableAnnouncement = {
+  id: number;
+  title: string;
+  content: string;
+  status: "draft" | "scheduled";
+  scheduled_at: string | null;
+};
+
+// 配信先の1行。id・high_school_id・user_nameは表示用で、PATCHでは送らない。
+// user_nameはby_userの配信先だけに値が入る。
+export type EditableAnnouncementTarget = {
+  id: number;
+  target_type: TargetType;
+  high_school_id: number | null;
+  grade_id: number | null;
+  user_role_id: number | null;
+  user_id: number | null;
+  user_name: string | null;
+};
+
+export type AnnouncementEditData = {
+  announcement: EditableAnnouncement;
+  announcement_targets: EditableAnnouncementTarget[];
+};
