@@ -11,7 +11,7 @@ import type {
   InterviewRequestMessage,
 } from "@/types/interview/interviewRequest";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // 409: 楽観ロックの競合(他の操作や生徒側の操作が先に反映された)
 // 422: 生徒が先にキャンセルした等で、既にその操作ができない状態になっている
@@ -31,17 +31,23 @@ export const useInterviewDetail = (interviewId: number) => {
 
   const basePath = `/api/teacher/interview-requests/${interviewId}`;
 
+  // 最後に出した取得の番号。取得が重なったとき(送信後の取り直しと再試行など)、後から届いた古い結果で上書きしない
+  const latestFetchRef = useRef(0);
+
   // 取り直し中も前回の面談情報は残す(画面全体がスピナーに戻らないようにする)
   const fetchDetail = useCallback(async () => {
+    const fetchId = ++latestFetchRef.current;
     setError(false);
     try {
       const [interviewRes, allMessages] = await Promise.all([
         apiClient.get<InterviewRequest>(basePath),
         fetchAllInterviewMessages(basePath),
       ]);
+      if (fetchId !== latestFetchRef.current) return;
       setInterview(interviewRes.data);
       setMessages(allMessages);
     } catch (err) {
+      if (fetchId !== latestFetchRef.current) return;
       if (extractApiError(err).status === 401) {
         router.push("/login");
         return;

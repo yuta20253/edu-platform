@@ -130,6 +130,42 @@ describe("useInterviewDetail", () => {
       expect(result.current.error).toBe(false);
     });
 
+    it("取得が重なって古い結果が後から届いても、最後に出した取得の結果を残す", async () => {
+      const { result } = await renderLoaded();
+
+      // 1回目の取り直しは遅く(lock_version: 5)、2回目は先に返る(lock_version: 6)
+      let resolveSlow: (value: { data: object }) => void = () => {};
+      const slow = new Promise<{ data: object }>((resolve) => {
+        resolveSlow = resolve;
+      });
+      const responses = [
+        slow,
+        Promise.resolve({ data: { ...interview, lock_version: 6 } }),
+      ];
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url.endsWith("/messages")) {
+          return Promise.resolve({
+            data: { interview_request_messages: [], meta: { total_pages: 1 } },
+          });
+        }
+        return responses.shift() as Promise<{ data: object }>;
+      });
+
+      let first: Promise<void> = Promise.resolve();
+      await act(async () => {
+        first = result.current.retry();
+        await result.current.retry();
+      });
+      expect(result.current.interview?.lock_version).toBe(6);
+
+      await act(async () => {
+        resolveSlow({ data: { ...interview, lock_version: 5 } });
+        await first;
+      });
+
+      expect(result.current.interview?.lock_version).toBe(6);
+    });
+
     it("401 のときはログイン画面に遷移し、エラーにしない", async () => {
       vi.mocked(apiClient.get).mockRejectedValue({
         response: { status: 401 },
