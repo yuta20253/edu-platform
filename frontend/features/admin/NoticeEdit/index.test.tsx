@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { NoticeEdit } from "./index";
@@ -94,5 +94,53 @@ describe("NoticeEdit", () => {
       screen.queryByText("お知らせの取得に失敗しました"),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "再試行" })).toBeInTheDocument();
+  });
+
+  describe("配信済みのお知らせ", () => {
+    const publishedNotice = {
+      ...draftNotice,
+      status: "published" as const,
+      published_at: "2026-01-02T00:00:00.000Z",
+    };
+
+    it("編集できない旨と一覧へのリンクを表示し、編集フォームは表示しない", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({
+        data: { announcement: publishedNotice },
+      });
+
+      const { container } = render(<NoticeEdit noticeId={1} />);
+
+      expect(
+        await screen.findByText("配信済みのお知らせは編集できません"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "お知らせ一覧へ戻る" }),
+      ).toHaveAttribute("href", "/admin/notices");
+      expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
+      expect(container.querySelector(".MuiSkeleton-root")).toBeNull();
+    });
+
+    it("一覧へリダイレクトする", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({
+        data: { announcement: publishedNotice },
+      });
+
+      render(<NoticeEdit noticeId={1} />);
+
+      await waitFor(() =>
+        expect(replaceMock).toHaveBeenCalledWith("/admin/notices"),
+      );
+    });
+
+    it("下書きのお知らせではリダイレクトしない", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({
+        data: { announcement: draftNotice },
+      });
+
+      render(<NoticeEdit noticeId={1} />);
+      await screen.findByTestId("presenter");
+
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
   });
 });
