@@ -21,7 +21,6 @@ const isStaleInterviewError = (status?: number) =>
 export const useInterviewDetail = (interviewId: string) => {
   const [interview, setInterview] = useState<InterviewRequest | null>(null);
   const [messages, setMessages] = useState<InterviewRequestMessage[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [sendError, setSendError] = useState("");
   const [cancelError, setCancelError] = useState("");
@@ -45,8 +44,6 @@ export const useInterviewDetail = (interviewId: string) => {
         return;
       }
       setError(true);
-    } finally {
-      setLoading(false);
     }
   }, [basePath, router]);
 
@@ -103,7 +100,6 @@ export const useInterviewDetail = (interviewId: string) => {
   return {
     interview,
     messages,
-    loading,
     error,
     sendMessage,
     sendError,
