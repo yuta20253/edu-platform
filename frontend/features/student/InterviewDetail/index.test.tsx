@@ -137,6 +137,18 @@ describe("student/InterviewDetail", () => {
     expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
   });
 
+  it("取得に失敗すると再試行ボタンが出て、押すと再取得し、成功すると復帰する", async () => {
+    api.failures.set(1, 500);
+    render(<InterviewDetail interviewId="1" />);
+    await screen.findByRole("alert");
+
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+    expect(await screen.findByTestId("presenter")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(api.detailCalls).toBe(2);
+  });
+
   it("401のときは/loginに遷移し、遷移するあいだエラーを表示せずスピナーのままにする", async () => {
     api.failures.set(1, 401);
 
