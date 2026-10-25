@@ -149,6 +149,64 @@ describe("student/InterviewDetail", () => {
     expect(api.detailCalls).toBe(2);
   });
 
+  it("再試行を押した直後に、エラー表示が消えてスピナーが出る", async () => {
+    api.failures.set(1, 500);
+    render(<InterviewDetail interviewId="1" />);
+    await screen.findByRole("alert");
+
+    // 再試行の取得を保留にして、押した直後の表示を確かめる
+    const gate = deferred();
+    api.gates.set(2, gate.promise);
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+
+    await act(async () => {
+      gate.resolve();
+    });
+    expect(await screen.findByTestId("presenter")).toBeInTheDocument();
+  });
+
+  describe("送信は成功したが、そのあとの取り直しが失敗したとき", () => {
+    // 初回の取得 → 送信(POST 成功) → 取り直し(2回目の GET)が失敗してエラー表示、の状態にする
+    const renderStaleError = async () => {
+      api.failures.set(2, 500);
+      render(<InterviewDetail interviewId="1" />);
+      fireEvent.click(await screen.findByRole("button", { name: "送信" }));
+      await screen.findByRole("alert");
+    };
+
+    it("再試行を押すと、更新前の内容ではなくスピナーが出て、成功すると最新の内容が出る", async () => {
+      await renderStaleError();
+
+      const gate = deferred();
+      api.gates.set(3, gate.promise);
+      fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
+
+      await act(async () => {
+        gate.resolve();
+      });
+      expect(await screen.findByTestId("presenter")).toBeInTheDocument();
+      expect(screen.getByTestId("status")).toHaveTextContent("scheduling");
+      expect(screen.getByText("新しい本文")).toBeInTheDocument();
+    });
+
+    it("再試行も失敗したら、またエラー表示に戻る", async () => {
+      await renderStaleError();
+
+      api.failures.set(3, 500);
+      fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+      await waitFor(() => expect(api.detailCalls).toBe(3));
+      expect(await screen.findByRole("alert")).toBeInTheDocument();
+      expect(screen.queryByTestId("presenter")).not.toBeInTheDocument();
+    });
+  });
+
   it("401のときは/loginに遷移し、遷移するあいだエラーを表示せずスピナーのままにする", async () => {
     api.failures.set(1, 401);
 
