@@ -3,6 +3,7 @@
 import { colors } from "@/app/theme/colors";
 import { MessageForm } from "@/components/interview/MessageForm";
 import { MessageThread } from "@/components/interview/MessageThread";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   interviewReasonCategoryLabel,
@@ -42,6 +43,9 @@ type Props = {
   onClearActionError: () => void;
   onSendMessage: (body: string) => Promise<boolean>;
   sendError: string;
+  // 表示中の面談の取り直し(操作・送信の後、再試行)に失敗したか
+  refreshError: boolean;
+  onRetry: () => void;
 };
 
 type OpenDialog = "schedule" | "complete" | "cancel" | null;
@@ -96,6 +100,8 @@ export const Presenter = ({
   onClearActionError,
   onSendMessage,
   sendError,
+  refreshError,
+  onRetry,
 }: Props) => {
   const { canSchedule, canComplete, cancelKind } =
     teacherInterviewActions(interview);
@@ -167,6 +173,14 @@ export const Presenter = ({
           一覧へ戻る
         </Button>
       </Box>
+
+      {/* 画面の内容は前回取得したもののまま。最新の状態にするには再試行してもらう。
+          ErrorState は周りに余白(p: 3)を持つので、見出しとカードの間に収まるよう打ち消す */}
+      {refreshError && (
+        <Box sx={{ mx: -3, mt: -3 }}>
+          <ErrorState onRetry={onRetry} />
+        </Box>
+      )}
 
       <Box
         sx={{

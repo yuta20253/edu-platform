@@ -23,8 +23,10 @@ export const InterviewDetail = ({ interviewId }: Props) => {
     sendError,
   } = useInterviewDetail(interviewId);
 
+  // 最初の読み込みとその失敗だけ AsyncBoundary で画面全体に出す。
+  // 操作の後の取り直しの失敗は、ダイアログに出した 409 などのエラーを消さないよう Presenter の中で出す
   return (
-    <AsyncBoundary data={interview} error={error} onRetry={retry}>
+    <AsyncBoundary data={interview} error={!interview && error} onRetry={retry}>
       {(loaded) => (
         <Presenter
           interview={loaded}
@@ -36,6 +38,8 @@ export const InterviewDetail = ({ interviewId }: Props) => {
           onClearActionError={clearActionError}
           onSendMessage={sendMessage}
           sendError={sendError}
+          refreshError={error}
+          onRetry={retry}
         />
       )}
     </AsyncBoundary>

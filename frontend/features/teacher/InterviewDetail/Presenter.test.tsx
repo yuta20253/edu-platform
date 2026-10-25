@@ -93,6 +93,8 @@ const props = {
   onClearActionError: vi.fn(),
   onSendMessage: vi.fn(),
   sendError: "",
+  refreshError: false,
+  onRetry: vi.fn(),
 };
 
 const renderPresenter = (
@@ -170,6 +172,54 @@ describe("InterviewDetailPresenter", () => {
       });
 
       expect(screen.getByText("体調不良のため")).toBeInTheDocument();
+    });
+  });
+
+  describe("取り直しの失敗", () => {
+    it("面談の内容とダイアログを残したまま、エラーと再試行を表示する", () => {
+      const { rerender } = renderPresenter();
+      fireEvent.click(screen.getByRole("button", { name: "日程を確定" }));
+
+      rerender(
+        <Presenter
+          {...props}
+          interview={interview}
+          actionError={conflictMessage}
+          refreshError
+        />,
+      );
+
+      expect(
+        // ダイアログを開いている間、背景は aria-hidden になる
+        screen.getByRole("heading", {
+          name: "生徒太郎さんとの面談",
+          level: 1,
+          hidden: true,
+        }),
+      ).toBeInTheDocument();
+      // 409 のメッセージは開いているダイアログに残る
+      expect(
+        within(screen.getByRole("dialog")).getByRole("alert"),
+      ).toHaveTextContent(conflictMessage);
+    });
+
+    it("再試行で取り直す", () => {
+      renderPresenter({}, { refreshError: true });
+
+      expect(
+        screen.getByText("データの取得に失敗しました"),
+      ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+      expect(props.onRetry).toHaveBeenCalled();
+    });
+
+    it("失敗していないときはエラーを出さない", () => {
+      renderPresenter();
+
+      expect(
+        screen.queryByText("データの取得に失敗しました"),
+      ).not.toBeInTheDocument();
     });
   });
 

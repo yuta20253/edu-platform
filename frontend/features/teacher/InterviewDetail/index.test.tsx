@@ -8,8 +8,17 @@ vi.mock("./hooks/useInterviewDetail", () => ({
 }));
 
 vi.mock("./Presenter", () => ({
-  Presenter: ({ interview }: { interview: { student_name: string } }) => (
-    <div>{interview.student_name}さんの面談詳細</div>
+  Presenter: ({
+    interview,
+    refreshError,
+  }: {
+    interview: { student_name: string };
+    refreshError: boolean;
+  }) => (
+    <div>
+      {interview.student_name}さんの面談詳細
+      {refreshError && <span>取り直しの失敗</span>}
+    </div>
   ),
 }));
 
@@ -73,5 +82,21 @@ describe("teacher/InterviewDetail", () => {
     fireEvent.click(screen.getByRole("button", { name: "再試行" }));
 
     expect(retry).toHaveBeenCalled();
+  });
+
+  it("取得済みの面談があるときの失敗(操作の後の取り直しなど)は、画面全体をエラーにせず画面の中で知らせる", () => {
+    vi.mocked(useInterviewDetail).mockReturnValue(
+      hookResult({
+        interview: { student_name: "生徒太郎" } as ReturnType<
+          typeof useInterviewDetail
+        >["interview"],
+        error: true,
+      }),
+    );
+    render(<InterviewDetail interviewId={1} />);
+
+    expect(screen.getByText(/生徒太郎さんの面談詳細/)).toBeInTheDocument();
+    expect(screen.getByText("取り直しの失敗")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
