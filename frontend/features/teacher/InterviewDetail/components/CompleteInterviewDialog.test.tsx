@@ -44,4 +44,40 @@ describe("CompleteInterviewDialog", () => {
     await waitFor(() => expect(onConfirm).toHaveBeenCalled());
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it("送信していないときは Esc で閉じる", () => {
+    const onClose = vi.fn();
+    render(
+      <CompleteInterviewDialog
+        open
+        onClose={onClose}
+        onConfirm={vi.fn()}
+        error=""
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("送信中は Esc で閉じない(結果のエラーを閉じた後に出さないため)", async () => {
+    const onClose = vi.fn();
+    render(
+      <CompleteInterviewDialog
+        open
+        onClose={onClose}
+        onConfirm={vi.fn(() => new Promise<boolean>(() => {}))}
+        error=""
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "完了にする" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "完了にする" })).toBeDisabled(),
+    );
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

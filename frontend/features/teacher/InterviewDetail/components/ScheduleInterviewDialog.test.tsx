@@ -115,4 +115,29 @@ describe("ScheduleInterviewDialog", () => {
 
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("送信していないときは Esc で閉じる", () => {
+    const { onClose } = setup();
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("送信中は Esc で閉じない(結果のエラーを閉じた後に出さないため)", async () => {
+    const { onClose } = setup({
+      onConfirm: vi.fn(() => new Promise<boolean>(() => {})),
+    });
+
+    fireEvent.change(screen.getByLabelText("予定日時"), {
+      target: { value: future },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "確定する" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "確定する" })).toBeDisabled(),
+    );
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

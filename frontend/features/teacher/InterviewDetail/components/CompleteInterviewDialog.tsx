@@ -34,8 +34,14 @@ export const CompleteInterviewDialog = ({
     if (succeeded) onClose();
   };
 
+  // 送信中に背景のクリックや Esc で閉じると、閉じた後に届いた結果のエラーが次に開いたときに残るため、閉じさせない
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog
+      open={open}
+      onClose={submitting ? undefined : onClose}
+      fullWidth
+      maxWidth="xs"
+    >
       <DialogTitle sx={{ fontWeight: 700 }}>面談を完了にする</DialogTitle>
       <DialogContent>
         {error && (

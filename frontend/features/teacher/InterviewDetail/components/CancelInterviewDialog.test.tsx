@@ -94,4 +94,31 @@ describe("CancelInterviewDialog", () => {
 
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("送信していないときは Esc で閉じる", () => {
+    const { onClose } = setup();
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("送信中は Esc で閉じない(結果のエラーを閉じた後に出さないため)", async () => {
+    const { onClose } = setup({
+      onConfirm: vi.fn(() => new Promise<boolean>(() => {})),
+    });
+
+    fireEvent.change(screen.getByLabelText("キャンセル理由"), {
+      target: { value: "理由" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "キャンセルする" }));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "キャンセルする" }),
+      ).toBeDisabled(),
+    );
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });
