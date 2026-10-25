@@ -24,6 +24,8 @@ type Options = {
 export const useApiQuery = <T>(url: string, options: Options = {}) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(false);
+  // 失敗時のレスポンスのステータス。レスポンスがない失敗(ネットワークエラーなど)は undefined
+  const [errorStatus, setErrorStatus] = useState<number | undefined>();
   const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
   // params は呼び出し側がリテラルで渡しても再取得が走り続けないよう、値で比較する
@@ -36,6 +38,7 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
       if (!keepPreviousData) {
         setData(null);
         setError(false);
+        setErrorStatus(undefined);
       }
       return;
     }
@@ -43,8 +46,9 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
     const controller = new AbortController();
     const params = JSON.parse(paramsKey) ?? undefined;
 
-    // 再取得の開始時は error だけ消し、data は残す(画面が空にならない)
+    // 再取得の開始時は error と errorStatus だけ消し、data は残す(画面が空にならない)
     setError(false);
+    setErrorStatus(undefined);
     if (!keepPreviousData) setData(null);
 
     apiClient
@@ -56,12 +60,14 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
       .catch((err) => {
         // 中断されたリクエストの結果は、新しい表示を上書きしないよう無視する
         if (axios.isCancel(err) || controller.signal.aborted) return;
-        if (extractApiError(err).status === 401) {
+        const { status } = extractApiError(err);
+        if (status === 401) {
           router.push("/login");
           return;
         }
 
         setError(true);
+        setErrorStatus(status);
       });
 
     return () => controller.abort();
@@ -69,5 +75,5 @@ export const useApiQuery = <T>(url: string, options: Options = {}) => {
 
   const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
 
-  return { data, error, refetch };
+  return { data, error, errorStatus, refetch };
 };
