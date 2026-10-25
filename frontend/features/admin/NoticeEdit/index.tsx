@@ -12,7 +12,7 @@ type Props = {
 
 // お知らせの編集画面。既存のお知らせを取得してフォームに反映する。
 export const NoticeEdit = ({ noticeId }: Props) => {
-  const { data, error, refetch } = useApiQuery<{
+  const { data, error, errorStatus, refetch } = useApiQuery<{
     announcement: AdminNoticeDetail;
   }>(`/api/admin/notices/${noticeId}`);
   const submit = useNoticeSubmit({ noticeId });
@@ -21,7 +21,11 @@ export const NoticeEdit = ({ noticeId }: Props) => {
     <AsyncBoundary
       data={data?.announcement ?? null}
       error={error}
-      errorMessage="お知らせの取得に失敗しました"
+      errorMessage={
+        errorStatus === 404
+          ? "お知らせが見つかりませんでした"
+          : "お知らせの取得に失敗しました"
+      }
       onRetry={refetch}
       fallback="card-skeleton"
       skeletonProps={{ lines: 6 }}
