@@ -6,6 +6,18 @@ require "active_support/core_ext/integer/time"
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
+  # request spec で関連の N+1 を検知したらテストを落とす。
+  # 検知は Bullet の Rack ミドルウェアがリクエストごとに行う。テスト内で作ったレコードは対象外になるため、
+  # request spec 以外(model・service・job)と、1 リクエストで 1 件しか読み込まない例では検知しない。
+  config.after_initialize do
+    Bullet.enable                      = true
+    Bullet.bullet_logger               = true
+    Bullet.raise                       = true  # N+1 を検知したら例外にしてテストを落とす
+    Bullet.unused_eager_loading_enable = false # 使っていない includes は対象外
+    Bullet.counter_cache_enable        = false # counter cache の提案は N+1 ではないので対象外
+    # safelist はここ(Bullet.enable = true の後)に書く。enable= が safelist を空に戻すため
+  end
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # While tests run files are not watched, reloading is not necessary.
