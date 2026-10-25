@@ -122,7 +122,9 @@ describe("useInterviewDetail", () => {
       expect(result.current.interview).toBeNull();
 
       mockGet();
-      act(() => result.current.retry());
+      await act(async () => {
+        await result.current.retry();
+      });
 
       await waitFor(() => expect(result.current.interview).toEqual(interview));
       expect(result.current.error).toBe(false);
