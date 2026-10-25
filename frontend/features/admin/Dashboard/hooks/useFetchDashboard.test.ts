@@ -42,10 +42,10 @@ describe("useFetchDashboard", () => {
 
     const { result } = renderHook(() => useFetchDashboard());
 
-    expect(result.current.loading).toBe(true);
+    expect(result.current.data).toBeNull();
+    expect(result.current.error).toBeNull();
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toEqual(mockData);
+    await waitFor(() => expect(result.current.data).toEqual(mockData));
     expect(result.current.error).toBeNull();
     expect(apiClient.get).toHaveBeenCalledWith("/api/admin/dashboard");
   });
@@ -57,8 +57,9 @@ describe("useFetchDashboard", () => {
 
     const { result } = renderHook(() => useFetchDashboard());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.error).toBe("ダッシュボードの取得に失敗しました");
+    await waitFor(() =>
+      expect(result.current.error).toBe("ダッシュボードの取得に失敗しました"),
+    );
     expect(result.current.data).toBeNull();
   });
 

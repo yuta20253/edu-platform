@@ -35,7 +35,6 @@ describe("Dashboard", () => {
   it("ローディング中はスケルトンを表示し、スピナーは表示しない", () => {
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: null,
-      loading: true,
       error: null,
       refetch: vi.fn(),
     });
@@ -48,7 +47,6 @@ describe("Dashboard", () => {
   it("エラー時はメッセージと再試行ボタンを表示する", () => {
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: null,
-      loading: false,
       error: "ダッシュボードの取得に失敗しました",
       refetch: vi.fn(),
     });
@@ -64,7 +62,6 @@ describe("Dashboard", () => {
     const refetch = vi.fn();
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: null,
-      loading: false,
       error: "ダッシュボードの取得に失敗しました",
       refetch,
     });
@@ -78,7 +75,6 @@ describe("Dashboard", () => {
   it("データ取得後はPresenterの内容を表示する", () => {
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: mockData,
-      loading: false,
       error: null,
       refetch: vi.fn(),
     });
@@ -88,23 +84,9 @@ describe("Dashboard", () => {
     expect(screen.getByText("120")).toBeInTheDocument();
   });
 
-  it("再取得中(loading)でも前回のデータがあれば内容を表示し続ける", () => {
-    vi.mocked(useFetchDashboard).mockReturnValue({
-      data: mockData,
-      loading: true,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<Dashboard />);
-    expect(screen.getByText("120")).toBeInTheDocument();
-    expect(screen.queryByTestId("kpi-card-skeleton")).not.toBeInTheDocument();
-  });
-
-  it("dataもerrorもなければloadingがfalseでも空白にせずスケルトンを表示する", () => {
+  it("dataもerrorもなければ空白にせずスケルトンを表示する", () => {
     vi.mocked(useFetchDashboard).mockReturnValue({
       data: null,
-      loading: false,
       error: null,
       refetch: vi.fn(),
     });
