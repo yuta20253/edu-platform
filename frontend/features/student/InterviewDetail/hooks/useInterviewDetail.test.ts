@@ -46,7 +46,7 @@ const mockGet = (overrides: { interview?: object } = {}) => {
 
 const renderLoaded = async () => {
   const hook = renderHook(() => useInterviewDetail("1"));
-  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await waitFor(() => expect(hook.result.current.interview).not.toBeNull());
   return hook;
 };
 
@@ -114,7 +114,7 @@ describe("useInterviewDetail", () => {
       const { result } = renderHook(() => useInterviewDetail("1"));
 
       await waitFor(() => expect(result.current.error).toBe(true));
-      expect(result.current.loading).toBe(false);
+      expect(result.current.interview).toBeNull();
     });
   });
 
