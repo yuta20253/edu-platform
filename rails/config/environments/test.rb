@@ -9,6 +9,9 @@ Rails.application.configure do
   # request spec で関連の N+1 を検知したらテストを落とす。
   # 検知は Bullet の Rack ミドルウェアがリクエストごとに行う。テスト内で作ったレコードは対象外になるため、
   # request spec 以外(model・service・job)と、1 リクエストで 1 件しか読み込まない例では検知しない。
+  # Devise の sign_in はテストで作ったユーザーをそのまま current_user にするため、
+  # current_user.high_school.grades のように「current_user の belongs_to の先の has_many」を誤検知する。
+  # そのときは safelist に入れる前に、id で引く(Grade.where(high_school_id: ...))か、ログイン API 経由でログインする。
   config.after_initialize do
     Bullet.enable                      = true
     Bullet.bullet_logger               = true
