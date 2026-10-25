@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { UnderstandingScoreChart } from "./UnderstandingScoreChart";
 
@@ -95,5 +95,59 @@ describe("UnderstandingScoreChart", () => {
 
     expect(screen.getByText("英文法レベル1")).toBeInTheDocument();
     expect(screen.getByText("英文法レベル2")).toBeInTheDocument();
+  });
+  describe("科目ごとの折りたたみ", () => {
+    const data = {
+      subjects: [
+        {
+          subject_name: "数学",
+          courses: [
+            {
+              level_name: "基礎",
+              level_number: 1,
+              units: [{ unit_name: "一次関数", score: 75 }],
+            },
+          ],
+        },
+        {
+          subject_name: "英語",
+          courses: [
+            {
+              level_name: "英文法",
+              level_number: 1,
+              units: [{ unit_name: "文型", score: 60 }],
+            },
+          ],
+        },
+      ],
+    };
+
+    it("最初はどの科目も閉じている(スマホで縦に長くなりすぎないように)", () => {
+      render(<UnderstandingScoreChart data={data} />);
+      expect(screen.getByRole("button", { name: "数学" })).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+      expect(screen.getByRole("button", { name: "英語" })).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+    });
+
+    it("科目を押すとその科目の単元別の理解度を開く", () => {
+      render(<UnderstandingScoreChart data={data} />);
+
+      fireEvent.click(screen.getByRole("button", { name: "数学" }));
+
+      expect(screen.getByRole("button", { name: "数学" })).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
+      expect(screen.getByText("一次関数")).toBeVisible();
+      expect(screen.getByRole("button", { name: "英語" })).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+    });
   });
 });
