@@ -7,17 +7,15 @@ import { extractApiError } from "@/libs/http/extractApiError";
 import type { DashboardData } from "../types";
 
 // ダッシュボードデータを取得するフック。
-// loading/data/errorで状態を区別し、401はログイン画面へリダイレクトする。
+// data/errorで状態を区別し(dataもerrorもなければ取得中とみなす)、401はログイン画面へリダイレクトする。
 // それ以外のエラーはerrorにメッセージをセットし、呼び出し側で
 // 「再読み込み」ボタンからrefetchできるようにする。
 export const useFetchDashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const fetchDashboard = useCallback(async () => {
-    setLoading(true);
     setError(null);
 
     try {
@@ -32,8 +30,6 @@ export const useFetchDashboard = () => {
       }
 
       setError("ダッシュボードの取得に失敗しました");
-    } finally {
-      setLoading(false);
     }
   }, [router]);
 
@@ -41,5 +37,5 @@ export const useFetchDashboard = () => {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  return { data, loading, error, refetch: fetchDashboard };
+  return { data, error, refetch: fetchDashboard };
 };

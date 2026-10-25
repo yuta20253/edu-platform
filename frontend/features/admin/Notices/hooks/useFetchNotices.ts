@@ -12,7 +12,6 @@ import type { NoticesData, NoticeStatus } from "../types";
 // 検索文字列(q)は300msデバウンスし、q/statusの変更でページを1に戻す。
 export const useFetchNotices = () => {
   const [data, setData] = useState<NoticesData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [page, setPage] = useState(1);
@@ -55,7 +54,6 @@ export const useFetchNotices = () => {
     // レスポンスを上書きしないよう、リクエストごとにキャンセルする
     const controller = new AbortController();
 
-    setLoading(true);
     setError(false);
     apiClient
       .get<NoticesData>("/api/admin/announcements", {
@@ -70,10 +68,6 @@ export const useFetchNotices = () => {
           return;
         }
         setError(true);
-      })
-      .finally(() => {
-        if (controller.signal.aborted) return;
-        setLoading(false);
       });
 
     return () => {
@@ -85,7 +79,6 @@ export const useFetchNotices = () => {
 
   return {
     data,
-    loading,
     error,
     page,
     setPage,

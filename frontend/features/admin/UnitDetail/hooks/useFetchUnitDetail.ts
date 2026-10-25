@@ -9,7 +9,6 @@ import type { UnitDetail } from "../types";
 
 export const useFetchUnitDetail = (courseId: number, unitId: number) => {
   const [unit, setUnit] = useState<UnitDetail | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
   const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
@@ -19,7 +18,6 @@ export const useFetchUnitDetail = (courseId: number, unitId: number) => {
     // 古い応答で新しい表示を上書きしないようにする
     const controller = new AbortController();
 
-    setLoading(true);
     setError(false);
 
     apiClient
@@ -37,10 +35,6 @@ export const useFetchUnitDetail = (courseId: number, unitId: number) => {
         }
         setError(true);
         setUnit(null);
-      })
-      .finally(() => {
-        if (controller.signal.aborted) return;
-        setLoading(false);
       });
 
     return () => {
@@ -50,5 +44,5 @@ export const useFetchUnitDetail = (courseId: number, unitId: number) => {
 
   const retry = () => setReloadKey((prev) => prev + 1);
 
-  return { unit, loading, error, retry };
+  return { unit, error, retry };
 };

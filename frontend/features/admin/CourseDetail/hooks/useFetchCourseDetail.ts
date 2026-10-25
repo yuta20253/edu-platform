@@ -8,7 +8,6 @@ import type { CourseDetail } from "../types";
 
 export const useFetchCourseDetail = (courseId: number) => {
   const [course, setCourse] = useState<CourseDetail | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
   const [reloadKey, setReloadKey] = useState(0);
   const router = useRouter();
@@ -18,7 +17,6 @@ export const useFetchCourseDetail = (courseId: number) => {
     // 古い応答で新しい表示を上書きしないようにする
     const controller = new AbortController();
 
-    setLoading(true);
     setError(false);
 
     apiClient
@@ -36,10 +34,6 @@ export const useFetchCourseDetail = (courseId: number) => {
         }
         setError(true);
         setCourse(null);
-      })
-      .finally(() => {
-        if (controller.signal.aborted) return;
-        setLoading(false);
       });
 
     return () => {
@@ -49,5 +43,5 @@ export const useFetchCourseDetail = (courseId: number) => {
 
   const retry = () => setReloadKey((prev) => prev + 1);
 
-  return { course, loading, error, retry };
+  return { course, error, retry };
 };

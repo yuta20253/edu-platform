@@ -50,7 +50,7 @@ describe("useFetchNotices", () => {
 
     const { result } = renderHook(() => useFetchNotices());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data?.announcements).toHaveLength(1);
     expect(apiClient.get).toHaveBeenCalledWith("/api/admin/announcements", {
       params: { page: "1" },
@@ -62,7 +62,7 @@ describe("useFetchNotices", () => {
     vi.mocked(apiClient.get).mockResolvedValue(emptyResponse);
 
     const { result } = renderHook(() => useFetchNotices());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
       result.current.setPage(2);
@@ -80,7 +80,7 @@ describe("useFetchNotices", () => {
     vi.mocked(apiClient.get).mockResolvedValue(emptyResponse);
 
     const { result } = renderHook(() => useFetchNotices());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
       result.current.setPage(2);
@@ -107,7 +107,7 @@ describe("useFetchNotices", () => {
     vi.mocked(apiClient.get).mockResolvedValue(emptyResponse);
 
     const { result } = renderHook(() => useFetchNotices());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.data).not.toBeNull());
 
     act(() => {
       result.current.setPage(2);
