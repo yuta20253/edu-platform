@@ -46,21 +46,14 @@ RSpec.describe 'Api::V1::Teacher::InterviewRequests', type: :request do
       expect(ids).to contain_exactly(own_request.id)
     end
 
-    it '件数によらずusersへのクエリ件数が増えない(N+1にならない)' do
-      create_list(:interview_request, 3, :initiated_by_teacher, teacher: teacher)
-      request_headers = headers.merge('Cookie' => cookie)
+    it '複数件でも全件を返す(N+1 は Bullet が検知する)' do
+      # Bullet は 2 件以上を読み込んだときだけ N+1 を検知する。件数を 1 にしないこと
+      requests = create_list(:interview_request, 3, :initiated_by_teacher, teacher: teacher)
 
-      queries = []
-      callback = lambda { |_n, _s, _f, _id, payload|
-        queries << payload[:sql] if payload[:name] != 'SCHEMA'
-      }
-      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
-        get '/api/v1/teacher/interview_requests', headers: request_headers
-      end
+      get '/api/v1/teacher/interview_requests', headers: headers.merge('Cookie' => cookie)
 
-      user_queries = queries.grep(/FROM `users`/i)
-      # 内訳: current_userの認証クエリ1件 + student/teacherのバッチpreloadクエリ2件(N+1なら記録数に比例して増える)
-      expect(user_queries.size).to be <= 3
+      ids = response.parsed_body['interview_requests'].pluck('id')
+      expect(ids).to contain_exactly(own_request.id, *requests.map(&:id))
     end
 
     context 'from/toで期間を指定した場合' do
