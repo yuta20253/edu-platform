@@ -1,10 +1,10 @@
 "use client";
 
 import { useToast } from "@/components/ui/ToastProvider";
+import { fetchAllInterviewMessages } from "@/libs/domain/interview/fetchAllInterviewMessages";
 import { apiClient } from "@/libs/http/apiClient";
 import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
 import { extractApiError } from "@/libs/http/extractApiError";
-import type { PaginationMeta } from "@/types/common/pagination";
 import type {
   InterviewRequest,
   InterviewRequestMessage,
@@ -18,14 +18,6 @@ import { useCallback, useEffect, useState } from "react";
 const isStaleInterviewError = (status?: number) =>
   status === 409 || status === 422;
 
-// メッセージはスレッドとして1画面に全件並べるため、バックエンドの上限件数ずつ取得する
-const MESSAGES_PER_PAGE = "100";
-
-type MessagesData = {
-  interview_request_messages: InterviewRequestMessage[];
-  meta?: PaginationMeta;
-};
-
 export const useInterviewDetail = (interviewId: string) => {
   const [interview, setInterview] = useState<InterviewRequest | null>(null);
   const [messages, setMessages] = useState<InterviewRequestMessage[]>([]);
@@ -38,29 +30,11 @@ export const useInterviewDetail = (interviewId: string) => {
 
   const basePath = `/api/student/interview-requests/${interviewId}`;
 
-  // バックエンドは古い順にページングするため、1ページ目だけだと最新のメッセージが欠ける。残りのページもまとめて取得する
-  const fetchAllMessages = useCallback(async () => {
-    const fetchPage = (page: number) =>
-      apiClient.get<MessagesData>(`${basePath}/messages`, {
-        params: { page: String(page), per_page: MESSAGES_PER_PAGE },
-      });
-
-    const first = await fetchPage(1);
-    const totalPages = first.data.meta?.total_pages ?? 1;
-    const rest = await Promise.all(
-      Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)),
-    );
-
-    return [first, ...rest].flatMap(
-      (res) => res.data.interview_request_messages,
-    );
-  }, [basePath]);
-
   const fetchDetail = useCallback(async () => {
     try {
       const [interviewRes, allMessages] = await Promise.all([
         apiClient.get<InterviewRequest>(basePath),
-        fetchAllMessages(),
+        fetchAllInterviewMessages(basePath),
       ]);
       setInterview(interviewRes.data);
       setMessages(allMessages);
@@ -74,7 +48,7 @@ export const useInterviewDetail = (interviewId: string) => {
     } finally {
       setLoading(false);
     }
-  }, [basePath, fetchAllMessages, router]);
+  }, [basePath, router]);
 
   useEffect(() => {
     fetchDetail();

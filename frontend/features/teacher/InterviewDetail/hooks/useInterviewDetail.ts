@@ -2,6 +2,7 @@
 
 import { useToast } from "@/components/ui/ToastProvider";
 import { teacherInterviewActions } from "@/libs/domain/interview/teacherInterviewActions";
+import { fetchAllInterviewMessages } from "@/libs/domain/interview/fetchAllInterviewMessages";
 import { apiClient } from "@/libs/http/apiClient";
 import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
 import { extractApiError } from "@/libs/http/extractApiError";
@@ -11,16 +12,12 @@ import type {
 } from "@/types/interview/interviewRequest";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { MessagesData } from "../types";
 
 // 409: 楽観ロックの競合(他の操作や生徒側の操作が先に反映された)
 // 422: 生徒が先にキャンセルした等で、既にその操作ができない状態になっている
 // いずれも画面の面談情報が古いため、最新の状態を取り直す
 const isStaleInterviewError = (status?: number) =>
   status === 409 || status === 422;
-
-// メッセージはスレッドとして1画面に全件並べるため、バックエンドの上限件数ずつ取得する
-const MESSAGES_PER_PAGE = "100";
 
 export const useInterviewDetail = (interviewId: number) => {
   const [interview, setInterview] = useState<InterviewRequest | null>(null);
@@ -34,31 +31,13 @@ export const useInterviewDetail = (interviewId: number) => {
 
   const basePath = `/api/teacher/interview-requests/${interviewId}`;
 
-  // バックエンドは古い順にページングするため、1ページ目だけだと最新のメッセージが欠ける。残りのページもまとめて取得する
-  const fetchAllMessages = useCallback(async () => {
-    const fetchPage = (page: number) =>
-      apiClient.get<MessagesData>(`${basePath}/messages`, {
-        params: { page: String(page), per_page: MESSAGES_PER_PAGE },
-      });
-
-    const first = await fetchPage(1);
-    const totalPages = first.data.meta?.total_pages ?? 1;
-    const rest = await Promise.all(
-      Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)),
-    );
-
-    return [first, ...rest].flatMap(
-      (res) => res.data.interview_request_messages,
-    );
-  }, [basePath]);
-
   // 取り直し中も前回の面談情報は残す(画面全体がスピナーに戻らないようにする)
   const fetchDetail = useCallback(async () => {
     setError(false);
     try {
       const [interviewRes, allMessages] = await Promise.all([
         apiClient.get<InterviewRequest>(basePath),
-        fetchAllMessages(),
+        fetchAllInterviewMessages(basePath),
       ]);
       setInterview(interviewRes.data);
       setMessages(allMessages);
@@ -69,7 +48,7 @@ export const useInterviewDetail = (interviewId: number) => {
       }
       setError(true);
     }
-  }, [basePath, fetchAllMessages, router]);
+  }, [basePath, router]);
 
   useEffect(() => {
     fetchDetail();
