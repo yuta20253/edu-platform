@@ -5,7 +5,7 @@ module Api
     module Teacher
       class GradesController < Api::V1::Teacher::BaseController
         def index
-          grades = Grade.where(high_school_id: current_user.high_school_id)
+          grades = current_user.high_school.grades
 
           render json: grades, each_serializer: GradeSerializer, status: :ok
         end
