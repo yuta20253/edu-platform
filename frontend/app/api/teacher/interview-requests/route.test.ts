@@ -79,15 +79,25 @@ describe("POST /api/teacher/interview-requests", () => {
     });
   });
 
-  it("リクエストボディを interview_request キーでラップしてバックエンドへ転送する", async () => {
-    const body = {
-      student_id: 1,
-      reason_detail: "最近の成績について話したい",
-    };
-    await post(JSON.stringify(body));
+  it("student_id・reason_detail だけを interview_request キーでラップしてバックエンドへ転送する", async () => {
+    await post(
+      JSON.stringify({
+        student_id: 1,
+        reason_detail: "最近の成績について話したい",
+        teacher_id: 2,
+      }),
+    );
     expect(backendFetch).toHaveBeenCalledWith(
       "/api/v1/teacher/interview_requests",
-      { method: "POST", body: { interview_request: body } },
+      {
+        method: "POST",
+        body: {
+          interview_request: {
+            student_id: 1,
+            reason_detail: "最近の成績について話したい",
+          },
+        },
+      },
     );
   });
 
@@ -97,12 +107,15 @@ describe("POST /api/teacher/interview-requests", () => {
     expect(await res.json()).toEqual({ message: "面談を申請しました" });
   });
 
-  it("リクエストボディが不正なJSONのときは BAD_REQUEST を返しバックエンドへ転送しない", async () => {
-    const res = await post("{invalid");
-    expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
-    expect(backendFetch).not.toHaveBeenCalled();
-  });
+  it.each(["{invalid", "null", "[]", "1"])(
+    "リクエストボディがオブジェクト以外(%s)のときは BAD_REQUEST を返しバックエンドへ転送しない",
+    async (body) => {
+      const res = await post(body);
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+      expect(backendFetch).not.toHaveBeenCalled();
+    },
+  );
 
   it("422 のときは バックエンドのエラー内容を返す", async () => {
     vi.mocked(backendFetch).mockRejectedValue(

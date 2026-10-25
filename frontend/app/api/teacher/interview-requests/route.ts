@@ -29,17 +29,26 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// バックエンドはparams.require(:interview_request)を要求するため、リクエストボディをinterview_requestキーでラップしてforwardする。
+// バックエンドはparams.require(:interview_request)を要求するため、必要なキーだけをラップしてforwardする。
 export async function POST(req: NextRequest) {
+  // 必要なキーだけ取り出して転送するため、オブジェクト以外(null・配列など)は弾く
   const body = await req.json().catch(() => undefined);
-  if (body === undefined) {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
     return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
   }
 
   try {
     const { status, data, setCookie } = await backendFetch(
       "/api/v1/teacher/interview_requests",
-      { method: "POST", body: { interview_request: body } },
+      {
+        method: "POST",
+        body: {
+          interview_request: {
+            student_id: body.student_id,
+            reason_detail: body.reason_detail,
+          },
+        },
+      },
     );
 
     const res = NextResponse.json(data, { status });
