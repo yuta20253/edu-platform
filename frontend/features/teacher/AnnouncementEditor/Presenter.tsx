@@ -27,14 +27,19 @@ import {
   DELIVERY_TIMING_OPTIONS,
 } from "./constants";
 import type {
+  AnnouncementEditData,
   AnnouncementFormValues,
+  AnnouncementTargetInput,
   AnnouncementTargetOptions,
+  EditableAnnouncementTarget,
 } from "./types";
 
 const TITLE_MAX_LENGTH = 255;
 const CONTENT_MAX_LENGTH = 10_000;
 
 type Props = {
+  // 編集対象の現在の値。新規作成時はnull
+  editData: AnnouncementEditData | null;
   options: AnnouncementTargetOptions | null;
   submitting: boolean;
   submitError: string | null;
@@ -44,7 +49,48 @@ type Props = {
   onDeliver: (values: AnnouncementFormValues) => void;
 };
 
+// id・high_school_id・user_nameは表示用のため、フォームの値(=PATCHで送る値)には入れない
+const toTargetInput = (
+  target: EditableAnnouncementTarget,
+): AnnouncementTargetInput => ({
+  target_type: target.target_type,
+  ...(target.grade_id !== null && { grade_id: target.grade_id }),
+  ...(target.user_role_id !== null && { user_role_id: target.user_role_id }),
+  ...(target.user_id !== null && { user_id: target.user_id }),
+});
+
+const buildDefaultValues = (
+  editData: AnnouncementEditData | null,
+): AnnouncementFormValues => {
+  if (!editData) return DEFAULT_ANNOUNCEMENT_FORM_VALUES;
+
+  const { announcement, announcement_targets } = editData;
+  return {
+    title: announcement.title,
+    content: announcement.content,
+    targets: announcement_targets.map(toTargetInput),
+    deliveryTiming: announcement.status,
+    scheduledAt: announcement.scheduled_at
+      ? new Date(announcement.scheduled_at)
+      : null,
+  };
+};
+
+// 選択済みの「個人」配信先の名前。生徒一覧はページングされていて選択済みの生徒が
+// 表示中のページにいるとは限らないため、編集データのuser_nameを使う
+const buildSelectedStudentNames = (
+  editData: AnnouncementEditData | null,
+): Record<number, string> =>
+  Object.fromEntries(
+    (editData?.announcement_targets ?? []).flatMap((target) =>
+      target.user_id !== null && target.user_name !== null
+        ? [[target.user_id, target.user_name]]
+        : [],
+    ),
+  );
+
 export const Presenter = ({
+  editData,
   options,
   submitting,
   submitError,
@@ -60,10 +106,16 @@ export const Presenter = ({
     setError,
     formState: { errors },
   } = useForm<AnnouncementFormValues>({
-    defaultValues: DEFAULT_ANNOUNCEMENT_FORM_VALUES,
+    defaultValues: buildDefaultValues(editData),
   });
 
   const deliveryTiming = watch("deliveryTiming");
+  // 予約投稿は下書きに戻せない(バックエンドがscheduled→draftの遷移を拒否する)ため、
+  // 送信して422になる前に下書きの選択肢と「下書き保存」ボタンを出さない
+  const canSaveDraft = editData?.announcement.status !== "scheduled";
+  const deliveryTimingOptions = canSaveDraft
+    ? DELIVERY_TIMING_OPTIONS
+    : DELIVERY_TIMING_OPTIONS.filter((option) => option.value !== "draft");
   // 学年制限(own_grade_restriction)は選択肢の取得後に確定するため、取得できるまでは送信させない
   const submitDisabled = submitting || options === null;
 
@@ -91,7 +143,7 @@ export const Presenter = ({
         fontWeight={700}
         sx={{ color: colors.text.primary, mb: 3 }}
       >
-        お知らせを作成
+        {editData ? "お知らせを編集" : "お知らせを作成"}
       </Typography>
 
       {optionsError && (
@@ -157,7 +209,11 @@ export const Presenter = ({
             </CardContent>
           </Card>
 
-          <TargetPicker control={control} options={options} />
+          <TargetPicker
+            control={control}
+            options={options}
+            selectedStudentNames={buildSelectedStudentNames(editData)}
+          />
         </Stack>
 
         <Box sx={{ flex: "1 1 280px" }}>
@@ -174,7 +230,7 @@ export const Presenter = ({
                 control={control}
                 render={({ field }) => (
                   <RadioGroup {...field}>
-                    {DELIVERY_TIMING_OPTIONS.map((option) => (
+                    {deliveryTimingOptions.map((option) => (
                       <FormControlLabel
                         key={option.value}
                         value={option.value}
@@ -231,13 +287,15 @@ export const Presenter = ({
         >
           キャンセル
         </Button>
-        <Button
-          variant="outlined"
-          disabled={submitDisabled}
-          onClick={handleSubmit((values) => onSaveDraft(values))}
-        >
-          下書き保存
-        </Button>
+        {canSaveDraft && (
+          <Button
+            variant="outlined"
+            disabled={submitDisabled}
+            onClick={handleSubmit((values) => onSaveDraft(values))}
+          >
+            下書き保存
+          </Button>
+        )}
         <Button
           variant="contained"
           disabled={submitDisabled || deliveryTiming === "draft"}

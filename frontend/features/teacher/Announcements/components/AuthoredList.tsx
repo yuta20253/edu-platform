@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Link from "next/link";
 import { STATUS_COLOR, STATUS_LABEL } from "../constants";
 import { AuthoredAnnouncement } from "../types";
 import { getDateLabel } from "./getDateLabel";
@@ -20,6 +21,15 @@ import { getDateLabel } from "./getDateLabel";
 type Props = {
   announcements: AuthoredAnnouncement[];
 };
+
+const UPDATE_BUTTON_SX = {
+  minWidth: 64,
+  height: 28,
+  px: 1.5,
+  fontSize: "0.75rem",
+  borderRadius: 1.5,
+  textTransform: "none",
+} as const;
 
 export const AuthoredList = ({ announcements }: Props) => {
   if (announcements.length === 0) {
@@ -103,21 +113,27 @@ export const AuthoredList = ({ announcements }: Props) => {
             </Typography>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button
-                variant="outlined"
-                size="small"
-                disabled
-                sx={{
-                  minWidth: 64,
-                  height: 28,
-                  px: 1.5,
-                  fontSize: "0.75rem",
-                  borderRadius: 1.5,
-                  textTransform: "none",
-                }}
-              >
-                更新
-              </Button>
+              {/* 配信済みは編集できない(編集画面を開いても一覧へ戻される)ため無効のままにする */}
+              {announcement.status === "published" ? (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled
+                  sx={UPDATE_BUTTON_SX}
+                >
+                  更新
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  component={Link}
+                  href={`/teacher/announcements/${announcement.id}/edit`}
+                  sx={UPDATE_BUTTON_SX}
+                >
+                  更新
+                </Button>
+              )}
             </Box>
           </AccordionDetails>
         </Accordion>

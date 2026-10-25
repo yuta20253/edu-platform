@@ -146,15 +146,41 @@ describe("AnnouncementsPresenter", () => {
     );
   });
 
-  it("作成分タブの各お知らせを展開すると無効状態の「更新」ボタンが表示される", () => {
+  it("作成分タブの下書き・予約投稿を展開すると「更新」が編集画面へのリンクになっている", () => {
     render(<Presenter {...defaultProps} tab="authored" data={authoredData} />);
     fireEvent.click(screen.getByText("作成した下書き"));
     fireEvent.click(screen.getByText("予約中のお知らせ"));
 
-    const updateButtons = screen.getAllByRole("button", {
-      name: "更新",
-    });
-    expect(updateButtons).toHaveLength(2);
-    updateButtons.forEach((button) => expect(button).toBeDisabled());
+    const updateLinks = screen.getAllByRole("link", { name: "更新" });
+    expect(updateLinks.map((link) => link.getAttribute("href"))).toEqual([
+      "/teacher/announcements/2/edit",
+      "/teacher/announcements/3/edit",
+    ]);
+  });
+
+  it("作成分タブの配信済みのお知らせは編集できないため「更新」ボタンが無効", () => {
+    const publishedData: AnnouncementsResult = {
+      tab: "authored",
+      data: {
+        announcements: [
+          {
+            id: 4,
+            title: "配信済みのお知らせ",
+            content: "配信済みの内容",
+            status: "published",
+            published_at: "2025-06-01T00:00:00.000Z",
+            scheduled_at: null,
+          },
+        ],
+        meta: { current_page: 1, total_pages: 1, total_count: 1, per_page: 10 },
+      },
+    };
+    render(<Presenter {...defaultProps} tab="authored" data={publishedData} />);
+    fireEvent.click(screen.getByText("配信済みのお知らせ"));
+
+    expect(screen.getByRole("button", { name: "更新" })).toBeDisabled();
+    expect(
+      screen.queryByRole("link", { name: "更新" }),
+    ).not.toBeInTheDocument();
   });
 });
