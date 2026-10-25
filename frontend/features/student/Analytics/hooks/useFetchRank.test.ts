@@ -33,7 +33,7 @@ describe("useFetchRank(順位)", () => {
     const { result } = renderHook(() => useFetchRank());
 
     expect(result.current.type).toBe("course_rank");
-    expect(result.current.selected).toBe(false);
+    expect(result.current.selectionComplete).toBe(false);
     expect(apiClient.get).not.toHaveBeenCalled();
   });
 
@@ -44,7 +44,7 @@ describe("useFetchRank(順位)", () => {
       result.current.setCourseId(5);
     });
 
-    expect(result.current.selected).toBe(true);
+    expect(result.current.selectionComplete).toBe(true);
     await waitFor(() =>
       expect(result.current.data).toEqual({ rank: 3, total_users: 30 }),
     );
@@ -67,7 +67,7 @@ describe("useFetchRank(順位)", () => {
     expect(fetchCourseMock).toHaveBeenCalledWith("数学");
     expect(result.current.courseId).toBeNull();
     expect(result.current.unitId).toBeNull();
-    expect(result.current.selected).toBe(false);
+    expect(result.current.selectionComplete).toBe(false);
   });
 
   it("単元内順位は単元を選択するまでAPIを呼ばない", () => {
@@ -80,7 +80,7 @@ describe("useFetchRank(順位)", () => {
       result.current.setCourseId(5);
     });
 
-    expect(result.current.selected).toBe(false);
+    expect(result.current.selectionComplete).toBe(false);
     expect(apiClient.get).not.toHaveBeenCalled();
   });
 

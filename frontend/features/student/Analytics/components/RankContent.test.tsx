@@ -5,7 +5,7 @@ import { RankContent } from "./RankContent";
 
 const baseProps = {
   type: "course_rank" as const,
-  selected: true,
+  selectionComplete: true,
   data: null,
   error: false,
   onRetry: vi.fn(),
@@ -13,14 +13,16 @@ const baseProps = {
 
 describe("RankContent(順位)", () => {
   it("コース内順位でコース未選択の場合は案内メッセージを表示する", () => {
-    render(<RankContent {...baseProps} selected={false} />);
+    render(<RankContent {...baseProps} selectionComplete={false} />);
     expect(
       screen.getByText("教科とコースを選択してください"),
     ).toBeInTheDocument();
   });
 
   it("単元内順位で単元未選択の場合は案内メッセージを表示する", () => {
-    render(<RankContent {...baseProps} type="unit_rank" selected={false} />);
+    render(
+      <RankContent {...baseProps} type="unit_rank" selectionComplete={false} />,
+    );
     expect(
       screen.getByText("コースと単元を選択してください"),
     ).toBeInTheDocument();

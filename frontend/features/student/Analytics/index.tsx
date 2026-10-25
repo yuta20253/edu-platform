@@ -37,7 +37,7 @@ export const Analytics = () => {
       onRankUnitIdChange={rank.setUnitId}
       rankCourses={rank.courses}
       rankUnits={rank.units}
-      rankSelected={rank.selected}
+      rankSelectionComplete={rank.selectionComplete}
       rank={rank.data}
       rankError={rank.error}
       onRankRetry={rank.refetch}

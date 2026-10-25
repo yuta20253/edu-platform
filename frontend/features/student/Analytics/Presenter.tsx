@@ -52,7 +52,7 @@ type Props = {
   rankCourses: Course[] | null;
   rankUnits: Unit[];
   // 教科→コース(→単元)を選び終えているか
-  rankSelected: boolean;
+  rankSelectionComplete: boolean;
   rank: RankData | null;
   rankError: boolean;
   onRankRetry: () => void;
@@ -126,7 +126,7 @@ export const Presenter = ({
   onRankUnitIdChange,
   rankCourses,
   rankUnits,
-  rankSelected,
+  rankSelectionComplete,
   rank,
   rankError,
   onRankRetry,
@@ -212,7 +212,7 @@ export const Presenter = ({
                 />
                 <RankContent
                   type={rankType}
-                  selected={rankSelected}
+                  selectionComplete={rankSelectionComplete}
                   data={rank}
                   error={rankError}
                   onRetry={onRankRetry}

@@ -58,7 +58,7 @@ const baseProps = {
   onRankUnitIdChange: vi.fn(),
   rankCourses: null,
   rankUnits: [],
-  rankSelected: false,
+  rankSelectionComplete: false,
   rank: null as RankData | null,
   rankError: false,
   onRankRetry: vi.fn(),
@@ -118,7 +118,7 @@ describe("AnalyticsPresenter", () => {
       <Presenter
         {...baseProps}
         rankCourseId={1}
-        rankSelected
+        rankSelectionComplete
         rank={{ rank: 3, total_users: 30 }}
       />,
     );

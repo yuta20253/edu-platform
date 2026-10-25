@@ -8,7 +8,7 @@ import { RankData, RankType } from "../types";
 type Props = {
   type: RankType;
   // 教科→コース(→単元)を選び終えているか
-  selected: boolean;
+  selectionComplete: boolean;
   data: RankData | null;
   error: boolean;
   onRetry: () => void;
@@ -22,12 +22,12 @@ const Message = ({ children }: { children: string }) => (
 
 export const RankContent = ({
   type,
-  selected,
+  selectionComplete,
   data,
   error,
   onRetry,
 }: Props) => {
-  if (!selected) {
+  if (!selectionComplete) {
     return (
       <Message>
         {type === "unit_rank"

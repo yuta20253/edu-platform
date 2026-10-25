@@ -56,8 +56,7 @@ export const useFetchRank = () => {
     setUnitId,
     courses,
     units,
-    // 選択が揃っているか(揃うまでは案内メッセージを出す)
-    selected: params !== null,
+    selectionComplete: params !== null,
     data,
     error,
     refetch,
