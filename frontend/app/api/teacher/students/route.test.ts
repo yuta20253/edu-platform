@@ -46,6 +46,34 @@ describe("GET /api/teacher/students", () => {
     );
   });
 
+  it("per_page を指定したときはバックエンドへ転送する", async () => {
+    await get("?page=1&per_page=100");
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students?page=1&per_page=100",
+    );
+  });
+
+  it("keyword を指定したときはバックエンドへ転送する", async () => {
+    await get("?page=1&per_page=20&keyword=%E5%B1%B1%E7%94%B0");
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students?page=1&per_page=20&keyword=%E5%B1%B1%E7%94%B0",
+    );
+  });
+
+  it("keyword が 100 文字を超えるときは先頭 100 文字だけ転送する", async () => {
+    await get(`?page=1&keyword=${"あ".repeat(101)}`);
+    expect(backendFetch).toHaveBeenCalledWith(
+      `/api/v1/teacher/students?page=1&keyword=${encodeURIComponent("あ".repeat(100))}`,
+    );
+  });
+
+  it("keyword の前後の空白は取り除き、空白だけのときは転送しない", async () => {
+    await get("?page=1&keyword=%20%20");
+    expect(backendFetch).toHaveBeenCalledWith(
+      "/api/v1/teacher/students?page=1",
+    );
+  });
+
   it("バックエンドのレスポンスをそのまま返す", async () => {
     const res = await get("?page=1");
     expect(res.status).toBe(200);

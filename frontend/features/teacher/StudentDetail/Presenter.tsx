@@ -37,8 +37,7 @@ export const Presenter = ({
   onPageChange,
 }: Props) => {
   // プロフィールは生徒の情報をそのまま返し、目標・タスクは student に名前を持つ
-  const studentName =
-    data.tab === "profile" ? data.data.name : data.data.student.name;
+  const student = data.tab === "profile" ? data.data : data.data.student;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -62,7 +61,7 @@ export const Presenter = ({
               fontWeight: 700,
             }}
           >
-            {studentName.charAt(0)}
+            {student.name.charAt(0)}
           </Avatar>
 
           <Typography
@@ -70,23 +69,38 @@ export const Presenter = ({
             fontWeight={700}
             sx={{ color: colors.text.primary }}
           >
-            {studentName}
+            {student.name}
           </Typography>
         </Box>
 
-        <Button
-          component={Link}
-          href="/teacher/students"
-          variant="outlined"
-          size="small"
-          sx={{
-            height: 32,
-            px: 2,
-            textTransform: "none",
-          }}
-        >
-          一覧へ戻る
-        </Button>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            component={Link}
+            href={`/teacher/interviews/new?student_id=${student.id}`}
+            variant="contained"
+            size="small"
+            sx={{
+              height: 32,
+              px: 2,
+              textTransform: "none",
+            }}
+          >
+            面談を申請
+          </Button>
+          <Button
+            component={Link}
+            href="/teacher/students"
+            variant="outlined"
+            size="small"
+            sx={{
+              height: 32,
+              px: 2,
+              textTransform: "none",
+            }}
+          >
+            一覧へ戻る
+          </Button>
+        </Box>
       </Box>
 
       <Tabs
