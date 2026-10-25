@@ -20,7 +20,6 @@ describe("CourseDetail", () => {
   it("取得中はスケルトンを表示し、Presenter とスピナーは表示しない", () => {
     useFetchCourseDetailMock.mockReturnValue({
       course: null,
-      loading: true,
       error: false,
     });
 
@@ -35,7 +34,6 @@ describe("CourseDetail", () => {
     const retry = vi.fn();
     useFetchCourseDetailMock.mockReturnValue({
       course: null,
-      loading: false,
       error: true,
       retry,
     });
@@ -49,19 +47,6 @@ describe("CourseDetail", () => {
   it("データがあれば Presenter を表示する", () => {
     useFetchCourseDetailMock.mockReturnValue({
       course: {},
-      loading: false,
-      error: false,
-    });
-
-    render(<CourseDetail courseId={1} />);
-
-    expect(screen.getByTestId("presenter")).toBeInTheDocument();
-  });
-
-  it("再取得中(loading)でも前回のデータがあれば内容を表示し続ける", () => {
-    useFetchCourseDetailMock.mockReturnValue({
-      course: {},
-      loading: true,
       error: false,
     });
 
