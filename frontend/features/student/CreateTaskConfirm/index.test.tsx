@@ -199,6 +199,27 @@ describe("CreateTaskConfirm", () => {
       expect(api.calls).toEqual({ goal: 2, draft: 2 });
     });
 
+    it("再試行で、すでに取得できている側は取得し直しの完了を待たずに(データを保ったまま)画面に使われる", async () => {
+      api.failures.goal.set(1, 500);
+      render(<CreateTaskConfirm goalId={9} draftTaskId={1} />);
+      await screen.findByRole("alert");
+
+      // 再試行で下書きタスクの2回目の取得を保留にしても、1回目の結果が残っていて画面が出る
+      const gate = deferred();
+      api.gates.draft.set(2, gate.promise);
+      fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+      expect(
+        await screen.findByRole("button", { name: "登録する" }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("英単語100個を覚える")).toBeInTheDocument();
+      expect(api.calls.draft).toBe(2);
+
+      await act(async () => {
+        gate.resolve();
+      });
+    });
+
     it("401のときは/loginに遷移し、エラーは表示しない", async () => {
       api.failures.goal.set(1, 401);
 
