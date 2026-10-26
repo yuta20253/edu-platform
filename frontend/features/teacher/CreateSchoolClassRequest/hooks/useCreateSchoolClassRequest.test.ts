@@ -63,7 +63,12 @@ describe("useCreateSchoolClassRequest", () => {
 
     expect(apiClient.post).toHaveBeenCalledWith(
       "/api/teacher/school-class-requests",
-      { action: "modification", grade_id: 1, school_class_id: 3, name: "1年E組" },
+      {
+        action: "modification",
+        grade_id: 1,
+        school_class_id: 3,
+        name: "1年E組",
+      },
     );
     expect(showToastMock).toHaveBeenCalledWith({
       message: "学級の改名を申請しました",

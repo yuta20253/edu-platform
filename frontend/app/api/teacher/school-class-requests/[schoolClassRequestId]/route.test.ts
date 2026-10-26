@@ -20,10 +20,9 @@ const get = (schoolClassRequestId: string) =>
   });
 
 const patch = (schoolClassRequestId: string, body: string) =>
-  PATCH(
-    new NextRequest(url(schoolClassRequestId), { method: "PATCH", body }),
-    { params: Promise.resolve({ schoolClassRequestId }) },
-  );
+  PATCH(new NextRequest(url(schoolClassRequestId), { method: "PATCH", body }), {
+    params: Promise.resolve({ schoolClassRequestId }),
+  });
 
 const destroy = (schoolClassRequestId: string, body: string) =>
   DELETE(

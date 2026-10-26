@@ -140,9 +140,7 @@ describe("teacher/CreateSchoolClassRequest Presenter", () => {
     chooseAction("削除");
 
     expect(
-      screen.getByText(
-        "生徒または教員が所属しているクラスは削除できません。",
-      ),
+      screen.getByText("生徒または教員が所属しているクラスは削除できません。"),
     ).toBeInTheDocument();
   });
 

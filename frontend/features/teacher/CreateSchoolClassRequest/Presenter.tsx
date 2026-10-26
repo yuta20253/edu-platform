@@ -197,7 +197,9 @@ export const Presenter = ({ grades, onSubmit, submitError }: Props) => {
               {needsName && (
                 <TextField
                   id="school-class-request-name"
-                  label={action === "modification" ? "新しいクラス名" : "クラス名"}
+                  label={
+                    action === "modification" ? "新しいクラス名" : "クラス名"
+                  }
                   fullWidth
                   {...register("name", {
                     required: "クラス名を入力してください",
