@@ -51,20 +51,14 @@ RSpec.describe 'Api::V1::Student::Dashboards', type: :request do
         expect(goal_json['tasks'].size).to eq(2)
       end
 
-      it 'tasksの取得でN+1が発生しない' do
-        goals.each { |goal| create_list(:task, 2, user: user, goal: goal) }
+      it '複数件でも全件を返す(N+1 は Bullet が検知する)' do
+        # Bullet は 2 件以上を読み込んだときだけ N+1 を検知する。件数を 1 にしないこと
+        tasks = goals.flat_map { |goal| create_list(:task, 2, user: user, goal: goal) }
 
-        queries = []
-        callback = lambda { |_n, _s, _f, _id, payload|
-          queries << payload[:sql] if payload[:name] != 'SCHEMA'
-        }
-        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
-          subject
-        end
+        subject
 
-        task_queries = queries.grep(/FROM `tasks`/i)
-        # 内訳: goalsに対するtasksのバッチpreloadクエリ1件(N+1ならgoal数に比例して増える)
-        expect(task_queries.size).to eq(1)
+        task_ids = response.parsed_body['goals'].flat_map { |goal| goal['tasks'].pluck('id') }
+        expect(task_ids).to match_array(tasks.map(&:id))
       end
 
       it '本日の回答がない場合today_answer_countは0' do

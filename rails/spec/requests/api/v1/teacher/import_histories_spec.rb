@@ -36,7 +36,8 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
                             year: year) || create(:grade, high_school: high_school,
                                                           year: year)
       school_class = create(:school_class, grade: grade, name: "#{i}組")
-      student = create(:user, :student, high_school: high_school, grade: grade, school_class: school_class)
+      student = create(:user, :student, high_school: high_school, grade: grade, school_class: school_class,
+                                        name: "生徒#{i}")
       ImportedStudent.create!(import_history: history, user: student, action: :created)
     end
   end
@@ -164,20 +165,14 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
     end
 
     context '生徒数が多い場合' do
-      before do
-        import_students!(history, 5)
-        create(:import_error, import_history: history, row_number: 2, message: 'エラー')
-      end
+      let!(:imported_students) { import_students!(history, 5) }
 
-      it '生徒数によらず users / grades / school_classes / import_errors への SELECT が増えない(N+1にならない)' do
-        request_headers = headers.merge('Cookie' => cookie)
-        queries = capture_queries { get "/api/v1/teacher/import_histories/#{history.id}", headers: request_headers }
+      it '複数件でも全件を返す(N+1 は Bullet が検知する)' do
+        # Bullet は 2 件以上を読み込んだときだけ N+1 を検知する。件数を 1 にしないこと
+        subject
 
-        # users: 認証1件 + imported_students.user のpreload1件
-        expect(queries.grep(/FROM `users`/i).size).to be <= 2
-        expect(queries.grep(/FROM `grades`/i).size).to eq(1)
-        expect(queries.grep(/FROM `school_classes`/i).size).to eq(1)
-        expect(queries.grep(/FROM `import_errors`/i).size).to eq(1)
+        names = response.parsed_body['students'].pluck('name')
+        expect(names).to match_array(imported_students.map { |is| is.user.name })
       end
     end
 
@@ -228,18 +223,13 @@ RSpec.describe 'Api::V1::Teacher::ImportHistories', type: :request do
     end
 
     context '生徒数が多い場合' do
-      before { import_students!(history, 5) }
+      let!(:imported_students) { import_students!(history, 5) }
 
-      it '生徒数によらず users / grades / school_classes への SELECT が増えない(N+1にならない)' do
-        request_headers = headers.merge('Cookie' => cookie)
-        queries = capture_queries do
-          get "/api/v1/teacher/import_histories/#{history.id}/export", headers: request_headers
-        end
+      it '複数件でも全件を返す(N+1 は Bullet が検知する)' do
+        # Bullet は 2 件以上を読み込んだときだけ N+1 を検知する。件数を 1 にしないこと
+        subject
 
-        # users: 認証1件 + imported_students.user のpreload1件
-        expect(queries.grep(/FROM `users`/i).size).to be <= 2
-        expect(queries.grep(/FROM `grades`/i).size).to eq(1)
-        expect(queries.grep(/FROM `school_classes`/i).size).to eq(1)
+        expect(response.body).to include(*imported_students.map { |is| is.user.name })
       end
     end
 

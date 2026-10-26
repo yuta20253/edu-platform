@@ -38,21 +38,15 @@ RSpec.describe 'Api::V1::Student::InterviewRequestMessages', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it '件数によらずusersへのクエリ件数が増えない(N+1にならない)' do
-      create_list(:interview_request_message, 4, interview_request: interview_request, sender: teacher)
-      request_headers = headers.merge('Cookie' => cookie)
+    it '複数件でも全件を返す(N+1 は Bullet が検知する)' do
+      # Bullet は 2 件以上を読み込んだときだけ N+1 を検知する。件数を 1 にしないこと
+      messages = create_list(:interview_request_message, 4, interview_request: interview_request, sender: teacher)
 
-      queries = []
-      callback = lambda { |_n, _s, _f, _id, payload|
-        queries << payload[:sql] if payload[:name] != 'SCHEMA'
-      }
-      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
-        get "/api/v1/student/interview_requests/#{interview_request.id}/messages", headers: request_headers
-      end
+      get "/api/v1/student/interview_requests/#{interview_request.id}/messages",
+          headers: headers.merge('Cookie' => cookie)
 
-      user_queries = queries.grep(/FROM `users`/i)
-      # 内訳: current_userの認証クエリ1件 + senderのバッチpreloadクエリ1件(N+1ならメッセージ数に比例して増える)
-      expect(user_queries.size).to be <= 2
+      ids = response.parsed_body['interview_request_messages'].pluck('id')
+      expect(ids).to contain_exactly(message.id, *messages.map(&:id))
     end
 
     it 'メッセージ一覧が返る' do
