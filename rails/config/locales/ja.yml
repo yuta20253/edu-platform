@@ -34,6 +34,12 @@ ja:
               not_teacher: "教職員アカウントのみ設定可能です"
   activemodel:
     attributes:
+      teacher/create_school_class_request_form:
+        action: 申請の種別
+        grade_id: 学年
+        school_class_id: 対象クラス
+        school_class: 対象クラス
+        name: クラス名
       admin/admin_form:
         name: 名前
         name_kana: 氏名カナ

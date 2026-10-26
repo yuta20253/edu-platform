@@ -45,7 +45,7 @@ module Teacher
 
       return if @user.high_school.grades.exists?(id: grade_id)
 
-      errors.add(:grade_id, '学年IDが存在しません')
+      errors.add(:grade_id, 'が存在しません')
     end
 
     def school_class_belongs_to_grade
@@ -53,14 +53,14 @@ module Teacher
 
       return if school_class&.grade_id == grade_id
 
-      errors.add(:school_class_id, '学年が一致しません')
+      errors.add(:school_class_id, 'の学年が一致しません')
     end
 
     def school_class_not_occupied
       return if school_class.blank?
       return unless school_class.users.exists? || school_class.teachers.exists?
 
-      errors.add(:school_class_id, '生徒または教員が所属しているため削除できません')
+      errors.add(:school_class_id, 'は生徒または教員が所属しているため削除できません')
     end
 
     def school_class
