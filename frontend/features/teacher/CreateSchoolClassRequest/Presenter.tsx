@@ -202,7 +202,9 @@ export const Presenter = ({ grades, onSubmit, submitError }: Props) => {
                   }
                   fullWidth
                   {...register("name", {
-                    required: "クラス名を入力してください",
+                    // バックエンドの presence と同じく、空白だけの名前も未入力とみなす
+                    validate: (value) =>
+                      value.trim() !== "" || "クラス名を入力してください",
                     maxLength: {
                       value: NAME_MAX_LENGTH,
                       message: `クラス名は${NAME_MAX_LENGTH}文字以内で入力してください`,

@@ -210,6 +210,22 @@ describe("teacher/CreateSchoolClassRequest Presenter", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it("クラス名が空白だけのときは未入力のエラーを出し、送信しない", async () => {
+    const onSubmit = vi.fn();
+    renderPresenter({ onSubmit });
+
+    selectOption("学年", "1年");
+    fireEvent.change(screen.getByRole("textbox", { name: "クラス名" }), {
+      target: { value: " 　" },
+    });
+    submit();
+
+    expect(
+      await screen.findByText("クラス名を入力してください"),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it("新設でクラス名が空のまま削除に切り替えても、クラス名のエラーで止めずに申請する", async () => {
     const onSubmit = vi.fn();
     renderPresenter({ onSubmit });
