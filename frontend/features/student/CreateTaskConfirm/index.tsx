@@ -10,8 +10,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegisterTask } from "./hooks";
 import { priorityMap } from "./constants";
-import type { GoalType } from "./types";
-import type { DraftTaskType } from "./useFetchDraftTask";
+import type { DraftTaskType, GoalType } from "./types";
 
 const Field = ({
   label,

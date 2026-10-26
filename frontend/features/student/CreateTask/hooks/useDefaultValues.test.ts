@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { useDefaultValues } from "./useDefaultValues";
 import { PRIORITY } from "../constants";
-import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/useFetchDraftTask";
+import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/types";
 
 describe("useDefaultValues", () => {
   it("draftTaskがnullのとき goalId と空のデフォルト値を返す", () => {
