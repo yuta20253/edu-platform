@@ -75,4 +75,12 @@ describe("SchoolClassesPresenter", () => {
     render(<Presenter data={mockData} />);
     expect(screen.queryByText("高校2年")).not.toBeInTheDocument();
   });
+
+  it("学級の新設・改名・削除を申請する画面へのリンクを表示する", () => {
+    render(<Presenter data={mockData} />);
+    expect(screen.getByRole("link", { name: "申請する" })).toHaveAttribute(
+      "href",
+      "/teacher/school-class-requests/new",
+    );
+  });
 });
