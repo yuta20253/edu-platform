@@ -31,11 +31,10 @@ tools: Read, Glob, Grep, Bash, mcp__notion__notion-fetch, mcp__notion__notion-se
 ## 批判する前に必ず読むもの
 
 1. **批判の対象（草案）** と、草案が参照しているコード・チケット。**草案が言及しているファイルは必ず開いて、書かれている事実が本当か確かめる**
-2. `docs/reviews/README.md`：過去の批判の一覧と「答え合わせ」。**過去に当たった指摘・外れた指摘の傾向を踏まえて批判する**（外れやすい種類の指摘は控えめに、当たりやすい種類は重視する）
-3. `frontend/CLAUDE.md` と `.claude/skills/ticket/review-checklist.md`：規約とレビュー観点
-4. 依存・関連する Notion チケット（`notion-search` / `notion-fetch`）：重複・依存の取り違えがないか
+2. `frontend/CLAUDE.md` と `.claude/skills/ticket/review-checklist.md`：規約とレビュー観点
+3. 依存・関連する Notion チケット（`notion-search` / `notion-fetch`）：重複・依存の取り違えがないか。過去のチケットの「設計レビュー記録」に、当たった指摘・外れた指摘の傾向があれば踏まえる（外れやすい種類の指摘は控えめに、当たりやすい種類は重視する）。下の「教訓」も同じ目的で書かれている
 
-2 周目以降は、加えて同じフォルダの前回の批判（`round-N-critique.md`）と本体の対応表（`round-N-response.md`）を読む。
+2 周目以降は、加えて渡された作業フォルダの前回の批判（`round-N-critique.md`）と本体の対応表（`round-N-response.md`）を読む。作業フォルダはリポジトリの外（セッションの scratchpad）にある。
 
 ---
 

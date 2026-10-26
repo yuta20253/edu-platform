@@ -1,6 +1,6 @@
 ---
 name: draft-ticket
-description: チケットや設計の草案を作り、批判役（design-critic）に最大3周レビューさせてから、オーナーの確認を経て Notion カンバンにチケットを作成（または既存チケットを更新）する。批判の記録は docs/reviews/ に残し、docs だけの PR にする。
+description: チケットや設計の草案を作り、批判役（design-critic）に最大3周レビューさせてから、オーナーの確認を経て Notion カンバンにチケットを作成（または既存チケットを更新）する。批判の記録はリポジトリに置かず、Notion のチケット本文の「設計レビュー記録」に残す。
 argument-hint: <やりたいことの説明 | 見直したい Notion チケットの URL>
 disable-model-invocation: true
 ---
@@ -16,8 +16,7 @@ disable-model-invocation: true
 
 - `$ARGUMENTS` が空なら停止して内容を求める。
 - Notion MCP のツール（`notion-fetch` / `notion-create-pages` / `notion-update-page`）が使えること。使えなければ `/mcp` から `notion` を認証するよう案内して停止。
-- `gh auth status` が成功すること（記録の PR に使う）。
-- `git status --porcelain` が空であること。未コミットの変更があれば停止して確認。
+- このスキルはリポジトリにファイルを作らず、ブランチも PR も作らない（`git status` が汚れていても進めてよい）。
 
 ## 1. 要件の把握
 
@@ -33,7 +32,8 @@ disable-model-invocation: true
 
 ## 3. 草案を書く
 
-- 記録フォルダ `docs/reviews/<YYYY-MM-DD>_<slug>/` を作り、`draft.md` に草案を書く（`<slug>` は英小文字の snake_case）。既存チケットの見直しなら `<slug>` の先頭にチケット ID を付ける（例: `TSK-217_notice_editor`）。
+- 作業フォルダ `<scratchpad>/draft-ticket/<slug>/` を作り、`draft.md` に草案を書く（`<scratchpad>` はセッションの scratchpad ディレクトリ。`<slug>` は英小文字の snake_case。既存チケットの見直しなら先頭にチケット ID を付ける。例: `TSK-217_notice_editor`）。
+- **リポジトリ内（`docs/reviews/` など）には、草案も批判もファイルとして置かない。** 作業ファイルはこのセッションの間だけ使い、記録は手順 6 で Notion のチケット本文に残す。
 - 草案は Notion チケットの本文と同じ構成にする:
   - `## 概要` / `## 背景(調査結果)` / `### 検証済みの前提`（何を・どう確かめたか）/ `## 設計` / `## 比較した案`（採用しない理由つき）/ `## やること`（テスト観点を含む）/ `## 完了条件` / `## 依存`
 
@@ -43,7 +43,7 @@ disable-model-invocation: true
 
 1. Agent ツールで `design-critic` を呼ぶ（`subagent_type: "design-critic"`）。プロンプトには次を渡す:
    - 第何周か
-   - 記録フォルダのパスと、読むべきファイル（`draft.md`、2 周目以降は前回の `round-N-critique.md` と `round-N-response.md`）
+   - 作業フォルダのパスと、読むべきファイル（`draft.md`、2 周目以降は前回の `round-N-critique.md` と `round-N-response.md`）
    - 草案が参照しているコード・チケットの場所
 2. 返ってきた批判を **そのまま** `round-N-critique.md` に保存する（要約しない）。
 3. 指摘ごとに対応を決め、`round-N-response.md` に表で書く:
@@ -71,26 +71,15 @@ disable-model-invocation: true
 ## 6. Notion に反映
 
 - 新規なら「やること一覧」（`collection://2e329464-67fd-8163-a349-000bf8a63eea`）にチケットを作成する。既存チケットの見直しなら本文を置き換える。
-- 本文は `draft.md` の内容にし、末尾に `## 設計レビュー記録` として `docs/reviews/<フォルダ名>/`（GitHub 上のパス）を書く。
+- 本文は `draft.md` の内容にし、末尾に `## 設計レビュー記録` として、チケットの成果物になる次の要約を書く（ファイルやリンクではなく、本文に書く）:
+  - 批判を何周通したかと、各周の判定の推移（例: 直せば進めてよい → このまま進めてよい）
+  - 批判を受けて変えた主な点
+  - 不採用にした指摘とその理由
+  - オーナーが判断した点（あれば）
 - 作成後に再取得して、ID プロパティ（例: `TSK-221`）と内容を確認する。
 
-## 7. 記録を残す（docs だけの PR）
-
-- 新規チケットなら、記録フォルダ名の先頭にチケット ID を付ける（例: `2026-10-21_TSK-221_xxx`）。
-- `docs/reviews/README.md` の「レビューの一覧」に 1 行追加する（チケット・日付・周回数・最終判定・フォルダ）。批判の各指摘を「答え合わせ」表に「未確定」として追加する。
-- `origin/main` から `docs/<チケットID>_design_review` ブランチを作ってコミットし、push して PR を作る。
-  - タイトル: `[Docs] <チケットID> 設計レビュー記録`
-  - 本文は `.github/pull_request_template.md` の見出し構成に従う（概要にチケット URL）。
-  - コミットメッセージは `chore: <チケットID>の設計レビュー記録を追加`（本文は日本語）。
-- 作業前のブランチに戻る。
-
-## 8. 完了報告
+## 7. 完了報告
 
 - Notion チケットの URL と ID
 - 各周の判定の推移と、批判を受けて変えた主な点
 - 未解決の指摘（あれば）
-- 記録の PR の URL
-
-## 答え合わせ（実装後）
-
-`/ticket` で実装したとき、実装やレビューで分かった事実をもとに、`docs/reviews/README.md` の「答え合わせ」表を更新する（当たり／外れ／一部当たり）。批判役はこの表を見て、当たりやすい指摘と外れやすい指摘の傾向を次の批判に活かす。
