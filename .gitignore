@@ -3,3 +3,6 @@ config/master.key
 
 # Claude Code skill (/ticket) のスクリーンショット出力
 .claude/screenshots/
+
+# 設計レビュー(/draft-ticket)の記録は Notion のチケットに残し、リポジトリには置かない
+docs/reviews/
