@@ -46,7 +46,7 @@ const mockGet = (overrides: { interview?: object } = {}) => {
 
 const renderLoaded = async () => {
   const hook = renderHook(() => useInterviewDetail("1"));
-  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await waitFor(() => expect(hook.result.current.interview).not.toBeNull());
   return hook;
 };
 
@@ -114,7 +114,56 @@ describe("useInterviewDetail", () => {
       const { result } = renderHook(() => useInterviewDetail("1"));
 
       await waitFor(() => expect(result.current.error).toBe(true));
-      expect(result.current.loading).toBe(false);
+      expect(result.current.interview).toBeNull();
+    });
+  });
+
+  describe("再試行(refetch)", () => {
+    const detailCalls = () =>
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.filter(
+          ([url]) => url === "/api/student/interview-requests/1",
+        ).length;
+
+    it("取得中に連打しても取得は並列に走らず、完了後は再び再試行できる", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue({
+        response: { status: 500 },
+      });
+      const { result } = renderHook(() => useInterviewDetail("1"));
+      await waitFor(() => expect(result.current.error).toBe(true));
+      const before = detailCalls();
+
+      // 再試行の取得を保留にして、1回目の完了前に2回呼ぶ
+      let release: () => void = () => {};
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url.endsWith("/messages")) {
+          return Promise.resolve({
+            data: { interview_request_messages: [message], meta: {} },
+          });
+        }
+        return new Promise((resolve) => {
+          release = () => resolve({ data: interview });
+        });
+      });
+      act(() => {
+        void result.current.refetch();
+        void result.current.refetch();
+      });
+
+      expect(detailCalls()).toBe(before + 1);
+
+      await act(async () => {
+        release();
+      });
+      await waitFor(() => expect(result.current.interview).toEqual(interview));
+
+      // 完了したあとは、もう一度再試行できる
+      mockGet();
+      await act(async () => {
+        await result.current.refetch();
+      });
+      expect(detailCalls()).toBe(before + 2);
     });
   });
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { ErrorState } from "@/components/ui/ErrorState";
-import { Box, CircularProgress } from "@mui/material";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useInterviewDetail } from "./hooks/useInterviewDetail";
 import { Presenter } from "./Presenter";
 
@@ -13,8 +12,8 @@ export const InterviewDetail = ({ interviewId }: Props) => {
   const {
     interview,
     messages,
-    loading,
     error,
+    refetch,
     sendMessage,
     sendError,
     cancel,
@@ -22,34 +21,19 @@ export const InterviewDetail = ({ interviewId }: Props) => {
     clearCancelError,
   } = useInterviewDetail(interviewId);
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!interview || error) {
-    return <ErrorState />;
-  }
-
   return (
-    <Presenter
-      interview={interview}
-      messages={messages}
-      onSendMessage={sendMessage}
-      sendError={sendError}
-      onCancel={cancel}
-      cancelError={cancelError}
-      onClearCancelError={clearCancelError}
-    />
+    <AsyncBoundary data={interview} error={error} onRetry={refetch}>
+      {(loaded) => (
+        <Presenter
+          interview={loaded}
+          messages={messages}
+          onSendMessage={sendMessage}
+          sendError={sendError}
+          onCancel={cancel}
+          cancelError={cancelError}
+          onClearCancelError={clearCancelError}
+        />
+      )}
+    </AsyncBoundary>
   );
 };
