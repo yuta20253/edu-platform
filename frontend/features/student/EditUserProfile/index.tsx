@@ -1,6 +1,6 @@
 import { getMeFromBackend } from "@/libs/server/me";
-import { Box, CircularProgress } from "@mui/material";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Container } from "./Container";
 import { getPrefectures } from "@/libs/server/prefectures";
 
@@ -12,22 +12,15 @@ export const EditUserProfile = async () => {
     .join("; ");
 
   const user = await getMeFromBackend(cookieHeader);
-  const prefectures = await getPrefectures();
 
+  // 親のレイアウト(app/(main)/(authenticated)/layout.tsx)と同じ扱いにする。
+  // クライアント遷移ではレイアウトが再描画されず、ここが唯一のガードになりうる。
+  // 都道府県の取得は 401 のとき例外になるため、必ずこの判定より後ろにする。
   if (!user) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    redirect("/login");
   }
+
+  const prefectures = await getPrefectures();
 
   return <Container user={user} prefectures={prefectures} />;
 };
