@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { PRIORITY } from "../constants";
 import { CreateTaskForm } from "../types";
-import { DraftTaskType } from "@/features/student/CreateTaskConfirm/useFetchDraftTask";
+import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/types";
 
 type Props = {
   draftTask: DraftTaskType | null;

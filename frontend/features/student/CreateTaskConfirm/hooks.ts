@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
-import { DraftTaskType } from "./useFetchDraftTask";
+import type { DraftTaskType } from "./types";
 
 export const useRegisterTask = () => {
   const registerTask = async (draftTask: DraftTaskType) => {

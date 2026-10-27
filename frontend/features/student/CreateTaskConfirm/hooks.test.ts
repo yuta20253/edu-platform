@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { useRegisterTask } from "./hooks";
-import type { DraftTaskType } from "./useFetchDraftTask";
+import type { DraftTaskType } from "./types";
 
 vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { post: vi.fn() },
