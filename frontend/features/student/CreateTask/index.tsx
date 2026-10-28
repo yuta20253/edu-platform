@@ -18,25 +18,29 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
-import { priorities, PRIORITY } from "./constants";
+import { priorities } from "./constants";
 import { useUnitSelection } from "@/hooks/useUnitSelection";
-import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
-import { useEffect } from "react";
+import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import type { DraftTaskType } from "../CreateTaskConfirm/types";
 import { useDefaultValues } from "./hooks/useDefaultValues";
 
 type Props = {
   goalId: number;
-  draftTaskId: number;
+  // 確認画面の「キャンセル」で戻ってきたときだけ、下書きの ID が入る(新規作成は null)
+  draftTaskId: number | null;
 };
 
-export const CreateTask = ({
-  goalId,
-  draftTaskId,
-}: Props): React.JSX.Element => {
-  const { draftTask } = useFetchDraftTask(
-    draftTaskId ? Number(draftTaskId) : null,
-  );
+type BodyProps = {
+  goalId: number;
+  // 下書きがあるとき(確認画面から戻ったとき)だけ入る。新規作成は null
+  draftTask: DraftTaskType | null;
+};
 
+const CreateTaskBody = ({
+  goalId,
+  draftTask,
+}: BodyProps): React.JSX.Element => {
   const {
     courses,
     selectedCourseId,
@@ -48,8 +52,11 @@ export const CreateTask = ({
     setShowAllCourses,
   } = useCourses();
 
-  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
-    useUnitSelection();
+  // 下書きは最初から揃っているので、初期値は defaultValues と initialIds で渡す
+  // (取得後に reset や setSelectedUnitIds で流し込み直さない)
+  const { selectedUnitIds, handleToggleUnit } = useUnitSelection(
+    draftTask?.units?.map((u) => u.id) ?? [],
+  );
 
   const defaultValues = useDefaultValues({ draftTask, goalId });
 
@@ -57,34 +64,12 @@ export const CreateTask = ({
     control,
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     defaultValues,
   });
 
   const { onSubmit } = useSubmit({ selectedUnitIds });
-
-  useEffect(() => {
-    if (!draftTask) return;
-
-    const priority =
-      typeof draftTask.priority === "number"
-        ? draftTask.priority
-        : PRIORITY.NORMAL;
-
-    const unitIds = draftTask.units?.map((u) => u.id) ?? [];
-    reset({
-      goal_id: draftTask.goal_id,
-      title: draftTask.title ?? "",
-      content: draftTask.content ?? "",
-      priority: priority,
-      due_date: draftTask.due_date ? new Date(draftTask.due_date) : null,
-      unit_ids: unitIds,
-    });
-
-    setSelectedUnitIds(unitIds);
-  }, [draftTask, reset, setSelectedUnitIds]);
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto" }}>
@@ -199,3 +184,34 @@ export const CreateTask = ({
     </Box>
   );
 };
+
+// 下書きを取得してから、フォームを描画する。取得前の状態(draftTask が null)は、
+// フォーム側に持ち込まない(取得中はスピナー、失敗時はエラー表示と再試行)。
+const DraftTaskLoader = ({
+  goalId,
+  draftTaskId,
+}: {
+  goalId: number;
+  draftTaskId: number;
+}): React.JSX.Element => {
+  const { data, error, refetch } = useApiQuery<DraftTaskType>(
+    `/api/student/draft-tasks/${draftTaskId}`,
+  );
+
+  return (
+    <AsyncBoundary data={data} error={error} onRetry={refetch}>
+      {(draftTask) => <CreateTaskBody goalId={goalId} draftTask={draftTask} />}
+    </AsyncBoundary>
+  );
+};
+
+export const CreateTask = ({
+  goalId,
+  draftTaskId,
+}: Props): React.JSX.Element =>
+  draftTaskId === null ? (
+    // 新規作成: 下書きは無いので、取得しない
+    <CreateTaskBody goalId={goalId} draftTask={null} />
+  ) : (
+    <DraftTaskLoader goalId={goalId} draftTaskId={draftTaskId} />
+  );
