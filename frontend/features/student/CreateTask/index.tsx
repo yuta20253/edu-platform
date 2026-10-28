@@ -18,12 +18,11 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
-import { priorities, PRIORITY } from "./constants";
+import { priorities } from "./constants";
 import { useUnitSelection } from "@/hooks/useUnitSelection";
 import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import type { DraftTaskType } from "../CreateTaskConfirm/types";
-import { useEffect } from "react";
 import { useDefaultValues } from "./hooks/useDefaultValues";
 
 type Props = {
@@ -53,8 +52,11 @@ const CreateTaskBody = ({
     setShowAllCourses,
   } = useCourses();
 
-  const { selectedUnitIds, handleToggleUnit, setSelectedUnitIds } =
-    useUnitSelection();
+  // 下書きは最初から揃っているので、初期値は defaultValues と initialIds で渡す
+  // (取得後に reset や setSelectedUnitIds で流し込み直さない)
+  const { selectedUnitIds, handleToggleUnit } = useUnitSelection(
+    draftTask?.units?.map((u) => u.id) ?? [],
+  );
 
   const defaultValues = useDefaultValues({ draftTask, goalId });
 
@@ -62,34 +64,12 @@ const CreateTaskBody = ({
     control,
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     defaultValues,
   });
 
   const { onSubmit } = useSubmit({ selectedUnitIds });
-
-  useEffect(() => {
-    if (!draftTask) return;
-
-    const priority =
-      typeof draftTask.priority === "number"
-        ? draftTask.priority
-        : PRIORITY.NORMAL;
-
-    const unitIds = draftTask.units?.map((u) => u.id) ?? [];
-    reset({
-      goal_id: draftTask.goal_id,
-      title: draftTask.title ?? "",
-      content: draftTask.content ?? "",
-      priority: priority,
-      due_date: draftTask.due_date ? new Date(draftTask.due_date) : null,
-      unit_ids: unitIds,
-    });
-
-    setSelectedUnitIds(unitIds);
-  }, [draftTask, reset, setSelectedUnitIds]);
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto" }}>
