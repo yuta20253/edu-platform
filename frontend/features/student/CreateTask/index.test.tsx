@@ -46,7 +46,7 @@ describe("CreateTask", () => {
   });
 
   it("入力欄がラベルと関連付けられている", () => {
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
     expect(screen.getByLabelText("タスクタイトル")).toBeInTheDocument();
     expect(screen.getByLabelText("タスク内容")).toBeInTheDocument();
     expect(
@@ -58,7 +58,7 @@ describe("CreateTask", () => {
   });
 
   it("見出し「タスク作成」とフォーム項目が表示される", () => {
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
     expect(screen.getByText("タスク作成")).toBeInTheDocument();
     expect(screen.getByText("タスクタイトル")).toBeInTheDocument();
     expect(screen.getByText("タスク内容")).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe("CreateTask", () => {
   });
 
   it("必須項目が空のまま送信するとエラーメッセージが表示される", async () => {
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
     fireEvent.click(screen.getByRole("button", { name: "次へ" }));
 
     await waitFor(() => {
@@ -77,7 +77,7 @@ describe("CreateTask", () => {
   });
 
   it("教科を選択すると講座一覧が取得され表示される", async () => {
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
     const subjectSelect = screen.getAllByRole("combobox")[1];
     fireEvent.mouseDown(subjectSelect);
     fireEvent.click(screen.getByRole("option", { name: "英語" }));
@@ -91,7 +91,7 @@ describe("CreateTask", () => {
   });
 
   it("講座の「詳細を見る」を押すと単元一覧が表示され、チェックできる", async () => {
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
     const subjectSelect = screen.getAllByRole("combobox")[1];
     fireEvent.mouseDown(subjectSelect);
     fireEvent.click(screen.getByRole("option", { name: "英語" }));
@@ -107,7 +107,7 @@ describe("CreateTask", () => {
 
   it("必須項目を入力して送信すると apiClient.post が呼ばれ確認画面へ遷移する", async () => {
     const user = userEvent.setup();
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
 
     fireEvent.change(screen.getAllByRole("textbox")[0], {
       target: { value: "英単語を覚える" },
@@ -139,7 +139,7 @@ describe("CreateTask", () => {
   });
 
   it("「後で作成する」ボタンが / を指すリンクになっている", () => {
-    render(<CreateTask goalId={1} draftTaskId={0} />);
+    render(<CreateTask goalId={1} draftTaskId={null} />);
     expect(screen.getByRole("link", { name: /後で作成する/ })).toHaveAttribute(
       "href",
       "/",
