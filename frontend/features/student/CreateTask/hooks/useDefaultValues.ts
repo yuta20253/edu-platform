@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { PRIORITY } from "../constants";
+import { PRIORITY, toPriorityValue } from "../constants";
 import { CreateTaskForm } from "../types";
 import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/types";
 
@@ -24,10 +24,7 @@ export const useDefaultValues = ({
       };
     }
 
-    const priority =
-      typeof draftTask.priority === "number"
-        ? draftTask.priority
-        : PRIORITY.NORMAL;
+    const priority = toPriorityValue(draftTask.priority);
 
     const unitIds = draftTask.units?.map((u) => u.id) ?? [];
 
