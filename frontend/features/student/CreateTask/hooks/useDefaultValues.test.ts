@@ -26,7 +26,7 @@ describe("useDefaultValues", () => {
       goal_id: 7,
       title: "英単語100個を覚える",
       content: "単語帳1〜100",
-      priority: "4",
+      priority: "normal",
       due_date: "2026-09-01",
       units: [
         {
@@ -48,6 +48,24 @@ describe("useDefaultValues", () => {
     expect(result.current.priority).toBe(PRIORITY.NORMAL);
     expect(result.current.due_date).toEqual(new Date("2026-09-01"));
     expect(result.current.unit_ids).toEqual([11]);
+  });
+
+  it('draftTask.priority が数値の文字列("4")など不明な値のときは「普通」にする', () => {
+    const draftTask = {
+      id: 100,
+      goal_id: 7,
+      title: "",
+      content: "",
+      priority: "4",
+      due_date: null,
+      units: [],
+    } as unknown as DraftTaskType;
+
+    const { result } = renderHook(() =>
+      useDefaultValues({ draftTask, goalId: 5 }),
+    );
+
+    expect(result.current.priority).toBe(PRIORITY.NORMAL);
   });
 
   it("draftTask.priority が数値のときはその値をそのまま優先度として使う", () => {
