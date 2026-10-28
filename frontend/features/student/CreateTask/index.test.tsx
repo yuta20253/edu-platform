@@ -236,7 +236,10 @@ describe("CreateTask", () => {
       render(<CreateTask goalId={9} draftTaskId={5} />);
       await screen.findByDisplayValue("英単語100個を覚える");
 
-      expect(draftGetCalls()).toEqual([["/api/student/draft-tasks/5"]]);
+      // 呼び出しの引数の形(signal など)には依存せず、URL と回数だけを見る
+      expect(draftGetCalls().map(([url]) => url)).toEqual([
+        "/api/student/draft-tasks/5",
+      ]);
     });
 
     describe("下書きの取得に失敗するなど、取得が思いどおりに進まないとき", () => {
