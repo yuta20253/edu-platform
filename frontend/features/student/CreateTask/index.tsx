@@ -26,7 +26,8 @@ import { useDefaultValues } from "./hooks/useDefaultValues";
 
 type Props = {
   goalId: number;
-  draftTaskId: number;
+  // 確認画面の「キャンセル」で戻ってきたときだけ、下書きの ID が入る(新規作成は null)
+  draftTaskId: number | null;
 };
 
 export const CreateTask = ({
