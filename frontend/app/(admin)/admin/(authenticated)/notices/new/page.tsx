@@ -1,5 +1,5 @@
-import { NoticeEditor } from "@/features/admin/NoticeEditor";
+import { NoticeCreate } from "@/features/admin/NoticeCreate";
 
 export default function AdminNoticeNewPage() {
-  return <NoticeEditor />;
+  return <NoticeCreate />;
 }
