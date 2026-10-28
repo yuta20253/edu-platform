@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  act,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CreateTask } from "./index";
@@ -231,6 +237,96 @@ describe("CreateTask", () => {
       await screen.findByDisplayValue("英単語100個を覚える");
 
       expect(draftGetCalls()).toEqual([["/api/student/draft-tasks/5"]]);
+    });
+
+    describe("下書きの取得に失敗するなど、取得が思いどおりに進まないとき", () => {
+      // 下書きの GET を、呼び出し回数ごとに失敗や保留にできるモック
+      const draftApi = {
+        calls: 0,
+        failures: new Map<number, number>(),
+        gates: new Map<number, Promise<void>>(),
+      };
+
+      const deferred = () => {
+        let resolve: () => void = () => {};
+        const promise = new Promise<void>((r) => {
+          resolve = r;
+        });
+        return { promise, resolve };
+      };
+
+      beforeEach(() => {
+        draftApi.calls = 0;
+        draftApi.failures = new Map();
+        draftApi.gates = new Map();
+        vi.mocked(apiClient.get).mockReset();
+        vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+          if (!url.includes("draft-tasks")) return { data: mockCourses };
+
+          draftApi.calls += 1;
+          const call = draftApi.calls;
+          await draftApi.gates.get(call);
+          const status = draftApi.failures.get(call);
+          if (status) throw { response: { status } };
+          return { data: mockDraftTask };
+        });
+      });
+
+      it("取得に失敗すると、空のフォームではなく、エラー表示と再試行ボタンが出る", async () => {
+        draftApi.failures.set(1, 500);
+
+        render(<CreateTask goalId={9} draftTaskId={5} />);
+
+        expect(await screen.findByRole("alert")).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "再試行" }),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("タスク作成")).not.toBeInTheDocument();
+      });
+
+      it("失敗 → 再試行 → 成功のあと、下書きの内容がフォームに入る", async () => {
+        draftApi.failures.set(1, 500);
+        render(<CreateTask goalId={9} draftTaskId={5} />);
+        await screen.findByRole("alert");
+
+        fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+        expect(
+          await screen.findByDisplayValue("英単語100個を覚える"),
+        ).toBeInTheDocument();
+        expect(screen.getByDisplayValue("単語帳1〜100")).toBeInTheDocument();
+        expect(draftApi.calls).toBe(2);
+      });
+
+      it("401のときは /login に遷移し、エラーは表示しない", async () => {
+        draftApi.failures.set(1, 401);
+
+        render(<CreateTask goalId={9} draftTaskId={5} />);
+
+        await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+        await act(async () => {});
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      });
+
+      it("取得が終わるまで、フォームの中身は出さず、共通のスピナーだけを出す", async () => {
+        const gate = deferred();
+        draftApi.gates.set(1, gate.promise);
+
+        render(<CreateTask goalId={9} draftTaskId={5} />);
+
+        expect(screen.getByRole("progressbar")).toBeInTheDocument();
+        expect(screen.queryByText("タスク作成")).not.toBeInTheDocument();
+        expect(
+          screen.queryByLabelText("タスクタイトル"),
+        ).not.toBeInTheDocument();
+
+        await act(async () => {
+          gate.resolve();
+        });
+        expect(
+          await screen.findByDisplayValue("英単語100個を覚える"),
+        ).toBeInTheDocument();
+      });
     });
 
     it("新規作成(draftTaskId なし)では、下書きを取得しない", async () => {
