@@ -50,6 +50,24 @@ describe("useDefaultValues", () => {
     expect(result.current.unit_ids).toEqual([11]);
   });
 
+  it('draftTask.priority が API の文字列("high")のときは対応する優先度にする', () => {
+    const draftTask = {
+      id: 100,
+      goal_id: 7,
+      title: "",
+      content: "",
+      priority: "high",
+      due_date: null,
+      units: [],
+    } as unknown as DraftTaskType;
+
+    const { result } = renderHook(() =>
+      useDefaultValues({ draftTask, goalId: 5 }),
+    );
+
+    expect(result.current.priority).toBe(PRIORITY.HIGH);
+  });
+
   it('draftTask.priority が数値の文字列("4")など不明な値のときは「普通」にする', () => {
     const draftTask = {
       id: 100,
