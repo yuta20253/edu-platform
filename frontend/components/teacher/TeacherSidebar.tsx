@@ -12,6 +12,7 @@ import {
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import ClassIcon from "@mui/icons-material/Class";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CampaignIcon from "@mui/icons-material/Campaign";
@@ -45,6 +46,11 @@ const navItems = [
     label: "学級",
     href: "/teacher/school-classes",
     icon: <ClassIcon fontSize="small" />,
+  },
+  {
+    label: "学級申請",
+    href: "/teacher/school-class-requests",
+    icon: <AssignmentIcon fontSize="small" />,
   },
   {
     label: "学習管理",
