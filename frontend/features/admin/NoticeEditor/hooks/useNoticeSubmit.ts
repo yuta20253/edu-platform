@@ -17,8 +17,8 @@ type UseNoticeSubmitParams = {
 };
 
 // お知らせ作成・編集画面の保存を行うフック。
-// - 下書き保存は新規作成時のみstatus: draftを送る
-//   （編集時は既存のstatusを変更せず、タイトル・本文のみ更新する）
+// - 下書き保存・予約配信は、新規作成時はPOST、編集時はPATCHで同じ内容を送る
+//   （下書き保存は常にstatus: draftを送る。詳細はsaveDraftのコメントを参照）
 // - 即時配信は、新規作成時はstatus: publishedで直接作成し、
 //   編集時は内容を保存した後に専用のpublishエンドポイントを呼ぶ
 export const useNoticeSubmit = ({ noticeId }: UseNoticeSubmitParams) => {
