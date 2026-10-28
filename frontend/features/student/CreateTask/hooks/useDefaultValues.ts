@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { PRIORITY, toPriorityValue } from "../constants";
+import { PRIORITY } from "../constants";
+import { toPriorityValue } from "../utils/toPriorityValue";
 import { CreateTaskForm } from "../types";
 import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/types";
 

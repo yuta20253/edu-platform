@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { PRIORITY, toPriorityValue } from "./constants";
+import { PRIORITY } from "../constants";
+import { toPriorityValue } from "./toPriorityValue";
 
 describe("toPriorityValue", () => {
   // キーの綴りは Rails の enum(rails/app/models/draft_task.rb)と同じ。
