@@ -145,4 +145,108 @@ describe("CreateTask", () => {
       "/",
     );
   });
+
+  describe("下書きの取得(URL で出し分けるモック)", () => {
+    const mockDraftTask = {
+      id: 5,
+      goal_id: 9,
+      title: "英単語100個を覚える",
+      content: "単語帳1〜100",
+      // 優先度は比べない(TSK-225 で扱う。固定すると不具合を固定してしまう)
+      priority: "normal",
+      due_date: "2026-09-01",
+      units: [
+        {
+          id: 11,
+          course_id: 1,
+          unit_name: "be動詞",
+          course: { id: 1, level_number: 1, level_name: "標準" },
+        },
+      ],
+    };
+
+    const draftGetCalls = () =>
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.filter(([url]) => String(url).includes("draft-tasks"));
+
+    beforeEach(() => {
+      // 未消化の mockResolvedValueOnce が漏れないよう、URL で出し分けて reset する
+      vi.mocked(apiClient.get).mockReset();
+      vi.mocked(apiClient.get).mockImplementation(async (url: string) =>
+        url.includes("draft-tasks")
+          ? { data: mockDraftTask }
+          : { data: mockCourses },
+      );
+    });
+
+    it("下書きがあるとき、タイトル・内容がフォームの初期値になる", async () => {
+      render(<CreateTask goalId={9} draftTaskId={5} />);
+
+      expect(
+        await screen.findByDisplayValue("英単語100個を覚える"),
+      ).toBeInTheDocument();
+      expect(screen.getByDisplayValue("単語帳1〜100")).toBeInTheDocument();
+    });
+
+    it("下書きの単元が、チェック済みで表示される", async () => {
+      render(<CreateTask goalId={9} draftTaskId={5} />);
+      await screen.findByDisplayValue("英単語100個を覚える");
+
+      const subjectSelect = screen.getAllByRole("combobox")[1];
+      fireEvent.mouseDown(subjectSelect);
+      fireEvent.click(screen.getByRole("option", { name: "英語" }));
+      fireEvent.click(
+        await screen.findByRole("button", { name: "詳細を見る" }),
+      );
+
+      expect(screen.getByLabelText("be動詞")).toBeChecked();
+      expect(screen.getByLabelText("一般動詞")).not.toBeChecked();
+    });
+
+    it("送信すると、下書きの期限と単元が POST のボディになる", async () => {
+      render(<CreateTask goalId={9} draftTaskId={5} />);
+      await screen.findByDisplayValue("英単語100個を覚える");
+
+      fireEvent.click(screen.getByRole("button", { name: "次へ" }));
+
+      await waitFor(() => {
+        expect(apiClient.post).toHaveBeenCalledWith(
+          "/api/student/draft-tasks",
+          expect.objectContaining({
+            draft_task: expect.objectContaining({
+              goal_id: 9,
+              title: "英単語100個を覚える",
+              content: "単語帳1〜100",
+              due_date: new Date("2026-09-01"),
+              unit_ids: [11],
+            }),
+          }),
+        );
+      });
+    });
+
+    it("下書きの ID があるとき、下書きを 1 回取得する", async () => {
+      render(<CreateTask goalId={9} draftTaskId={5} />);
+      await screen.findByDisplayValue("英単語100個を覚える");
+
+      expect(draftGetCalls()).toEqual([["/api/student/draft-tasks/5"]]);
+    });
+
+    it("新規作成(draftTaskId なし)では、下書きを取得しない", async () => {
+      render(<CreateTask goalId={9} draftTaskId={null} />);
+
+      // 講座一覧の取得は教科選択で呼ばれる。呼び出し回数ではなく、下書きの URL の有無で確かめる
+      const subjectSelect = screen.getAllByRole("combobox")[1];
+      fireEvent.mouseDown(subjectSelect);
+      fireEvent.click(screen.getByRole("option", { name: "英語" }));
+      await waitFor(() => {
+        expect(apiClient.get).toHaveBeenCalledWith(
+          "/api/student/courses?subject=英語",
+        );
+      });
+
+      expect(draftGetCalls()).toHaveLength(0);
+    });
+  });
 });
