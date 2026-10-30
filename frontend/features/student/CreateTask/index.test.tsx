@@ -145,4 +145,41 @@ describe("CreateTask", () => {
       "/",
     );
   });
+
+  describe("確認画面から戻ったとき(下書きがあるとき)", () => {
+    // API(Rails の enum)は優先度を文字列で返す
+    const mockDraftTask = {
+      id: 5,
+      goal_id: 9,
+      title: "英単語100個を覚える",
+      content: "単語帳1〜100",
+      priority: "high",
+      due_date: "2026-09-01",
+      units: [],
+    };
+
+    beforeEach(() => {
+      // mockResolvedValueOnce は消化漏れが起きやすいので、URL で出し分ける
+      vi.mocked(apiClient.get).mockReset();
+      vi.mocked(apiClient.get).mockImplementation(async (url: string) =>
+        url.includes("draft-tasks")
+          ? { data: mockDraftTask }
+          : { data: mockCourses },
+      );
+    });
+
+    it("下書きの優先度(文字列)が、フォームの優先度に戻る", async () => {
+      render(<CreateTask goalId={9} draftTaskId={5} />);
+
+      // 取得は非同期なので、取得後に「高い」が出るのを待つ
+      await waitFor(() =>
+        expect(
+          screen.getByRole("combobox", { name: "優先度" }),
+        ).toHaveTextContent("高い"),
+      );
+      expect(
+        screen.getByDisplayValue("英単語100個を覚える"),
+      ).toBeInTheDocument();
+    });
+  });
 });
