@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-import { getMeFromBackend } from "./me";
+import { getMeFromBackend, MeFetchError } from "./me";
 
 const user = { id: 1, name: "生徒", user_role: { name: "student" } };
 
@@ -35,5 +35,26 @@ describe("getMeFromBackend", () => {
     fetchMock.mockRejectedValue(new TypeError("fetch failed"));
 
     await expect(getMeFromBackend("a=b")).rejects.toThrow("fetch failed");
+  });
+
+  it("500 のとき null ではなく MeFetchError を投げ、HTTP ステータスを持つ", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(500, { error: "boom" }));
+
+    const error = await getMeFromBackend("a=b").catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(MeFetchError);
+    expect((error as MeFetchError).status).toBe(500);
+  });
+
+  it("403・404 など 401 以外の失敗も MeFetchError を投げる", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(404, {}));
+
+    await expect(getMeFromBackend("a=b")).rejects.toBeInstanceOf(MeFetchError);
+  });
+
+  it("200 で JSON が壊れているとき MeFetchError を投げる", async () => {
+    fetchMock.mockResolvedValue(new Response("<html>", { status: 200 }));
+
+    await expect(getMeFromBackend("a=b")).rejects.toBeInstanceOf(MeFetchError);
   });
 });
