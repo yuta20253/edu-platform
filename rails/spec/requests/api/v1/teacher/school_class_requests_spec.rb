@@ -775,7 +775,7 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
                 headers: headers.merge('Cookie' => approver_cookie)
 
           expect(response).to have_http_status(:unprocessable_content)
-          expect(response.parsed_body['errors']).to eq(['対象クラスに生徒が所属しているため承認できません'])
+          expect(response.parsed_body['errors']).to eq(['生徒が存在するため削除できません'])
         end
 
         it 'クラスは削除されず、申請も承認待ちのまま' do

@@ -16,12 +16,6 @@ module Api
         before_action :require_valid_update_status!, only: :update
         before_action :require_lock_version!, only: :update
 
-        # 申請時は在籍者がいるクラスの削除を受け付けないが、申請の後に生徒が所属すると、
-        # 削除申請の承認で SchoolClass の restrict_with_error に当たる。トランザクションごと戻るので申請は承認待ちのまま
-        rescue_from ActiveRecord::RecordNotDestroyed do
-          render json: { errors: ['対象クラスに生徒が所属しているため承認できません'] }, status: :unprocessable_content
-        end
-
         def index
           school_class_requests = school_class_requests_scope
           school_class_requests = school_class_requests.where(status: params[:status]) if params[:status].present?
