@@ -323,6 +323,11 @@ RSpec.describe 'Api::V1::Admin::Announcements', type: :request do
         expect(response).to have_http_status(:unprocessable_content)
       end
 
+      it '削除できない理由が返される' do
+        delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
+        expect(response.parsed_body['errors']).to eq(['は配信済みのため削除できません'])
+      end
+
       it 'announcementが削除されない' do
         expect do
           delete "/api/v1/admin/announcements/#{announcement.id}", headers: auth_headers
