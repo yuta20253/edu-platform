@@ -763,6 +763,31 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
                 headers: headers.merge('Cookie' => approver_cookie)
         end.to change(SchoolClass, :count).by(-1)
       end
+
+      context '申請の後にクラスへ生徒が所属した場合' do
+        before do
+          create(:user, :student, high_school: high_school, grade: grade, school_class: target_school_class)
+        end
+
+        it '422と理由のメッセージが返る' do
+          patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                params: request_params.to_json,
+                headers: headers.merge('Cookie' => approver_cookie)
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body['errors']).to eq(['対象クラスに生徒が所属しているため承認できません'])
+        end
+
+        it 'クラスは削除されず、申請も承認待ちのまま' do
+          expect do
+            patch "/api/v1/teacher/school_class_requests/#{school_class_request.id}",
+                  params: request_params.to_json,
+                  headers: headers.merge('Cookie' => approver_cookie)
+          end.not_to change(SchoolClass, :count)
+
+          expect(school_class_request.reload.status).to eq('pending')
+        end
+      end
     end
 
     context '却下する場合' do
