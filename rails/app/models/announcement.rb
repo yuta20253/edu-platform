@@ -36,6 +36,8 @@ class Announcement < ApplicationRecord
     published: 2
   }, validate: true
 
+  # target_typeごとに条件を分けて(target_type, high_school_id)等のインデックスを効かせ、UNIONで重複を除いてからJOINする。
+  # where(id: ...)のIN副問い合わせにするとMySQLが相関サブクエリに変換して全件を評価するため、派生テーブルとしてJOINしている。
   scope :for_user, lambda { |user|
     branches = [
       AnnouncementTarget.where(target_type: :all_users, high_school_id: [nil, user.high_school_id]),
