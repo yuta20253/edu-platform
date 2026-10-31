@@ -284,9 +284,7 @@ describe("useSchoolClassRequestDetail", () => {
       });
 
       expect(succeeded).toBe(false);
-      expect(result.current.actionError).toBe(
-        "承認待ちの申請のみ取り消せます",
-      );
+      expect(result.current.actionError).toBe("承認待ちの申請のみ取り消せます");
       expect(refetchCount()).toBe(1);
     });
 

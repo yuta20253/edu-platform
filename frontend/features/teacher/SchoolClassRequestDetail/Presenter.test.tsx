@@ -54,11 +54,7 @@ const renderPresenter = (
   extra: Partial<typeof props> = {},
 ) =>
   render(
-    <Presenter
-      {...props}
-      request={{ ...request, ...overrides }}
-      {...extra}
-    />,
+    <Presenter {...props} request={{ ...request, ...overrides }} {...extra} />,
   );
 
 // 項目名(dt)に対応する値(dd)
