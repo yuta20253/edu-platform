@@ -39,7 +39,8 @@ class Announcement < ApplicationRecord
   scope :for_user, lambda { |user|
     branches = [
       AnnouncementTarget.where(target_type: :all_users, high_school_id: [nil, user.high_school_id]),
-      AnnouncementTarget.where(target_type: :by_role, user_role_id: user.user_role_id, high_school_id: [nil, user.high_school_id]),
+      AnnouncementTarget.where(target_type: :by_role, user_role_id: user.user_role_id,
+                               high_school_id: [nil, user.high_school_id]),
       AnnouncementTarget.where(target_type: :by_grade, grade_id: user.grade_id, user_role_id: [nil, user.user_role_id]),
       AnnouncementTarget.where(target_type: :by_school, high_school_id: user.high_school_id),
       AnnouncementTarget.where(target_type: :by_user, user_id: user.id)
