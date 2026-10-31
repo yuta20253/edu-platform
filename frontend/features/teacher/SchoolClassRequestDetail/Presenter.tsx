@@ -211,6 +211,7 @@ export const Presenter = ({
                 <InfoRow label="処理者">
                   {request.approver?.name ?? "-"}
                 </InfoRow>
+                {/* バックエンドは理由の無い却下も受け付けるため、空のときは「-」にする */}
                 <InfoRow label="却下理由">{request.reason || "-"}</InfoRow>
               </>
             )}
@@ -219,7 +220,7 @@ export const Presenter = ({
                 <InfoRow label="取消日時">
                   {formatDateTime(request.cancelled_at)}
                 </InfoRow>
-                {/* 取消の理由は任意。却下も画面の外から理由なしで処理されうる */}
+                {/* 取消の理由は任意 */}
                 <InfoRow label="取消理由">{request.reason || "-"}</InfoRow>
               </>
             )}
