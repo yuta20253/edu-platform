@@ -87,6 +87,29 @@
         89
       ],
       "note": "question_history_stats_sql/study_log_flags_sqlは、from/to/high_school_id/subject_idをActiveRecordの.whereで束縛した上で.to_sqlしたSQL文字列。値はすべてActiveRecordがエスケープ済みで、外部入力を生結合していないためfalse positive。"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "44f9b27d8c1e1b5427cc207ec9a81fcd063470f8ed480f48108e3b5b54bc37b8",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/announcement.rb",
+      "line": 50,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "joins(\"INNER JOIN (#{[AnnouncementTarget.where(:target_type => :all_users, :high_school_id => ([nil, user.high_school_id])), AnnouncementTarget.where(:target_type => :by_role, :user_role_id => user.user_role_id, :high_school_id => ([nil, user.high_school_id])), AnnouncementTarget.where(:target_type => :by_grade, :grade_id => user.grade_id, :user_role_id => ([nil, user.user_role_id])), AnnouncementTarget.where(:target_type => :by_school, :high_school_id => user.high_school_id), AnnouncementTarget.where(:target_type => :by_user, :user_id => user.id)].map do\n branch.select(:announcement_id).to_sql\n end.join(\" UNION \")}) AS matched ON matched.announcement_id = announcements.id\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Announcement",
+        "method": "for_user"
+      },
+      "user_input": "AnnouncementTarget.where(:target_type => :by_user, :user_id => user.id)",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "matched_ids_sqlはAnnouncementTarget.where(...)をtarget_typeごとに組み立てて.select(:announcement_id).to_sqlしたSQL文字列をUNIONで結合したもの。値はcurrent_userのhigh_school_id/user_role_id/grade_id/idで、すべてActiveRecordの.whereで束縛・エスケープ済み。外部入力を生結合していないためfalse positive。"
     }
   ],
   "brakeman_version": "8.0.5"

@@ -36,19 +36,20 @@ class Announcement < ApplicationRecord
     published: 2
   }, validate: true
 
+  # target_typeごとに条件を分けて(target_type, high_school_id)等のインデックスを効かせ、UNIONで重複を除いてからJOINする。
+  # where(id: ...)のIN副問い合わせにするとMySQLが相関サブクエリに変換して全件を評価するため、派生テーブルとしてJOINしている。
   scope :for_user, lambda { |user|
-    joins(:announcement_targets)
-      .where(
-        "(announcement_targets.high_school_id IS NULL OR announcement_targets.high_school_id = ?) AND
-        (announcement_targets.user_role_id IS NULL OR announcement_targets.user_role_id = ?) AND
-        (announcement_targets.grade_id IS NULL OR announcement_targets.grade_id = ?) AND
-        (announcement_targets.user_id IS NULL OR announcement_targets.user_id = ?)",
-        user.high_school_id,
-        user.user_role_id,
-        user.grade_id,
-        user.id
-      )
-      .distinct
+    branches = [
+      AnnouncementTarget.where(target_type: :all_users, high_school_id: [nil, user.high_school_id]),
+      AnnouncementTarget.where(target_type: :by_role, user_role_id: user.user_role_id,
+                               high_school_id: [nil, user.high_school_id]),
+      AnnouncementTarget.where(target_type: :by_grade, grade_id: user.grade_id, user_role_id: [nil, user.user_role_id]),
+      AnnouncementTarget.where(target_type: :by_school, high_school_id: user.high_school_id),
+      AnnouncementTarget.where(target_type: :by_user, user_id: user.id)
+    ]
+
+    matched_ids_sql = branches.map { |branch| branch.select(:announcement_id).to_sql }.join(' UNION ')
+    joins("INNER JOIN (#{matched_ids_sql}) AS matched ON matched.announcement_id = announcements.id")
   }
 
   scope :for_high_school, lambda { |high_school_id|
