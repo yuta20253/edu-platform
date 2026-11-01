@@ -116,6 +116,14 @@ describe("PermissionEditForm", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("404 の案内から閉じるボタンでドロワーを閉じられる", async () => {
+    vi.mocked(apiClient.get).mockRejectedValue({ response: { status: 404 } });
+    const { onCancel } = setup();
+
+    fireEvent.click(await screen.findByRole("button", { name: "閉じる" }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
   it("それ以外の失敗ではエラーを出し、再試行で取り直せる", async () => {
     vi.mocked(apiClient.get)
       .mockRejectedValueOnce({ response: { status: 500 } })

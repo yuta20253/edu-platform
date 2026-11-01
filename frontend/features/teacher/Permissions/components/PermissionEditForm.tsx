@@ -47,6 +47,11 @@ export const PermissionEditForm = ({
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="warning">{PERMISSION_NOT_FOUND_MESSAGE}</Alert>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+          <Button onClick={onCancel} color="inherit">
+            閉じる
+          </Button>
+        </Box>
       </Box>
     );
   }
