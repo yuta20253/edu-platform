@@ -25,7 +25,7 @@ export const getMeFromBackend = async (
     headers: {
       Cookie: cookieHeader,
       "Content-Type": "application/json",
-      Acccept: "application/json",
+      Accept: "application/json",
     },
     cache: "no-store",
   });
