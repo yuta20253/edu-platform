@@ -158,8 +158,8 @@ describe("CreateTask", () => {
       goal_id: 9,
       title: "英単語100個を覚える",
       content: "単語帳1〜100",
-      // 優先度は比べない(TSK-225 で扱う。固定すると不具合を固定してしまう)
-      priority: "normal",
+      // API(Rails の enum)は優先度を文字列で返す
+      priority: "high",
       due_date: "2026-09-01",
       units: [
         {
@@ -330,6 +330,20 @@ describe("CreateTask", () => {
           await screen.findByDisplayValue("英単語100個を覚える"),
         ).toBeInTheDocument();
       });
+    });
+
+    it("下書きの優先度(文字列)が、フォームの優先度に戻る", async () => {
+      render(<CreateTask goalId={9} draftTaskId={5} />);
+
+      // 取得は非同期なので、取得後に「高い」が出るのを待つ
+      await waitFor(() =>
+        expect(
+          screen.getByRole("combobox", { name: "優先度" }),
+        ).toHaveTextContent("高い"),
+      );
+      expect(
+        screen.getByDisplayValue("英単語100個を覚える"),
+      ).toBeInTheDocument();
     });
 
     it("新規作成(draftTaskId なし)では、下書きを取得しない", async () => {
