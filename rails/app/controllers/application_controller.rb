@@ -12,6 +12,7 @@ class ApplicationController < ActionController::API
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
+  rescue_from ActiveRecord::RecordNotDestroyed, with: :record_not_destroyed
   rescue_from ActiveRecord::StaleObjectError, with: :stale_object
 
   DEFAULT_PER_PAGE = 20
@@ -29,6 +30,11 @@ class ApplicationController < ActionController::API
   end
 
   def record_invalid(exception)
+    render json: { errors: exception.record.errors.full_messages }, status: :unprocessable_content
+  end
+
+  # destroy! が restrict_with_error や before_destroy で止められたとき
+  def record_not_destroyed(exception)
     render json: { errors: exception.record.errors.full_messages }, status: :unprocessable_content
   end
 
