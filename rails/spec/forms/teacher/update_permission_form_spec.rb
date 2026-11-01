@@ -72,9 +72,12 @@ RSpec.describe Teacher::UpdatePermissionForm, type: :model do
       described_class.new(
         target: teacher,
         grade_scope: 'all_grades',
-        manage_other_teachers: true
+        manage_other_teachers: true,
+        lock_version: lock_version
       )
     end
+
+    let(:lock_version) { teacher_permission.lock_version }
 
     it 'teacher_permissionを更新できること' do
       expect(subject.save).to be(true)
@@ -83,6 +86,18 @@ RSpec.describe Teacher::UpdatePermissionForm, type: :model do
 
       expect(teacher_permission.grade_scope).to eq('all_grades')
       expect(teacher_permission.manage_other_teachers).to be(true)
+    end
+
+    context 'lock_versionが古い場合' do
+      let!(:lock_version) { teacher_permission.lock_version }
+
+      before { teacher_permission.update!(manage_other_teachers: true) }
+
+      it 'StaleObjectErrorになり、値が変わらないこと' do
+        expect { subject.save }.to raise_error(ActiveRecord::StaleObjectError)
+
+        expect(teacher_permission.reload.grade_scope).to eq('own_grade')
+      end
     end
   end
 end
