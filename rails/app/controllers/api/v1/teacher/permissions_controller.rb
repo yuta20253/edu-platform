@@ -8,6 +8,7 @@ module Api
 
         before_action :set_teacher, only: %i[show update]
         before_action -> { require_manage_other_teachers!('他教員を編集する権限がありません') }, only: :update
+        before_action :require_lock_version!, only: :update
 
         def index
           teachers = teachers_query.order(:name_kana).page(sanitized_page).per(sanitized_per_page)
@@ -55,7 +56,7 @@ module Api
         end
 
         def update_permission_params
-          params.require(:teacher_permission).permit(:grade_scope, :manage_other_teachers)
+          params.require(:teacher_permission).permit(:grade_scope, :manage_other_teachers, :lock_version)
         end
 
         def teachers_query
@@ -69,6 +70,12 @@ module Api
 
         def render_update_error(message)
           render json: { errors: [message] }, status: :unprocessable_content
+        end
+
+        def require_lock_version!
+          return if update_permission_params[:lock_version].present?
+
+          render json: { errors: ['lock_versionは必須です'] }, status: :unprocessable_content
         end
       end
     end
