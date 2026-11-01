@@ -12,9 +12,12 @@ vi.mock("@/libs/server/backend/fetch", () => ({
 }));
 
 const get = (teacherId: string) =>
-  GET(new NextRequest(`http://localhost/api/teacher/permissions/${teacherId}`), {
-    params: Promise.resolve({ teacherId }),
-  });
+  GET(
+    new NextRequest(`http://localhost/api/teacher/permissions/${teacherId}`),
+    {
+      params: Promise.resolve({ teacherId }),
+    },
+  );
 
 describe("GET /api/teacher/permissions/[teacherId]", () => {
   beforeEach(() => {

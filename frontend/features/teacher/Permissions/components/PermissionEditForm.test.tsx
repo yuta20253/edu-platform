@@ -26,7 +26,9 @@ const detail: PermissionTeacherDetail = {
   },
 };
 
-function setup(overrides: Partial<Parameters<typeof PermissionEditForm>[0]> = {}) {
+function setup(
+  overrides: Partial<Parameters<typeof PermissionEditForm>[0]> = {},
+) {
   const props = {
     teacherId: 2,
     onSubmit: vi.fn(),

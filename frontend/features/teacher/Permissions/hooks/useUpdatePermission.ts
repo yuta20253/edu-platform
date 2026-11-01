@@ -25,7 +25,9 @@ type UseUpdatePermissionParams = {
   onUpdated: () => void;
 };
 
-export const useUpdatePermission = ({ onUpdated }: UseUpdatePermissionParams) => {
+export const useUpdatePermission = ({
+  onUpdated,
+}: UseUpdatePermissionParams) => {
   const [editingTeacher, setEditingTeacher] =
     useState<PermissionTeacher | null>(null);
   // 編集フォームの key。開くたびと 409 のたびに増やして、フォームを作り直し、
