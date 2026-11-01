@@ -5,14 +5,24 @@ import {
   within,
   waitFor,
 } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, it, expect, vi } from "vitest";
+import { apiClient } from "@/libs/http/apiClient";
 import { Presenter } from "./Presenter";
-import { usePermissionForm } from "./hooks/usePermissionForm";
 import type {
   PermissionTeacher,
+  PermissionTeacherDetail,
   SnackbarState,
   PermissionsData,
 } from "./types";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+// 編集ドロワーの中身は開くたびに権限を取り直す
+vi.mock("@/libs/http/apiClient", () => ({
+  apiClient: { get: vi.fn() },
+}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -64,6 +74,11 @@ const mockData: PermissionsData = {
   meta: { current_page: 1, total_pages: 1, total_count: 2, per_page: 20 },
 };
 
+const suzukiDetail: PermissionTeacherDetail = {
+  ...teachers[1],
+  teacher_permission: { ...teachers[1].teacher_permission, lock_version: 4 },
+};
+
 const defaultSnackbar: SnackbarState = {
   open: false,
   message: "",
@@ -73,12 +88,12 @@ const defaultSnackbar: SnackbarState = {
 function TestPresenter(
   overrides: Partial<React.ComponentProps<typeof Presenter>> = {},
 ) {
-  const form = usePermissionForm();
   const defaultProps: React.ComponentProps<typeof Presenter> = {
     data: mockData,
     page: 1,
     onPageChange: vi.fn(),
     editingTeacher: null,
+    formKey: 0,
     onEditClick: vi.fn(),
     onDrawerClose: vi.fn(),
     onUpdate: vi.fn(),
@@ -86,12 +101,16 @@ function TestPresenter(
     updateErrors: [],
     snackbar: defaultSnackbar,
     onSnackbarClose: vi.fn(),
-    form,
   };
   return <Presenter {...defaultProps} {...overrides} />;
 }
 
 describe("TeacherPermissionsPresenter", () => {
+  beforeEach(() => {
+    vi.mocked(apiClient.get).mockReset();
+    vi.mocked(apiClient.get).mockResolvedValue({ data: suzukiDetail });
+  });
+
   it("見出しと件数が表示される", () => {
     render(<TestPresenter />);
     expect(screen.getByText("教員権限管理")).toBeInTheDocument();
@@ -193,26 +212,24 @@ describe("TeacherPermissionsPresenter", () => {
     expect(screen.getAllByText("鈴木花子").length).toBeGreaterThan(0);
   });
 
-  it("編集ドロワーで値を変更して保存すると onUpdate が編集値で呼ばれる", async () => {
+  it("編集ドロワーで値を変更して保存すると onUpdate が編集値と lock_version で呼ばれる", async () => {
     const onUpdate = vi.fn();
     render(<TestPresenter editingTeacher={teachers[1]} onUpdate={onUpdate} />);
 
-    fireEvent.click(screen.getByRole("radio", { name: "全学年" }));
+    fireEvent.click(await screen.findByRole("radio", { name: "全学年" }));
     fireEvent.click(screen.getByRole("radio", { name: "有" }));
     fireEvent.click(screen.getByRole("button", { name: "保存" }));
 
     await waitFor(() => {
-      expect(onUpdate).toHaveBeenCalledWith(
-        {
-          grade_scope: "all_grades",
-          manage_other_teachers: true,
-        },
-        expect.anything(),
-      );
+      expect(onUpdate).toHaveBeenCalledWith({
+        grade_scope: "all_grades",
+        manage_other_teachers: true,
+        lock_version: 4,
+      });
     });
   });
 
-  it("キャンセルボタンで onDrawerClose が呼ばれる", () => {
+  it("キャンセルボタンで onDrawerClose が呼ばれる", async () => {
     const onDrawerClose = vi.fn();
     render(
       <TestPresenter
@@ -220,7 +237,7 @@ describe("TeacherPermissionsPresenter", () => {
         onDrawerClose={onDrawerClose}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+    fireEvent.click(await screen.findByRole("button", { name: "キャンセル" }));
     expect(onDrawerClose).toHaveBeenCalledTimes(1);
   });
 
@@ -234,9 +251,9 @@ describe("TeacherPermissionsPresenter", () => {
     expect(screen.getByText("権限の更新に失敗しました")).toBeInTheDocument();
   });
 
-  it("updating 中は保存・キャンセルボタンが無効", () => {
+  it("updating 中は保存・キャンセルボタンが無効", async () => {
     render(<TestPresenter editingTeacher={teachers[1]} updating />);
-    expect(screen.getByRole("button", { name: "保存" })).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "保存" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "キャンセル" })).toBeDisabled();
   });
 
