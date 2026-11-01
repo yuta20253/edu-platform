@@ -12,8 +12,8 @@ export const UserProfile = async () => {
 
   const user = await getMeFromBackend(cookieHeader);
 
-  // 親のレイアウト(app/(main)/(authenticated)/layout.tsx)と同じ扱いにする。
-  // クライアント遷移ではレイアウトが再描画されず、ここが唯一のガードになりうる。
+  // 親のレイアウト(app/(main)/(authenticated)/layout.tsx)でもガードしているが、
+  // ページ単体でもスピナーで止まらないよう同じ扱いにする(多重防御)。
   if (!user) {
     redirect("/login");
   }

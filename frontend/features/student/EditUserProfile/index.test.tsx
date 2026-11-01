@@ -51,12 +51,9 @@ describe("student/EditUserProfile", () => {
     expect(redirectMock).toHaveBeenCalledWith("/login");
   });
 
-  it("ユーザーが取得できなかったときは、都道府県を取得しにいかない(未ログインでの無駄な取得や、401 の例外を避ける)", async () => {
+  it("ユーザーが取得できなかったときは、都道府県を取りにいかず、先に /login へ返す", async () => {
     vi.mocked(getMeFromBackend).mockResolvedValue(null);
-    // セッション切れでは、都道府県の取得は 401 の例外になる
-    vi.mocked(getPrefectures).mockRejectedValue(
-      new Error("BackendUnauthorizedError"),
-    );
+    vi.mocked(getPrefectures).mockResolvedValue([]);
 
     await expect(EditUserProfile()).rejects.toThrow("NEXT_REDIRECT:/login");
     expect(getPrefectures).not.toHaveBeenCalled();

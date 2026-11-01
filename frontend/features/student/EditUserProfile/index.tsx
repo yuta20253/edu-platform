@@ -13,9 +13,9 @@ export const EditUserProfile = async () => {
 
   const user = await getMeFromBackend(cookieHeader);
 
-  // 親のレイアウト(app/(main)/(authenticated)/layout.tsx)と同じ扱いにする。
-  // クライアント遷移ではレイアウトが再描画されず、ここが唯一のガードになりうる。
-  // 都道府県の取得は 401 のとき例外になるため、必ずこの判定より後ろにする。
+  // 親のレイアウト(app/(main)/(authenticated)/layout.tsx)でもガードしているが、
+  // ページ単体でもスピナーで止まらないよう同じ扱いにする(多重防御)。
+  // このページは認証が必要なので、未ログインなら都道府県を取りにいかず、先に /login へ返す。
   if (!user) {
     redirect("/login");
   }
