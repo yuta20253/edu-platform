@@ -18,7 +18,8 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
-import { priorities, PRIORITY } from "./constants";
+import { priorities } from "./constants";
+import { toPriorityValue } from "./utils/toPriorityValue";
 import { useUnitSelection } from "@/hooks/useUnitSelection";
 import { useFetchDraftTask } from "../CreateTaskConfirm/useFetchDraftTask";
 import { useEffect } from "react";
@@ -68,10 +69,7 @@ export const CreateTask = ({
   useEffect(() => {
     if (!draftTask) return;
 
-    const priority =
-      typeof draftTask.priority === "number"
-        ? draftTask.priority
-        : PRIORITY.NORMAL;
+    const priority = toPriorityValue(draftTask.priority);
 
     const unitIds = draftTask.units?.map((u) => u.id) ?? [];
     reset({

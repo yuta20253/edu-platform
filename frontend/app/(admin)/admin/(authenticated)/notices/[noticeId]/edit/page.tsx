@@ -1,4 +1,4 @@
-import { NoticeEditor } from "@/features/admin/NoticeEditor";
+import { NoticeEdit } from "@/features/admin/NoticeEdit";
 import { isNumericId } from "@/libs/server/routeParams";
 import { notFound } from "next/navigation";
 
@@ -14,7 +14,7 @@ const AdminNoticeEditPage = async ({ params }: Props) => {
     notFound();
   }
 
-  return <NoticeEditor noticeId={Number(noticeId)} />;
+  return <NoticeEdit noticeId={Number(noticeId)} />;
 };
 
 export default AdminNoticeEditPage;

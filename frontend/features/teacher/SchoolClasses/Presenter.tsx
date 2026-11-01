@@ -1,6 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import AddIcon from "@mui/icons-material/Add";
 import {
   Box,
   Button,
@@ -33,8 +34,8 @@ export const Presenter = ({ data }: Props) => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          gap: 2,
           mb: 3,
           width: "100%",
         }}
@@ -50,6 +51,18 @@ export const Presenter = ({ data }: Props) => {
         <Typography variant="body2" sx={{ color: colors.text.muted }}>
           {totalCount}件
         </Typography>
+
+        {/* 学級の新設・改名・削除は直接行えず、申請して承認を受ける */}
+        <Button
+          component={Link}
+          href="/teacher/school-class-requests/new"
+          variant="contained"
+          size="small"
+          startIcon={<AddIcon />}
+          sx={{ ml: "auto", textTransform: "none", fontWeight: 600 }}
+        >
+          申請する
+        </Button>
       </Box>
 
       <Card

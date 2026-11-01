@@ -129,7 +129,7 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
       it 'エラーが追加される' do
         form.valid?
 
-        expect(form.errors[:grade_id]).to include('学年IDが存在しません')
+        expect(form.errors[:grade_id]).to include('が存在しません')
       end
     end
 
@@ -145,7 +145,7 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
       it 'エラーが追加される' do
         form.valid?
 
-        expect(form.errors[:school_class_id]).to include('学年が一致しません')
+        expect(form.errors[:school_class_id]).to include('の学年が一致しません')
       end
     end
 
@@ -182,7 +182,7 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
         it 'エラーが追加される' do
           form.valid?
 
-          expect(form.errors[:school_class_id]).to include('生徒または教員が所属しているため削除できません')
+          expect(form.errors[:school_class_id]).to include('は生徒または教員が所属しているため削除できません')
         end
       end
 
@@ -199,7 +199,7 @@ RSpec.describe Teacher::CreateSchoolClassRequestForm, type: :model do
         it 'エラーが追加される' do
           form.valid?
 
-          expect(form.errors[:school_class_id]).to include('生徒または教員が所属しているため削除できません')
+          expect(form.errors[:school_class_id]).to include('は生徒または教員が所属しているため削除できません')
         end
       end
     end

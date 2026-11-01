@@ -427,7 +427,7 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
 
         json = response.parsed_body
 
-        expect(json['errors']).to include('Name を入力してください')
+        expect(json['errors']).to include('クラス名 を入力してください')
       end
     end
 
@@ -605,6 +605,15 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
                  params: params.to_json,
                  headers: headers.merge('Cookie' => cookie)
           end.not_to change(SchoolClassRequest, :count)
+        end
+
+        it '属性名を日本語にしたエラーメッセージが返る' do
+          post '/api/v1/teacher/school_class_requests',
+               params: params.to_json,
+               headers: headers.merge('Cookie' => cookie)
+
+          expect(response.parsed_body['errors'])
+            .to include('対象クラス は生徒または教員が所属しているため削除できません')
         end
       end
     end

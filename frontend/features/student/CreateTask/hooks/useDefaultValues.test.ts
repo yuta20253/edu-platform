@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { useDefaultValues } from "./useDefaultValues";
 import { PRIORITY } from "../constants";
-import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/useFetchDraftTask";
+import type { DraftTaskType } from "@/features/student/CreateTaskConfirm/types";
 
 describe("useDefaultValues", () => {
   it("draftTaskがnullのとき goalId と空のデフォルト値を返す", () => {
@@ -26,7 +26,7 @@ describe("useDefaultValues", () => {
       goal_id: 7,
       title: "英単語100個を覚える",
       content: "単語帳1〜100",
-      priority: "4",
+      priority: "normal",
       due_date: "2026-09-01",
       units: [
         {
@@ -48,6 +48,42 @@ describe("useDefaultValues", () => {
     expect(result.current.priority).toBe(PRIORITY.NORMAL);
     expect(result.current.due_date).toEqual(new Date("2026-09-01"));
     expect(result.current.unit_ids).toEqual([11]);
+  });
+
+  it('draftTask.priority が API の文字列("high")のときは対応する優先度にする', () => {
+    const draftTask = {
+      id: 100,
+      goal_id: 7,
+      title: "",
+      content: "",
+      priority: "high",
+      due_date: null,
+      units: [],
+    } as unknown as DraftTaskType;
+
+    const { result } = renderHook(() =>
+      useDefaultValues({ draftTask, goalId: 5 }),
+    );
+
+    expect(result.current.priority).toBe(PRIORITY.HIGH);
+  });
+
+  it('draftTask.priority が数値の文字列("4")など不明な値のときは「普通」にする', () => {
+    const draftTask = {
+      id: 100,
+      goal_id: 7,
+      title: "",
+      content: "",
+      priority: "4",
+      due_date: null,
+      units: [],
+    } as unknown as DraftTaskType;
+
+    const { result } = renderHook(() =>
+      useDefaultValues({ draftTask, goalId: 5 }),
+    );
+
+    expect(result.current.priority).toBe(PRIORITY.NORMAL);
   });
 
   it("draftTask.priority が数値のときはその値をそのまま優先度として使う", () => {

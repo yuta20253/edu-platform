@@ -22,4 +22,15 @@ describe("TeacherSidebar", () => {
     expect(link).toHaveAttribute("href", "/teacher/interviews");
     expect(link).toHaveAttribute("aria-current", "page");
   });
+
+  it("学級申請へのリンクを学級の次に表示する", () => {
+    render(<TeacherSidebar user={user} />);
+
+    const labels = screen.getAllByRole("link").map((l) => l.textContent);
+    expect(labels.indexOf("学級申請")).toBe(labels.indexOf("学級") + 1);
+    expect(screen.getByRole("link", { name: "学級申請" })).toHaveAttribute(
+      "href",
+      "/teacher/school-class-requests",
+    );
+  });
 });

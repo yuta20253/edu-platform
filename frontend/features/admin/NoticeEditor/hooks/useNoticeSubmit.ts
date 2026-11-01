@@ -4,76 +4,29 @@ import { apiClient } from "@/libs/http/apiClient";
 import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
 import { extractApiError } from "@/libs/http/extractApiError";
 import type {
-  AdminNoticeDetail,
   CreateNoticeInput,
   UpdateNoticeInput,
 } from "@/types/announcement/admin-notice";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { NoticeFormValues } from "../types";
 
-type UseNoticeEditorParams = {
+type UseNoticeSubmitParams = {
   // 未指定なら新規作成、指定されていれば編集対象のお知らせID
   noticeId?: number;
 };
 
-// お知らせ作成・編集画面のデータ取得・保存を行うフック。
-// - 編集時は既存データを取得し、配信済みなら一覧へリダイレクトする
-// - 下書き保存は新規作成時のみstatus: draftを送る
-//   （編集時は既存のstatusを変更せず、タイトル・本文のみ更新する）
+// お知らせ作成・編集画面の保存を行うフック。
+// - 下書き保存・予約配信は、新規作成時はPOST、編集時はPATCHで同じ内容を送る
+//   （下書き保存は常にstatus: draftを送る。詳細はsaveDraftのコメントを参照）
 // - 即時配信は、新規作成時はstatus: publishedで直接作成し、
 //   編集時は内容を保存した後に専用のpublishエンドポイントを呼ぶ
-export const useNoticeEditor = ({ noticeId }: UseNoticeEditorParams) => {
+export const useNoticeSubmit = ({ noticeId }: UseNoticeSubmitParams) => {
   const isEditMode = noticeId !== undefined;
   const router = useRouter();
 
-  const [notice, setNotice] = useState<AdminNoticeDetail | null>(null);
-  const [loading, setLoading] = useState(isEditMode);
-  const [fetchError, setFetchError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const fetchNotice = useCallback(() => {
-    if (!isEditMode) return;
-
-    setLoading(true);
-    setFetchError(null);
-
-    apiClient
-      .get<{ announcement: AdminNoticeDetail }>(
-        `/api/admin/notices/${noticeId}`,
-      )
-      .then((res) => {
-        const data = res.data.announcement;
-
-        // 配信済みのお知らせは編集不可のため一覧へリダイレクトする
-        if (data.status === "published") {
-          router.replace("/admin/notices");
-          return;
-        }
-
-        setNotice(data);
-      })
-      .catch((err) => {
-        const { status } = extractApiError(err);
-
-        if (status === 401) {
-          router.push("/login");
-          return;
-        }
-
-        setFetchError(
-          status === 404
-            ? "お知らせが見つかりませんでした"
-            : "お知らせの取得に失敗しました",
-        );
-      })
-      .finally(() => setLoading(false));
-  }, [isEditMode, noticeId, router]);
-
-  useEffect(() => {
-    fetchNotice();
-  }, [fetchNotice]);
 
   const runRequest = useCallback(
     async (
@@ -199,11 +152,6 @@ export const useNoticeEditor = ({ noticeId }: UseNoticeEditorParams) => {
   );
 
   return {
-    isEditMode,
-    notice,
-    loading,
-    fetchError,
-    refetch: fetchNotice,
     submitting,
     submitError,
     onSaveDraft: saveDraft,
