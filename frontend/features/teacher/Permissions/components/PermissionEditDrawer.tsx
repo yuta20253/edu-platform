@@ -61,6 +61,8 @@ export const PermissionEditDrawer = ({
 
         {teacher && (
           <PermissionEditForm
+            // 409 のときはドロワーが開いたまま(teacher も同じ)なので、
+            // key を変えないと作り直されず、最新の権限を取り直せない
             key={formKey}
             teacherId={teacher.id}
             onSubmit={onUpdate}
