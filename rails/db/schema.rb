@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_03_000002) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_31_083604) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -76,6 +76,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_03_000002) do
     t.index ["announcement_id"], name: "index_announcement_targets_on_announcement_id"
     t.index ["grade_id"], name: "index_announcement_targets_on_grade_id"
     t.index ["high_school_id"], name: "index_announcement_targets_on_high_school_id"
+    t.index ["target_type", "high_school_id"], name: "index_announcement_targets_on_target_type_and_high_school_id"
     t.index ["user_id"], name: "index_announcement_targets_on_user_id"
     t.index ["user_role_id"], name: "index_announcement_targets_on_user_role_id"
   end
