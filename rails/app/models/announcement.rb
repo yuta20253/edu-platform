@@ -36,21 +36,9 @@ class Announcement < ApplicationRecord
     published: 2
   }, validate: true
 
-  # target_typeごとに条件を分けて(target_type, high_school_id)等のインデックスを効かせ、UNIONで重複を除いてからJOINする。
-  # where(id: ...)のIN副問い合わせにするとMySQLが相関サブクエリに変換して全件を評価するため、派生テーブルとしてJOINしている。
-  scope :for_user, lambda { |user|
-    branches = [
-      AnnouncementTarget.where(target_type: :all_users, high_school_id: [nil, user.high_school_id]),
-      AnnouncementTarget.where(target_type: :by_role, user_role_id: user.user_role_id,
-                               high_school_id: [nil, user.high_school_id]),
-      AnnouncementTarget.where(target_type: :by_grade, grade_id: user.grade_id, user_role_id: [nil, user.user_role_id]),
-      AnnouncementTarget.where(target_type: :by_school, high_school_id: user.high_school_id),
-      AnnouncementTarget.where(target_type: :by_user, user_id: user.id)
-    ]
-
-    matched_ids_sql = branches.map { |branch| branch.select(:announcement_id).to_sql }.join(' UNION ')
-    joins("INNER JOIN (#{matched_ids_sql}) AS matched ON matched.announcement_id = announcements.id")
-  }
+  def self.for_user(user)
+    joins(matched_targets_join(user))
+  end
 
   scope :for_high_school, lambda { |high_school_id|
     joins(:announcement_targets)
@@ -66,6 +54,27 @@ class Announcement < ApplicationRecord
   def editable?
     status_was != 'published'
   end
+
+  # target_typeごとに条件を分けて(target_type, high_school_id)等のインデックスを効かせ、UNIONで重複を除いてからJOINする。
+  # where(id: ...)のIN副問い合わせにするとMySQLが相関サブクエリに変換して全件を評価するため、派生テーブルとしてJOINしている。
+  # Arelは公開APIではないため、Railsのバージョンアップで壊れたときに直す箇所をこのメソッドに閉じ込めている。
+  def self.matched_targets_join(user)
+    branches = [
+      AnnouncementTarget.where(target_type: :all_users, high_school_id: [nil, user.high_school_id]),
+      AnnouncementTarget.where(target_type: :by_role, user_role_id: user.user_role_id,
+                               high_school_id: [nil, user.high_school_id]),
+      AnnouncementTarget.where(target_type: :by_grade, grade_id: user.grade_id, user_role_id: [nil, user.user_role_id]),
+      AnnouncementTarget.where(target_type: :by_school, high_school_id: user.high_school_id),
+      AnnouncementTarget.where(target_type: :by_user, user_id: user.id)
+    ]
+
+    union = branches.map { |branch| branch.select(:announcement_id).arel }
+                    .reduce { |left, right| Arel::Nodes::Union.new(left, right) }
+    matched = Arel::Nodes::TableAlias.new(union, 'matched')
+
+    arel_table.join(matched).on(matched[:announcement_id].eq(arel_table[:id])).join_sources
+  end
+  private_class_method :matched_targets_join
 
   private
 
