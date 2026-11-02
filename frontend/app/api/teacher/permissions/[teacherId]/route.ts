@@ -32,6 +32,11 @@ export async function PATCH(
   { params }: { params: Promise<{ teacherId: string }> },
 ) {
   const { teacherId } = await params;
+
+  if (!isNumericId(teacherId)) {
+    return NextResponse.json({ message: "BAD_REQUEST" }, { status: 400 });
+  }
+
   const body = await request.json();
 
   try {

@@ -5,7 +5,7 @@ import {
   BackendFetchError,
   BackendUnauthorizedError,
 } from "@/libs/server/backend/error";
-import { GET } from "./route";
+import { GET, PATCH } from "./route";
 
 vi.mock("@/libs/server/backend/fetch", () => ({
   backendFetch: vi.fn(),
@@ -70,5 +70,24 @@ describe("GET /api/teacher/permissions/[teacherId]", () => {
     const res = await get("2");
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "UNAUTHORIZED" });
+  });
+});
+
+describe("PATCH /api/teacher/permissions/[teacherId]", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("teacherId が数値以外のときは BAD_REQUEST を返す", async () => {
+    const res = await PATCH(
+      new NextRequest("http://localhost/api/teacher/permissions/abc", {
+        method: "PATCH",
+        body: JSON.stringify({}),
+      }),
+      { params: Promise.resolve({ teacherId: "abc" }) },
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ message: "BAD_REQUEST" });
+    expect(backendFetch).not.toHaveBeenCalled();
   });
 });
