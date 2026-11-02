@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/libs/http/apiClient";
 import { EditTask } from "./index";
-import type { Task } from "./types";
+import type { Task, TaskUnit } from "./types";
 
 const pushMock = vi.fn();
 const routerMock = { push: pushMock };
@@ -32,15 +32,14 @@ vi.mock("./Presenter", () => ({
 
 const TASK_URL = "/api/student/tasks/1";
 
-const unit = (id: number) => ({
+const unit = (id: number): TaskUnit => ({
   id,
   course_id: 1,
   unit_name: `単元${id}`,
-  course: { id: 1, level_number: 1, level_name: "標準" },
   started: false,
 });
 
-const task = {
+const task: Task = {
   id: 1,
   goal_id: 9,
   title: "英単語100個を覚える",
@@ -50,7 +49,7 @@ const task = {
   status: "not_started",
   completed_at: "",
   units: [unit(11), unit(12)],
-} as unknown as Task;
+};
 
 // タスクの取得の応答を差し替えられるようにし、講座一覧(useCourses)の URL には別の応答を返す
 let taskResponse: () => Promise<unknown>;
