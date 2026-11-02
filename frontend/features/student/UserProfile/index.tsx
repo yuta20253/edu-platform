@@ -1,6 +1,6 @@
 import { getMeFromBackend } from "@/libs/server/me";
-import { Box, CircularProgress } from "@mui/material";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Presenter } from "./Presenter";
 
 export const UserProfile = async () => {
@@ -12,19 +12,10 @@ export const UserProfile = async () => {
 
   const user = await getMeFromBackend(cookieHeader);
 
+  // 親のレイアウト(app/(main)/(authenticated)/layout.tsx)でもガードしているが、
+  // ページ単体でもスピナーで止まらないよう同じ扱いにする(多重防御)。
   if (!user) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    redirect("/login");
   }
 
   return <Presenter user={user} />;
