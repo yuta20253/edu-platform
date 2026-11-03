@@ -62,15 +62,31 @@ export const Presenter = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          // 「目標一覧」リンクの押せる範囲が上下に約 11px はみ出すので、
+          // 下の目標カードと重ならないよう 12px 以上を保つ
           mb: 1.5,
         }}
       >
         <Typography variant="subtitle2" component="h2" sx={{ fontWeight: 800 }}>
           目標
         </Typography>
-        <Link href="/goals" style={{ fontSize: 12, color: colors.accent[600] }}>
+        <Box
+          component={Link}
+          href="/goals"
+          sx={{
+            // 押せる範囲を 44px にし、負のマージンで見た目の位置と見出し行の高さを変えない
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 44,
+            px: 1,
+            mx: -1,
+            my: -1.5,
+            fontSize: 12,
+            color: colors.accent[600],
+          }}
+        >
           目標一覧
-        </Link>
+        </Box>
       </Box>
 
       {goals.length === 0 ? (
