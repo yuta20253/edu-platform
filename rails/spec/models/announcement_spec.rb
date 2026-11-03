@@ -41,217 +41,159 @@ RSpec.describe Announcement, type: :model do
     let(:school) { create(:high_school) }
     let(:other_school) { create(:high_school) }
 
-    let(:grade) { create(:grade) }
-    let(:other_grade) { create(:grade) }
+    let(:grade) { create(:grade, high_school: school) }
+    let(:other_grade) { create(:grade, high_school: school) }
 
-    let(:user) do
-      create(
-        :user,
-        user_role: role,
-        high_school: school,
-        grade: grade
-      )
-    end
+    let(:user) { create(:user, user_role: role, high_school: school, grade: grade) }
+    let(:other_user) { create(:user, user_role: role, high_school: school, grade: grade) }
 
-    let!(:all_users_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :all_users
-        )
+    # 配信先は Common::BuildAnnouncementTargetAttributesService が保存する形に合わせて作る
+    def create_announcement_with_targets(*targets, **announcement_attributes)
+      create(:announcement, **announcement_attributes).tap do |announcement|
+        targets.each { |target| create(:announcement_target, announcement: announcement, **target) }
       end
     end
 
-    let!(:role_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_role,
-          user_role_id: role.id
-        )
+    context 'target_typeがall_usersのとき' do
+      let!(:all_schools_announcement) { create_announcement_with_targets({ target_type: :all_users }) }
+      let!(:own_school_announcement) do
+        create_announcement_with_targets({ target_type: :all_users, high_school_id: school.id })
+      end
+
+      before do
+        create_announcement_with_targets({ target_type: :all_users, high_school_id: other_school.id })
+      end
+
+      it '全校向けと自校向けのお知らせを返し、他校向けは返さない' do
+        expect(described_class.for_user(user)).to contain_exactly(all_schools_announcement, own_school_announcement)
       end
     end
 
-    let!(:school_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_school,
-          high_school_id: school.id
+    context 'target_typeがby_roleのとき' do
+      let!(:role_announcement) { create_announcement_with_targets({ target_type: :by_role, user_role_id: role.id }) }
+      let!(:own_school_role_announcement) do
+        create_announcement_with_targets({ target_type: :by_role, user_role_id: role.id, high_school_id: school.id })
+      end
+
+      before do
+        create_announcement_with_targets({ target_type: :by_role, user_role_id: other_role.id })
+        create_announcement_with_targets(
+          { target_type: :by_role, user_role_id: role.id, high_school_id: other_school.id }
         )
+      end
+
+      it '役職が一致するお知らせ(全校向け・自校向け)を返し、役職違い・他校向けは返さない' do
+        expect(described_class.for_user(user)).to contain_exactly(role_announcement, own_school_role_announcement)
       end
     end
 
-    let!(:grade_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_grade,
-          grade_id: grade.id
-        )
+    context 'target_typeがby_gradeのとき' do
+      let!(:grade_announcement) { create_announcement_with_targets({ target_type: :by_grade, grade_id: grade.id }) }
+      let!(:grade_and_role_announcement) do
+        create_announcement_with_targets({ target_type: :by_grade, grade_id: grade.id, user_role_id: role.id })
+      end
+
+      before do
+        create_announcement_with_targets({ target_type: :by_grade, grade_id: grade.id, user_role_id: other_role.id })
+        create_announcement_with_targets({ target_type: :by_grade, grade_id: other_grade.id })
+      end
+
+      it '学年が一致し役職が未指定または一致するお知らせを返し、役職違い・他学年は返さない' do
+        expect(described_class.for_user(user)).to contain_exactly(grade_announcement, grade_and_role_announcement)
       end
     end
 
-    let!(:user_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_user,
-          user_id: user.id
-        )
+    context 'target_typeがby_schoolのとき' do
+      let!(:school_announcement) do
+        create_announcement_with_targets({ target_type: :by_school, high_school_id: school.id })
+      end
+
+      before do
+        create_announcement_with_targets({ target_type: :by_school, high_school_id: other_school.id })
+      end
+
+      it '自校のお知らせを返し、他校は返さない' do
+        expect(described_class.for_user(user)).to contain_exactly(school_announcement)
       end
     end
 
-    let!(:school_and_role_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          high_school_id: school.id,
-          user_role_id: role.id
-        )
+    context 'target_typeがby_userのとき' do
+      let!(:user_announcement) { create_announcement_with_targets({ target_type: :by_user, user_id: user.id }) }
+
+      before do
+        create_announcement_with_targets({ target_type: :by_user, user_id: other_user.id })
+      end
+
+      it '本人宛てのお知らせを返し、他人宛ては返さない' do
+        expect(described_class.for_user(user)).to contain_exactly(user_announcement)
       end
     end
 
-    let!(:school_role_grade_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          high_school_id: school.id,
-          user_role_id: role.id,
-          grade_id: grade.id
+    context '1件のお知らせに一致しない配信先と一致する配信先があるとき' do
+      let!(:announcement) do
+        create_announcement_with_targets(
+          { target_type: :by_role, user_role_id: other_role.id },
+          { target_type: :by_user, user_id: user.id }
         )
+      end
+
+      it 'そのお知らせを返す' do
+        expect(described_class.for_user(user)).to contain_exactly(announcement)
       end
     end
 
-    let!(:not_match_role_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_role,
-          user_role_id: other_role.id
+    context '1件のお知らせに一致する配信先が複数あるとき' do
+      let!(:announcement) do
+        create_announcement_with_targets(
+          { target_type: :by_school, high_school_id: school.id },
+          { target_type: :by_user, user_id: user.id }
         )
+      end
+
+      it 'そのお知らせを1件だけ返す' do
+        expect(described_class.for_user(user).to_a).to eq [announcement]
       end
     end
 
-    let!(:not_match_school_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_school,
-          high_school_id: other_school.id
+    context '他のスコープ・クエリメソッドと組み合わせるとき' do
+      let!(:old_announcement) do
+        create_announcement_with_targets(
+          { target_type: :by_user, user_id: user.id },
+          { target_type: :by_school, high_school_id: school.id },
+          status: :published, published_at: 2.days.ago
         )
       end
-    end
-
-    let!(:not_match_grade_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          target_type: :by_grade,
-          grade_id: other_grade.id
+      let!(:new_announcement) do
+        create_announcement_with_targets(
+          { target_type: :by_school, high_school_id: school.id },
+          status: :published, published_at: 1.day.ago
         )
       end
-    end
-
-    let!(:school_and_other_role_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          high_school_id: school.id,
-          user_role_id: other_role.id
+      let!(:draft_announcement) do
+        create_announcement_with_targets({ target_type: :by_school, high_school_id: school.id })
+      end
+      let!(:other_school_announcement) do
+        create_announcement_with_targets(
+          { target_type: :by_school, high_school_id: other_school.id },
+          status: :published, published_at: 1.hour.ago
         )
       end
-    end
 
-    let!(:other_school_and_role_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          high_school_id: other_school.id,
-          user_role_id: role.id
-        )
+      it 'published・order・limitで公開済みの新しい順に絞り込める' do
+        result = described_class.for_user(user).published.order(published_at: :desc).limit(2)
+
+        expect(result.to_a).to eq [new_announcement, old_announcement]
       end
-    end
 
-    let!(:role_and_other_grade_announcement) do
-      create(:announcement).tap do |announcement|
-        create(
-          :announcement_target,
-          announcement: announcement,
-          user_role_id: role.id,
-          grade_id: other_grade.id
-        )
+      it 'countで重複なく件数を数えられる' do
+        expect(described_class.for_user(user).count).to eq 3
       end
-    end
 
-    it 'ユーザーに一致するお知らせのみ取得する' do
-      result = described_class.for_user(user)
-
-      expect(result).to include(
-        all_users_announcement,
-        role_announcement,
-        school_announcement,
-        grade_announcement,
-        user_announcement,
-        school_and_role_announcement,
-        school_role_grade_announcement
-      )
-
-      expect(result).not_to include(
-        not_match_role_announcement,
-        not_match_school_announcement,
-        not_match_grade_announcement,
-        school_and_other_role_announcement,
-        other_school_and_role_announcement,
-        role_and_other_grade_announcement
-      )
-    end
-
-    it '複数条件を持つ1レコードをAND条件として扱う' do
-      result = described_class.for_user(user)
-
-      expect(result).to include(
-        school_and_role_announcement,
-        school_role_grade_announcement
-      )
-
-      expect(result).not_to include(
-        school_and_other_role_announcement,
-        other_school_and_role_announcement,
-        role_and_other_grade_announcement
-      )
-    end
-
-    it '複数レコードはOR条件として扱う' do
-      another_announcement = create(:announcement)
-
-      create(
-        :announcement_target,
-        announcement: another_announcement,
-        user_role_id: role.id
-      )
-
-      create(
-        :announcement_target,
-        announcement: another_announcement,
-        high_school_id: other_school.id
-      )
-
-      result = described_class.for_user(user)
-
-      expect(result).to include(another_announcement)
+      it 'findで対象のお知らせを取得でき、対象外は見つからない' do
+        expect(described_class.for_user(user).find(old_announcement.id)).to eq old_announcement
+        expect { described_class.for_user(user).find(other_school_announcement.id) }
+          .to raise_error(ActiveRecord::RecordNotFound)
+      end
     end
   end
 
