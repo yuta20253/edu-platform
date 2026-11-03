@@ -20,9 +20,14 @@ ja:
         gender: 性別
       announcement:
         scheduled_at: 配信日時
+      school_class:
+        users: 生徒
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました"
+        restrict_dependent_destroy:
+          has_one: "%{record}が存在するため削除できません"
+          has_many: "%{record}が存在するため削除できません"
       models:
         teacher_grade:
           attributes:

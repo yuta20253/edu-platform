@@ -76,6 +76,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
     t.index ["announcement_id"], name: "index_announcement_targets_on_announcement_id"
     t.index ["grade_id"], name: "index_announcement_targets_on_grade_id"
     t.index ["high_school_id"], name: "index_announcement_targets_on_high_school_id"
+    t.index ["target_type", "high_school_id"], name: "index_announcement_targets_on_target_type_and_high_school_id"
     t.index ["user_id"], name: "index_announcement_targets_on_user_id"
     t.index ["user_role_id"], name: "index_announcement_targets_on_user_role_id"
   end
