@@ -41,6 +41,10 @@ const TABLE_COLUMNS = [
   "担当学年",
 ] as const;
 
+// ドロワーの初期値は一覧の行から作るので、取り直した一覧から開き直してもらう
+const CONFLICT_MESSAGE =
+  "ほかの人が先にこの教員の権限を変更しました。最新の内容で開き直してください";
+
 const gradeScopeLabel: Record<Teacher["grade_scope"], string> = {
   own_grade: "自学年",
   all_grades: "全学年",
@@ -79,9 +83,15 @@ export const TeachersTab = ({ schoolId }: Props) => {
   const { updating, updateErrors, handleUpdate } = useUpdateTeacher({
     schoolId,
     teacherId: editingTeacher?.id ?? 0,
+    permissionLockVersion: editingTeacher?.permission_lock_version ?? 0,
     onUpdated: () => {
       closeDrawer();
       toast.show({ message: "保存しました" });
+      refetch();
+    },
+    onConflict: () => {
+      closeDrawer();
+      toast.show({ message: CONFLICT_MESSAGE, severity: "error" });
       refetch();
     },
   });
