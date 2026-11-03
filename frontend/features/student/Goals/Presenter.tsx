@@ -158,12 +158,14 @@ export const Presenter = ({
                       href={`/goals/${goal.id}/edit`}
                       aria-label="編集"
                       size="small"
+                      sx={{ zIndex: 1 }} // stretched link の ::after より上に置く
                     >
                       <EditOutlinedIcon fontSize="small" />
                     </IconButton>
                     <IconButton
                       aria-label="削除"
                       size="small"
+                      sx={{ zIndex: 1 }} // stretched link の ::after より上に置く
                       onClick={() => onDeleteClick(goal.id, goal.title)}
                     >
                       <DeleteOutlineIcon fontSize="small" />

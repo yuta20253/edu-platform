@@ -140,6 +140,7 @@ export const Presenter = ({
                 href={`/goals/${goal.id}/edit`}
                 aria-label="編集"
                 size="small"
+                sx={{ zIndex: 1 }} // stretched link の ::after より上に置く
               >
                 <EditOutlinedIcon fontSize="small" />
               </IconButton>
