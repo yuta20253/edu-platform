@@ -212,4 +212,122 @@ describe("TeachersTab", () => {
       expect(showMock).toHaveBeenCalledWith({ message: "保存しました" }),
     );
   });
+
+  describe("編集の楽観ロック", () => {
+    const teachersResponse = {
+      data: {
+        teachers: [
+          {
+            id: 1,
+            name: "田中 太郎",
+            email: "tanaka@example.com",
+            grade_scope: "own_grade",
+            manage_other_teachers: false,
+            grades: [{ id: 1, name: "高１生" }],
+            permission_lock_version: 7,
+          },
+          {
+            id: 2,
+            name: "鈴木 花子",
+            email: "suzuki@example.com",
+            grade_scope: "all_grades",
+            manage_other_teachers: true,
+            grades: [{ id: 1, name: "高１生" }],
+            permission_lock_version: 2,
+          },
+        ],
+      },
+    };
+
+    const teachersGetCount = () =>
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.filter(([url]) => !String(url).includes("/grades")).length;
+
+    const openEditAndSave = async (index: number) => {
+      fireEvent.click(
+        (await screen.findAllByRole("button", { name: "編集" }))[index],
+      );
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "保存" }));
+      });
+    };
+
+    beforeEach(() => {
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url.includes("/grades")) return Promise.resolve(gradesResponse);
+        return Promise.resolve(teachersResponse);
+      });
+    });
+
+    it("編集中の教師の permission_lock_version をPATCHで送る", async () => {
+      vi.mocked(apiClient.patch).mockResolvedValue({ data: { teacher: {} } });
+
+      render(<TeachersTab schoolId={1} />);
+      await openEditAndSave(0);
+
+      await waitFor(() =>
+        expect(apiClient.patch).toHaveBeenCalledWith(
+          "/api/admin/schools/1/teachers/1",
+          expect.objectContaining({ permission_lock_version: 7 }),
+        ),
+      );
+    });
+
+    it("409ならドロワーを閉じてエラーのトーストを出し、一覧を取り直す", async () => {
+      vi.mocked(apiClient.patch).mockRejectedValue({
+        response: {
+          status: 409,
+          data: {
+            errors: [
+              "他のユーザーによってデータが更新されています。再読み込みしてください",
+            ],
+          },
+        },
+      });
+
+      render(<TeachersTab schoolId={1} />);
+      await screen.findByText("田中 太郎");
+      const countBefore = teachersGetCount();
+
+      await openEditAndSave(0);
+
+      await waitFor(() =>
+        expect(showMock).toHaveBeenCalledWith({
+          message:
+            "ほかの人が先にこの教員の権限を変更しました。最新の内容で開き直してください",
+          severity: "error",
+        }),
+      );
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("heading", { name: "教師を編集" }),
+        ).not.toBeInTheDocument(),
+      );
+      await waitFor(() =>
+        expect(teachersGetCount()).toBeGreaterThan(countBefore),
+      );
+    });
+
+    it("409の後に別の教師を開いても、エラーの表示が残らない", async () => {
+      vi.mocked(apiClient.patch).mockRejectedValue({
+        response: { status: 409, data: { errors: ["競合"] } },
+      });
+
+      render(<TeachersTab schoolId={1} />);
+      await openEditAndSave(0);
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("heading", { name: "教師を編集" }),
+        ).not.toBeInTheDocument(),
+      );
+
+      fireEvent.click(
+        (await screen.findAllByRole("button", { name: "編集" }))[1],
+      );
+
+      expect(screen.getByRole("textbox", { name: "姓" })).toHaveValue("鈴木");
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+  });
 });
