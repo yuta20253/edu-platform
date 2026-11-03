@@ -4,7 +4,7 @@ import { Box, Typography, IconButton, Chip, Pagination } from "@mui/material";
 import Link from "next/link";
 import { GoalsData } from "./types";
 import { colors } from "@/app/theme/colors";
-import { radius } from "@/app/theme/studentTheme";
+import { radius, stretchedLinkSx } from "@/app/theme/studentTheme";
 import { GoalStatus } from "@/types/goals/status";
 import { statusLabel } from "@/constants/status";
 import { getProgressColor } from "@/libs/ui/progressColor";
@@ -94,7 +94,16 @@ export const Presenter = ({
             const progressColor = getProgressColor(progress);
 
             return (
-              <Box key={goal.id} sx={{ ...cardSx, px: 2, py: 1.75, mb: 1.25 }}>
+              <Box
+                key={goal.id}
+                sx={{
+                  ...cardSx,
+                  position: "relative",
+                  px: 2,
+                  py: 1.75,
+                  mb: 1.25,
+                }}
+              >
                 <Box
                   sx={{
                     display: "flex",
@@ -122,6 +131,7 @@ export const Presenter = ({
                         fontWeight: 600,
                         color: "inherit",
                         textDecoration: "none",
+                        ...stretchedLinkSx,
                       }}
                     >
                       {goal.title}

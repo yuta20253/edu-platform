@@ -1,7 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
-import { radius } from "@/app/theme/studentTheme";
+import { radius, stretchedLinkSx } from "@/app/theme/studentTheme";
 import { statusLabel } from "@/constants/status";
 import { GoalType } from "@/libs/server/studentDashboard";
 import { GoalStatus } from "@/types/goals/status";
@@ -95,6 +95,7 @@ export const Presenter = ({
               key={goal.id}
               sx={{
                 ...cardSx,
+                position: "relative",
                 display: "flex",
                 alignItems: "center",
                 gap: 1.5,
@@ -123,6 +124,7 @@ export const Presenter = ({
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
+                    ...stretchedLinkSx,
                   }}
                 >
                   {goal.title}

@@ -18,6 +18,25 @@ export const cardSx = {
   boxShadow: `0 1px 3px ${colors.shadow.footer}`,
 } as const;
 
+/**
+ * カードの中のリンクに付けて、押せる範囲をカード全体に広げる(stretched link)。
+ * カードには position: "relative" を付ける。
+ * カードの中に押せる要素(ボタンなど)を足すときは、その要素に
+ * position: "relative", zIndex: 1 を付けないと、この ::after に隠れて押せなくなる
+ */
+export const stretchedLinkSx = {
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    inset: 0,
+    // カードと同じ角丸にする。"inherit" はタイトルから引き継ぐので 0 になる。
+    // 数値の radius.md は sx では theme.shape.borderRadius 倍になるので、文字列の値を使う
+    borderRadius: cardSx.borderRadius,
+  },
+  "&:focus-visible": { outline: "none" },
+  "&:focus-visible::after": { outline: "2px solid", outlineOffset: 2 },
+} as const;
+
 const studentTheme = createTheme(baseTheme, {
   palette: {
     primary: {
