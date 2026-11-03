@@ -4,6 +4,6 @@ module Teacher
   class TeacherPermissionManagementSerializer < ActiveModel::Serializer
     attributes :id, :name
 
-    has_one :teacher_permission, serializer: TeacherPermissionSerializer
+    has_one :teacher_permission, serializer: TeacherPermissionWithLockVersionSerializer
   end
 end

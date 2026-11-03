@@ -19,13 +19,12 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { UseFormReturn } from "react-hook-form";
 import { PermissionEditDrawer } from "./components/PermissionEditDrawer";
 import {
   PermissionTeacher,
   SnackbarState,
   PermissionsData,
-  UpdatePermissionInput,
+  UpdatePermissionPayload,
 } from "./types";
 
 type Props = {
@@ -33,14 +32,14 @@ type Props = {
   page: number;
   onPageChange: (page: number) => void;
   editingTeacher: PermissionTeacher | null;
+  formKey: number;
   onEditClick: (teacher: PermissionTeacher) => void;
   onDrawerClose: () => void;
-  onUpdate: (input: UpdatePermissionInput) => void;
+  onUpdate: (payload: UpdatePermissionPayload) => void;
   updating: boolean;
   updateErrors: string[];
   snackbar: SnackbarState;
   onSnackbarClose: () => void;
-  form: UseFormReturn<UpdatePermissionInput>;
 };
 
 export const Presenter = ({
@@ -48,6 +47,7 @@ export const Presenter = ({
   page,
   onPageChange,
   editingTeacher,
+  formKey,
   onEditClick,
   onDrawerClose,
   onUpdate,
@@ -55,7 +55,6 @@ export const Presenter = ({
   updateErrors,
   snackbar,
   onSnackbarClose,
-  form,
 }: Props) => {
   const { current_user, teachers, meta } = data;
   const canManage = current_user.teacher_permission.manage_other_teachers;
@@ -253,11 +252,11 @@ export const Presenter = ({
 
       <PermissionEditDrawer
         teacher={editingTeacher}
+        formKey={formKey}
         onClose={onDrawerClose}
         onUpdate={onUpdate}
         updating={updating}
         updateErrors={updateErrors}
-        form={form}
       />
 
       <Snackbar

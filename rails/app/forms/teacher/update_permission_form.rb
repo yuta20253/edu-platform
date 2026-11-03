@@ -8,6 +8,7 @@ module Teacher
 
     attribute :grade_scope
     attribute :manage_other_teachers, :boolean
+    attribute :lock_version, :integer
 
     validates :grade_scope, inclusion: { in: TeacherPermission.grade_scopes.keys }
     validates :manage_other_teachers, inclusion: { in: [true, false] }
@@ -22,7 +23,8 @@ module Teacher
 
       @target.teacher_permission.update!(
         grade_scope: grade_scope,
-        manage_other_teachers: manage_other_teachers
+        manage_other_teachers: manage_other_teachers,
+        lock_version: lock_version
       )
 
       true

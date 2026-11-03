@@ -42,6 +42,19 @@ export type UpdatePermissionInput = {
   manage_other_teachers: boolean;
 };
 
+// 編集ドロワーを開くときに取り直す権限(GET /api/teacher/permissions/:id)。
+// lock_version は保存時の楽観ロックに使う
+export type PermissionTeacherDetail = {
+  id: number;
+  name: string;
+  teacher_permission: TeacherPermission & { lock_version: number };
+};
+
+// 保存時に送る値。開いた時点の lock_version を添える
+export type UpdatePermissionPayload = UpdatePermissionInput & {
+  lock_version: number;
+};
+
 export type SnackbarState = {
   open: boolean;
   message: string;

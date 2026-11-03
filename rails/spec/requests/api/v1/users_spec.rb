@@ -36,6 +36,13 @@ RSpec.describe 'Api::V1::Users', type: :request do
       expect(response.parsed_body.dig('user', 'teacher_permission', 'grade_scope')).to eq('own_grade')
     end
 
+    # lock_versionは権限管理の画面だけで使う。/meには出さない
+    it 'teacher_permissionにlock_versionを含めないこと' do
+      subject
+
+      expect(response.parsed_body.dig('user', 'teacher_permission')).not_to have_key('lock_version')
+    end
+
     context 'all_gradesの教員の場合' do
       let!(:teacher_permission) do
         create(:teacher_permission, user: teacher, grade_scope: :all_grades)

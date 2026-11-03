@@ -10,6 +10,7 @@
 #  manage_other_teachers :boolean
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
+#  lock_version          :integer          default(0), not null
 #
 class TeacherPermissionSerializer < ActiveModel::Serializer
   attributes :id, :grade_scope, :manage_other_teachers

@@ -61,7 +61,8 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
     {
       teacher_permission: {
         grade_scope: 'all_grades',
-        manage_other_teachers: true
+        manage_other_teachers: true,
+        lock_version: same_school_teacher_permission.lock_version
       }
     }
   end
@@ -113,6 +114,143 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
       json = response.parsed_body
 
       expect(json['id']).to eq(same_school_teacher.id)
+    end
+
+    it '権限のlock_versionを返すこと' do
+      same_school_teacher_permission.update!(manage_other_teachers: true)
+
+      subject
+
+      expect(response.parsed_body.dig('teacher_permission', 'lock_version'))
+        .to eq(same_school_teacher_permission.reload.lock_version)
+    end
+
+    context '他校教員の場合' do
+      subject do
+        get "/api/v1/teacher/permissions/#{other_school_teacher.id}",
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      it '404になること' do
+        subject
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context '論理削除済みの教員の場合' do
+      before { same_school_teacher.update!(deleted_at: Time.current) }
+
+      it '404になること' do
+        subject
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'PATCH /api/v1/teacher/permissions/:id の楽観ロック' do
+    subject do
+      patch "/api/v1/teacher/permissions/#{same_school_teacher.id}",
+            params: params.to_json,
+            headers: headers.merge('Cookie' => cookie)
+    end
+
+    context 'lock_versionが最新で、値を変える場合' do
+      it '更新され、lock_versionが1増えること' do
+        expect { subject }
+          .to change { same_school_teacher_permission.reload.lock_version }.by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(same_school_teacher_permission.reload.manage_other_teachers).to be(true)
+      end
+    end
+
+    context 'lock_versionが最新で、値を変えない場合' do
+      let(:params) do
+        {
+          teacher_permission: {
+            grade_scope: same_school_teacher_permission.grade_scope,
+            manage_other_teachers: same_school_teacher_permission.manage_other_teachers,
+            lock_version: same_school_teacher_permission.lock_version
+          }
+        }
+      end
+
+      it '200で、lock_versionが増えないこと' do
+        expect { subject }
+          .not_to(change { same_school_teacher_permission.reload.lock_version })
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'lock_versionが古い場合' do
+      let!(:stale_lock_version) { same_school_teacher_permission.lock_version }
+
+      let(:params) do
+        {
+          teacher_permission: {
+            grade_scope: 'all_grades',
+            manage_other_teachers: true,
+            lock_version: stale_lock_version
+          }
+        }
+      end
+
+      # 開いた後に、ほかの人が先に権限を変更した
+      before { same_school_teacher_permission.update!(grade_scope: :own_grade) }
+
+      it '409になり、値が変わらないこと' do
+        subject
+
+        expect(response).to have_http_status(:conflict)
+
+        same_school_teacher_permission.reload
+        expect(same_school_teacher_permission.grade_scope).to eq('own_grade')
+        expect(same_school_teacher_permission.manage_other_teachers).to be(false)
+      end
+    end
+
+    context 'lock_versionが古く、送った値が今の値と同じ場合' do
+      let!(:stale_lock_version) { same_school_teacher_permission.lock_version }
+
+      let(:params) do
+        {
+          teacher_permission: {
+            grade_scope: 'own_grade',
+            manage_other_teachers: false,
+            lock_version: stale_lock_version
+          }
+        }
+      end
+
+      before { same_school_teacher_permission.update!(grade_scope: :own_grade) }
+
+      it '409になること' do
+        subject
+
+        expect(response).to have_http_status(:conflict)
+      end
+    end
+
+    context 'lock_versionを送らない場合' do
+      let(:params) do
+        {
+          teacher_permission: {
+            grade_scope: 'all_grades',
+            manage_other_teachers: true
+          }
+        }
+      end
+
+      it '422になり、値が変わらないこと' do
+        subject
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body['errors']).to include('lock_versionは必須です')
+        expect(same_school_teacher_permission.reload.manage_other_teachers).to be(false)
+      end
     end
   end
 
@@ -212,7 +350,8 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
       {
         teacher_permission: {
           grade_scope: 'invalid',
-          manage_other_teachers: true
+          manage_other_teachers: true,
+          lock_version: same_school_teacher_permission.lock_version
         }
       }
     end
@@ -236,7 +375,8 @@ RSpec.describe 'Api::V1::Teacher::Permissions', type: :request do
       {
         teacher_permission: {
           grade_scope: 'all',
-          manage_other_teachers: nil
+          manage_other_teachers: nil,
+          lock_version: same_school_teacher_permission.lock_version
         }
       }
     end

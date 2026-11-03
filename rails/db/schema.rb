@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_31_083604) do
+ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -491,6 +491,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_31_083604) do
     t.boolean "manage_other_teachers"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "lock_version", default: 0, null: false
     t.index ["user_id"], name: "index_teacher_permissions_on_user_id", unique: true
   end
 
