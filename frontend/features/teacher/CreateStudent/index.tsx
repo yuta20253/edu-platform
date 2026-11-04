@@ -1,5 +1,6 @@
 "use client";
 
+// eslint-disable-next-line no-restricted-imports -- 表示規約の例外(一時): TSK-231 で移行予定
 import { Alert, Box, CircularProgress } from "@mui/material";
 import { useCreateStudent } from "./hooks/useCreateStudent";
 import { useCreateStudentForm } from "./hooks/useCreateStudentForm";

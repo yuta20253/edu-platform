@@ -1,5 +1,6 @@
 "use client";
 
+// eslint-disable-next-line no-restricted-imports -- 表示規約の例外(恒久): 初期選択の生徒が決まるまでの待ち(取得に失敗してもエラーにしない設計)
 import { Box, CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { useCreateInterview } from "./hooks/useCreateInterview";
