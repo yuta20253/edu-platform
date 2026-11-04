@@ -17,6 +17,25 @@ const CIRCULAR_PROGRESS_MESSAGE =
   "ローディング表示は AsyncBoundary(components/ui/AsyncBoundary.tsx)に任せ、index.tsx で CircularProgress を直接使わない。" +
   "取得状態ではない待ち(ハイドレーションなど)は、違反の行に「表示規約の例外(恒久): <理由>」の eslint-disable を付ける。";
 
+const FAILURE_TEXT_MESSAGE =
+  "取得失敗の表示は ErrorState(components/ui/ErrorState.tsx)か AsyncBoundary の errorMessage に任せ、" +
+  "Alert などで手書きしない。具体的な文言は errorMessage や message の属性に渡す(属性の文言は許可)。" +
+  "やむを得ない例外は「表示規約の例外(恒久|一時): …」の eslint-disable を付ける。";
+
+// 同じルールを後の設定ブロックが置き換えるため、index.tsx のブロックにもこの配列を展開して使う
+const FAILURE_TEXT_SELECTORS = [
+  {
+    // 手書きの失敗表示(JSX のテキスト)。attribute の文字列(errorMessage など)は対象外
+    selector: "JSXText[value=/取得に失敗/]",
+    message: FAILURE_TEXT_MESSAGE,
+  },
+  {
+    // ErrorState の既定文言そのものの直書き
+    selector: "Literal[value='データの取得に失敗しました']",
+    message: FAILURE_TEXT_MESSAGE,
+  },
+];
+
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
@@ -27,6 +46,13 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+  },
+  {
+    files: ["features/**/*.tsx"],
+    ignores: ["**/*.test.tsx"],
+    rules: {
+      "no-restricted-syntax": ["error", ...FAILURE_TEXT_SELECTORS],
+    },
   },
   {
     files: ["features/**/index.tsx"],
