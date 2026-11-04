@@ -65,6 +65,10 @@ const eslintConfig = [
     ],
   },
   {
+    // 例外の eslint-disable は、違反が直ったら消す(消し忘れを lint が教える)
+    linterOptions: { reportUnusedDisableDirectives: "error" },
+  },
+  {
     files: ["features/**/*.tsx"],
     ignores: ["**/*.test.tsx"],
     rules: {
