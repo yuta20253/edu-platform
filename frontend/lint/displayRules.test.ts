@@ -213,3 +213,90 @@ describe("loading の分岐(features/**/index.tsx のみ)", () => {
     expect(rules(hits)).toEqual(["no-restricted-syntax"]);
   });
 });
+
+describe("例外(eslint-disable)の書き方と、消し忘れの検出", () => {
+  const REASON = "表示規約の例外(一時): TSK-231 で移行予定";
+
+  it("単行の開始タグ: 開始タグの行の直前の {/* */} で、違反が消える", async () => {
+    const hits = await lint(
+      `export const A = () => (
+  <Box>
+    {/* eslint-disable-next-line no-restricted-syntax -- ${REASON} */}
+    <Alert severity="error">
+      教員情報の取得に失敗しました。
+    </Alert>
+  </Box>
+);
+`,
+      INDEX,
+    );
+
+    expect(hits).toEqual([]);
+  });
+
+  it("複数行の開始タグ + 三項演算子: タグ内の > の直前の // で、違反が消える", async () => {
+    const hits = await lint(
+      `export const A = ({ error }: { error: boolean }) => (
+  <div>
+    {error ? (
+      <Typography
+        variant="body2"
+        // eslint-disable-next-line no-restricted-syntax -- ${REASON}
+      >
+        データの取得に失敗しました
+      </Typography>
+    ) : null}
+  </div>
+);
+`,
+      PRESENTER,
+    );
+
+    expect(hits).toEqual([]);
+  });
+
+  it("複数行の開始タグ + 三項演算子で、{/* */} を三項演算子の前に置くと効かない(不要な disable と違反の二重エラー)", async () => {
+    const hits = await lint(
+      `export const A = ({ error }: { error: boolean }) => (
+  <div>
+    {/* eslint-disable-next-line no-restricted-syntax -- ${REASON} */}
+    {error ? (
+      <Typography
+        variant="body2"
+      >
+        データの取得に失敗しました
+      </Typography>
+    ) : null}
+  </div>
+);
+`,
+      PRESENTER,
+    );
+
+    expect(rules(hits)).toEqual(["unused-directive", "no-restricted-syntax"]);
+  });
+
+  it("違反が無い行に付いた eslint-disable は、消し忘れとして error になる", async () => {
+    const hits = await lint(
+      `// eslint-disable-next-line no-restricted-imports -- ${REASON}
+import { Box } from "@mui/material";
+export const A = () => <Box />;
+`,
+      INDEX,
+    );
+
+    expect(rules(hits)).toEqual(["unused-directive"]);
+  });
+
+  it("違反のある import に付けた eslint-disable は、そのまま通る", async () => {
+    const hits = await lint(
+      `// eslint-disable-next-line no-restricted-imports -- 表示規約の例外(恒久): ハイドレーション待ち
+import { CircularProgress } from "@mui/material";
+export const A = () => <CircularProgress />;
+`,
+      INDEX,
+    );
+
+    expect(hits).toEqual([]);
+  });
+});
