@@ -31,6 +31,8 @@ export type Teacher = {
   grade_scope: GradeScope;
   manage_other_teachers: boolean;
   grades: TeacherGrade[];
+  // teacher_permissions の行の版（users の行ではない）。更新時に送り、古ければ 409 になる
+  permission_lock_version: number;
 };
 
 export type TeachersData = {
