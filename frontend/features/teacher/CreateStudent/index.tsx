@@ -36,6 +36,7 @@ export const CreateStudent = () => {
   if (teacherError) {
     return (
       <Box sx={{ p: 3 }}>
+        {/* eslint-disable-next-line no-restricted-syntax -- 表示規約の例外(一時): TSK-231 で移行予定 */}
         <Alert severity="error">
           教員情報の取得に失敗しました。再読み込みしてください。
         </Alert>
