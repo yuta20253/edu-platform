@@ -155,6 +155,32 @@ describe("loading の分岐(features/**/index.tsx のみ)", () => {
     expect(rules(hits)).toEqual(["no-restricted-syntax"]);
   });
 
+  it.each([
+    ["if (state.loading)", "if (state.loading) return null;"],
+    ["if (!state.isLoading)", "if (!state.isLoading) return null;"],
+    ["三項演算子の条件", "const a = state.loading ? 1 : 2;"],
+    ["&& の左辺", "const a = state.loading && <p />;"],
+  ])(
+    "戻り値を丸ごと受け取ったときのメンバー参照(%s)も error になる",
+    async (_, statement) => {
+      const hits = await lint(
+        `export const A = () => {\n  const state = useThing();\n  ${statement}\n  return null;\n};\n`,
+        INDEX,
+      );
+
+      expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+    },
+  );
+
+  it("loading をメンバー参照で props として渡すだけ(<P loading={state.loading} />)は error にならない", async () => {
+    const hits = await lint(
+      "export const A = () => {\n  const state = useThing();\n  const a = cond ? <Presenter loading={state.loading} /> : null;\n  return a;\n};\n",
+      INDEX,
+    );
+
+    expect(hits).toEqual([]);
+  });
+
   it("リネームして受け取った loading(teacherLoading)の分岐も error になる", async () => {
     const hits = await lint(
       "export const A = () => {\n  const { loading: teacherLoading } = useThing();\n  if (teacherLoading) return null;\n  return null;\n};\n",

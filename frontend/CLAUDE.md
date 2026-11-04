@@ -89,7 +89,7 @@ if (!data) return <CircularProgress />; // 失敗してもスピナーのまま�
 `eslint.config.mjs` のルールで、次を `npm run lint`(CI でも実行)が検出する。ルール自体は `lint/displayRules.test.ts` でテストしている。
 
 - `features/**/index.tsx` で `CircularProgress` を import する(`@mui/material` の名前付き import と、`@mui/material/CircularProgress` の個別 import の両方)。送信ボタンの「処理中」スピナーなど、`index.tsx` 以外での使用は対象外
-- `features/**/index.tsx` で、名前が `loading` で終わる変数(`loading`・`isLoading`・`teacherLoading` など)を条件にした分岐(`if`・三項演算子・`&&`)を書く。`<Presenter loading={loading} />` のように props として渡すだけなら対象外
+- `features/**/index.tsx` で、名前が `loading` で終わる変数(`loading`・`isLoading`・`teacherLoading` など。`state.loading` のようなメンバー参照も)を条件にした分岐(`if`・三項演算子・`&&`)を書く。`<Presenter loading={loading} />` のように props として渡すだけなら対象外
 - `features/**/*.tsx`(テストを除く)の JSX のテキストに「取得に失敗」を書く、または「データの取得に失敗しました」をリテラルで書く。`errorMessage` や `message` の属性に具体的な文言を渡すのは**許可**(採用済みのパターン)
 
 次は機械では検出できないので、**レビューで確認する**。
