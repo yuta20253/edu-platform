@@ -85,3 +85,53 @@ describe("CircularProgress の import(features/**/index.tsx のみ)", () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe("失敗文言の直書き(features/**/*.tsx)", () => {
+  const ALERT =
+    '<Alert severity="error">データの取得に失敗しました。再読み込みしてください。</Alert>';
+
+  it("JSX のテキストに「取得に失敗」を書くと error になる(index.tsx)", async () => {
+    const hits = await lint(`export const A = () => ${ALERT};\n`, INDEX);
+
+    expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+  });
+
+  it("JSX のテキストに「取得に失敗」を書くと error になる(Presenter などの index.tsx 以外も)", async () => {
+    const hits = await lint(`export const A = () => ${ALERT};\n`, PRESENTER);
+
+    expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+  });
+
+  it("ErrorState の既定文言そのもの(「データの取得に失敗しました」)をリテラルで書くと error になる", async () => {
+    const hits = await lint(
+      'export const message = "データの取得に失敗しました";\n',
+      INDEX,
+    );
+
+    expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+  });
+
+  it("errorMessage などの属性に具体的な文言を渡すのは error にならない(採用済みのパターン)", async () => {
+    const hits = await lint(
+      'export const A = () => <AsyncBoundary data={null} errorMessage="タスクの取得に失敗しました" />;\n',
+      INDEX,
+    );
+
+    expect(hits).toEqual([]);
+  });
+
+  it("テストファイルは error にならない", async () => {
+    const hits = await lint(`export const A = () => ${ALERT};\n`, INDEX_TEST);
+
+    expect(hits).toEqual([]);
+  });
+
+  it("features 以外(ErrorState の既定文言を持つ components/ui など)は error にならない", async () => {
+    const hits = await lint(
+      'export const DEFAULT_MESSAGE = "データの取得に失敗しました";\n',
+      "components/ui/ErrorState.tsx",
+    );
+
+    expect(hits).toEqual([]);
+  });
+});
