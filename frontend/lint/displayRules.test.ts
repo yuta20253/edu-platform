@@ -135,3 +135,81 @@ describe("失敗文言の直書き(features/**/*.tsx)", () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe("loading の分岐(features/**/index.tsx のみ)", () => {
+  // 手書きの取得フックが loading を返す新しい画面を想定したサンプル
+  const wrap = (statement: string) =>
+    `export const A = () => {\n  const { loading, isLoading, x, cond } = useThing();\n  ${statement}\n  return null;\n};\n`;
+
+  it.each([
+    ["if (loading)", "if (loading) return null;"],
+    ["if (!loading)", "if (!loading) return null;"],
+    ["if (x || loading)", "if (x || loading) return null;"],
+    ["三項演算子の条件", "const a = loading ? 1 : 2;"],
+    ["三項演算子の条件(否定)", "const a = !isLoading ? 1 : 2;"],
+    ["&& の左辺", "const a = loading && <p />;"],
+    ["isLoading", "if (isLoading) return null;"],
+  ])("%s は error になる", async (_, statement) => {
+    const hits = await lint(wrap(statement), INDEX);
+
+    expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+  });
+
+  it("リネームして受け取った loading(teacherLoading)の分岐も error になる", async () => {
+    const hits = await lint(
+      "export const A = () => {\n  const { loading: teacherLoading } = useThing();\n  if (teacherLoading) return null;\n  return null;\n};\n",
+      INDEX,
+    );
+
+    expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+  });
+
+  it.each([
+    ["if の本体", "if (cond) { return <Presenter loading={loading} />; }"],
+    [
+      "三項演算子の本体",
+      "const a = cond ? <Presenter loading={loading} /> : null;",
+    ],
+    ["&& の右辺", "const a = cond && <Presenter loading={loading} />;"],
+  ])(
+    "loading を props として渡すだけ(%s)は error にならない",
+    async (_, statement) => {
+      const hits = await lint(wrap(statement), INDEX);
+
+      expect(hits).toEqual([]);
+    },
+  );
+
+  it("index.tsx 以外(Presenter など)の loading の分岐は error にならない", async () => {
+    const hits = await lint(wrap("if (loading) return null;"), PRESENTER);
+
+    expect(hits).toEqual([]);
+  });
+
+  it("テストファイルは error にならない", async () => {
+    const hits = await lint(wrap("if (loading) return null;"), INDEX_TEST);
+
+    expect(hits).toEqual([]);
+  });
+
+  it("index.tsx では、loading の分岐と失敗文言の両方が検出される(同じルールの設定が置き換わらない)", async () => {
+    const hits = await lint(
+      wrap("if (loading) return <Alert>データの取得に失敗しました</Alert>;"),
+      INDEX,
+    );
+
+    expect(rules(hits)).toEqual([
+      "no-restricted-syntax",
+      "no-restricted-syntax",
+    ]);
+  });
+
+  it("index.tsx 以外では、失敗文言だけが検出される", async () => {
+    const hits = await lint(
+      wrap("if (loading) return <Alert>データの取得に失敗しました</Alert>;"),
+      PRESENTER,
+    );
+
+    expect(rules(hits)).toEqual(["no-restricted-syntax"]);
+  });
+});
