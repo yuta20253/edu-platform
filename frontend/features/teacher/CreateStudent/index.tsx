@@ -18,6 +18,7 @@ export const CreateStudent = () => {
   const form = useCreateStudentForm();
   const { creating, createErrors, handleCreate } = useCreateStudent();
 
+  // eslint-disable-next-line no-restricted-syntax -- 表示規約の例外(一時): TSK-231 で移行予定
   if (teacherLoading) {
     return (
       <Box
