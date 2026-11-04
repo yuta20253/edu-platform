@@ -36,6 +36,23 @@ const FAILURE_TEXT_SELECTORS = [
   },
 ];
 
+const LOADING_BRANCH_MESSAGE =
+  "loading を条件にした分岐を index.tsx に書かない。取得中・失敗・成功の分岐は AsyncBoundary(components/ui/AsyncBoundary.tsx)に任せ、" +
+  "取得は useApiQuery を使う。取得状態ではない待ちは「表示規約の例外(恒久): <理由>」の eslint-disable を付ける。";
+
+// 条件の位置(if の条件・三項演算子の条件・&& の左辺)で、名前が loading で終わる識別子を使うことを禁止する。
+// loading: teacherLoading のようなリネームにも当たる。props として渡すだけ(<P loading={loading} />)は当たらない。
+const LOADING_NAME = "/[Ll]oading$/";
+const LOADING_BRANCH_SELECTORS = [
+  `IfStatement > Identifier.test[name=${LOADING_NAME}]`,
+  `IfStatement > UnaryExpression.test > Identifier[name=${LOADING_NAME}]`,
+  `IfStatement > LogicalExpression.test Identifier[name=${LOADING_NAME}]`,
+  `ConditionalExpression > Identifier.test[name=${LOADING_NAME}]`,
+  `ConditionalExpression > UnaryExpression.test > Identifier[name=${LOADING_NAME}]`,
+  `ConditionalExpression > LogicalExpression.test Identifier[name=${LOADING_NAME}]`,
+  `LogicalExpression > Identifier.left[name=${LOADING_NAME}]`,
+].map((selector) => ({ selector, message: LOADING_BRANCH_MESSAGE }));
+
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
@@ -58,6 +75,11 @@ const eslintConfig = [
     files: ["features/**/index.tsx"],
     ignores: ["**/*.test.tsx"],
     rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...FAILURE_TEXT_SELECTORS,
+        ...LOADING_BRANCH_SELECTORS,
+      ],
       "no-restricted-imports": [
         "error",
         {
