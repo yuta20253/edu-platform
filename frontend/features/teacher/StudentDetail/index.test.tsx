@@ -17,13 +17,16 @@ vi.mock("./Presenter", () => ({
   Presenter: ({
     error,
     onTabChange,
+    onRetry,
   }: {
     error: boolean;
     onTabChange: (tab: "goals") => void;
+    onRetry: () => void;
   }) => (
     <div>
       <span>生徒詳細本体</span>
       {error && <span>タブの取得に失敗</span>}
+      <button onClick={onRetry}>Presenterの再試行</button>
       <button onClick={() => onTabChange("goals")}>目標</button>
     </div>
   ),
@@ -89,5 +92,26 @@ describe("teacher/StudentDetail", () => {
     expect(await screen.findByText("タブの取得に失敗")).toBeInTheDocument();
     expect(screen.getByText("生徒詳細本体")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("タブ切り替え後の失敗は、Presenterの再試行で同じタブを再取得して画面を出す", async () => {
+    vi.mocked(apiClient.get)
+      .mockResolvedValueOnce({ data: { id: 1 } })
+      .mockRejectedValueOnce({ response: { status: 500 } })
+      .mockResolvedValueOnce({ data: { id: 1 } });
+    render(<StudentDetail studentId={1} />);
+    await screen.findByText("生徒詳細本体");
+    fireEvent.click(screen.getByRole("button", { name: "目標" }));
+    await screen.findByText("タブの取得に失敗");
+
+    fireEvent.click(screen.getByRole("button", { name: "Presenterの再試行" }));
+
+    await waitFor(() =>
+      expect(screen.queryByText("タブの取得に失敗")).not.toBeInTheDocument(),
+    );
+    const calls = vi.mocked(apiClient.get).mock.calls;
+    expect(calls).toHaveLength(3);
+    // 失敗したリクエストと同じタブで取り直す
+    expect(calls[2][1]).toEqual(calls[1][1]);
   });
 });

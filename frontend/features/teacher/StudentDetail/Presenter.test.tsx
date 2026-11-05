@@ -111,6 +111,7 @@ const renderPresenter = (props: Partial<Props> = {}) => {
     page: 1,
     onTabChange: vi.fn(),
     onPageChange: vi.fn(),
+    onRetry: vi.fn(),
   };
   return render(<Presenter {...defaultProps} {...props} />);
 };
@@ -225,6 +226,19 @@ describe("StudentDetailPresenter", () => {
         screen.getByRole("link", { name: "一覧へ戻る" }),
       ).toBeInTheDocument();
       expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("取得に失敗したときは再試行ボタンを表示し、押すとonRetryが呼ばれる", () => {
+      const onRetry = vi.fn();
+      renderPresenter({ tab: "tasks", error: true, onRetry });
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+      expect(onRetry).toHaveBeenCalledTimes(1);
+      // ヘッダーとタブは残る
+      expect(screen.getByText("山田太郎")).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "タスク" })).toBeInTheDocument();
     });
   });
 
