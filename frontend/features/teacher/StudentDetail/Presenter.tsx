@@ -1,6 +1,7 @@
 "use client";
 
 import { colors } from "@/app/theme/colors";
+import { ErrorState } from "@/components/ui/ErrorState";
 import {
   Avatar,
   Box,
@@ -25,6 +26,7 @@ type Props = {
   page: number;
   onTabChange: (tab: StudentDetailTab) => void;
   onPageChange: (page: number) => void;
+  onRetry: () => void;
 };
 
 export const Presenter = ({
@@ -35,6 +37,7 @@ export const Presenter = ({
   page,
   onTabChange,
   onPageChange,
+  onRetry,
 }: Props) => {
   // プロフィールは生徒の情報をそのまま返し、目標・タスクは student に名前を持つ
   const student = data.tab === "profile" ? data.data : data.data.student;
@@ -114,13 +117,10 @@ export const Presenter = ({
       </Tabs>
 
       {error ? (
-        <Typography
-          variant="body2"
-          sx={{ py: 6, textAlign: "center", color: colors.text.secondary }}
-          // eslint-disable-next-line no-restricted-syntax -- 表示規約の例外(一時): TSK-231 で移行予定(再試行は未対応)
-        >
-          データの取得に失敗しました
-        </Typography>
+        // ErrorState の余白(p: 3)を打ち消し、タブの下に収める
+        <Box sx={{ mx: -3, mt: -3 }}>
+          <ErrorState onRetry={onRetry} />
+        </Box>
       ) : loading || data.tab !== tab ? (
         // タブを押してから取得が始まるまでの間も、前のタブの内容を出さない
         <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>

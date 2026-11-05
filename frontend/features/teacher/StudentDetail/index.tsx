@@ -26,6 +26,7 @@ export const StudentDetail = ({ studentId }: Props) => {
           page={page}
           onTabChange={changeTab}
           onPageChange={setPage}
+          onRetry={refetch}
         />
       )}
     </AsyncBoundary>
