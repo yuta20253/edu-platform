@@ -1,30 +1,22 @@
 "use client";
 
-import { apiClient } from "@/libs/http/apiClient";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useMemo } from "react";
 import { GradeOption } from "../types";
 
+// 取得前は null。取得できた空配列([])は有効な値(学級が0件の学校)
 export const useGradeOptions = (restrictedGradeId: number | null) => {
-  const [grades, setGrades] = useState<GradeOption[]>([]);
-  const router = useRouter();
-
-  useEffect(() => {
-    apiClient
-      .get<GradeOption[]>("/api/teacher/school-classes")
-      .then((res) => setGrades(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-        }
-      });
-  }, [router]);
-
-  return useMemo(
-    () =>
-      restrictedGradeId == null
-        ? grades
-        : grades.filter((grade) => grade.id === restrictedGradeId),
-    [grades, restrictedGradeId],
+  const { data, error, refetch } = useApiQuery<GradeOption[]>(
+    "/api/teacher/school-classes",
   );
+
+  const gradeOptions = useMemo(() => {
+    if (!data) return null;
+
+    return restrictedGradeId == null
+      ? data
+      : data.filter((grade) => grade.id === restrictedGradeId);
+  }, [data, restrictedGradeId]);
+
+  return { gradeOptions, error, refetch };
 };

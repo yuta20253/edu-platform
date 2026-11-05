@@ -171,9 +171,6 @@ describe("teacher/CreateStudent", () => {
       );
       render(<CreateStudent />);
 
-      await waitFor(() =>
-        expect(apiClient.get).toHaveBeenCalledWith(CLASSES_URL),
-      );
       await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(2));
       // /me の応答が反映される時間を与えてもフォームは出ない
       await new Promise((resolve) => setTimeout(resolve, 20));
