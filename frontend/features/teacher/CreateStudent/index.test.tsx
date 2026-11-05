@@ -158,4 +158,91 @@ describe("teacher/CreateStudent", () => {
       expect(pushMock).not.toHaveBeenCalled();
     });
   });
+
+  describe("移行で変わる挙動", () => {
+    it("/me は成功、学級一覧は未解決のあいだはスピナーを表示し、解決するとフォームを表示する", async () => {
+      let resolveClasses: (value: unknown) => void = () => {};
+      mockApi((url) =>
+        url === ME_URL
+          ? Promise.resolve(me("all_grades"))
+          : new Promise((resolve) => {
+              resolveClasses = resolve;
+            }),
+      );
+      render(<CreateStudent />);
+
+      await waitFor(() =>
+        expect(apiClient.get).toHaveBeenCalledWith(CLASSES_URL),
+      );
+      await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(2));
+      // /me の応答が反映される時間を与えてもフォームは出ない
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("combobox", { name: "学年" }),
+      ).not.toBeInTheDocument();
+
+      resolveClasses({ data: grades });
+
+      expect(await findForm()).toBeInTheDocument();
+    });
+
+    it("学級一覧だけ401のときは、エラーを表示せず/loginに遷移し、フォームは表示しない", async () => {
+      mockApi((url) =>
+        url === ME_URL ? Promise.resolve(me("all_grades")) : fail(401),
+      );
+      render(<CreateStudent />);
+
+      await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("combobox", { name: "学年" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("/me の失敗は、再試行を押すと/me だけ再取得してフォームを表示する", async () => {
+      let meCalls = 0;
+      mockApi((url) => {
+        if (url === CLASSES_URL) return Promise.resolve({ data: grades });
+        meCalls += 1;
+        return meCalls === 1 ? fail(500) : Promise.resolve(me("all_grades"));
+      });
+      render(<CreateStudent />);
+
+      fireEvent.click(await screen.findByRole("button", { name: "再試行" }));
+
+      expect(await findForm()).toBeInTheDocument();
+      expect(meCalls).toBe(2);
+      const classesCalls = vi
+        .mocked(apiClient.get)
+        .mock.calls.filter(([url]) => url === CLASSES_URL);
+      expect(classesCalls).toHaveLength(1);
+    });
+
+    it("学級一覧の失敗はエラーを表示してフォームを出さず、再試行で学級一覧だけ再取得して復帰する", async () => {
+      let classesCalls = 0;
+      let meCalls = 0;
+      mockApi((url) => {
+        if (url === ME_URL) {
+          meCalls += 1;
+          return Promise.resolve(me("all_grades"));
+        }
+        classesCalls += 1;
+        return classesCalls === 1
+          ? fail(500)
+          : Promise.resolve({ data: grades });
+      });
+      render(<CreateStudent />);
+
+      fireEvent.click(await screen.findByRole("button", { name: "再試行" }));
+      expect(
+        screen.queryByRole("combobox", { name: "学年" }),
+      ).not.toBeInTheDocument();
+
+      expect(await findForm()).toBeInTheDocument();
+      expect(classesCalls).toBe(2);
+      expect(meCalls).toBe(1);
+    });
+  });
 });
