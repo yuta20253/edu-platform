@@ -117,6 +117,7 @@ export const Presenter = ({
         <Typography
           variant="body2"
           sx={{ py: 6, textAlign: "center", color: colors.text.secondary }}
+          // eslint-disable-next-line no-restricted-syntax -- 表示規約の例外(一時): TSK-231 で移行予定(再試行は未対応)
         >
           データの取得に失敗しました
         </Typography>

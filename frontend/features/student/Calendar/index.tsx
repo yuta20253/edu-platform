@@ -1,5 +1,6 @@
 "use client";
 
+// eslint-disable-next-line no-restricted-imports -- 表示規約の例外(恒久): 取得状態ではなく、ブラウザで日付が決まるまでの待ち(ハイドレーションエラーの回避)
 import { Box, CircularProgress } from "@mui/material";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { toMonthKey } from "@/libs/calendar/calendarFormat";
