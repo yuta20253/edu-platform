@@ -26,7 +26,8 @@ module Admin
 
     def update_permission_attributes
       permission_attrs = @params.slice(:grade_scope, :manage_other_teachers).compact
-      @user.teacher_permission.update!(permission_attrs) if permission_attrs.present?
+      permission_attrs[:lock_version] = @params[:permission_lock_version]
+      @user.teacher_permission.update!(permission_attrs)
     end
 
     def update_teacher_grades

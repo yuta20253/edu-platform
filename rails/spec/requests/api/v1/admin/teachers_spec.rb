@@ -51,6 +51,15 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data.keys).to include('id', 'name', 'email', 'grade_scope', 'manage_other_teachers', 'grades')
       end
 
+      it '権限のlock_versionが permission_lock_version で返される' do
+        teacher.teacher_permission.update!(manage_other_teachers: true)
+
+        subject
+
+        teacher_data = response.parsed_body['teachers'].first
+        expect(teacher_data['permission_lock_version']).to eq(teacher.teacher_permission.reload.lock_version)
+      end
+
       it 'grade_scope が文字列で返される' do
         subject
         teacher_data = response.parsed_body['teachers'].first
@@ -236,7 +245,8 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         email: 'updated@example.com',
         grade_scope: 'all_grades',
         manage_other_teachers: true,
-        grade_ids: [grade1.id, grade2.id]
+        grade_ids: [grade1.id, grade2.id],
+        permission_lock_version: teacher.teacher_permission.lock_version
       }.to_json
     end
 
@@ -259,6 +269,136 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['email']).to eq('updated@example.com')
         expect(teacher_data['grade_scope']).to eq('all_grades')
         expect(teacher_data['manage_other_teachers']).to be(true)
+      end
+
+      it '更新後の権限のlock_versionが permission_lock_version で返される' do
+        subject
+        expect(response.parsed_body.dig('teacher', 'permission_lock_version'))
+          .to eq(teacher.teacher_permission.reload.lock_version)
+      end
+    end
+
+    context '楽観ロック' do
+      subject do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+      end
+
+      let(:permission) { teacher.teacher_permission }
+
+      context 'permission_lock_versionが最新で、権限を変える場合' do
+        let(:params) do
+          {
+            name: teacher.name,
+            email: teacher.email,
+            grade_scope: 'all_grades',
+            manage_other_teachers: true,
+            grade_ids: [grade1.id],
+            permission_lock_version: permission.lock_version
+          }
+        end
+
+        it '200で更新され、lock_versionが1増えること' do
+          expect { subject }.to change { permission.reload.lock_version }.by(1)
+
+          expect(response).to have_http_status(:ok)
+          expect(permission.reload.manage_other_teachers).to be(true)
+        end
+      end
+
+      context 'permission_lock_versionが最新で、名前だけを変える場合' do
+        let(:params) do
+          {
+            name: '更新太郎',
+            email: teacher.email,
+            grade_scope: 'own_grade',
+            manage_other_teachers: false,
+            grade_ids: [grade1.id],
+            permission_lock_version: permission.lock_version
+          }
+        end
+
+        it '200で名前が更新され、lock_versionが増えないこと' do
+          expect { subject }.not_to(change { permission.reload.lock_version })
+
+          expect(response).to have_http_status(:ok)
+          expect(teacher.reload.name).to eq('更新太郎')
+        end
+      end
+
+      context 'permission_lock_versionが古く、名前だけを変える場合' do
+        let!(:stale_lock_version) { permission.lock_version }
+        let!(:original_name) { teacher.name }
+
+        # 権限は開いた時点の古い値を送る
+        let(:params) do
+          {
+            name: '更新太郎',
+            email: teacher.email,
+            grade_scope: 'own_grade',
+            manage_other_teachers: false,
+            grade_ids: [grade1.id],
+            permission_lock_version: stale_lock_version
+          }
+        end
+
+        # 開いた後に、教員の画面で権限が変更された
+        before { permission.update!(manage_other_teachers: true) }
+
+        it '409になり、名前も権限も変わらないこと' do
+          subject
+
+          expect(response).to have_http_status(:conflict)
+          expect(teacher.reload.name).to eq(original_name)
+          expect(permission.reload.manage_other_teachers).to be(true)
+        end
+      end
+
+      context 'permission_lock_versionが古く、権限を今と同じ値で送る場合' do
+        let!(:stale_lock_version) { permission.lock_version }
+
+        let(:params) do
+          {
+            name: teacher.name,
+            email: teacher.email,
+            grade_scope: 'own_grade',
+            manage_other_teachers: true,
+            grade_ids: [grade1.id],
+            permission_lock_version: stale_lock_version
+          }
+        end
+
+        before { permission.update!(manage_other_teachers: true) }
+
+        it '409になること' do
+          subject
+
+          expect(response).to have_http_status(:conflict)
+        end
+      end
+
+      context 'permission_lock_versionを送らない場合' do
+        let!(:original_name) { teacher.name }
+
+        let(:params) do
+          {
+            name: '更新太郎',
+            email: teacher.email,
+            grade_scope: 'all_grades',
+            manage_other_teachers: true,
+            grade_ids: [grade1.id]
+          }
+        end
+
+        it '422になり、名前も権限も変わらないこと' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body['errors']).to include('lock_versionは必須です')
+          expect(teacher.reload.name).to eq(original_name)
+          expect(permission.reload.manage_other_teachers).to be(false)
+        end
       end
     end
 
@@ -303,6 +443,13 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       it '404が返される' do
         patch "/api/v1/admin/high_schools/#{school.id}/teachers/0",
               params: valid_params,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'permission_lock_versionが無くても、422ではなく404が返される' do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/0",
+              params: { name: '更新太郎' }.to_json,
               headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:not_found)
       end

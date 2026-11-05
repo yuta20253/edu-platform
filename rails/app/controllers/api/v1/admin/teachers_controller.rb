@@ -30,6 +30,9 @@ module Api
         def update
           school = HighSchool.find(params[:high_school_id])
           user = school.users.teachers.find(params[:id])
+          require_lock_version!
+          return if performed?
+
           user = ::Admin::UpdateTeacherService.new(user: user, params: update_params).call
 
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :ok
@@ -47,7 +50,13 @@ module Api
         end
 
         def update_params
-          params.permit(:name, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
+          params.permit(:name, :email, :grade_scope, :manage_other_teachers, :permission_lock_version, grade_ids: [])
+        end
+
+        def require_lock_version!
+          return if params[:permission_lock_version].present?
+
+          render json: { errors: ['lock_versionは必須です'] }, status: :unprocessable_content
         end
       end
     end

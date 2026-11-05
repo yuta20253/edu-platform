@@ -14,6 +14,8 @@ vi.mock("@/libs/http/apiClient", () => ({
   apiClient: { patch: vi.fn() },
 }));
 
+const onConflict = vi.fn();
+
 const validInput: UpdateTeacherInput = {
   lastName: "田中",
   firstName: "花子",
@@ -33,7 +35,13 @@ describe("useUpdateTeacher", () => {
     const onUpdated = vi.fn();
 
     const { result } = renderHook(() =>
-      useUpdateTeacher({ schoolId: 1, teacherId: 5, onUpdated }),
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated,
+        onConflict,
+      }),
     );
 
     await act(async () => {
@@ -48,6 +56,7 @@ describe("useUpdateTeacher", () => {
         grade_scope: "all_grades",
         manage_other_teachers: true,
         grade_ids: [1, 2],
+        permission_lock_version: 3,
       },
     );
   });
@@ -57,7 +66,13 @@ describe("useUpdateTeacher", () => {
     const onUpdated = vi.fn();
 
     const { result } = renderHook(() =>
-      useUpdateTeacher({ schoolId: 1, teacherId: 5, onUpdated }),
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated,
+        onConflict,
+      }),
     );
 
     await act(async () => {
@@ -72,7 +87,13 @@ describe("useUpdateTeacher", () => {
     const onUpdated = vi.fn();
 
     const { result } = renderHook(() =>
-      useUpdateTeacher({ schoolId: 1, teacherId: 5, onUpdated }),
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated,
+        onConflict,
+      }),
     );
 
     await act(async () => {
@@ -99,7 +120,13 @@ describe("useUpdateTeacher", () => {
     const onUpdated = vi.fn();
 
     const { result } = renderHook(() =>
-      useUpdateTeacher({ schoolId: 1, teacherId: 5, onUpdated }),
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated,
+        onConflict,
+      }),
     );
 
     await act(async () => {
@@ -119,7 +146,13 @@ describe("useUpdateTeacher", () => {
     const onUpdated = vi.fn();
 
     const { result } = renderHook(() =>
-      useUpdateTeacher({ schoolId: 1, teacherId: 5, onUpdated }),
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated,
+        onConflict,
+      }),
     );
 
     await act(async () => {
@@ -127,5 +160,38 @@ describe("useUpdateTeacher", () => {
     });
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+  });
+
+  it("409エラー時はupdateErrorsにセットせず、onConflictを呼ぶ", async () => {
+    vi.mocked(apiClient.patch).mockRejectedValue({
+      response: {
+        status: 409,
+        data: {
+          errors: [
+            "他のユーザーによってデータが更新されています。再読み込みしてください",
+          ],
+        },
+      },
+    });
+    const onUpdated = vi.fn();
+
+    const { result } = renderHook(() =>
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated,
+        onConflict,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleUpdate(validInput);
+    });
+
+    expect(onConflict).toHaveBeenCalledTimes(1);
+    // ドロワーを閉じても updateErrors は残るので、次に開いたドロワーに文言を残さない
+    expect(result.current.updateErrors).toEqual([]);
+    expect(onUpdated).not.toHaveBeenCalled();
   });
 });

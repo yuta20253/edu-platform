@@ -176,6 +176,7 @@ describe("TeacherDrawer", () => {
       grade_scope: "all_grades",
       manage_other_teachers: true,
       grades: [{ id: 2, name: "高２生" }],
+      permission_lock_version: 0,
     };
 
     it("初期パスワード欄は表示されない", () => {
