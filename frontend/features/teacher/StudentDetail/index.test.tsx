@@ -112,6 +112,7 @@ describe("teacher/StudentDetail", () => {
     const calls = vi.mocked(apiClient.get).mock.calls;
     expect(calls).toHaveLength(3);
     // 失敗したリクエストと同じタブで取り直す
-    expect(calls[2][1]).toEqual(calls[1][1]);
+    expect(calls[2][1]).toMatchObject({ params: { tab: "goals" } });
+    expect(calls[1][1]).toMatchObject({ params: { tab: "goals" } });
   });
 });
