@@ -30,7 +30,7 @@ class Task < ApplicationRecord
   has_many :task_units, dependent: :destroy
   has_many :units, through: :task_units
 
-  enum priority: {
+  enum :priority, {
     very_low: 1,
     low: 2,
     normal: 3,
@@ -38,7 +38,7 @@ class Task < ApplicationRecord
     very_high: 5
   }
 
-  enum status: { not_started: 0, in_progress: 1, completed: 2 }
+  enum :status, { not_started: 0, in_progress: 1, completed: 2 }
 
   validates :status, presence: true
   before_validation :sync_completed_at

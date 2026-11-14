@@ -20,7 +20,7 @@ class TeacherPermission < ApplicationRecord
   validates :manage_other_teachers, inclusion: { in: [true, false] }
   validate :user_must_be_teacher
 
-  enum grade_scope: {
+  enum :grade_scope, {
     own_grade: 0,
     all_grades: 1
   }
