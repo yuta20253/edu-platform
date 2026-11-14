@@ -40,8 +40,6 @@ module Api
           task = current_user.tasks.find(params[:task_id])
           unit = task.units.find(params[:unit_id])
           @questions = unit.questions
-        rescue ActiveRecord::RecordNotFound
-          render json: { errors: ['対象データが見つかりません'] }, status: :not_found
         end
       end
     end
