@@ -59,6 +59,13 @@ RSpec.describe 'Api::V1::Student::Units', type: :request do
 
         expect(response).to have_http_status(:not_found)
       end
+
+      it 'errors配列形式でエラーメッセージが返る' do
+        get "/api/v1/student/tasks/#{task.id}/units/#{other_unit.id}",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['errors']).to eq(['Unitが見つかりません'])
+      end
     end
 
     context '異常系 - 未認証' do

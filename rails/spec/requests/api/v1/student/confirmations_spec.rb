@@ -278,5 +278,51 @@ RSpec.describe 'Api::V1::Student::Confirmations', type: :request do
         expect(response).to have_http_status(:forbidden)
       end
     end
+
+    context '異常系 - taskが見つからない' do
+      let!(:prefecture) { create(:prefecture, name: '東京都') }
+      let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+      let!(:user) { create(:user, high_school: high_school) }
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it '404が返る' do
+        get '/api/v1/student/tasks/0/units/0/confirmation',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '共通ハンドラのerrors配列形式でエラーメッセージが返る' do
+        get '/api/v1/student/tasks/0/units/0/confirmation',
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['errors']).to eq(['タスクが見つかりません'])
+      end
+    end
+
+    context '異常系 - taskに紐づかないunit' do
+      let!(:prefecture) { create(:prefecture, name: '東京都') }
+      let!(:high_school) { create(:high_school, name: 'A高校', prefecture: prefecture) }
+      let!(:user) { create(:user, high_school: high_school) }
+      let!(:goal) { create(:goal, user: user) }
+      let!(:task) { create(:task, user: user, goal: goal) }
+      let!(:course) { create(:course) }
+      let!(:other_unit) { create(:unit, course: course) }
+      let!(:cookie) { login_and_get_cookie(user) }
+
+      it '404が返る' do
+        get "/api/v1/student/tasks/#{task.id}/units/#{other_unit.id}/confirmation",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it '共通ハンドラのerrors配列形式でエラーメッセージが返る' do
+        get "/api/v1/student/tasks/#{task.id}/units/#{other_unit.id}/confirmation",
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response.parsed_body['errors']).to eq(['Unitが見つかりません'])
+      end
+    end
   end
 end
