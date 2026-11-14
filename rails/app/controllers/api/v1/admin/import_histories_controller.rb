@@ -23,13 +23,13 @@ module Api
         end
 
         def show
-          history = ImportHistory.question.includes(:user, :import_errors, unit: :course).find(params[:id])
+          history = ImportHistory.question.includes(:user, :import_errors, unit: :course).find(params.expect(:id))
 
           render json: history, serializer: ::Admin::ImportHistoryDetailSerializer
         end
 
         def export
-          history = ImportHistory.question.includes(:import_errors).find(params[:id])
+          history = ImportHistory.question.includes(:import_errors).find(params.expect(:id))
           csv = ::Admin::ImportHistoryCsvExporterService.new(history).call
 
           send_data csv,

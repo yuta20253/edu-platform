@@ -5,8 +5,8 @@ module Api
     module Student
       class QuestionsController < Api::V1::Student::BaseController
         def index
-          task = current_user.tasks.find(params[:task_id])
-          unit = task.units.find(params[:unit_id])
+          task = current_user.tasks.find(params.expect(:task_id))
+          unit = task.units.find(params.expect(:unit_id))
           questions = unit
                       .questions
                       .includes(:unit, :question_hints, :question_choices)

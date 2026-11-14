@@ -5,7 +5,7 @@ module Api
     module Admin
       class TeachersController < BaseController
         def index
-          school = HighSchool.find(params[:high_school_id])
+          school = HighSchool.find(params.expect(:high_school_id))
           teachers = school.users.teachers.includes(:teacher_permission, :grades)
 
           render json: {
@@ -17,7 +17,7 @@ module Api
         end
 
         def create
-          school = HighSchool.find(params[:high_school_id])
+          school = HighSchool.find(params.expect(:high_school_id))
           user = ::Admin::CreateTeacherService.new(school: school, attributes: create_params).call
 
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :created
@@ -28,8 +28,8 @@ module Api
         end
 
         def update
-          school = HighSchool.find(params[:high_school_id])
-          user = school.users.teachers.find(params[:id])
+          school = HighSchool.find(params.expect(:high_school_id))
+          user = school.users.teachers.find(params.expect(:id))
           require_lock_version!
           return if performed?
 

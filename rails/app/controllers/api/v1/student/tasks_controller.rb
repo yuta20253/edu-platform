@@ -31,7 +31,7 @@ module Api
         end
 
         def show
-          task = current_user.tasks.includes(units: :course).find(params[:id])
+          task = current_user.tasks.includes(units: :course).find(params.expect(:id))
 
           render json: task,
                  serializer: TaskDetailSerializer,
@@ -50,7 +50,7 @@ module Api
         end
 
         def update
-          task = current_user.tasks.find(params[:id])
+          task = current_user.tasks.find(params.expect(:id))
 
           form = ::Student::UpdateTaskForm.new(task: task, **update_task_params.to_h.symbolize_keys)
 
@@ -64,11 +64,11 @@ module Api
         private
 
         def create_task_params
-          params.require(:task).permit(:goal_id, :title, :content, :priority, :due_date, :memo, unit_ids: [])
+          params.expect(task: [:goal_id, :title, :content, :priority, :due_date, :memo, { unit_ids: [] }])
         end
 
         def update_task_params
-          params.require(:task).permit(:title, :content, :priority, :due_date, :memo, unit_ids: [])
+          params.expect(task: [:title, :content, :priority, :due_date, :memo, { unit_ids: [] }])
         end
       end
     end

@@ -45,7 +45,7 @@ module Api
         private
 
         def create_student_params
-          params.require(:user).permit(:name, :name_kana, :email, :grade_id, :school_class_id)
+          params.expect(user: %i[name name_kana email grade_id school_class_id])
         end
 
         def render_goals
@@ -97,7 +97,7 @@ module Api
         end
 
         def set_student
-          @student = students_scope.find(params[:id])
+          @student = students_scope.find(params.expect(:id))
         end
       end
     end

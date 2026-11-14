@@ -33,7 +33,7 @@ module Api
         end
 
         def show
-          teacher = teachers_query.find(params[:id])
+          teacher = teachers_query.find(params.expect(:id))
           render json: teacher, serializer: TeacherSerializer, status: :ok
         end
 
