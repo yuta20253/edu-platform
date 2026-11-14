@@ -1,15 +1,7 @@
-# Rails 7.1系の既知脆弱性
-# Rails 7.2へのアップデート時に削除予定
+# deviseの既知脆弱性(Railsとは無関係)。devise 5.0系へのアップデートで解消する。
+# TSK-244でRails 7.2.3.2→8.0.5.2にアップグレードした際に、他の9件(Rails関連)は
+# 解消済みと確認できたため削除した。devise 5.0系への更新は別チケットで対応する。
 
 ignore:
-  - CVE-2026-33168
-  - CVE-2026-33173
-  - CVE-2026-33174
-  - CVE-2026-33195
-  - CVE-2026-33202
-  - CVE-2026-33658
-  - CVE-2026-33169
-  - CVE-2026-33170
-  - CVE-2026-33176
-  - CVE-2026-32700
-  - CVE-2026-40295
+  - CVE-2026-32700 # devise: Confirmable "change email" race condition (要 devise >= 5.0.3)
+  - CVE-2026-40295 # devise: Timeoutable Open Redirect (要 devise >= 5.0.4)
