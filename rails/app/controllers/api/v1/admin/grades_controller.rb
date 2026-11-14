@@ -5,7 +5,7 @@ module Api
     module Admin
       class GradesController < BaseController
         def index
-          school = HighSchool.find(params[:high_school_id])
+          school = HighSchool.find(params.expect(:high_school_id))
           grades = school.grades.order(:year)
 
           render json: {

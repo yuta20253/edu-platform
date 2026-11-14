@@ -35,7 +35,7 @@ module Api
       private
 
       def password_reset_params
-        params.require(:password_reset).permit(:reset_password_token, :password, :password_confirmation)
+        params.expect(password_reset: %i[reset_password_token password password_confirmation])
       end
 
       def render_user_not_found

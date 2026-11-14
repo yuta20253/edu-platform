@@ -40,7 +40,7 @@ class InterviewRequest < ApplicationRecord
     'cancelled' => []
   }.freeze
 
-  enum status: {
+  enum :status, {
     requested: 0,
     scheduling: 1,
     confirmed: 2,
@@ -48,12 +48,12 @@ class InterviewRequest < ApplicationRecord
     cancelled: 4
   }
 
-  enum initiator_role: {
+  enum :initiator_role, {
     teacher: 0,
     student: 1
-  }, _prefix: true
+  }, prefix: true
 
-  enum reason_category: {
+  enum :reason_category, {
     study_method: 0,
     study_plan: 1,
     academic_performance: 2,

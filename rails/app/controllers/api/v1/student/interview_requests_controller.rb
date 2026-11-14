@@ -22,7 +22,7 @@ module Api
         end
 
         def show
-          interview_request = scoped_interview_requests.find(params[:id])
+          interview_request = scoped_interview_requests.find(params.expect(:id))
           render json: interview_request, serializer: InterviewRequestSerializer, status: :ok
         end
 
@@ -62,7 +62,7 @@ module Api
         end
 
         def create_interview_request_params
-          params.require(:interview_request).permit(:teacher_id, :reason_category, :reason_detail)
+          params.expect(interview_request: %i[teacher_id reason_category reason_detail])
         end
 
         def destroy_interview_request_params

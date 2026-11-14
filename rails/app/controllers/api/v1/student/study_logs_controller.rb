@@ -17,7 +17,7 @@ module Api
         end
 
         def update
-          study_log = StudyLog.find_by!(id: params[:id], user: current_user, task: task, unit: unit)
+          study_log = StudyLog.find_by!(id: params.expect(:id), user: current_user, task: task, unit: unit)
           ::Student::CompleteStudyLogService.new(study_log: study_log).call
 
           render json: study_log, serializer: StudyLogSerializer, status: :ok
@@ -26,11 +26,11 @@ module Api
         private
 
         def task
-          Task.find_by!(id: params[:task_id], user: current_user)
+          Task.find_by!(id: params.expect(:task_id), user: current_user)
         end
 
         def unit
-          task.units.find(params[:unit_id])
+          task.units.find(params.expect(:unit_id))
         end
       end
     end

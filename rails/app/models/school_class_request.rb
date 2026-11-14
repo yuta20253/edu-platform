@@ -30,13 +30,13 @@ class SchoolClassRequest < ApplicationRecord
 
   validates :reason, length: { maximum: 10_000 }, allow_nil: true
 
-  enum action: {
+  enum :action, {
     creation: 0,
     modification: 1,
     deletion: 2
   }
 
-  enum status: {
+  enum :status, {
     pending: 0,
     approved: 1,
     rejected: 2,

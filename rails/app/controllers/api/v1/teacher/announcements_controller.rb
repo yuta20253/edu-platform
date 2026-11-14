@@ -29,7 +29,7 @@ module Api
         end
 
         def show
-          announcement = Announcement.for_user(current_user).published.find(params[:id])
+          announcement = Announcement.for_user(current_user).published.find(params.expect(:id))
 
           render json: announcement, serializer: AnnouncementSerializer, status: :ok
         end
@@ -95,17 +95,17 @@ module Api
         private
 
         def set_announcement
-          @announcement = current_user.announcements.find(params[:id])
+          @announcement = current_user.announcements.find(params.expect(:id))
         end
 
         def create_announcement_params
-          params.require(:announcement).permit(:title, :content, :status, :scheduled_at,
-                                               announcement_targets: %i[target_type grade_id user_role_id user_id])
+          params.expect(announcement: [:title, :content, :status, :scheduled_at,
+                                       { announcement_targets: [%i[target_type grade_id user_role_id user_id]] }])
         end
 
         def update_announcement_params
-          params.require(:announcement).permit(:title, :content, :status, :scheduled_at,
-                                               announcement_targets: %i[target_type grade_id user_role_id user_id])
+          params.expect(announcement: [:title, :content, :status, :scheduled_at,
+                                       { announcement_targets: [%i[target_type grade_id user_role_id user_id]] }])
         end
 
         def announcement_scope

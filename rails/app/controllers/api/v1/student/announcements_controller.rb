@@ -26,7 +26,7 @@ module Api
         end
 
         def show
-          announcement = announcement_scope.find(params[:id])
+          announcement = announcement_scope.find(params.expect(:id))
 
           render json: announcement, serializer: AnnouncementSerializer, status: :ok
         end

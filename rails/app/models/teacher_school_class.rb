@@ -18,7 +18,7 @@ class TeacherSchoolClass < ApplicationRecord
   validates :user_id, uniqueness: { scope: :school_class_id }
   validate :user_must_be_teacher
 
-  enum role: {
+  enum :role, {
     homeroom: 0,
     assistant: 1
   }

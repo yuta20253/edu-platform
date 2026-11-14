@@ -66,7 +66,7 @@ module Api
         private
 
         def set_announcement
-          @announcement = announcement_scope.find(params[:id])
+          @announcement = announcement_scope.find(params.expect(:id))
         end
 
         def authorize_announcement
@@ -78,7 +78,7 @@ module Api
         end
 
         def announcement_params
-          params.require(:announcement).permit(:title, :content, :status, :scheduled_at)
+          params.expect(announcement: %i[title content status scheduled_at])
         end
       end
     end

@@ -6,7 +6,7 @@ module Api
       module HighSchools
         class AnnouncementsController < Api::V1::Admin::BaseController
           def index
-            school = HighSchool.find(params[:high_school_id])
+            school = HighSchool.find(params.expect(:high_school_id))
             announcements = AnnouncementsQuery.new(Announcement.for_high_school(school.id))
                                               .order_default
                                               .result

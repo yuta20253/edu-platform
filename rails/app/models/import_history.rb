@@ -35,7 +35,7 @@ class ImportHistory < ApplicationRecord
 
   scope :active, -> { where(deleted_at: nil) }
 
-  enum status: {
+  enum :status, {
     pending: 0,
     processing: 1,
     completed: 2,
