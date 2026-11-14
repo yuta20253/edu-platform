@@ -1,8 +1,7 @@
 "use client";
 
-import { apiClient } from "@/libs/http/apiClient";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useMemo } from "react";
 import { GradeScope } from "../types";
 
 type MeResponse = {
@@ -13,36 +12,20 @@ type MeResponse = {
 };
 
 export const useCurrentTeacher = () => {
-  const [gradeScope, setGradeScope] = useState<GradeScope | null>(null);
-  const [restrictedGradeId, setRestrictedGradeId] = useState<number | null>(
-    null,
-  );
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-  const router = useRouter();
+  const { data, error, refetch } = useApiQuery<MeResponse>("/api/teacher/me");
 
-  useEffect(() => {
-    apiClient
-      .get<MeResponse>("/api/teacher/me")
-      .then((res) => {
-        const { grade, teacher_permission } = res.data.user;
-        const scope = teacher_permission?.grade_scope ?? null;
+  const { gradeScope, restrictedGradeId } = useMemo(() => {
+    if (!data) return { gradeScope: null, restrictedGradeId: null };
 
-        setGradeScope(scope);
-        setRestrictedGradeId(
-          scope === "own_grade" ? (grade?.id ?? null) : null,
-        );
-      })
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          router.push("/login");
-          return;
-        }
+    const { grade, teacher_permission } = data.user;
+    const scope = teacher_permission?.grade_scope ?? null;
 
-        setError(true);
-      })
-      .finally(() => setLoading(false));
-  }, [router]);
+    return {
+      gradeScope: scope,
+      restrictedGradeId: scope === "own_grade" ? (grade?.id ?? null) : null,
+    };
+  }, [data]);
 
-  return { gradeScope, restrictedGradeId, loading, error };
+  // data は取得済みかどうかの判定に使う(null の間は取得前)
+  return { data, gradeScope, restrictedGradeId, error, refetch };
 };

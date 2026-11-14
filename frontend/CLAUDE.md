@@ -18,9 +18,9 @@ frontend(Next.js)の実装・レビュー時に守るルール。
    | 一覧(カード)                   | スケルトン(`CardSkeleton`)  | `"card-skeleton"`             |
    | 詳細・フォーム・ダッシュボード | スピナー                    | `"spinner"`(デフォルト)       |
 
-   `AsyncBoundary`(`components/ui/AsyncBoundary.tsx`)は、上記の規約1〜4の分岐(エラー → ローディング → 成功)をまとめた共通コンポーネント。データ取得画面の移行は完了していて、手書きの表示が残るのは下の「例外の扱い」の画面だけ。
+   `AsyncBoundary`(`components/ui/AsyncBoundary.tsx`)は、上記の規約1〜4の分岐(エラー → ローディング → 成功)をまとめた共通コンポーネント。データ取得画面の移行は完了していて、手書きの表示が残る画面は無い(例外は下の「例外の扱い」の恒久のものだけ)。
 
-   **例外(ヘッダーを残したまま中身だけエラーにする画面)**: [`features/teacher/StudentDetail`](features/teacher/StudentDetail/index.tsx) は、最初の取得とその失敗だけ `AsyncBoundary` で画面全体に出す(`error={!data && error}`)。タブ切り替え後の失敗は、生徒名のヘッダーを残すため Presenter の中で表示する。`AsyncBoundary` に `data` があるときの `error` を渡すと、ヘッダーごとエラー表示に置き換わるので渡さない。ただし、このタブ切り替え後の失敗表示は再試行ボタンが無く、規約4を満たしていない(一時の例外。TSK-231 で `ErrorState` に直す)。
+   **例外(ヘッダーを残したまま中身だけエラーにする画面)**: [`features/teacher/StudentDetail`](features/teacher/StudentDetail/index.tsx) は、最初の取得とその失敗だけ `AsyncBoundary` で画面全体に出す(`error={!data && error}`)。タブ切り替え後の失敗は、生徒名のヘッダーを残すため Presenter の中で `ErrorState`(再試行つき)を出す。`AsyncBoundary` に `data` があるときの `error` を渡すと、ヘッダーごとエラー表示に置き換わるので渡さない。
 
 ### 共通部品
 
@@ -112,8 +112,8 @@ if (!data) return <CircularProgress />; // 失敗してもスピナーのまま�
 
 置き場所は、違反が報告される行の直前。JSX のテキストの違反は、文言の行ではなく、JSX テキストの開始行(開始タグを閉じる `>` の行)で報告される。
 
-- 単行の開始タグ: 開始タグの行の直前に `{/* eslint-disable-next-line no-restricted-syntax -- 表示規約の例外(一時): TSK-231 で移行予定 */}`(例: `features/teacher/CreateStudent/index.tsx`)
-- 複数行の開始タグや三項演算子の中: タグの中の最後の属性の次の行(`>` の直前)に `// eslint-disable-next-line no-restricted-syntax -- …`。三項演算子の中では `{/* */}` は効かない(例: `features/teacher/StudentDetail/Presenter.tsx`)
+- 単行の開始タグ: 開始タグの行の直前に `{/* eslint-disable-next-line no-restricted-syntax -- 表示規約の例外(一時): TSK-231 で移行予定 */}`(実例: `lint/displayRules.test.ts` の「単行の開始タグ」のテスト。`TSK-231 で移行予定` は見本の文字列で、実際の移行チケットではない)
+- 複数行の開始タグや三項演算子の中: タグの中の最後の属性の次の行(`>` の直前)に `// eslint-disable-next-line no-restricted-syntax -- …`。三項演算子の中では `{/* */}` は効かない(実例: `lint/displayRules.test.ts` の「複数行の開始タグ + 三項演算子」のテスト)
 
 違反を直したら、その行の `eslint-disable` も消す。消さないと `npm run lint` が落ちる(不要になった disable を検出する設定のため。作業中のブランチは、main を取り込んだあとに落ちることがある)。
 
@@ -127,7 +127,7 @@ grep -rn "表示規約の例外(一時)" frontend/features
 grep -rn "eslint-disable.*no-restricted" frontend/features | grep -v 表示規約の例外
 ```
 
-**現在の一時の例外**(フォローアップ: TSK-231): `features/teacher/CreateStudent`(手書きの取得フックと `Alert`。再試行ボタンなし)と、`features/teacher/StudentDetail` のタブ切り替え後の失敗表示(再試行ボタンなし)。禁止ルールを入れたあとも、この 2 画面には手書きの失敗表示が残っている。
+**現在の一時の例外**: なし(`CreateStudent` と `StudentDetail` は TSK-231 で移行した)。
 
 ### 実装・レビュー時の確認項目
 
