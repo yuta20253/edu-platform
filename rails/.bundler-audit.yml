@@ -1,7 +1,11 @@
-# deviseの既知脆弱性(Railsとは無関係)。devise 5.0系へのアップデートで解消する。
+# deviseの既知脆弱性2件(Railsとは無関係)。いずれも本アプリでは発火しない。
 # TSK-244でRails 7.2.3.2→8.0.5.2にアップグレードした際に、他の9件(Rails関連)は
-# 解消済みと確認できたため削除した。devise 5.0系への更新は別チケットで対応する。
+# 解消済みと確認できたため削除した。この2件は2026-11-15に調査し、本アプリの
+# User(app/models/user.rb)が:confirmable・:timeoutableのいずれも有効化していない
+# ため、両CVEの発火条件を満たさないと確認した(devise 4.9.4のgemソース・
+# `bin/rails runner`で確認)。:confirmable または :timeoutable を有効化する場合は
+# 本ignoreを見直すこと。
 
 ignore:
-  - CVE-2026-32700 # devise: Confirmable "change email" race condition (要 devise >= 5.0.3)
-  - CVE-2026-40295 # devise: Timeoutable Open Redirect (要 devise >= 5.0.4)
+  - CVE-2026-32700 # devise: Confirmable "change email" race condition。:confirmable未使用のため発火しない
+  - CVE-2026-40295 # devise: Timeoutable Open Redirect。:timeoutable未使用のため発火しない
