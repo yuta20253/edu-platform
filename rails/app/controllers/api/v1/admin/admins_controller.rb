@@ -24,7 +24,7 @@ module Api
         end
 
         def show
-          admin = admin_scope.find(params[:id])
+          admin = admin_scope.find(params.expect(:id))
 
           render json: { admin: ::Admin::AdminDetailSerializer.new(admin) }
         end
@@ -40,7 +40,7 @@ module Api
         end
 
         def update
-          admin = admin_scope.find(params[:id])
+          admin = admin_scope.find(params.expect(:id))
           form = ::Admin::AdminForm.new(update_params.merge(user: admin))
 
           if form.save
@@ -51,7 +51,7 @@ module Api
         end
 
         def destroy
-          target = User.admins.active.find(params[:id])
+          target = User.admins.active.find(params.expect(:id))
 
           return render_delete_error('最後の管理者は削除できません') if last_active_admin?(target)
           return render_delete_error('自分自身は削除できません') if target == current_user

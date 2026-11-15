@@ -24,7 +24,7 @@ class Goal < ApplicationRecord
   has_many :active_tasks, -> { where.not(status: :not_started) }, class_name: 'Task', inverse_of: :goal
   has_many :draft_tasks, dependent: :destroy
 
-  enum status: { not_started: 0, in_progress: 1, completed: 2 }
+  enum :status, { not_started: 0, in_progress: 1, completed: 2 }
 
   # 論理削除は内部的な状態変更のため、goals_controller#update同様
   # バリデーション・コールバックなしでdeleted_atだけ更新する。

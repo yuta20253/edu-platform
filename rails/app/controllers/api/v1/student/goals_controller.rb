@@ -27,7 +27,7 @@ module Api
         end
 
         def show
-          goal = GoalsQuery.new(current_user.goals).includes_tasks.find(params[:id])
+          goal = GoalsQuery.new(current_user.goals).includes_tasks.find(params.expect(:id))
           render json: goal, serializer: ::Student::GoalDetailSerializer, status: :ok
         end
 
@@ -42,7 +42,7 @@ module Api
         end
 
         def update
-          goal = GoalsQuery.new(current_user.goals).find(params[:id])
+          goal = GoalsQuery.new(current_user.goals).find(params.expect(:id))
 
           form = ::Student::UpdateGoalForm.new(goal: goal, **update_goal_params.to_h.symbolize_keys)
 
@@ -54,7 +54,7 @@ module Api
         end
 
         def destroy
-          goal = GoalsQuery.new(current_user.goals).find(params[:id])
+          goal = GoalsQuery.new(current_user.goals).find(params.expect(:id))
           goal.soft_delete!
 
           head :no_content
@@ -63,11 +63,11 @@ module Api
         private
 
         def create_goal_params
-          params.require(:goal).permit(:title, :description, :due_date)
+          params.expect(goal: %i[title description due_date])
         end
 
         def update_goal_params
-          params.require(:goal).permit(:title, :description, :due_date)
+          params.expect(goal: %i[title description due_date])
         end
       end
     end

@@ -31,14 +31,14 @@ module Api
         def answered_question_ids
           return [] if params[:answered_question_ids].blank?
 
-          params[:answered_question_ids]
-            .split(',')
-            .map(&:to_i)
+          params.expect(:answered_question_ids)
+                .split(',')
+                .map(&:to_i)
         end
 
         def set_questions
-          task = current_user.tasks.find(params[:task_id])
-          unit = task.units.find(params[:unit_id])
+          task = current_user.tasks.find(params.expect(:task_id))
+          unit = task.units.find(params.expect(:unit_id))
           @questions = unit.questions
         rescue ActiveRecord::RecordNotFound
           render json: { errors: ['対象データが見つかりません'] }, status: :not_found

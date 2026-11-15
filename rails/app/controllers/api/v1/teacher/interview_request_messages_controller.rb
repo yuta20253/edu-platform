@@ -36,11 +36,11 @@ module Api
         private
 
         def interview_request
-          InterviewRequest.for_participant(current_user).find(params[:interview_request_id])
+          InterviewRequest.for_participant(current_user).find(params.expect(:interview_request_id))
         end
 
         def create_message_params
-          params.require(:interview_request_message).permit(:body)
+          params.expect(interview_request_message: [:body])
         end
       end
     end

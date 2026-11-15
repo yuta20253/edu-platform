@@ -43,7 +43,7 @@ module Api
         end
 
         def show
-          course = Course.includes(:subject).find(params[:id])
+          course = Course.includes(:subject).find(params.expect(:id))
           questions_counts = Question.in_active_units
                                      .where(units: { course_id: course.id })
                                      .group(:unit_id).count

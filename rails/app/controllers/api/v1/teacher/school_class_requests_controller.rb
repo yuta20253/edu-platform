@@ -36,7 +36,7 @@ module Api
         end
 
         def show
-          school_class_request = school_class_requests_scope.find(params[:id])
+          school_class_request = school_class_requests_scope.find(params.expect(:id))
 
           render json: school_class_request, serializer: ::Teacher::SchoolClassRequestSerializer,
                  current_user: current_user, status: :ok
@@ -89,11 +89,11 @@ module Api
         private
 
         def create_school_class_params
-          params.require(:school_class_request).permit(:name, :grade_id, :school_class_id, :action)
+          params.expect(school_class_request: %i[name grade_id school_class_id action])
         end
 
         def update_school_class_params
-          params.require(:school_class_request).permit(:status, :lock_version, :reason)
+          params.expect(school_class_request: %i[status lock_version reason])
         end
 
         def school_class_requests_scope

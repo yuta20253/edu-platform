@@ -25,7 +25,7 @@ module Api
         def show
           history = import_histories_scope
                     .includes(:import_errors, imported_students: { user: %i[grade school_class] })
-                    .find(params[:id])
+                    .find(params.expect(:id))
 
           render json: history, serializer: ::Teacher::ImportHistoryDetailSerializer
         end
@@ -33,7 +33,7 @@ module Api
         def export
           history = import_histories_scope
                     .includes(imported_students: { user: %i[grade school_class] })
-                    .find(params[:id])
+                    .find(params.expect(:id))
           csv = ::Teacher::ImportHistoryCsvExporterService.new(history).call
 
           send_data csv,
