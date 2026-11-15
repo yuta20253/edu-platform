@@ -32,6 +32,7 @@ docs/reviews/<YYYY-MM-DD>_<チケットID>_<slug>/
 | TSK-228 Ruby 3.4.12 化と Ubuntu 26.04 の Rails CI        | 2026-10-24 | 3                     | 直せば進めてよい → このまま進めてよい → 直せば進めてよい（第2周のあとオーナーの回答で案 A から B に変更。反映済み）        | [2026-10-24_TSK-228_rails_ci_ubuntu_runner](2026-10-24_TSK-228_rails_ci_ubuntu_runner/)                                     |
 | TSK-216 ローディング・エラー表示の直書きを禁止するルール | 2026-11-04 | 3                     | 直せば進めてよい → 直せば進めてよい → 直せば進めてよい（最終周は設計に戻らない追記のみ。オーナーが承認して Notion に反映） | [2026-11-04_TSK-216_forbid_handwritten_fetch_ui](2026-11-04_TSK-216_forbid_handwritten_fetch_ui/)                           |
 | TSK-231 CreateStudent・StudentDetail の取得失敗の再試行 | 2026-11-04 | 3 | 直せば進めてよい → 直せば進めてよい → 直せば進めてよい(最終周は案 A の食い違いと追記のみ。オーナーが承認して Notion に反映) | [2026-11-04_TSK-231_createstudent_studentdetail_errorstate](2026-11-04_TSK-231_createstudent_studentdetail_errorstate/) |
+| （起票前）bundler-auditで検知されたmsgpack/pumaの脆弱性を調査・対応する | 2026-11-16 | 3 | 直せば進めてよい → 直せば進めてよい → 直せば進めてよい(4周目は回さず、2周目のGHSA-x646の重大な事実誤り訂正と3周目の軽微な補足を反映。CI構造的ギャップはオーナーから「意図的な設計」と訂正が入り、本チケット・比較案から除外) | [2026-11-16_bundler_audit_msgpack_puma](2026-11-16_bundler_audit_msgpack_puma/) |
 
 ## 答え合わせ
 
@@ -107,3 +108,6 @@ docs/reviews/<YYYY-MM-DD>_<チケットID>_<slug>/
 | TSK-231  | CLAUDE.md の更新箇所に漏れがある(置き場所の例 115〜116 行目、規約 5 の直後の文) | 共通化の方針・規約との整合 | 当たり | 4 か所(23 行目・規約 5 直後・115〜116 行目・130 行目)に直した。例は `lint/displayRules.test.ts` を指す形にした。実装で確認する。実装で確認。4 か所を直して漏れは無かった。`TSK-231` が残るのは見本の文字列だけで、見本であることを一言添えた |
 | TSK-231  | 草案が足した範囲(学級一覧 `useGradeOptions` の握りつぶし)が、案 A が「保留」のまま設計は不採用前提で、二通りに読める | スコープと依存の切り方 | 当たり | オーナーが「同じチケットで直す」と決め、案 A を不採用にした。握りつぶしを残さずに済んだかは実装で確認する。実装で確認。`useGradeOptions` は `useApiQuery` のラッパーになり、握りつぶしは無くなった。学級一覧の失敗でエラー表示・再試行になるテストがある |
 | TSK-231  | 合成した選択肢の配列を毎回作ると、`Presenter` の `useEffect` が参照の変化で走り直す | 失敗の想定 | 未確定 | 絞り込みと `null` の判定を `useGradeOptions` の `useMemo` に残す設計にした。実画面でフォームの入力が消えないことを確認する |
+| （起票前・msgpack/puma） | `Bundler Audit`ジョブが`pull_request`+`rails/**`限定で定期検知が無いのは「構造的ギャップ」で、scheduleトリガー追加が必要 | やらないことのデメリット / スコープと依存の切り方 | 外れ | オーナーから「あえてそうしている」と訂正が入った。意図的な設計であり、1〜3周通して「ギャップ」と判断したのは誤り（`bundler_audit_ci_schedule_intentional`として記録） |
+| （起票前・msgpack/puma） | `GHSA-x646`は`send_data`のファイル配信経路があるため除外できない | 事実か推測か | 外れ | 1周目の結論は誤りで、advisory原文が名指しするのは`send_file`（別メソッド）。2周目で原文を直接確認し訂正。本リポジトリは`send_file`0件のため、むしろ発火条件を満たさない可能性が高いという逆の結論になった |
+| （起票前・msgpack/puma） | `bundle update puma msgpack`でGemfileの制約変更無しに8件(msgpack1件・puma7件)が解消できる | 完了条件が測れるか | 当たり | docker上で実際に`bundle update`を実行し、`Gemfile.lock`の差分がmsgpack・pumaの2行のみ、`bundler-audit check`が0件になることを1周目で実機検証済み |
