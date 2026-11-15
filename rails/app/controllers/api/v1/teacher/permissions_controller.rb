@@ -52,11 +52,11 @@ module Api
         private
 
         def set_teacher
-          @teacher = teachers_query.active.find(params[:id])
+          @teacher = teachers_query.active.find(params.expect(:id))
         end
 
         def update_permission_params
-          params.require(:teacher_permission).permit(:grade_scope, :manage_other_teachers, :lock_version)
+          params.expect(teacher_permission: %i[grade_scope manage_other_teachers lock_version])
         end
 
         def teachers_query

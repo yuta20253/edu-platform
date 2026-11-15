@@ -49,10 +49,10 @@ module Api
         # not_found ハンドラに委譲する。
         def find_unit!
           Course
-            .find(params[:course_id])
+            .find(params.expect(:course_id))
             .units
             .active
-            .find(params[:unit_id])
+            .find(params.expect(:unit_id))
         end
 
         def import_questions_csv_params

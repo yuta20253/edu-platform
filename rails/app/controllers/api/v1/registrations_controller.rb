@@ -23,8 +23,8 @@ module Api
       private
 
       def sign_up_params
-        params.require(:user).permit(:email, :name, :name_kana, :password, :password_confirmation, :user_role_name,
-                                     :high_school_id, :grade_id, :student_number)
+        params.expect(user: %i[email name name_kana password password_confirmation user_role_name
+                               high_school_id grade_id student_number])
       end
     end
   end

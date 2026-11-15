@@ -21,7 +21,7 @@ class StudyLog < ApplicationRecord
   belongs_to :task
   belongs_to :unit
 
-  enum status: {
+  enum :status, {
     studying: 0,
     completed: 1
   }

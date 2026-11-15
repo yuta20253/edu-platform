@@ -5,7 +5,7 @@ module Api
     module Student
       class DraftTasksController < Api::V1::Student::BaseController
         def show
-          draft_task = current_user.draft_tasks.includes(units: :course).find(params[:id])
+          draft_task = current_user.draft_tasks.includes(units: :course).find(params.expect(:id))
           render json: draft_task, include: ['units.course'], status: :ok
         end
 
@@ -23,7 +23,7 @@ module Api
         private
 
         def create_draft_task_params
-          params.require(:draft_task).permit(:goal_id, :title, :content, :priority, :due_date, :memo, unit_ids: [])
+          params.expect(draft_task: [:goal_id, :title, :content, :priority, :due_date, :memo, { unit_ids: [] }])
         end
       end
     end

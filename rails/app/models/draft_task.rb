@@ -28,7 +28,7 @@ class DraftTask < ApplicationRecord
   has_many :draft_task_units, dependent: :destroy
   has_many :units, through: :draft_task_units
 
-  enum priority: {
+  enum :priority, {
     very_low: 1,
     low: 2,
     normal: 3,
@@ -36,5 +36,5 @@ class DraftTask < ApplicationRecord
     very_high: 5
   }
 
-  enum status: { not_started: 0, in_progress: 1, completed: 2 }
+  enum :status, { not_started: 0, in_progress: 1, completed: 2 }
 end

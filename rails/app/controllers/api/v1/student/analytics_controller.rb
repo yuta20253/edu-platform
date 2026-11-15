@@ -17,7 +17,7 @@ module Api
         private
 
         def analytics_type
-          params.require(:analytics).permit(:type)[:type]
+          params.expect(analytics: [:type])[:type]
         end
       end
     end

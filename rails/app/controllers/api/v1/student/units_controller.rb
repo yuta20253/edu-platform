@@ -5,8 +5,8 @@ module Api
     module Student
       class UnitsController < Api::V1::Student::BaseController
         def show
-          task = current_user.tasks.find(params[:task_id])
-          unit = task.units.includes(:course).find(params[:id])
+          task = current_user.tasks.find(params.expect(:task_id))
+          unit = task.units.includes(:course).find(params.expect(:id))
 
           render json: unit, serializer: UnitSerializer, status: :ok
         end

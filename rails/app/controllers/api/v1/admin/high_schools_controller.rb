@@ -31,7 +31,7 @@ module Api
         end
 
         def show
-          school = HighSchool.includes(:prefecture).find(params[:id])
+          school = HighSchool.includes(:prefecture).find(params.expect(:id))
           student_count = User.students.active.by_high_school(school.id).count
           teacher_count = User.teachers.by_high_school(school.id).count
 

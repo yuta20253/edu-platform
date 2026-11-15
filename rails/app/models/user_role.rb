@@ -14,7 +14,7 @@ class UserRole < ApplicationRecord
 
   validates :name, presence: true
 
-  enum name: {
+  enum :name, {
     admin: 0,
     student: 1,
     teacher: 2,

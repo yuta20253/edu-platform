@@ -15,7 +15,7 @@ module Api
                          .joins(:grade)
                          .includes(:grade, :users, teacher_school_classes: :user)
                          .find_by!(
-                           id: params[:id],
+                           id: params.expect(:id),
                            grades: { high_school_id: current_user.high_school_id }
                          )
 
