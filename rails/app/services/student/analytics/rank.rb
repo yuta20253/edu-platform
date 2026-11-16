@@ -37,7 +37,7 @@ module Student
         my_ranking = rankings.find { |ranking| ranking[:user_id] == @user.id }
 
         {
-          rank: my_ranking ? rankings.count { |ranking| ranking[:correct_rate] > my_ranking[:correct_rate] }  + 1 : nil,
+          rank: my_ranking ? rankings.count { |ranking| ranking[:correct_rate] > my_ranking[:correct_rate] } + 1 : nil,
           total_users: rankings.size
         }
       end

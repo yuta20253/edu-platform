@@ -130,14 +130,14 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
       it 'due_dateが同じ場合の第2キーとしてidの昇順がORDER BYに含まれる' do
         sql = nil
         callback = lambda do |_name, _started, _finished, _unique_id, payload|
-          sql = payload[:sql] if payload[:sql]&.match?(/FROM `tasks`/) && payload[:sql]&.match?(/ORDER BY/)
+          sql = payload[:sql] if payload[:sql]&.include?('FROM `tasks`') && payload[:sql].include?('ORDER BY')
         end
 
         ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
           get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
         end
 
-        expect(sql).to match(/ORDER BY `tasks`\.`due_date` ASC, `tasks`\.`id` ASC/)
+        expect(sql).to include('ORDER BY `tasks`.`due_date` ASC, `tasks`.`id` ASC')
       end
     end
 

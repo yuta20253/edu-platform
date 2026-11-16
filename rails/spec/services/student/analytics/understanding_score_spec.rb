@@ -137,7 +137,7 @@ RSpec.describe Student::Analytics::UnderstandingScore, type: :model do
       it 'subjects.idの昇順で返る' do
         result = described_class.new(user).call
 
-        subject_names = result[:subjects].map { |subject| subject[:subject_name] }
+        subject_names = result[:subjects].pluck(:subject_name)
 
         expect(subject_names).to eq([subject_a.name, subject_b.name])
       end
