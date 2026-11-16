@@ -126,6 +126,19 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
         expect(ids.first).to eq(task1.id)
         expect(ids.first).not_to eq(task2.id)
       end
+
+      it 'due_dateが同じ場合の第2キーとしてidの昇順がORDER BYに含まれる' do
+        sql = nil
+        callback = lambda do |_name, _started, _finished, _unique_id, payload|
+          sql = payload[:sql] if payload[:sql]&.match?(/FROM `tasks`/) && payload[:sql]&.match?(/ORDER BY/)
+        end
+
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+          get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+        end
+
+        expect(sql).to match(/ORDER BY `tasks`\.`due_date` ASC, `tasks`\.`id` ASC/)
+      end
     end
 
     context '異常系 - 未認証アクセス' do
