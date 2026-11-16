@@ -39,6 +39,13 @@ ja:
               not_teacher: "教職員アカウントのみ設定可能です"
   activemodel:
     attributes:
+      student/create_draft_task_form:
+        goal_id: 目標
+        title: タイトル
+        content: 内容
+        priority: 優先度
+        due_date: 期限
+        unit_ids: 単元
       student/create_goal_form:
         title: タイトル
         due_date: 期限
