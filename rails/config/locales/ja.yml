@@ -49,6 +49,19 @@ ja:
       student/create_goal_form:
         title: タイトル
         due_date: 期限
+      student/create_task_form:
+        goal_id: 目標
+        title: タイトル
+        content: 内容
+        priority: 優先度
+        due_date: 期限
+        unit_ids: 単元
+      student/update_task_form:
+        title: タイトル
+        content: 内容
+        priority: 優先度
+        due_date: 期限
+        unit_ids: 単元
       student/update_goal_form:
         title: タイトル
         due_date: 期限
