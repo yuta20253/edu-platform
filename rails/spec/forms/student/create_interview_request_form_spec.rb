@@ -21,6 +21,14 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
   let(:reason_category) { 'study_method' }
   let(:reason_detail) { '勉強方法について相談したい' }
 
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:teacher_id)).to eq('教員')
+      expect(described_class.human_attribute_name(:reason_category)).to eq('相談内容の種別')
+      expect(described_class.human_attribute_name(:reason_detail)).to eq('相談内容の詳細')
+    end
+  end
+
   describe '#valid?' do
     context '正常系' do
       it 'validになる' do
