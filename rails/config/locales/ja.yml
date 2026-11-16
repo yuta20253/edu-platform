@@ -7,6 +7,9 @@ ja:
     models:
       goal: 目標
       task: タスク
+      draft_task: 下書きタスク
+      unit: 単元
+      study_log: 学習記録
     attributes:
       user:
         name: 名前
