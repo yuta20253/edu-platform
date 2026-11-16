@@ -17,6 +17,12 @@
 require 'rails_helper'
 
 RSpec.describe Announcement, type: :model do
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('お知らせ')
+    end
+  end
+
   describe 'indexes' do
     it 'status と scheduled_at の複合インデックスが存在する' do
       expect(ActiveRecord::Base.connection.index_exists?(:announcements, %i[status scheduled_at]))

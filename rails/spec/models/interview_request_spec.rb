@@ -25,6 +25,12 @@
 require 'rails_helper'
 
 RSpec.describe InterviewRequest, type: :model do
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('面談申請')
+    end
+  end
+
   describe 'enum' do
     it do
       expect(subject).to define_enum_for(:status).with_values(

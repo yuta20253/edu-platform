@@ -22,6 +22,12 @@
 require 'rails_helper'
 
 RSpec.describe SchoolClassRequest, type: :model do
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('学級申請')
+    end
+  end
+
   let!(:high_school) { create(:high_school) }
   let!(:grade) { create(:grade, high_school: high_school) }
   let!(:applicant) { create(:user, :teacher, high_school: high_school) }

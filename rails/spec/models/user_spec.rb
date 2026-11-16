@@ -28,6 +28,12 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('ユーザー')
+    end
+  end
+
   let(:student_role) { create(:user_role, :student) }
   let(:admin_role) { create(:user_role, :admin) }
   let(:teacher_role) { create(:user_role, :teacher) }
