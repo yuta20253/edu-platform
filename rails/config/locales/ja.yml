@@ -35,6 +35,9 @@ ja:
         birthday: 生年月日
         gender: 性別
       announcement:
+        title: タイトル
+        content: 本文
+        status: 状態
         scheduled_at: 配信日時
       school_class:
         users: 生徒
@@ -76,6 +79,16 @@ ja:
       calendar_period_form:
         from: 開始日
         to: 終了日
+      admin/announcement_form:
+        title: タイトル
+        content: 本文
+        status: 状態
+      teacher/create_announcement_form:
+        title: タイトル
+        content: 本文
+      teacher/update_announcement_form:
+        title: タイトル
+        content: 本文
       student/create_draft_task_form:
         goal_id: 目標
         title: タイトル
