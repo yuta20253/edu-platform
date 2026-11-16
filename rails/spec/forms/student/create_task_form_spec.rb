@@ -102,6 +102,14 @@ RSpec.describe Student::CreateTaskForm, type: :model do
         expect(subject).not_to be_valid
         expect(subject.errors[:goal_id]).to include('が不正です')
       end
+
+      it '不正な優先度名を渡すとinvalidになり、保存時に例外が起きない' do
+        subject.priority = 'urgent'
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:priority]).to be_present
+        expect { subject.save }.not_to raise_error
+      end
     end
   end
 
