@@ -46,6 +46,9 @@ ja:
         priority: 優先度
         due_date: 期限
         unit_ids: 単元
+      student/analytics_period_form:
+        from: 開始日
+        to: 終了日
       student/create_goal_form:
         title: タイトル
         due_date: 期限
