@@ -126,6 +126,13 @@ RSpec.describe Student::CreateDraftTaskForm, type: :model do
         expect(subject.errors[:priority]).to be_present
         expect { subject.save }.not_to raise_error
       end
+
+      it 'titleが101文字だとinvalidになる' do
+        subject.title = 'あ' * 101
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:title]).to include('は100文字以内で入力してください')
+      end
     end
   end
 
