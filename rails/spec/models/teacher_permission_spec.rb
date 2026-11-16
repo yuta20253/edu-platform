@@ -15,6 +15,13 @@
 require 'rails_helper'
 
 RSpec.describe TeacherPermission, type: :model do
+  describe '.human_attribute_name' do
+    it 'grade_scope・manage_other_teachersが日本語になる' do
+      expect(described_class.human_attribute_name(:grade_scope)).to eq('操作範囲')
+      expect(described_class.human_attribute_name(:manage_other_teachers)).to eq('他の教員操作権限')
+    end
+  end
+
   it 'teacherなら有効' do
     teacher = create(:user, :teacher)
     permission = build(:teacher_permission, user: teacher)

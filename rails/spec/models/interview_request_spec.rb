@@ -31,6 +31,13 @@ RSpec.describe InterviewRequest, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'reason_detail・reason_categoryが日本語になる' do
+      expect(described_class.human_attribute_name(:reason_detail)).to eq('相談内容')
+      expect(described_class.human_attribute_name(:reason_category)).to eq('相談カテゴリ')
+    end
+  end
+
   describe 'enum' do
     it do
       expect(subject).to define_enum_for(:status).with_values(

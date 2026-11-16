@@ -31,6 +31,12 @@ RSpec.describe ImportHistory, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'unitが日本語になる' do
+      expect(described_class.human_attribute_name(:unit)).to eq('単元')
+    end
+  end
+
   describe '.active' do
     let!(:alive) { create(:import_history) }
     let!(:dead) { create(:import_history, deleted_at: Time.current) }

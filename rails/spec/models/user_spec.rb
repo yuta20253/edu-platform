@@ -39,6 +39,33 @@ RSpec.describe User, type: :model do
       expect(described_class.human_attribute_name(:password)).to eq('パスワード')
       expect(described_class.human_attribute_name(:password_confirmation)).to eq('パスワード(確認用)')
     end
+
+    it 'user_role・high_school・grade・student_numberが日本語になる' do
+      expect(described_class.human_attribute_name(:user_role)).to eq('ロール')
+      expect(described_class.human_attribute_name(:high_school)).to eq('高校')
+      expect(described_class.human_attribute_name(:grade)).to eq('学年')
+      expect(described_class.human_attribute_name(:student_number)).to eq('生徒コード')
+    end
+  end
+
+  describe 'taken・presentのエラーメッセージ' do
+    it 'student_numberが重複している時、日本語になる' do
+      high_school = create(:high_school)
+      create(:user, :student, high_school: high_school, student_number: 'ABC-00000001')
+      duplicated = build(:user, :student, high_school: high_school, student_number: 'ABC-00000001')
+
+      duplicated.valid?
+
+      expect(duplicated.errors[:student_number]).to include('はすでに存在します')
+    end
+
+    it '生徒以外にstudent_numberが設定されている時、日本語になる' do
+      teacher = build(:user, :teacher, student_number: 'ABC-00000001')
+
+      teacher.valid?
+
+      expect(teacher.errors[:student_number]).to include('は入力しないでください')
+    end
   end
 
   let(:student_role) { create(:user_role, :student) }

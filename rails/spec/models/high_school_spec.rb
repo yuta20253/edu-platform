@@ -19,6 +19,13 @@ RSpec.describe HighSchool, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'name・school_codeが日本語になる' do
+      expect(described_class.human_attribute_name(:name)).to eq('高校名')
+      expect(described_class.human_attribute_name(:school_code)).to eq('学校コード')
+    end
+  end
+
   describe 'バリデーション' do
     it { is_expected.to validate_presence_of(:name) }
 

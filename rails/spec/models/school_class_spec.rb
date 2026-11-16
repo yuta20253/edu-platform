@@ -19,6 +19,12 @@ RSpec.describe SchoolClass, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'nameが日本語になる' do
+      expect(described_class.human_attribute_name(:name)).to eq('クラス名')
+    end
+  end
+
   describe 'バリデーション' do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_length_of(:name).is_at_most(255) }

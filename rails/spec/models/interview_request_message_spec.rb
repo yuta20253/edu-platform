@@ -14,6 +14,12 @@
 require 'rails_helper'
 
 RSpec.describe InterviewRequestMessage, type: :model do
+  describe '.human_attribute_name' do
+    it 'bodyが日本語になる' do
+      expect(described_class.human_attribute_name(:body)).to eq('メッセージ')
+    end
+  end
+
   let!(:interview_request) { create(:interview_request, :initiated_by_teacher) }
 
   describe '#validate (送信者が当事者であること)' do

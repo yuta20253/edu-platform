@@ -28,6 +28,12 @@ RSpec.describe SchoolClassRequest, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'reasonが日本語になる' do
+      expect(described_class.human_attribute_name(:reason)).to eq('理由')
+    end
+  end
+
   let!(:high_school) { create(:high_school) }
   let!(:grade) { create(:grade, high_school: high_school) }
   let!(:applicant) { create(:user, :teacher, high_school: high_school) }
