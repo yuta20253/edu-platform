@@ -49,6 +49,20 @@ ja:
       student/create_goal_form:
         title: タイトル
         due_date: 期限
+      student/create_question_history_form:
+        task_id: タスク
+        unit_id: 単元
+        question_id: 問題
+        question_choice_id: 選択肢
+        time_spent_sec: 解答時間
+        explanation_viewed: 解説の確認
+      student/update_question_history_form:
+        task_id: タスク
+        unit_id: 単元
+        question_id: 問題
+        question_choice_id: 選択肢
+        time_spent_sec: 解答時間
+        explanation_viewed: 解説の確認
       student/create_interview_request_form:
         teacher_id: 教員
         reason_category: 相談内容の種別
