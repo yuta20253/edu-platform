@@ -72,9 +72,9 @@ ja:
         time_spent_sec: 解答時間
         explanation_viewed: 解説の確認
       student/create_interview_request_form:
-        teacher_id: 教員
-        reason_category: 相談内容の種別
-        reason_detail: 相談内容の詳細
+        teacher_id: 先生
+        reason_category: 相談カテゴリ
+        reason_detail: 相談内容
       student/create_task_form:
         goal_id: 目標
         title: タイトル
