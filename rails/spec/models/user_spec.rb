@@ -34,6 +34,13 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'password・password_confirmationが日本語になる' do
+      expect(described_class.human_attribute_name(:password)).to eq('パスワード')
+      expect(described_class.human_attribute_name(:password_confirmation)).to eq('パスワード(確認用)')
+    end
+  end
+
   let(:student_role) { create(:user_role, :student) }
   let(:admin_role) { create(:user_role, :admin) }
   let(:teacher_role) { create(:user_role, :teacher) }
