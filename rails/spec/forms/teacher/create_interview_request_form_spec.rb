@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateInterviewRequestForm, type: :model do
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:student_id)).to eq('生徒')
+      expect(described_class.human_attribute_name(:reason_detail)).to eq('相談内容')
+    end
+  end
+
   subject(:form) do
     described_class.new(user: teacher, student_id: student_id, reason_detail: reason_detail)
   end

@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Admin::AnalyticsFilterForm, type: :model do
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:from)).to eq('開始日')
+      expect(described_class.human_attribute_name(:to)).to eq('終了日')
+    end
+  end
+
   describe '#valid?' do
     context 'from / to を指定しない場合' do
       subject(:form) { described_class.new }
