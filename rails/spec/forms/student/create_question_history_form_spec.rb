@@ -38,6 +38,17 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
     }
   end
 
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:task_id)).to eq('タスク')
+      expect(described_class.human_attribute_name(:unit_id)).to eq('単元')
+      expect(described_class.human_attribute_name(:question_id)).to eq('問題')
+      expect(described_class.human_attribute_name(:question_choice_id)).to eq('選択肢')
+      expect(described_class.human_attribute_name(:time_spent_sec)).to eq('解答時間')
+      expect(described_class.human_attribute_name(:explanation_viewed)).to eq('解説の確認')
+    end
+  end
+
   describe '#save (論理削除済みデータへの回答)' do
     context '問題が論理削除されている場合' do
       before { question.update_columns(deleted_at: Time.current) }
