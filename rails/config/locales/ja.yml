@@ -6,6 +6,7 @@ ja:
       too_long: "は%{count}文字以内で入力してください"
       inclusion: "は一覧にありません"
       confirmation: "と一致しません"
+      wrong_length: "は%{count}個でなければなりません"
   activerecord:
     models:
       goal: 目標
@@ -89,6 +90,34 @@ ja:
       teacher/update_announcement_form:
         title: タイトル
         content: 本文
+      teacher/create_student_form:
+        name: 氏名
+        name_kana: 氏名(カナ)
+        email: メールアドレス
+        grade_id: 学年
+        school_class_id: 学級
+      teacher/create_teacher_form:
+        name: 氏名
+        name_kana: 氏名(カナ)
+        email: メールアドレス
+        grade_id: 担当学年
+        grade_scope: 操作範囲
+        manage_other_teachers: 他の教員操作権限
+      teacher/update_permission_form:
+        grade_scope: 操作範囲
+        manage_other_teachers: 他の教員操作権限
+      teacher/student_import_form:
+        name: 氏名
+        name_kana: 氏名カナ
+        email: メール
+        grade_name: 学年
+        school_class_name: 学級
+      admin/question_import_form:
+        question_text: 問題文
+        correct_answer: 正解番号
+        explanation_text: 解説
+        choices: 選択肢
+        hints: ヒント
       student/create_draft_task_form:
         goal_id: 目標
         title: タイトル
