@@ -17,7 +17,7 @@ module Student
     attribute :memo, :string
     attribute :unit_ids, default: []
 
-    validates :title, presence: true
+    validates :title, presence: true, length: { maximum: 100 }
     validates :content, presence: true
     validates :due_date, presence: true
 
