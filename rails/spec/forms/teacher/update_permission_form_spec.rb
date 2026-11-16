@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::UpdatePermissionForm, type: :model do
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:grade_scope)).to eq('操作範囲')
+      expect(described_class.human_attribute_name(:manage_other_teachers)).to eq('他の教員操作権限')
+    end
+  end
+
   let!(:teacher_role) { create(:user_role, name: :teacher) }
 
   let!(:teacher) do

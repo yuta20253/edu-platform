@@ -3,6 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateStudentForm, type: :model do
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:name)).to eq('氏名')
+      expect(described_class.human_attribute_name(:name_kana)).to eq('氏名(カナ)')
+      expect(described_class.human_attribute_name(:email)).to eq('メールアドレス')
+      expect(described_class.human_attribute_name(:grade_id)).to eq('学年')
+      expect(described_class.human_attribute_name(:school_class_id)).to eq('学級')
+    end
+  end
+
   subject(:form) do
     described_class.new(
       current_user: current_user,
