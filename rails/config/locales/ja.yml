@@ -39,6 +39,12 @@ ja:
               not_teacher: "教職員アカウントのみ設定可能です"
   activemodel:
     attributes:
+      student/create_goal_form:
+        title: タイトル
+        due_date: 期限
+      student/update_goal_form:
+        title: タイトル
+        due_date: 期限
       teacher/create_school_class_request_form:
         action: 申請の種別
         grade_id: 学年
