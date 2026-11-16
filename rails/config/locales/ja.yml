@@ -138,6 +138,12 @@ ja:
         email: メール
         grade_name: 学年
         school_class_name: 学級
+      admin/analytics_filter_form:
+        from: 開始日
+        to: 終了日
+      teacher/create_interview_request_form:
+        student_id: 生徒
+        reason_detail: 相談内容
       admin/question_import_form:
         question_text: 問題文
         correct_answer: 正解番号
