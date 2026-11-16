@@ -68,6 +68,14 @@ ja:
         reset_password_token: リセットトークン
         password: 新しいパスワード
         password_confirmation: 新しいパスワード（確認）
+      profile_update_form:
+        address_id: 住所
+        birthday: 生年月日
+        gender: 性別
+        phone_number: 電話番号
+      calendar_period_form:
+        from: 開始日
+        to: 終了日
       student/create_draft_task_form:
         goal_id: 目標
         title: タイトル
