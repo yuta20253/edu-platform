@@ -17,6 +17,8 @@ module Student
         question_histories = @user.question_histories.includes(:unit, course: :subject)
         subject_histories = question_histories.group_by { |history| history.course.subject }
 
+        subject_histories = subject_histories.sort_by { |subject, _histories| subject.id }
+
         {
           subjects: subject_histories.map do |subject, subject_histories|
             course_histories = subject_histories.group_by(&:course)
