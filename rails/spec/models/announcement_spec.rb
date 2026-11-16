@@ -23,6 +23,14 @@ RSpec.describe Announcement, type: :model do
     end
   end
 
+  describe '.human_attribute_name' do
+    it 'title・content・statusが日本語になる' do
+      expect(described_class.human_attribute_name(:title)).to eq('タイトル')
+      expect(described_class.human_attribute_name(:content)).to eq('本文')
+      expect(described_class.human_attribute_name(:status)).to eq('状態')
+    end
+  end
+
   describe 'indexes' do
     it 'status と scheduled_at の複合インデックスが存在する' do
       expect(ActiveRecord::Base.connection.index_exists?(:announcements, %i[status scheduled_at]))

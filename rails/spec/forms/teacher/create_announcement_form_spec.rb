@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:title)).to eq('タイトル')
+      expect(described_class.human_attribute_name(:content)).to eq('本文')
+    end
+  end
+
   subject(:form) do
     described_class.new(
       current_user: teacher,
