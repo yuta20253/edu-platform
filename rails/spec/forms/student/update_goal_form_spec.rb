@@ -42,6 +42,14 @@ RSpec.describe Student::UpdateGoalForm, type: :model do
           expect(result).to be false
           expect(form.errors[:title]).to include('を入力してください')
         end
+
+        it 'full_messagesの項目名が日本語になること' do
+          params = valid_params.merge(title: '')
+          form = described_class.new(**params)
+          form.save
+
+          expect(form.errors.full_messages).to include('タイトルを入力してください')
+        end
       end
 
       context 'due_dateが空の場合' do
@@ -53,6 +61,14 @@ RSpec.describe Student::UpdateGoalForm, type: :model do
 
           expect(result).to be false
           expect(form.errors[:due_date]).to include('を入力してください')
+        end
+
+        it 'full_messagesの項目名が日本語になること' do
+          params = valid_params.merge(due_date: '')
+          form = described_class.new(**params)
+          form.save
+
+          expect(form.errors.full_messages).to include('期限を入力してください')
         end
       end
 
