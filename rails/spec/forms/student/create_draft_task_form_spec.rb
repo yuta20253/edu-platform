@@ -107,7 +107,7 @@ RSpec.describe Student::CreateDraftTaskForm, type: :model do
         subject.priority = 0
 
         expect(subject).not_to be_valid
-        expect(subject.errors[:priority]).to be_present
+        expect(subject.errors[:priority]).to include('は一覧にありません')
         expect { subject.save }.not_to raise_error
       end
 
@@ -115,7 +115,7 @@ RSpec.describe Student::CreateDraftTaskForm, type: :model do
         subject.priority = 99
 
         expect(subject).not_to be_valid
-        expect(subject.errors[:priority]).to be_present
+        expect(subject.errors[:priority]).to include('は一覧にありません')
         expect { subject.save }.not_to raise_error
       end
 
@@ -123,7 +123,7 @@ RSpec.describe Student::CreateDraftTaskForm, type: :model do
         subject.priority = 'urgent'
 
         expect(subject).not_to be_valid
-        expect(subject.errors[:priority]).to be_present
+        expect(subject.errors[:priority]).to include('は一覧にありません')
         expect { subject.save }.not_to raise_error
       end
 
