@@ -5,6 +5,7 @@ ja:
       invalid: "が不正です"
       too_long: "は%{count}文字以内で入力してください"
       inclusion: "は一覧にありません"
+      confirmation: "と一致しません"
   activerecord:
     models:
       goal: 目標
@@ -27,6 +28,8 @@ ja:
         email: メールアドレス
         address: 住所
         address_id: 住所
+        password: パスワード
+        password_confirmation: パスワード(確認用)
       user_personal_info:
         phone_number: 電話番号
         birthday: 生年月日
@@ -52,6 +55,19 @@ ja:
               not_teacher: "教職員アカウントのみ設定可能です"
   activemodel:
     attributes:
+      auth/login_form:
+        email: メールアドレス
+        password: パスワード
+      auth/sign_up_form:
+        user_role_name: ロール
+        high_school_id: 在籍高校
+        grade_id: 学年
+        student_number: 生徒コード
+        name_kana: 氏名カナ
+      auth/password_reset_form:
+        reset_password_token: リセットトークン
+        password: 新しいパスワード
+        password_confirmation: 新しいパスワード（確認）
       student/create_draft_task_form:
         goal_id: 目標
         title: タイトル
