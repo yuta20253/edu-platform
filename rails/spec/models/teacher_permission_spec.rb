@@ -70,6 +70,14 @@ RSpec.describe TeacherPermission, type: :model do
 
       expect(permission).to be_invalid
     end
+
+    it 'エラーメッセージが日本語になる' do
+      teacher = create(:user, :teacher)
+      permission = build(:teacher_permission, user: teacher, manage_other_teachers: nil)
+
+      permission.valid?
+      expect(permission.errors[:manage_other_teachers]).to include('は一覧にありません')
+    end
   end
 
   context 'manage_other_teachersがfalseの場合' do

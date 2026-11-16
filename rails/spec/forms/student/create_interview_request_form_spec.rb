@@ -50,6 +50,11 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
       it 'invalidになる' do
         expect(form).not_to be_valid
       end
+
+      it 'エラーメッセージが日本語になる' do
+        form.valid?
+        expect(form.errors[:reason_category]).to include('は一覧にありません')
+      end
     end
 
     context 'reason_detailが空の場合' do
@@ -57,6 +62,19 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
 
       it 'invalidになる' do
         expect(form).not_to be_valid
+      end
+    end
+
+    context 'reason_detailが2001文字の場合' do
+      let(:reason_detail) { 'あ' * 2001 }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーメッセージが日本語になる' do
+        form.valid?
+        expect(form.errors[:reason_detail]).to include('は2000文字以内で入力してください')
       end
     end
 

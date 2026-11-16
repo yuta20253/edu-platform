@@ -261,6 +261,11 @@ RSpec.describe Announcement, type: :model do
         expect(announcement).not_to be_valid
         expect(announcement.errors[:title]).to be_present
       end
+
+      it 'エラーメッセージが日本語になる' do
+        announcement.valid?
+        expect(announcement.errors[:title]).to include('は255文字以内で入力してください')
+      end
     end
 
     context 'titleが255文字の場合' do
