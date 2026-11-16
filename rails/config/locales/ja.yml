@@ -49,6 +49,10 @@ ja:
       student/create_goal_form:
         title: タイトル
         due_date: 期限
+      student/create_interview_request_form:
+        teacher_id: 教員
+        reason_category: 相談内容の種別
+        reason_detail: 相談内容の詳細
       student/create_task_form:
         goal_id: 目標
         title: タイトル
