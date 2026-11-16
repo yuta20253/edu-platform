@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::StudentImportForm, type: :model do
+  let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
+  let(:grade) { create(:grade, high_school: high_school, year: 1) }
+  let(:high_school) { create(:high_school) }
+
   describe '#human_attribute_name' do
     it 'CSVの列名に合わせて日本語になる' do
       expect(described_class.human_attribute_name(:name)).to eq('氏名')
@@ -12,10 +16,6 @@ RSpec.describe Teacher::StudentImportForm, type: :model do
       expect(described_class.human_attribute_name(:school_class_name)).to eq('学級')
     end
   end
-
-  let(:high_school) { create(:high_school) }
-  let(:grade) { create(:grade, high_school: high_school, year: 1) }
-  let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
 
   def build_form(**overrides)
     described_class.new(

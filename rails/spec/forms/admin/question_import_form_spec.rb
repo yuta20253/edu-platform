@@ -3,6 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe Admin::QuestionImportForm, type: :model do
+  let(:params) do
+    {
+      question_text: '問題文',
+      correct_answer: 1,
+      explanation_text: '解説',
+      choices: %w[A B C D],
+      hints: %w[ヒント1 ヒント2]
+    }
+  end
+
   describe '#human_attribute_name' do
     it 'CSVの列名に合わせて日本語になる' do
       expect(described_class.human_attribute_name(:question_text)).to eq('問題文')
@@ -23,16 +33,6 @@ RSpec.describe Admin::QuestionImportForm, type: :model do
 
       expect(form.errors[:choices]).to include('は4個でなければなりません')
     end
-  end
-
-  let(:params) do
-    {
-      question_text: '問題文',
-      correct_answer: 1,
-      explanation_text: '解説',
-      choices: %w[A B C D],
-      hints: %w[ヒント1 ヒント2]
-    }
   end
 
   describe '#valid?' do

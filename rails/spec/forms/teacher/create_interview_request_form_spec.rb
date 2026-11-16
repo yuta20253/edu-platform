@@ -3,27 +3,27 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateInterviewRequestForm, type: :model do
+  subject(:form) do
+    described_class.new(user: teacher, student_id: student_id, reason_detail: reason_detail)
+  end
+
+  let(:reason_detail) { '最近元気がなさそうなので話を聞きたい' }
+  let(:student_id) { student.id }
+  let!(:student) { create(:user, :student, high_school: high_school, grade: grade) }
+  let!(:teacher) do
+    create(:user, :teacher, high_school: high_school).tap do |t|
+      create(:teacher_permission, user: t, grade_scope: :all_grades)
+    end
+  end
+  let!(:grade) { create(:grade, high_school: high_school) }
+  let!(:high_school) { create(:high_school) }
+
   describe '#human_attribute_name' do
     it '項目名が日本語になる' do
       expect(described_class.human_attribute_name(:student_id)).to eq('生徒')
       expect(described_class.human_attribute_name(:reason_detail)).to eq('相談内容')
     end
   end
-
-  subject(:form) do
-    described_class.new(user: teacher, student_id: student_id, reason_detail: reason_detail)
-  end
-
-  let!(:high_school) { create(:high_school) }
-  let!(:grade) { create(:grade, high_school: high_school) }
-  let!(:teacher) do
-    create(:user, :teacher, high_school: high_school).tap do |t|
-      create(:teacher_permission, user: t, grade_scope: :all_grades)
-    end
-  end
-  let!(:student) { create(:user, :student, high_school: high_school, grade: grade) }
-  let(:student_id) { student.id }
-  let(:reason_detail) { '最近元気がなさそうなので話を聞きたい' }
 
   describe '#valid?' do
     context '正常系' do

@@ -22,6 +22,11 @@
 require 'rails_helper'
 
 RSpec.describe SchoolClassRequest, type: :model do
+  let!(:school_class) { create(:school_class, grade: grade) }
+  let!(:applicant) { create(:user, :teacher, high_school: high_school) }
+  let!(:grade) { create(:grade, high_school: high_school) }
+  let!(:high_school) { create(:high_school) }
+
   describe '.model_name.human' do
     it 'モデル名が日本語になる' do
       expect(described_class.model_name.human).to eq('学級申請')
@@ -33,11 +38,6 @@ RSpec.describe SchoolClassRequest, type: :model do
       expect(described_class.human_attribute_name(:reason)).to eq('理由')
     end
   end
-
-  let!(:high_school) { create(:high_school) }
-  let!(:grade) { create(:grade, high_school: high_school) }
-  let!(:applicant) { create(:user, :teacher, high_school: high_school) }
-  let!(:school_class) { create(:school_class, grade: grade) }
 
   describe '#validate (同一school_class_idのpending申請の重複禁止)' do
     context '同じschool_class_idでpendingの申請が既に存在する場合' do

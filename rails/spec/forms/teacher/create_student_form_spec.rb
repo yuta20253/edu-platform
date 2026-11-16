@@ -3,16 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateStudentForm, type: :model do
-  describe '#human_attribute_name' do
-    it '項目名が日本語になる' do
-      expect(described_class.human_attribute_name(:name)).to eq('氏名')
-      expect(described_class.human_attribute_name(:name_kana)).to eq('氏名(カナ)')
-      expect(described_class.human_attribute_name(:email)).to eq('メールアドレス')
-      expect(described_class.human_attribute_name(:grade_id)).to eq('学年')
-      expect(described_class.human_attribute_name(:school_class_id)).to eq('学級')
-    end
-  end
-
   subject(:form) do
     described_class.new(
       current_user: current_user,
@@ -24,28 +14,33 @@ RSpec.describe Teacher::CreateStudentForm, type: :model do
     )
   end
 
-  let!(:student_role) { create(:user_role, name: :student) }
-  let!(:high_school) { create(:high_school) }
-  let!(:other_high_school) { create(:high_school) }
-
-  let!(:grade) { create(:grade, high_school: high_school, year: 1) }
-  let!(:other_grade) { create(:grade, high_school: high_school, year: 2) }
-  let!(:other_school_grade) { create(:grade, high_school: other_high_school, year: 1) }
-
-  let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
-  let!(:other_grade_school_class) { create(:school_class, grade: other_grade, name: 'A組') }
-
-  let!(:current_user) do
-    create(:user, :teacher, high_school: high_school, grade: grade)
-  end
-
+  let(:school_class_id) { school_class.id }
+  let(:grade_id) { grade.id }
+  let(:grade_scope) { :all_grades }
   let!(:teacher_permission) do
     create(:teacher_permission, user: current_user, grade_scope: grade_scope)
   end
+  let!(:current_user) do
+    create(:user, :teacher, high_school: high_school, grade: grade)
+  end
+  let!(:other_grade_school_class) { create(:school_class, grade: other_grade, name: 'A組') }
+  let!(:school_class) { create(:school_class, grade: grade, name: 'A組') }
+  let!(:other_school_grade) { create(:grade, high_school: other_high_school, year: 1) }
+  let!(:other_grade) { create(:grade, high_school: high_school, year: 2) }
+  let!(:grade) { create(:grade, high_school: high_school, year: 1) }
+  let!(:other_high_school) { create(:high_school) }
+  let!(:high_school) { create(:high_school) }
+  let!(:student_role) { create(:user_role, name: :student) }
 
-  let(:grade_scope) { :all_grades }
-  let(:grade_id) { grade.id }
-  let(:school_class_id) { school_class.id }
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:name)).to eq('氏名')
+      expect(described_class.human_attribute_name(:name_kana)).to eq('氏名(カナ)')
+      expect(described_class.human_attribute_name(:email)).to eq('メールアドレス')
+      expect(described_class.human_attribute_name(:grade_id)).to eq('学年')
+      expect(described_class.human_attribute_name(:school_class_id)).to eq('学級')
+    end
+  end
 
   describe '#valid?' do
     context '入力値が正常な場合' do

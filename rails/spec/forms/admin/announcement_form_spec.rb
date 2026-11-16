@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Admin::AnnouncementForm do
+  let(:admin) { create(:user, :admin, high_school: nil) }
+
   describe '#human_attribute_name' do
     it '項目名が日本語になる' do
       expect(described_class.human_attribute_name(:title)).to eq('タイトル')
@@ -10,8 +12,6 @@ RSpec.describe Admin::AnnouncementForm do
       expect(described_class.human_attribute_name(:status)).to eq('状態')
     end
   end
-
-  let(:admin) { create(:user, :admin, high_school: nil) }
 
   describe '#save (作成)' do
     subject(:form) { described_class.new(publisher: admin, **params) }

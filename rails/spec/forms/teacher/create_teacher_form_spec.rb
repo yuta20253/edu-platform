@@ -3,6 +3,38 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateTeacherForm, type: :model do
+  let!(:teacher_permission) do
+    create(
+      :teacher_permission,
+      user: current_user,
+      manage_other_teachers: true
+    )
+  end
+  let!(:current_user) do
+    create(
+      :user,
+      user_role: teacher_role,
+      high_school: high_school
+    )
+  end
+  let!(:other_grade) do
+    create(
+      :grade,
+      high_school: other_high_school,
+      year: 1
+    )
+  end
+  let!(:grade) do
+    create(
+      :grade,
+      high_school: high_school,
+      year: 1
+    )
+  end
+  let!(:other_high_school) { create(:high_school) }
+  let!(:high_school) { create(:high_school) }
+  let!(:teacher_role) { create(:user_role, name: :teacher) }
+
   describe '#human_attribute_name' do
     it '項目名が日本語になる' do
       expect(described_class.human_attribute_name(:name)).to eq('氏名')
@@ -12,42 +44,6 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
       expect(described_class.human_attribute_name(:grade_scope)).to eq('操作範囲')
       expect(described_class.human_attribute_name(:manage_other_teachers)).to eq('他の教員操作権限')
     end
-  end
-
-  let!(:teacher_role) { create(:user_role, name: :teacher) }
-  let!(:high_school) { create(:high_school) }
-  let!(:other_high_school) { create(:high_school) }
-
-  let!(:grade) do
-    create(
-      :grade,
-      high_school: high_school,
-      year: 1
-    )
-  end
-
-  let!(:other_grade) do
-    create(
-      :grade,
-      high_school: other_high_school,
-      year: 1
-    )
-  end
-
-  let!(:current_user) do
-    create(
-      :user,
-      user_role: teacher_role,
-      high_school: high_school
-    )
-  end
-
-  let!(:teacher_permission) do
-    create(
-      :teacher_permission,
-      user: current_user,
-      manage_other_teachers: true
-    )
   end
 
   describe '#save' do

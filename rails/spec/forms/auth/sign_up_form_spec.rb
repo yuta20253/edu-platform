@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Auth::SignUpForm, type: :model do
+  let(:high_school) { create(:high_school) }
+
   describe '#human_attribute_name' do
     it '項目名が日本語になる' do
       expect(described_class.human_attribute_name(:user_role_name)).to eq('ロール')
@@ -12,8 +14,6 @@ RSpec.describe Auth::SignUpForm, type: :model do
       expect(described_class.human_attribute_name(:name_kana)).to eq('氏名カナ')
     end
   end
-
-  let(:high_school) { create(:high_school) }
 
   def build_form(user_role_name:, student_number: nil)
     described_class.new(

@@ -28,6 +28,13 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  let(:grade) { create(:grade) }
+  let(:high_school) { create(:high_school, name: 'テスト高校') }
+  let(:guardian_role) { create(:user_role, :guardian) }
+  let(:teacher_role) { create(:user_role, :teacher) }
+  let(:admin_role) { create(:user_role, :admin) }
+  let(:student_role) { create(:user_role, :student) }
+
   describe '.model_name.human' do
     it 'モデル名が日本語になる' do
       expect(described_class.model_name.human).to eq('ユーザー')
@@ -67,13 +74,6 @@ RSpec.describe User, type: :model do
       expect(teacher.errors[:student_number]).to include('は入力しないでください')
     end
   end
-
-  let(:student_role) { create(:user_role, :student) }
-  let(:admin_role) { create(:user_role, :admin) }
-  let(:teacher_role) { create(:user_role, :teacher) }
-  let(:guardian_role) { create(:user_role, :guardian) }
-  let(:high_school) { create(:high_school, name: 'テスト高校') }
-  let(:grade) { create(:grade) }
 
   describe 'バリデーション' do
     context 'nameとname_kana' do

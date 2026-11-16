@@ -3,18 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe ProfileUpdateForm, type: :model do
-  describe '#human_attribute_name' do
-    it '項目名が日本語になる' do
-      expect(described_class.human_attribute_name(:address_id)).to eq('住所')
-      expect(described_class.human_attribute_name(:birthday)).to eq('生年月日')
-      expect(described_class.human_attribute_name(:gender)).to eq('性別')
-      expect(described_class.human_attribute_name(:phone_number)).to eq('電話番号')
-    end
-  end
-
-  let!(:user) { create(:user) }
-  let!(:address) { create(:address) }
-
   let(:params) do
     {
       name: '田中 太郎',
@@ -24,6 +12,17 @@ RSpec.describe ProfileUpdateForm, type: :model do
       gender: 'male',
       phone_number: '08012345678'
     }
+  end
+  let!(:address) { create(:address) }
+  let!(:user) { create(:user) }
+
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:address_id)).to eq('住所')
+      expect(described_class.human_attribute_name(:birthday)).to eq('生年月日')
+      expect(described_class.human_attribute_name(:gender)).to eq('性別')
+      expect(described_class.human_attribute_name(:phone_number)).to eq('電話番号')
+    end
   end
 
   describe '#save' do
