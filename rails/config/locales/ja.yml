@@ -3,6 +3,8 @@ ja:
     messages:
       blank: "を入力してください"
       invalid: "が不正です"
+      too_long: "は%{count}文字以内で入力してください"
+      inclusion: "は一覧にありません"
   activerecord:
     models:
       goal: 目標
