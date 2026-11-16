@@ -7,6 +7,8 @@ ja:
       inclusion: "は一覧にありません"
       confirmation: "と一致しません"
       wrong_length: "は%{count}個でなければなりません"
+      taken: "はすでに存在します"
+      present: "は入力しないでください"
   activerecord:
     models:
       goal: 目標
@@ -31,6 +33,10 @@ ja:
         address_id: 住所
         password: パスワード
         password_confirmation: パスワード(確認用)
+        user_role: ロール
+        high_school: 高校
+        grade: 学年
+        student_number: 生徒コード
       user_personal_info:
         phone_number: 電話番号
         birthday: 生年月日
@@ -42,6 +48,26 @@ ja:
         scheduled_at: 配信日時
       school_class:
         users: 生徒
+        name: クラス名
+      school_class_request:
+        reason: 理由
+      interview_request:
+        reason_detail: 相談内容
+        reason_category: 相談カテゴリ
+      interview_request_message:
+        body: メッセージ
+      task:
+        status: 状態
+      import_history:
+        unit: 単元
+      grade:
+        year: 学年
+      high_school:
+        name: 高校名
+        school_code: 学校コード
+      teacher_permission:
+        grade_scope: 操作範囲
+        manage_other_teachers: 他の教員操作権限
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました"
