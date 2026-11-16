@@ -19,6 +19,12 @@
 require 'rails_helper'
 
 RSpec.describe StudyLog, type: :model do
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('学習記録')
+    end
+  end
+
   def create_study_log(**attrs)
     user = create(:user)
     create(:study_log, user: user, task: create(:task, user: user), **attrs)
