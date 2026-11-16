@@ -86,6 +86,58 @@ RSpec.describe Student::Analytics::Rank, type: :model do
       end
     end
 
+    context '同率のユーザーが複数いる場合' do
+      let!(:tie_course) { create(:course, subject: math_subject) }
+      let!(:tie_unit) { create(:unit, course: tie_course) }
+
+      let!(:user_top) { create(:user, grade: grade) }
+      let!(:user_mid1) { create(:user, grade: grade) }
+      let!(:user_mid2) { create(:user, grade: grade) }
+      let!(:user_bottom) { create(:user, grade: grade) }
+
+      def create_history(target_user, is_correct)
+        goal = create(:goal, user: target_user)
+        task = create(:task, user: target_user, goal: goal)
+        question = create(:question, unit: tie_unit)
+        choice = create(:question_choice, question: question)
+
+        create(
+          :question_history,
+          user: target_user,
+          task: task,
+          course: tie_course,
+          unit: tie_unit,
+          question: question,
+          question_choice: choice,
+          is_correct: is_correct
+        )
+      end
+
+      before do
+        # user_top: 2/2 = 100%
+        create_history(user_top, true)
+        create_history(user_top, true)
+
+        # user_mid1, user_mid2: 1/2 = 50%(同率)
+        create_history(user_mid1, true)
+        create_history(user_mid1, false)
+
+        create_history(user_mid2, true)
+        create_history(user_mid2, false)
+
+        # user_bottom: 0/2 = 0%
+        create_history(user_bottom, false)
+        create_history(user_bottom, false)
+      end
+
+      it '同率は同順位になり、次の順位は人数分飛ぶ(1位・2位・2位・4位)' do
+        expect(described_class.new(user_top, :course_id, tie_course.id).call[:rank]).to eq(1)
+        expect(described_class.new(user_mid1, :course_id, tie_course.id).call[:rank]).to eq(2)
+        expect(described_class.new(user_mid2, :course_id, tie_course.id).call[:rank]).to eq(2)
+        expect(described_class.new(user_bottom, :course_id, tie_course.id).call[:rank]).to eq(4)
+      end
+    end
+
     context '対象ユーザーがランキングに存在しない場合' do
       let!(:another_user) { create(:user, grade: grade) }
 
