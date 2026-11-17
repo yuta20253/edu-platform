@@ -27,12 +27,14 @@ class AddressesQuery
   def filter_city
     return if @city.blank?
 
-    @relation = @relation.where('city LIKE ?', "%#{@city}%")
+    pattern = "%#{ActiveRecord::Base.sanitize_sql_like(@city)}%"
+    @relation = @relation.where('city LIKE ?', pattern)
   end
 
   def filter_town
     return if @town.blank?
 
-    @relation = @relation.where('town LIKE ?', "%#{@town}%")
+    pattern = "%#{ActiveRecord::Base.sanitize_sql_like(@town)}%"
+    @relation = @relation.where('town LIKE ?', pattern)
   end
 end
