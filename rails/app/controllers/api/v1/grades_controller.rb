@@ -6,7 +6,7 @@ module Api
       skip_before_action :authenticate_user!
 
       def index
-        grades = Grade.where(high_school_id: params[:high_school_id])
+        grades = Grade.where(high_school_id: params[:high_school_id]).order(:year)
         render json: grades, each_serializer: GradeSerializer, status: :ok
       end
     end
