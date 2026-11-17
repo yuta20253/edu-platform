@@ -106,6 +106,82 @@ RSpec.describe Student::Analytics::GradeAverage, type: :model do
       end
     end
 
+    context '同学年に教員がいる場合' do
+      let!(:teacher) { create(:user, :teacher, grade: grade) }
+      let!(:teacher_goal) { create(:goal, user: teacher) }
+      let!(:teacher_task) do
+        create(:task, user: teacher, goal: teacher_goal, status: :completed)
+      end
+
+      before do
+        teacher_question = create(:question, unit: unit)
+
+        create(
+          :question_history,
+          user: teacher,
+          task: teacher_task,
+          course: course,
+          unit: unit,
+          question: teacher_question,
+          question_choice: create(:question_choice, question: teacher_question),
+          is_correct: true
+        )
+      end
+
+      it '教員の解答履歴・タスクは学年平均の母集団から除外される' do
+        result = described_class.new(user).call
+
+        expect(result).to eq(
+          correct_rate: {
+            my: 50.0,
+            average: 66.7
+          },
+          task_completion_rate: {
+            my: 50.0,
+            average: 75.0
+          }
+        )
+      end
+    end
+
+    context '同学年に論理削除済みの生徒がいる場合' do
+      let!(:deleted_user) { create(:user, grade: grade, deleted_at: Time.current) }
+      let!(:deleted_user_goal) { create(:goal, user: deleted_user) }
+      let!(:deleted_user_task) do
+        create(:task, user: deleted_user, goal: deleted_user_goal, status: :completed)
+      end
+
+      before do
+        deleted_user_question = create(:question, unit: unit)
+
+        create(
+          :question_history,
+          user: deleted_user,
+          task: deleted_user_task,
+          course: course,
+          unit: unit,
+          question: deleted_user_question,
+          question_choice: create(:question_choice, question: deleted_user_question),
+          is_correct: true
+        )
+      end
+
+      it '論理削除済みの生徒の解答履歴・タスクは学年平均の母集団から除外される' do
+        result = described_class.new(user).call
+
+        expect(result).to eq(
+          correct_rate: {
+            my: 50.0,
+            average: 66.7
+          },
+          task_completion_rate: {
+            my: 50.0,
+            average: 75.0
+          }
+        )
+      end
+    end
+
     context '問題履歴もタスクも存在しない場合' do
       let!(:empty_user) { create(:user, grade: create(:grade)) }
 
