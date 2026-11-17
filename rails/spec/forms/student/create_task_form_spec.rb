@@ -76,6 +76,7 @@ RSpec.describe Student::CreateTaskForm, type: :model do
 
         expect(form).not_to be_valid
         expect(form.errors[:unit_ids]).to include('に不正な値が含まれています')
+        expect(form.errors.full_messages).to include('単元 に不正な値が含まれています')
       end
 
       it '必須項目が欠けているとinvalidになる' do
@@ -89,11 +90,25 @@ RSpec.describe Student::CreateTaskForm, type: :model do
         expect(form.errors[:due_date]).to be_present
       end
 
+      it '必須項目が欠けている時、full_messagesの項目名が日本語になる' do
+        form = described_class.new(current_user: user)
+        form.valid?
+
+        expect(form.errors.full_messages).to include(
+          '目標 を入力してください',
+          'タイトル を入力してください',
+          '内容 を入力してください',
+          '優先度 を入力してください',
+          '期限 を入力してください'
+        )
+      end
+
       it 'goal_idがnilだとinvalid' do
         subject.goal_id = nil
 
         expect(subject).not_to be_valid
         expect(subject.errors[:goal_id]).to include('を入力してください')
+        expect(subject.errors.full_messages).to include('目標 を入力してください')
       end
 
       it '存在しないgoal_idだとinvalid' do

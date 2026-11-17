@@ -3,25 +3,71 @@ ja:
     messages:
       blank: "を入力してください"
       invalid: "が不正です"
+      too_long: "は%{count}文字以内で入力してください"
+      inclusion: "は一覧にありません"
+      confirmation: "と一致しません"
+      wrong_length: "は%{count}個でなければなりません"
+      taken: "はすでに存在します"
+      present: "は入力しないでください"
   activerecord:
     models:
       goal: 目標
       task: タスク
+      draft_task: 下書きタスク
+      unit: 単元
+      study_log: 学習記録
+      user: ユーザー
+      announcement: お知らせ
+      import_history: インポート履歴
+      interview_request: 面談申請
+      course: コース
+      high_school: 高校
+      school_class_request: 学級申請
+      school_class: 学級
     attributes:
+      announcement:
+        title: タイトル
+        content: 本文
+        status: 状態
+        scheduled_at: 配信日時
+      grade:
+        year: 学年
+      high_school:
+        name: 高校名
+        school_code: 学校コード
+      import_history:
+        unit: 単元
+      interview_request:
+        reason_detail: 相談内容
+        reason_category: 相談カテゴリ
+      interview_request_message:
+        body: メッセージ
+      school_class:
+        users: 生徒
+        name: クラス名
+      school_class_request:
+        reason: 理由
+      task:
+        status: 状態
+      teacher_permission:
+        grade_scope: 操作範囲
+        manage_other_teachers: 他の教員操作権限
       user:
         name: 名前
         name_kana: 氏名カナ
         email: メールアドレス
         address: 住所
         address_id: 住所
+        password: パスワード
+        password_confirmation: パスワード(確認用)
+        user_role: ロール
+        high_school: 高校
+        grade: 学年
+        student_number: 生徒コード
       user_personal_info:
         phone_number: 電話番号
         birthday: 生年月日
         gender: 性別
-      announcement:
-        scheduled_at: 配信日時
-      school_class:
-        users: 生徒
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました"
@@ -39,12 +85,6 @@ ja:
               not_teacher: "教職員アカウントのみ設定可能です"
   activemodel:
     attributes:
-      teacher/create_school_class_request_form:
-        action: 申請の種別
-        grade_id: 学年
-        school_class_id: 対象クラス
-        school_class: 対象クラス
-        name: クラス名
       admin/admin_form:
         name: 名前
         name_kana: 氏名カナ
@@ -53,3 +93,121 @@ ja:
         phone_number: 電話番号
         birthday: 生年月日
         gender: 性別
+      admin/analytics_filter_form:
+        from: 開始日
+        to: 終了日
+      admin/announcement_form:
+        title: タイトル
+        content: 本文
+        status: 状態
+      admin/question_import_form:
+        question_text: 問題文
+        correct_answer: 正解番号
+        explanation_text: 解説
+        choices: 選択肢
+        hints: ヒント
+      auth/login_form:
+        email: メールアドレス
+        password: パスワード
+      auth/password_reset_form:
+        reset_password_token: リセットトークン
+        password: 新しいパスワード
+        password_confirmation: 新しいパスワード（確認）
+      auth/sign_up_form:
+        user_role_name: ロール
+        high_school_id: 在籍高校
+        grade_id: 学年
+        student_number: 生徒コード
+        name_kana: 氏名カナ
+      calendar_period_form:
+        from: 開始日
+        to: 終了日
+      profile_update_form:
+        address_id: 住所
+        birthday: 生年月日
+        gender: 性別
+        phone_number: 電話番号
+      student/analytics_period_form:
+        from: 開始日
+        to: 終了日
+      student/create_draft_task_form:
+        goal_id: 目標
+        title: タイトル
+        content: 内容
+        priority: 優先度
+        due_date: 期限
+        unit_ids: 単元
+      student/create_goal_form:
+        title: タイトル
+        due_date: 期限
+      student/create_interview_request_form:
+        teacher_id: 先生
+        reason_category: 相談カテゴリ
+        reason_detail: 相談内容
+      student/create_question_history_form:
+        task_id: タスク
+        unit_id: 単元
+        question_id: 問題
+        question_choice_id: 選択肢
+        time_spent_sec: 解答時間
+        explanation_viewed: 解説の確認
+      student/create_task_form:
+        goal_id: 目標
+        title: タイトル
+        content: 内容
+        priority: 優先度
+        due_date: 期限
+        unit_ids: 単元
+      student/update_goal_form:
+        title: タイトル
+        due_date: 期限
+      student/update_question_history_form:
+        task_id: タスク
+        unit_id: 単元
+        question_id: 問題
+        question_choice_id: 選択肢
+        time_spent_sec: 解答時間
+        explanation_viewed: 解説の確認
+      student/update_task_form:
+        title: タイトル
+        content: 内容
+        priority: 優先度
+        due_date: 期限
+        unit_ids: 単元
+      teacher/create_announcement_form:
+        title: タイトル
+        content: 本文
+      teacher/create_interview_request_form:
+        student_id: 生徒
+        reason_detail: 相談内容
+      teacher/create_school_class_request_form:
+        action: 申請の種別
+        grade_id: 学年
+        school_class_id: 対象クラス
+        school_class: 対象クラス
+        name: クラス名
+      teacher/create_student_form:
+        name: 氏名
+        name_kana: 氏名(カナ)
+        email: メールアドレス
+        grade_id: 学年
+        school_class_id: 学級
+      teacher/create_teacher_form:
+        name: 氏名
+        name_kana: 氏名(カナ)
+        email: メールアドレス
+        grade_id: 担当学年
+        grade_scope: 操作範囲
+        manage_other_teachers: 他の教員操作権限
+      teacher/student_import_form:
+        name: 氏名
+        name_kana: 氏名カナ
+        email: メール
+        grade_name: 学年
+        school_class_name: 学級
+      teacher/update_announcement_form:
+        title: タイトル
+        content: 本文
+      teacher/update_permission_form:
+        grade_scope: 操作範囲
+        manage_other_teachers: 他の教員操作権限

@@ -66,7 +66,7 @@ RSpec.describe Admin::QuestionCsvDryRunService, type: :service do
         row = result[:rows].first
         expect(row[:row_number]).to eq(3)
         expect(row[:severity]).to eq('error')
-        expect(row[:message]).to include('Question text')
+        expect(row[:message]).to include('問題文')
         expect(row[:data]).to eq(
           '問題文' => nil,
           '正解番号' => '1',

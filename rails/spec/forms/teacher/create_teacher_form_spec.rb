@@ -3,26 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Teacher::CreateTeacherForm, type: :model do
-  let!(:teacher_role) { create(:user_role, name: :teacher) }
-  let!(:high_school) { create(:high_school) }
-  let!(:other_high_school) { create(:high_school) }
-
-  let!(:grade) do
+  let!(:teacher_permission) do
     create(
-      :grade,
-      high_school: high_school,
-      year: 1
+      :teacher_permission,
+      user: current_user,
+      manage_other_teachers: true
     )
   end
-
-  let!(:other_grade) do
-    create(
-      :grade,
-      high_school: other_high_school,
-      year: 1
-    )
-  end
-
   let!(:current_user) do
     create(
       :user,
@@ -30,13 +17,33 @@ RSpec.describe Teacher::CreateTeacherForm, type: :model do
       high_school: high_school
     )
   end
-
-  let!(:teacher_permission) do
+  let!(:other_grade) do
     create(
-      :teacher_permission,
-      user: current_user,
-      manage_other_teachers: true
+      :grade,
+      high_school: other_high_school,
+      year: 1
     )
+  end
+  let!(:grade) do
+    create(
+      :grade,
+      high_school: high_school,
+      year: 1
+    )
+  end
+  let!(:other_high_school) { create(:high_school) }
+  let!(:high_school) { create(:high_school) }
+  let!(:teacher_role) { create(:user_role, name: :teacher) }
+
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:name)).to eq('氏名')
+      expect(described_class.human_attribute_name(:name_kana)).to eq('氏名(カナ)')
+      expect(described_class.human_attribute_name(:email)).to eq('メールアドレス')
+      expect(described_class.human_attribute_name(:grade_id)).to eq('担当学年')
+      expect(described_class.human_attribute_name(:grade_scope)).to eq('操作範囲')
+      expect(described_class.human_attribute_name(:manage_other_teachers)).to eq('他の教員操作権限')
+    end
   end
 
   describe '#save' do

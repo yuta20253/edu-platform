@@ -22,6 +22,12 @@
 require 'rails_helper'
 
 RSpec.describe Task, type: :model do
+  describe '.human_attribute_name' do
+    it 'statusが日本語になる' do
+      expect(described_class.human_attribute_name(:status)).to eq('状態')
+    end
+  end
+
   describe 'enum' do
     it { is_expected.to define_enum_for(:priority).with_values(very_low: 1, low: 2, normal: 3, high: 4, very_high: 5) }
     it { is_expected.to define_enum_for(:status).with_values(not_started: 0, in_progress: 1, completed: 2) }

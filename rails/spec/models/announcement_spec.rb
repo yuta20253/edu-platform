@@ -17,6 +17,20 @@
 require 'rails_helper'
 
 RSpec.describe Announcement, type: :model do
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('お知らせ')
+    end
+  end
+
+  describe '.human_attribute_name' do
+    it 'title・content・statusが日本語になる' do
+      expect(described_class.human_attribute_name(:title)).to eq('タイトル')
+      expect(described_class.human_attribute_name(:content)).to eq('本文')
+      expect(described_class.human_attribute_name(:status)).to eq('状態')
+    end
+  end
+
   describe 'indexes' do
     it 'status と scheduled_at の複合インデックスが存在する' do
       expect(ActiveRecord::Base.connection.index_exists?(:announcements, %i[status scheduled_at]))
@@ -260,6 +274,11 @@ RSpec.describe Announcement, type: :model do
       it '無効である' do
         expect(announcement).not_to be_valid
         expect(announcement.errors[:title]).to be_present
+      end
+
+      it 'エラーメッセージが日本語になる' do
+        announcement.valid?
+        expect(announcement.errors[:title]).to include('は255文字以内で入力してください')
       end
     end
 

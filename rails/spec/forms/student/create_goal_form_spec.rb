@@ -61,6 +61,24 @@ RSpec.describe Student::CreateGoalForm, type: :model do
         expect(form.save).to be_nil
         expect(form.errors[:title]).to be_present
       end
+
+      it 'full_messagesの項目名が日本語になる' do
+        form = described_class.new(**params)
+        form.save
+
+        expect(form.errors.full_messages).to include('タイトル を入力してください')
+      end
+    end
+
+    context 'due_dateがない時' do
+      let(:params) { super().merge(due_date: nil) }
+
+      it 'full_messagesの項目名が日本語になる' do
+        form = described_class.new(**params)
+        form.save
+
+        expect(form.errors.full_messages).to include('期限 を入力してください')
+      end
     end
 
     context 'due_dateが不正な値の時' do
