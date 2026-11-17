@@ -64,7 +64,7 @@ RSpec.describe 'Api::V1::Student::Units', type: :request do
         get "/api/v1/student/tasks/#{task.id}/units/#{other_unit.id}",
             headers: headers.merge('Cookie' => cookie)
 
-        expect(response.parsed_body['errors']).to eq(['Unitが見つかりません'])
+        expect(response.parsed_body['errors']).to eq(['単元が見つかりません'])
       end
     end
 
