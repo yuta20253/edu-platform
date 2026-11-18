@@ -7,7 +7,7 @@ module Api
         before_action :authorize_student_service
 
         rescue_from ::Student::InvalidAnalyticsTypeError, with: :bad_request
-        rescue_from ::Student::AlreadyCompletedStudyLogError, with: :bad_request
+        rescue_from ::Student::AlreadyCompletedStudyLogError, with: :unprocessable_entity_error
         rescue_from ::Student::AccountLinkService::AlreadyLinkedError, with: :bad_request
         rescue_from ::Student::AccountLinkService::AlreadyActivatedError, with: :bad_request
         rescue_from ::Student::AccountLinkService::HasDependentDataError, with: :bad_request
