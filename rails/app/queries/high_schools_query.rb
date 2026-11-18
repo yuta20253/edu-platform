@@ -11,7 +11,8 @@ class HighSchoolsQuery
   end
 
   def filter_high_school(name)
-    @relation = @relation.where('name LIKE ?', "%#{name}%")
+    pattern = "%#{ActiveRecord::Base.sanitize_sql_like(name)}%"
+    @relation = @relation.where('name LIKE ?', pattern)
     self
   end
 

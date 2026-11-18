@@ -152,5 +152,47 @@ RSpec.describe AddressesQuery, type: :model do
         expect(result).to contain_exactly(shinjuku_address)
       end
     end
+
+    context 'ワイルドカード文字(%, _)を含む検索語の場合' do
+      it 'cityに%を含む場合、ワイルドカードとして展開されず該当なしになる' do
+        result = described_class.new(
+          prefecture_id: nil,
+          city: '新%',
+          town: nil
+        ).call
+
+        expect(result).to be_empty
+      end
+
+      it 'cityに_を含む場合、ワイルドカードとして展開されず該当なしになる' do
+        result = described_class.new(
+          prefecture_id: nil,
+          city: '新_',
+          town: nil
+        ).call
+
+        expect(result).to be_empty
+      end
+
+      it 'townに%を含む場合、ワイルドカードとして展開されず該当なしになる' do
+        result = described_class.new(
+          prefecture_id: nil,
+          city: nil,
+          town: '新%'
+        ).call
+
+        expect(result).to be_empty
+      end
+
+      it 'townに_を含む場合、ワイルドカードとして展開されず該当なしになる' do
+        result = described_class.new(
+          prefecture_id: nil,
+          city: nil,
+          town: '新_'
+        ).call
+
+        expect(result).to be_empty
+      end
+    end
   end
 end
