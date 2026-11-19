@@ -127,17 +127,16 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
         expect(ids.first).not_to eq(task2.id)
       end
 
-      it 'due_dateが同じ場合の第2キーとしてidの昇順がORDER BYに含まれる' do
-        sql = nil
-        callback = lambda do |_name, _started, _finished, _unique_id, payload|
-          sql = payload[:sql] if payload[:sql]&.include?('FROM `tasks`') && payload[:sql].include?('ORDER BY')
-        end
+      it 'due_dateが同じ場合は第2キーとしてidの昇順で返る' do
+        task1 = create(:task, user: user, goal: goal, due_date: Date.current)
+        task2 = create(:task, user: user, goal: goal, due_date: Date.current)
 
-        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
-          get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
-        end
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
 
-        expect(sql).to include('ORDER BY `tasks`.`due_date` ASC, `tasks`.`id` ASC')
+        json = response.parsed_body
+        ids = json['tasks'].pluck('id')
+
+        expect(ids.index(task1.id)).to be < ids.index(task2.id)
       end
     end
 
