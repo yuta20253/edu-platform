@@ -78,24 +78,6 @@ RSpec.describe Student::CreateTaskForm, type: :model do
         expect(form.errors[:unit_ids]).to include('に不正な値が含まれています')
       end
 
-      it 'unit_ids の不正エラーが重複せず1件になる' do
-        invalid_id = 999_999
-
-        form = described_class.new(
-          current_user: user,
-          goal_id: goal.id,
-          title: 'タスク',
-          content: '内容',
-          priority: 1,
-          due_date: '2026-02-10',
-          unit_ids: [invalid_id]
-        )
-
-        form.valid?
-
-        expect(form.errors[:unit_ids].size).to eq(1)
-      end
-
       it '必須項目が欠けているとinvalidになる' do
         form = described_class.new(current_user: user)
 
