@@ -116,6 +116,37 @@ RSpec.describe Student::CreateDraftTaskForm, type: :model do
         expect(subject).not_to be_valid
         expect(subject.errors[:goal_id]).to include('が不正です')
       end
+
+      it 'priorityが0だとinvalidになり、保存時に例外が起きない' do
+        subject.priority = 0
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:priority]).to include('は一覧にありません')
+        expect { subject.save }.not_to raise_error
+      end
+
+      it 'priorityが範囲外の整数だとinvalidになり、保存時に例外が起きない' do
+        subject.priority = 99
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:priority]).to include('は一覧にありません')
+        expect { subject.save }.not_to raise_error
+      end
+
+      it 'priorityに優先度名を渡すとinvalidになり、保存時に例外が起きない' do
+        subject.priority = 'urgent'
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:priority]).to include('は一覧にありません')
+        expect { subject.save }.not_to raise_error
+      end
+
+      it 'titleが101文字だとinvalidになる' do
+        subject.title = 'あ' * 101
+
+        expect(subject).not_to be_valid
+        expect(subject.errors[:title]).to include('は100文字以内で入力してください')
+      end
     end
   end
 

@@ -75,6 +75,25 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       end
     end
 
+    context 'titleが101文字の場合' do
+      before { params[:title] = 'あ' * 101 }
+
+      it 'エラーになる' do
+        expect(form).to be_invalid
+        expect(form.errors[:title]).to include('は100文字以内で入力してください')
+      end
+    end
+
+    context 'priorityが不正な優先度名の場合' do
+      before { params[:priority] = 'urgent' }
+
+      it 'エラーになり、保存時に例外が起きない' do
+        expect(form).to be_invalid
+        expect(form.errors[:priority]).to be_present
+        expect { form.save }.not_to raise_error
+      end
+    end
+
     context 'unit_idsに不正なIDが含まれる' do
       before { params[:unit_ids] = [unit1.id, 999_999] }
 

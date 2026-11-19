@@ -13,7 +13,7 @@ module PriorityCastable
 
     if value.to_s.match?(/\A\d+\z/)
       Task.priorities.key(value.to_i)
-    else
+    elsif Task.priorities.key?(value.to_s)
       value
     end
   end

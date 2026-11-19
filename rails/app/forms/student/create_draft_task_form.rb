@@ -17,9 +17,10 @@ module Student
     attribute :unit_ids, default: []
 
     validates :goal_id, presence: true
-    validates :title, presence: true
+    validates :title, presence: true, length: { maximum: 100 }
     validates :content, presence: true
     validates :priority, presence: true
+    validates :priority, inclusion: { in: DraftTask.priorities.values }, allow_blank: true
     validates :due_date, presence: true
     validate :goal_must_exist
     validate :due_date_must_be_valid
