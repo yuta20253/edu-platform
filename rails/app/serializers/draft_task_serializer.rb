@@ -7,7 +7,6 @@
 #  id             :bigint           not null, primary key
 #  user_id        :bigint           not null
 #  goal_id        :bigint
-#  course_id      :bigint
 #  title          :string(100)      not null
 #  content        :text(65535)      not null
 #  priority       :integer          default("normal"), not null
