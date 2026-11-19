@@ -13,6 +13,12 @@
 require 'rails_helper'
 
 RSpec.describe Grade, type: :model do
+  describe '.human_attribute_name' do
+    it 'yearが日本語になる' do
+      expect(described_class.human_attribute_name(:year)).to eq('学年')
+    end
+  end
+
   describe 'バリデーション' do
     it { is_expected.to validate_presence_of(:year) }
   end

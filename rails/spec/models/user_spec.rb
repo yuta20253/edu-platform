@@ -28,12 +28,52 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:student_role) { create(:user_role, :student) }
-  let(:admin_role) { create(:user_role, :admin) }
-  let(:teacher_role) { create(:user_role, :teacher) }
-  let(:guardian_role) { create(:user_role, :guardian) }
-  let(:high_school) { create(:high_school, name: 'テスト高校') }
   let(:grade) { create(:grade) }
+  let(:high_school) { create(:high_school, name: 'テスト高校') }
+  let(:guardian_role) { create(:user_role, :guardian) }
+  let(:teacher_role) { create(:user_role, :teacher) }
+  let(:admin_role) { create(:user_role, :admin) }
+  let(:student_role) { create(:user_role, :student) }
+
+  describe '.model_name.human' do
+    it 'モデル名が日本語になる' do
+      expect(described_class.model_name.human).to eq('ユーザー')
+    end
+  end
+
+  describe '.human_attribute_name' do
+    it 'password・password_confirmationが日本語になる' do
+      expect(described_class.human_attribute_name(:password)).to eq('パスワード')
+      expect(described_class.human_attribute_name(:password_confirmation)).to eq('パスワード(確認用)')
+    end
+
+    it 'user_role・high_school・grade・student_numberが日本語になる' do
+      expect(described_class.human_attribute_name(:user_role)).to eq('ロール')
+      expect(described_class.human_attribute_name(:high_school)).to eq('高校')
+      expect(described_class.human_attribute_name(:grade)).to eq('学年')
+      expect(described_class.human_attribute_name(:student_number)).to eq('生徒コード')
+    end
+  end
+
+  describe 'taken・presentのエラーメッセージ' do
+    it 'student_numberが重複している時、日本語になる' do
+      high_school = create(:high_school)
+      create(:user, :student, high_school: high_school, student_number: 'ABC-00000001')
+      duplicated = build(:user, :student, high_school: high_school, student_number: 'ABC-00000001')
+
+      duplicated.valid?
+
+      expect(duplicated.errors[:student_number]).to include('はすでに存在します')
+    end
+
+    it '生徒以外にstudent_numberが設定されている時、日本語になる' do
+      teacher = build(:user, :teacher, student_number: 'ABC-00000001')
+
+      teacher.valid?
+
+      expect(teacher.errors[:student_number]).to include('は入力しないでください')
+    end
+  end
 
   describe 'バリデーション' do
     context 'nameとname_kana' do

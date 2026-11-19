@@ -21,6 +21,14 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
   let(:reason_category) { 'study_method' }
   let(:reason_detail) { '勉強方法について相談したい' }
 
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:teacher_id)).to eq('先生')
+      expect(described_class.human_attribute_name(:reason_category)).to eq('相談カテゴリ')
+      expect(described_class.human_attribute_name(:reason_detail)).to eq('相談内容')
+    end
+  end
+
   describe '#valid?' do
     context '正常系' do
       it 'validになる' do
@@ -42,6 +50,11 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
       it 'invalidになる' do
         expect(form).not_to be_valid
       end
+
+      it 'エラーメッセージが日本語になる' do
+        form.valid?
+        expect(form.errors[:reason_category]).to include('は一覧にありません')
+      end
     end
 
     context 'reason_detailが空の場合' do
@@ -49,6 +62,19 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
 
       it 'invalidになる' do
         expect(form).not_to be_valid
+      end
+    end
+
+    context 'reason_detailが2001文字の場合' do
+      let(:reason_detail) { 'あ' * 2001 }
+
+      it 'invalidになる' do
+        expect(form).not_to be_valid
+      end
+
+      it 'エラーメッセージが日本語になる' do
+        form.valid?
+        expect(form.errors[:reason_detail]).to include('は2000文字以内で入力してください')
       end
     end
 

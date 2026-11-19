@@ -49,4 +49,18 @@ RSpec.describe HighSchoolsQuery, type: :model do
     expect(result2).to include(high_school3)
     expect(result3).to include(high_school1, high_school2, high_school3, high_school4, high_school5)
   end
+
+  context 'ワイルドカード文字(%, _)を含む検索語の場合' do
+    it '%を含む場合、ワイルドカードとして展開されず該当なしになる' do
+      result = described_class.new(HighSchool.all).filter_high_school('京%').result
+
+      expect(result).to be_empty
+    end
+
+    it '_を含む場合、ワイルドカードとして展開されず該当なしになる' do
+      result = described_class.new(HighSchool.all).filter_high_school('京_').result
+
+      expect(result).to be_empty
+    end
+  end
 end

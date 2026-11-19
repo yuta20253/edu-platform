@@ -31,6 +31,11 @@ RSpec.describe Student::AnalyticsPeriodForm, type: :model do
         form.valid?
         expect(form.errors[:from]).to include('は正しい日付を入力してください')
       end
+
+      it 'full_messagesの項目名が日本語になる' do
+        form.valid?
+        expect(form.errors.full_messages).to include('開始日 は正しい日付を入力してください')
+      end
     end
 
     context 'to が不正な日付文字列の場合' do
@@ -43,6 +48,11 @@ RSpec.describe Student::AnalyticsPeriodForm, type: :model do
       it 'to にエラーが付く' do
         form.valid?
         expect(form.errors[:to]).to include('は正しい日付を入力してください')
+      end
+
+      it 'full_messagesの項目名が日本語になる' do
+        form.valid?
+        expect(form.errors.full_messages).to include('終了日 は正しい日付を入力してください')
       end
     end
 

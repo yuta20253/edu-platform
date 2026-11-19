@@ -12,14 +12,20 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
     )
   end
 
-  let!(:teacher) { create(:user, :teacher) }
-
   let(:announcement_targets) do
     [
       {
         'target_type' => 'by_school'
       }
     ]
+  end
+  let!(:teacher) { create(:user, :teacher) }
+
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:title)).to eq('タイトル')
+      expect(described_class.human_attribute_name(:content)).to eq('本文')
+    end
   end
 
   describe '#valid?' do

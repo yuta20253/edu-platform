@@ -58,7 +58,7 @@ module Student
       end
 
       def grade_users
-        @grade_users ||= User.joins(:grade).where(grades: { year: @user.grade.year })
+        @grade_users ||= User.students.active.joins(:grade).where(grades: { year: @user.grade.year })
       end
     end
   end

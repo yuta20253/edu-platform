@@ -228,10 +228,10 @@ RSpec.describe 'Api::V1::Student::StudyLogs', type: :request do
         )
       end
 
-      it '400とエラーメッセージが返されること' do
+      it '422とエラーメッセージが返されること' do
         request
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body['errors']).to eq(['この学習ログはすでに完了しています'])
       end
     end

@@ -21,15 +21,15 @@ Rails.application.routes.draw do
       resources :prefectures, only: :index
       resources :addresses, only: :index
 
-      resources :high_schools do
+      resources :high_schools, only: [:index] do
         resources :grades, only: :index
       end
 
       namespace :student do
         resource :dashboard, only: :show
         resources :goals
-        resources :draft_tasks
-        resources :tasks do
+        resources :draft_tasks, only: [:show, :create]
+        resources :tasks, only: [:index, :show, :create, :update] do
           resource :submission, only: :update
           resources :units, only: :show do
             resources :questions, only: :index
