@@ -33,6 +33,7 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       it 'エラーになる' do
         expect(form).to be_invalid
         expect(form.errors[:title]).to be_present
+        expect(form.errors.full_messages).to include('タイトル を入力してください')
       end
     end
 
@@ -42,6 +43,7 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       it 'エラーになる' do
         expect(form).to be_invalid
         expect(form.errors[:content]).to be_present
+        expect(form.errors.full_messages).to include('内容 を入力してください')
       end
     end
 
@@ -51,6 +53,16 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       it 'エラーになる' do
         expect(form).to be_invalid
         expect(form.errors[:due_date]).to be_present
+        expect(form.errors.full_messages).to include('期限 を入力してください')
+      end
+    end
+
+    context 'priorityが空' do
+      before { params[:priority] = '' }
+
+      it 'エラーになる' do
+        expect(form).to be_invalid
+        expect(form.errors.full_messages).to include('優先度 を入力してください')
       end
     end
 
@@ -69,6 +81,7 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       it 'エラーになる' do
         expect(form).to be_invalid
         expect(form.errors[:unit_ids]).to be_present
+        expect(form.errors.full_messages).to include('単元 に不正な値が含まれています')
       end
     end
 

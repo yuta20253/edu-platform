@@ -13,6 +13,14 @@ RSpec.describe Auth::PasswordResetForm, type: :model do
     }
   end
 
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:reset_password_token)).to eq('リセットトークン')
+      expect(described_class.human_attribute_name(:password)).to eq('新しいパスワード')
+      expect(described_class.human_attribute_name(:password_confirmation)).to eq('新しいパスワード（確認）')
+    end
+  end
+
   describe 'バリデーション' do
     it 'すべての値があれば有効' do
       expect(subject).to be_valid
@@ -39,6 +47,13 @@ RSpec.describe Auth::PasswordResetForm, type: :model do
     it 'passwordとconfirmationが一致しなければ無効' do
       subject.password_confirmation = 'different'
       expect(subject).not_to be_valid
+    end
+
+    it 'passwordとconfirmationが一致しない時、エラーメッセージが日本語になる' do
+      subject.password_confirmation = 'different'
+      subject.valid?
+
+      expect(subject.errors[:password_confirmation]).to include('と一致しません')
     end
   end
 end

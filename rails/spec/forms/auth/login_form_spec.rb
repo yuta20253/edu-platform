@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Auth::LoginForm, type: :model do
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:email)).to eq('メールアドレス')
+      expect(described_class.human_attribute_name(:password)).to eq('パスワード')
+    end
+  end
+
   describe 'バリデーション' do
     it '正しいemailとpasswordがあれば有効' do
       form = described_class.new(email: 'test@example.com', password: 'password')

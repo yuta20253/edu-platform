@@ -7,6 +7,13 @@ RSpec.describe CalendarPeriodForm, type: :model do
 
   let(:params) { { from: '2026-02-01', to: '2026-02-28' } }
 
+  describe '#human_attribute_name' do
+    it '項目名が日本語になる' do
+      expect(described_class.human_attribute_name(:from)).to eq('開始日')
+      expect(described_class.human_attribute_name(:to)).to eq('終了日')
+    end
+  end
+
   it '有効であること' do
     expect(form).to be_valid
   end
