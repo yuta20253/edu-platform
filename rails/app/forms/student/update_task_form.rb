@@ -47,6 +47,7 @@ module Student
       return if goal.nil?
       return if goal.due_date.blank?
       return if due_date.blank?
+      return if errors[:due_date].present?
 
       errors.add(:due_date, 'は目標の期限以前にしてください') if goal.due_date < parsed_due_date
     end
