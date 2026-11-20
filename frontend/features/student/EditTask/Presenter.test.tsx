@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { useForm } from "react-hook-form";
 import { Presenter } from "./Presenter";
@@ -57,6 +58,7 @@ type WrapperProps = {
   onSubmit?: (data: EditTaskForm) => void;
   toast?: { open: boolean; message: string; severity: "success" | "error" };
   closeToast?: () => void;
+  goalDueDate?: string | null;
 };
 
 const Wrapper = ({
@@ -75,6 +77,7 @@ const Wrapper = ({
   onSubmit = vi.fn(),
   toast = { open: false, message: "", severity: "success" as const },
   closeToast = vi.fn(),
+  goalDueDate = null,
 }: WrapperProps) => {
   const {
     register,
@@ -104,6 +107,7 @@ const Wrapper = ({
       onSubmit={onSubmit}
       toast={toast}
       closeToast={closeToast}
+      goalDueDate={goalDueDate}
     />
   );
 };
@@ -239,6 +243,35 @@ describe("EditTaskPresenter", () => {
 
     fireEvent.click(screen.getByLabelText("be動詞"));
     expect(handleToggleUnit).toHaveBeenCalledWith(11);
+  });
+
+  it("goalDueDateより後の期限に変更すると「期限は目標の期限以前にしてください」が表示される", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026-09-01" />);
+
+    await user.click(screen.getByRole("spinbutton", { name: "Day" }));
+    await user.keyboard("02");
+
+    fireEvent.click(screen.getByRole("button", { name: "保存する" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("期限は目標の期限以前にしてください"),
+      ).toBeInTheDocument();
+    });
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("goalDueDate以前の期限であれば送信できる", async () => {
+    const onSubmit = vi.fn();
+    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026-09-01" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "保存する" }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalled();
+    });
   });
 
   it("toast.open のときメッセージが表示される", () => {

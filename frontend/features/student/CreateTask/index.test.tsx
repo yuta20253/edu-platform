@@ -362,4 +362,56 @@ describe("CreateTask", () => {
       expect(draftGetCalls()).toHaveLength(0);
     });
   });
+
+  describe("目標の期限バリデーション", () => {
+    const goalDueDate = "2026-09-01";
+
+    beforeEach(() => {
+      vi.mocked(apiClient.get).mockReset();
+      vi.mocked(apiClient.get).mockImplementation(async (url: string) =>
+        url.startsWith("/api/student/goals/")
+          ? { data: { due_date: goalDueDate } }
+          : { data: mockCourses },
+      );
+    });
+
+    it("目標の期限より後の日付を設定すると「期限は目標の期限以前にしてください」が表示される", async () => {
+      const user = userEvent.setup();
+      render(<CreateTask goalId={1} draftTaskId={null} />);
+
+      await user.click(screen.getByRole("spinbutton", { name: "Year" }));
+      await user.keyboard("2026");
+      await user.keyboard("09");
+      await user.keyboard("02");
+
+      fireEvent.click(screen.getByRole("button", { name: "次へ" }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("期限は目標の期限以前にしてください"),
+        ).toBeInTheDocument();
+      });
+      expect(apiClient.post).not.toHaveBeenCalled();
+    });
+
+    it("目標の期限以前の日付を設定すると送信できる", async () => {
+      const user = userEvent.setup();
+      render(<CreateTask goalId={1} draftTaskId={null} />);
+
+      fireEvent.change(screen.getAllByRole("textbox")[0], {
+        target: { value: "英単語を覚える" },
+      });
+
+      await user.click(screen.getByRole("spinbutton", { name: "Year" }));
+      await user.keyboard("2026");
+      await user.keyboard("09");
+      await user.keyboard("01");
+
+      fireEvent.click(screen.getByRole("button", { name: "次へ" }));
+
+      await waitFor(() => {
+        expect(apiClient.post).toHaveBeenCalled();
+      });
+    });
+  });
 });
