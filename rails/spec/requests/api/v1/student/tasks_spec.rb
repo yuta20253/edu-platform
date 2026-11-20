@@ -197,6 +197,15 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
         expect(json['units'].pluck('id')).to match_array(units.map(&:id))
       end
 
+      it '紐づくUnitのcourseに教科名が含まれる' do
+        subject
+        json = response.parsed_body
+
+        unit = json['units'].first
+
+        expect(unit['course']['subject_name']).to eq(course.subject.name)
+      end
+
       it 'started_unit_idsに基づいてstartedが返る' do
         create(:question_history,
                user: user,
