@@ -16,6 +16,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
+import { format } from "date-fns";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
 import { priorities } from "./constants";
@@ -23,6 +24,7 @@ import { useUnitSelection } from "@/hooks/useUnitSelection";
 import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import type { DraftTaskType } from "../CreateTaskConfirm/types";
+import type { Goal } from "./types";
 import { useDefaultValues } from "./hooks/useDefaultValues";
 
 type Props = {
@@ -51,6 +53,10 @@ const CreateTaskBody = ({
     setSelectedCourseId,
     setShowAllCourses,
   } = useCourses();
+
+  // 期限のバリデーション(目標の期限以前か)にだけ使う。取得できなくても
+  // フォームの表示自体はブロックしない(認可はRails側のバリデーションが最終防衛)
+  const { data: goal } = useApiQuery<Goal>(`/api/student/goals/${goalId}`);
 
   // 下書きは最初から揃っているので、初期値は defaultValues と initialIds で渡す
   // (取得後に reset や setSelectedUnitIds で流し込み直さない)
@@ -138,7 +144,17 @@ const CreateTaskBody = ({
               <Controller
                 name="due_date"
                 control={control}
-                rules={{ required: "期限を選択してください" }}
+                rules={{
+                  required: "期限を選択してください",
+                  validate: (value) => {
+                    if (!value || !goal?.due_date) return true;
+                    return (
+                      format(value, "yyyy-MM-dd") <=
+                        format(new Date(goal.due_date), "yyyy-MM-dd") ||
+                      "期限は目標の期限以前にしてください"
+                    );
+                  },
+                }}
                 render={({ field }) => (
                   <DatePicker
                     format="yyyy/MM/dd"

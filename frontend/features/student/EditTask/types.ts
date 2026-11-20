@@ -24,3 +24,7 @@ export type EditTaskForm = {
 export type TaskUnit = Unit & {
   started: boolean;
 };
+
+export type Goal = {
+  due_date: string;
+};
