@@ -23,6 +23,7 @@ module Student
 
     validate :due_date_must_be_valid
     validate :started_unit_cannot_be_removed
+    validate :due_date_must_be_before_parsed_due_date
 
     def initialize(task:, **attributes)
       @unit_ids_provided = attributes.key?(:unit_ids) && !attributes[:unit_ids].nil?
@@ -41,6 +42,18 @@ module Student
     end
 
     private
+
+    def due_date_must_be_before_parsed_due_date
+      return if goal.nil?
+      return if goal.due_date.blank?
+      return if due_date.blank?
+
+      errors.add(:due_date, 'は目標の期限以前にしてください') if goal.due_date < parsed_due_date
+    end
+
+    def goal
+      @task.goal
+    end
 
     def due_date_must_be_valid
       return if due_date.blank?
