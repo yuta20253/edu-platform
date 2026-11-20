@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_19_144855) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -106,15 +106,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
     t.index ["subject_id"], name: "index_courses_on_subject_id"
   end
 
-  create_table "draft_task_courses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "draft_task_id", null: false
-    t.bigint "course_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["course_id"], name: "index_draft_task_courses_on_course_id"
-    t.index ["draft_task_id"], name: "index_draft_task_courses_on_draft_task_id"
-  end
-
   create_table "draft_task_units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "draft_task_id", null: false
     t.bigint "unit_id", null: false
@@ -128,7 +119,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
   create_table "draft_tasks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "goal_id"
-    t.bigint "course_id"
     t.string "title", limit: 100, null: false
     t.text "content", null: false
     t.integer "priority", default: 3, null: false
@@ -140,7 +130,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["course_id"], name: "index_draft_tasks_on_course_id"
     t.index ["goal_id"], name: "index_draft_tasks_on_goal_id"
     t.index ["user_id"], name: "index_draft_tasks_on_user_id"
   end
@@ -619,8 +608,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_01_071510) do
   add_foreign_key "announcement_targets", "user_roles"
   add_foreign_key "announcement_targets", "users"
   add_foreign_key "announcements", "users", column: "publisher_id"
-  add_foreign_key "draft_task_courses", "courses"
-  add_foreign_key "draft_task_courses", "draft_tasks"
   add_foreign_key "draft_task_units", "draft_tasks"
   add_foreign_key "draft_task_units", "units"
   add_foreign_key "draft_tasks", "goals"
