@@ -19,24 +19,33 @@ vi.mock("./Presenter", () => ({
   Presenter: ({
     task,
     selectedUnitIds,
+    selectedCourseId,
   }: {
     task: Task;
     selectedUnitIds: number[];
+    selectedCourseId: number | null;
   }) => (
     <div data-testid="presenter">
       <span>{task.title}</span>
       <span data-testid="selected-unit-ids">{selectedUnitIds.join(",")}</span>
+      <span data-testid="selected-course-id">{selectedCourseId ?? ""}</span>
     </div>
   ),
 }));
 
 const TASK_URL = "/api/student/tasks/1";
 
-const unit = (id: number): TaskUnit => ({
+const unit = (id: number, courseId = 1): TaskUnit => ({
   id,
-  course_id: 1,
+  course_id: courseId,
   unit_name: `単元${id}`,
   started: false,
+  course: {
+    id: courseId,
+    level_number: 1,
+    level_name: "基礎",
+    subject_name: "英語",
+  },
 });
 
 const task: Task = {
@@ -98,6 +107,32 @@ describe("student/EditTask", () => {
         "11,12",
       ),
     );
+  });
+
+  it("初回の取得で、紐づく教科・講座が自動選択される", async () => {
+    render(<EditTask goalId={9} taskId={1} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-course-id")).toHaveTextContent("1"),
+    );
+    expect(vi.mocked(apiClient.get)).toHaveBeenCalledWith(
+      "/api/student/courses?subject=英語",
+    );
+  });
+
+  it("タスクに単元が紐づいていない場合、教科・講座は自動選択されない", async () => {
+    taskResponse = () => Promise.resolve({ data: { ...task, units: [] } });
+
+    render(<EditTask goalId={9} taskId={1} />);
+
+    await screen.findByTestId("presenter");
+
+    expect(screen.getByTestId("selected-course-id")).toHaveTextContent("");
+    expect(
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.some(([url]) => (url as string).startsWith("/api/student/courses")),
+    ).toBe(false);
   });
 
   it("500 で失敗すると「タスクの取得に失敗しました」を出し、再試行で再取得して表示する", async () => {
