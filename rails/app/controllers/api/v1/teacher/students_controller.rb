@@ -49,11 +49,13 @@ module Api
         end
 
         def render_goals
+          goals = student_goals
           render json: {
             student: student_summary,
             goals: ActiveModelSerializers::SerializableResource.new(
-              student_goals, each_serializer: ::Teacher::StudentGoalSerializer
-            )
+              goals, each_serializer: ::Teacher::StudentGoalSerializer
+            ),
+            meta: pagination_meta(goals)
           }, status: :ok
         end
 
@@ -75,7 +77,11 @@ module Api
         end
 
         def student_goals
-          GoalsQuery.new(@student.goals).due_soon.includes_tasks.result
+          GoalsQuery.new(@student.goals)
+                    .due_soon
+                    .includes_tasks
+                    .paginate(page: sanitized_page, per_page: sanitized_per_page)
+                    .result
         end
 
         def student_tasks
