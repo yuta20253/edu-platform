@@ -86,6 +86,33 @@ describe("useStudent", () => {
     expect(result.current.data).toEqual({ tab: "tasks", data: mockTasksData });
   });
 
+  it("目標タブでもtab=goalsとpageを付けて取得する", async () => {
+    vi.mocked(apiClient.get)
+      .mockResolvedValueOnce({ data: mockStudent })
+      .mockResolvedValue({ data: mockGoalsData });
+
+    const { result } = renderHook(() => useStudent(1));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => {
+      result.current.changeTab("goals");
+    });
+    await waitFor(() => expect(result.current.data?.tab).toBe("goals"));
+
+    act(() => {
+      result.current.setPage(2);
+    });
+    await waitFor(() =>
+      expect(apiClient.get).toHaveBeenLastCalledWith(
+        "/api/teacher/students/1",
+        {
+          params: { tab: "goals", page: "2" },
+          signal: expect.any(AbortSignal),
+        },
+      ),
+    );
+  });
+
   it("タブを変えるとpageを1に戻す", async () => {
     vi.mocked(apiClient.get)
       .mockResolvedValueOnce({ data: mockStudent })
@@ -135,7 +162,7 @@ describe("useStudent", () => {
       }),
     );
     expect(apiClient.get).toHaveBeenLastCalledWith("/api/teacher/students/1", {
-      params: { tab: "goals" },
+      params: { tab: "goals", page: "1" },
       signal: expect.any(AbortSignal),
     });
   });
