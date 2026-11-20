@@ -149,7 +149,8 @@ const CreateTaskBody = ({
                   validate: (value) => {
                     if (!value || !goal?.due_date) return true;
                     return (
-                      format(value, "yyyy-MM-dd") <= goal.due_date ||
+                      format(value, "yyyy-MM-dd") <=
+                        format(new Date(goal.due_date), "yyyy-MM-dd") ||
                       "期限は目標の期限以前にしてください"
                     );
                   },

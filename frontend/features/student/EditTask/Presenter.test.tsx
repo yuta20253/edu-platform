@@ -248,7 +248,8 @@ describe("EditTaskPresenter", () => {
   it("goalDueDateより後の期限に変更すると「期限は目標の期限以前にしてください」が表示される", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
-    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026-09-01" />);
+    // APIのdue_dateは "YYYY/MM/DD" 形式で返る(Student::GoalDetailSerializer)
+    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026/09/01" />);
 
     await user.click(screen.getByRole("spinbutton", { name: "Day" }));
     await user.keyboard("02");
@@ -265,7 +266,7 @@ describe("EditTaskPresenter", () => {
 
   it("goalDueDate以前の期限であれば送信できる", async () => {
     const onSubmit = vi.fn();
-    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026-09-01" />);
+    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026/09/01" />);
 
     fireEvent.click(screen.getByRole("button", { name: "保存する" }));
 

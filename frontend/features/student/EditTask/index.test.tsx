@@ -71,7 +71,7 @@ describe("student/EditTask", () => {
         return Promise.resolve({ data: [] });
       }
       if (url.startsWith("/api/student/goals/")) {
-        return Promise.resolve({ data: { due_date: "2026-09-10" } });
+        return Promise.resolve({ data: { due_date: "2026/09/10" } });
       }
       return taskResponse() as ReturnType<typeof apiClient.get>;
     });
@@ -100,7 +100,7 @@ describe("student/EditTask", () => {
     render(<EditTask goalId={9} taskId={1} />);
 
     expect(await screen.findByTestId("goal-due-date")).toHaveTextContent(
-      "2026-09-10",
+      "2026/09/10",
     );
     expect(
       vi

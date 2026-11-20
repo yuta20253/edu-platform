@@ -179,7 +179,8 @@ export const Presenter = ({
                   validate: (value) => {
                     if (!value || !goalDueDate) return true;
                     return (
-                      format(value, "yyyy-MM-dd") <= goalDueDate ||
+                      format(value, "yyyy-MM-dd") <=
+                        format(new Date(goalDueDate), "yyyy-MM-dd") ||
                       "期限は目標の期限以前にしてください"
                     );
                   },

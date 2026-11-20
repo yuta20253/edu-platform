@@ -364,7 +364,8 @@ describe("CreateTask", () => {
   });
 
   describe("目標の期限バリデーション", () => {
-    const goalDueDate = "2026-09-01";
+    // APIのdue_dateは "YYYY/MM/DD" 形式で返る(Student::GoalDetailSerializer)
+    const goalDueDate = "2026/09/01";
 
     beforeEach(() => {
       vi.mocked(apiClient.get).mockReset();
