@@ -54,6 +54,15 @@ export const EditTask = ({ goalId, taskId }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.units]);
 
+  useEffect(() => {
+    const course = data?.units?.[0]?.course;
+    if (!course) return;
+    fetchCourse(course.subject_name).then(() => {
+      setSelectedCourseId(course.id);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.units]);
+
   return (
     <AsyncBoundary
       data={data}
