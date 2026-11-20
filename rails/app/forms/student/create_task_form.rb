@@ -24,7 +24,6 @@ module Student
     validates :due_date, presence: true
     validate :goal_must_exist
     validate :due_date_must_be_valid
-    validate :unit_ids_must_exist
 
     def initialize(current_user:, **attributes)
       super(attributes)

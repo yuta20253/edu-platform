@@ -204,5 +204,13 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
         expect(form.save).to be false
       end
     end
+
+    context 'バリデーション成功したがserviceが失敗した場合' do
+      before { allow(service).to receive(:call).and_return(false) }
+
+      it 'falseを返す' do
+        expect(form.save).to be false
+      end
+    end
   end
 end
