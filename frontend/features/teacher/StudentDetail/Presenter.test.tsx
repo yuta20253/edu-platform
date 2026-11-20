@@ -48,6 +48,7 @@ const mockStudent: Student = {
 const mockGoalsData: StudentGoalsData = {
   student: { id: 1, name: "山田太郎" },
   goals: [],
+  meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 10 },
 };
 
 const mockGoal: StudentGoal = {

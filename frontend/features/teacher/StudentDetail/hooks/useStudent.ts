@@ -22,10 +22,10 @@ export const useStudent = (studentId: number) => {
   const router = useRouter();
 
   useEffect(() => {
-    // プロフィールは従来どおりtabを付けずに取得する。pageはタスクタブだけで使う
+    // プロフィールは従来どおりtabを付けずに取得する。pageは目標・タスクタブで使う
     const params: Record<string, string> = {};
     if (tab !== "profile") params.tab = tab;
-    if (tab === "tasks") params.page = String(page);
+    if (tab === "goals" || tab === "tasks") params.page = String(page);
 
     // タブやページを素早く切り替えた際、古いリクエストの応答が後から返ってきて
     // 新しい表示を上書きしないようキャンセルする
