@@ -131,7 +131,9 @@ describe("student/EditTask", () => {
     expect(
       vi
         .mocked(apiClient.get)
-        .mock.calls.some(([url]) => (url as string).startsWith("/api/student/courses")),
+        .mock.calls.some(([url]) =>
+          (url as string).startsWith("/api/student/courses"),
+        ),
     ).toBe(false);
   });
 
