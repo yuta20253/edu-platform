@@ -23,7 +23,7 @@ module Student
 
     validate :due_date_must_be_valid
     validate :started_unit_cannot_be_removed
-    validate :due_date_must_be_before_parsed_due_date
+    validate :due_date_must_not_be_after_goal_due_date
 
     def initialize(task:, **attributes)
       @unit_ids_provided = attributes.key?(:unit_ids) && !attributes[:unit_ids].nil?
@@ -43,7 +43,7 @@ module Student
 
     private
 
-    def due_date_must_be_before_parsed_due_date
+    def due_date_must_not_be_after_goal_due_date
       return if goal.nil?
       return if goal.due_date.blank?
       return if due_date.blank?

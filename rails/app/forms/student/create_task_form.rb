@@ -24,7 +24,7 @@ module Student
     validates :due_date, presence: true
     validate :goal_must_exist
     validate :due_date_must_be_valid
-    validate :due_date_must_be_before_parsed_due_date
+    validate :due_date_must_not_be_after_goal_due_date
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -50,7 +50,7 @@ module Student
 
     private
 
-    def due_date_must_be_before_parsed_due_date
+    def due_date_must_not_be_after_goal_due_date
       return if goal.nil?
       return if goal.due_date.blank?
 
