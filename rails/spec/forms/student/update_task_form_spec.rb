@@ -75,6 +75,48 @@ RSpec.describe Student::UpdateTaskForm, type: :model do
       end
     end
 
+    context 'due_dateがtask.goalのdue_dateより後の場合' do
+      let(:goal) { create(:goal, user: user, due_date: Date.new(2026, 2, 9)) }
+      let(:task) { create(:task, user: user, goal: goal) }
+
+      before { params[:due_date] = '2026-02-10' }
+
+      it 'エラーになる' do
+        expect(form).to be_invalid
+        expect(form.errors[:due_date]).to include('は目標の期限以前にしてください')
+      end
+    end
+
+    context 'due_dateがtask.goalのdue_dateと同じ日の場合' do
+      let(:goal) { create(:goal, user: user, due_date: Date.new(2026, 2, 10)) }
+      let(:task) { create(:task, user: user, goal: goal) }
+
+      before { params[:due_date] = '2026-02-10' }
+
+      it '有効である' do
+        expect(form).to be_valid
+      end
+    end
+
+    context 'due_dateがtask.goalのdue_dateより前の場合' do
+      let(:goal) { create(:goal, user: user, due_date: Date.new(2026, 2, 11)) }
+      let(:task) { create(:task, user: user, goal: goal) }
+
+      before { params[:due_date] = '2026-02-10' }
+
+      it '有効である' do
+        expect(form).to be_valid
+      end
+    end
+
+    context 'task.goalのdue_dateが設定されていない場合' do
+      before { params[:due_date] = '2026-02-10' }
+
+      it '有効である' do
+        expect(form).to be_valid
+      end
+    end
+
     context 'titleが101文字の場合' do
       before { params[:title] = 'あ' * 101 }
 
