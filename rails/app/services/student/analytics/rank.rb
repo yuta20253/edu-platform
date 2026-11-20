@@ -34,12 +34,10 @@ module Student
           }
         end
 
-        rankings.sort_by! { |ranking| -ranking[:correct_rate] }
-
-        my_rank = rankings.index { |ranking| ranking[:user_id] == @user.id }
+        my_ranking = rankings.find { |ranking| ranking[:user_id] == @user.id }
 
         {
-          rank: my_rank ? my_rank + 1 : nil,
+          rank: my_ranking ? rankings.count { |ranking| ranking[:correct_rate] > my_ranking[:correct_rate] } + 1 : nil,
           total_users: rankings.size
         }
       end

@@ -126,6 +126,18 @@ RSpec.describe 'Api::V1::Student::Tasks', type: :request do
         expect(ids.first).to eq(task1.id)
         expect(ids.first).not_to eq(task2.id)
       end
+
+      it 'due_dateが同じ場合は第2キーとしてidの昇順で返る' do
+        task1 = create(:task, user: user, goal: goal, due_date: Date.current)
+        task2 = create(:task, user: user, goal: goal, due_date: Date.current)
+
+        get '/api/v1/student/tasks', headers: headers.merge('Cookie' => cookie)
+
+        json = response.parsed_body
+        ids = json['tasks'].pluck('id')
+
+        expect(ids.index(task1.id)).to be < ids.index(task2.id)
+      end
     end
 
     context '異常系 - 未認証アクセス' do

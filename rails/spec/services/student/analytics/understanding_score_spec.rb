@@ -91,6 +91,58 @@ RSpec.describe Student::Analytics::UnderstandingScore, type: :model do
       end
     end
 
+    context '取得順とsubjects.idの順が逆の場合' do
+      let!(:subject_a) { create(:subject, name: '国語') }
+      let!(:subject_b) { create(:subject, name: '英語') }
+
+      let!(:course_a) { create(:course, subject: subject_a) }
+      let!(:course_b) { create(:course, subject: subject_b) }
+
+      let!(:unit_a) { create(:unit, course: course_a) }
+      let!(:unit_b) { create(:unit, course: course_b) }
+
+      let!(:history_b) do
+        question_b = create(:question, unit: unit_b)
+        create(
+          :question_history,
+          user: user,
+          task: task,
+          course: course_b,
+          unit: unit_b,
+          question: question_b,
+          question_choice: create(:question_choice, question: question_b),
+          is_correct: true
+        )
+      end
+
+      let!(:history_a) do
+        question_a = create(:question, unit: unit_a)
+        create(
+          :question_history,
+          user: user,
+          task: task,
+          course: course_a,
+          unit: unit_a,
+          question: question_a,
+          question_choice: create(:question_choice, question: question_a),
+          is_correct: true
+        )
+      end
+
+      before do
+        # subject_a(id小)がsubject_b(id大)より後に取得される状況を作り、group_byの出現順とidの昇順をずらす
+        allow(user.question_histories).to receive(:includes).and_return([history_b, history_a])
+      end
+
+      it 'subjects.idの昇順で返る' do
+        result = described_class.new(user).call
+
+        subject_names = result[:subjects].pluck(:subject_name)
+
+        expect(subject_names).to eq([subject_a.name, subject_b.name])
+      end
+    end
+
     context '問題履歴が存在しない場合' do
       let!(:empty_user) { create(:user) }
 

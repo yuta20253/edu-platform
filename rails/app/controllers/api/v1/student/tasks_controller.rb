@@ -11,7 +11,7 @@ module Api
                   .tasks
                   .includes(units: :course)
                   .by_status(params[:status])
-                  .order(due_date: :asc)
+                  .order(due_date: :asc, id: :asc)
                   .page(sanitized_page)
                   .per(sanitized_per_page)
 
