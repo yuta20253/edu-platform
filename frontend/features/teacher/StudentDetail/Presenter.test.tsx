@@ -357,7 +357,12 @@ describe("StudentDetailPresenter", () => {
 
     it("全件数が表示される", () => {
       renderGoals([mockGoal], {
-        meta: { current_page: 1, total_pages: 3, total_count: 25, per_page: 10 },
+        meta: {
+          current_page: 1,
+          total_pages: 3,
+          total_count: 25,
+          per_page: 10,
+        },
       });
       expect(screen.getByText("全25件")).toBeInTheDocument();
     });

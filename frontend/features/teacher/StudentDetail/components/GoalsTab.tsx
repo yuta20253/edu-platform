@@ -22,6 +22,7 @@ import { DueDateLabel } from "./DueDateLabel";
 
 type Props = {
   goals: StudentGoal[];
+  totalCount: number;
 };
 
 type SummaryItem = {
@@ -66,7 +67,7 @@ const buildSummary = (goals: StudentGoal[]): SummaryItem[] => {
   ];
 };
 
-export const GoalsTab = ({ goals }: Props) => {
+export const GoalsTab = ({ goals, totalCount }: Props) => {
   if (goals.length === 0) {
     return (
       <Typography
@@ -116,6 +117,13 @@ export const GoalsTab = ({ goals }: Props) => {
       </Box>
 
       <Stack spacing={2}>
+        <Typography
+          variant="body2"
+          sx={{ textAlign: "right", color: colors.text.muted }}
+        >
+          全{totalCount}件
+        </Typography>
+
         {goals.map((goal) => (
           <Card
             key={goal.id}
