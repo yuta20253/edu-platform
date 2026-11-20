@@ -10,3 +10,7 @@ export type CreateTaskForm = {
 export type Props = {
   selectedUnitIds: number[] | null;
 };
+
+export type Goal = {
+  due_date: string;
+};
