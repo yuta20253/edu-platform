@@ -115,9 +115,7 @@ describe("CourseSelector", () => {
         setSelectedCourseId={setSelectedCourseId}
       />,
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: "閉じる", hidden: false }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
     expect(setSelectedCourseId).toHaveBeenCalledWith(null);
   });
 });
