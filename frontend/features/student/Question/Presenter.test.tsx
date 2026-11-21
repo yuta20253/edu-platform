@@ -167,7 +167,12 @@ describe("QuestionPresenter", () => {
     const mockQuestionTwoHints: QuestionType = {
       ...mockQuestion,
       question_hints: [
-        { id: 1, question_id: 1, step_number: 1, hint_text: "指を使って数えよう" },
+        {
+          id: 1,
+          question_id: 1,
+          step_number: 1,
+          hint_text: "指を使って数えよう",
+        },
         { id: 2, question_id: 1, step_number: 2, hint_text: "10から考えよう" },
       ],
     };
