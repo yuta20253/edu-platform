@@ -149,18 +149,39 @@ describe("QuestionPresenter", () => {
     expect(onOpenHint).toHaveBeenCalledWith(1);
   });
 
-  it("openedHintStepが一致するとヒント本文が表示され、閉じるでonCloseHintが呼ばれる", () => {
+  it("openedHintStepsに含まれるとヒント本文が表示され、閉じるでonCloseHintがstep_numberで呼ばれる", () => {
     const onCloseHint = vi.fn();
     render(
       <Presenter
         {...defaultProps}
-        openedHintStep={1}
+        openedHintSteps={new Set([1])}
         onCloseHint={onCloseHint}
       />,
     );
     expect(screen.getByText("指を使って数えよう")).toBeInTheDocument();
     fireEvent.click(screen.getByText("閉じる"));
-    expect(onCloseHint).toHaveBeenCalledTimes(1);
+    expect(onCloseHint).toHaveBeenCalledWith(1);
+  });
+
+  it("複数のヒントを同時に開いた状態で両方の本文が表示される", () => {
+    const mockQuestionTwoHints: QuestionType = {
+      ...mockQuestion,
+      question_hints: [
+        { id: 1, question_id: 1, step_number: 1, hint_text: "指を使って数えよう" },
+        { id: 2, question_id: 1, step_number: 2, hint_text: "10から考えよう" },
+      ],
+    };
+
+    render(
+      <Presenter
+        {...defaultProps}
+        question={mockQuestionTwoHints}
+        openedHintSteps={new Set([1, 2])}
+      />,
+    );
+
+    expect(screen.getByText("指を使って数えよう")).toBeInTheDocument();
+    expect(screen.getByText("10から考えよう")).toBeInTheDocument();
   });
 
   it("「中断する」リンクがgoalIdなしのタスクパスを指す", () => {
