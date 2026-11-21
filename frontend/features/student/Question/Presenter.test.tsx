@@ -40,7 +40,7 @@ const defaultProps = {
   correctChoiceNumber: null as number | null,
   isAnswered: false,
   isLastQuestion: false,
-  openedHintStep: 0,
+  openedHintSteps: new Set<number>(),
   isSubmitting: false,
   onAnswer: vi.fn(),
   onSkip: vi.fn(),

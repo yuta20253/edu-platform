@@ -30,10 +30,11 @@ export const QuestionBody = ({
     correctChoiceNumber,
     isAnswered,
     isLastQuestion,
-    openedHintStep,
+    openedHintSteps,
     hasError,
     isSubmitting,
-    setOpenedHintStep,
+    openHint,
+    closeHint,
     handleNextQuestion,
     handleSkip,
     handleAnswer,
@@ -84,13 +85,13 @@ export const QuestionBody = ({
       correctChoiceNumber={correctChoiceNumber}
       isAnswered={isAnswered}
       isLastQuestion={isLastQuestion}
-      openedHintStep={openedHintStep}
+      openedHintSteps={openedHintSteps}
       isSubmitting={isSubmitting}
       onAnswer={handleAnswer}
       onSkip={handleSkip}
       onNextQuestion={handleNextQuestion}
-      onOpenHint={setOpenedHintStep}
-      onCloseHint={() => setOpenedHintStep(0)}
+      onOpenHint={openHint}
+      onCloseHint={closeHint}
     />
   );
 };
