@@ -86,4 +86,38 @@ describe("CourseSelector", () => {
     fireEvent.click(screen.getByLabelText("単元2"));
     expect(handleToggleUnit).toHaveBeenCalledWith(20);
   });
+
+  it("講座を選択するとモーダル(dialog)で講座詳細が表示される", () => {
+    render(
+      <CourseSelector
+        {...baseProps}
+        selectedCourseId={1}
+        selectedCourse={courses[0]}
+      />,
+    );
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveTextContent("講座詳細");
+    expect(dialog).toHaveTextContent("標準レベル1");
+  });
+
+  it("未選択のときはモーダルが表示されない", () => {
+    render(<CourseSelector {...baseProps} />);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("モーダルの「閉じる」を押すと setSelectedCourseId が null で呼ばれる", () => {
+    const setSelectedCourseId = vi.fn();
+    render(
+      <CourseSelector
+        {...baseProps}
+        selectedCourseId={1}
+        selectedCourse={courses[0]}
+        setSelectedCourseId={setSelectedCourseId}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "閉じる", hidden: false }),
+    );
+    expect(setSelectedCourseId).toHaveBeenCalledWith(null);
+  });
 });
