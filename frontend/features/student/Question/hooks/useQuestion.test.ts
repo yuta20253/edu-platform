@@ -326,4 +326,22 @@ describe("useQuestion", () => {
     expect(result.current.isAnswered).toBe(false);
     expect(result.current.isSubmitting).toBe(false);
   });
+
+  it("レスポンスのない失敗(通信エラー等)時は汎用メッセージがsubmitErrorにセットされる", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue(new Error("network error"));
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+
+    await waitFor(() =>
+      expect(result.current.submitError).toBe("回答の送信に失敗しました"),
+    );
+    expect(result.current.isAnswered).toBe(false);
+    expect(result.current.isSubmitting).toBe(false);
+  });
 });
