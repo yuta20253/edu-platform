@@ -344,4 +344,21 @@ describe("useQuestion", () => {
     expect(result.current.isAnswered).toBe(false);
     expect(result.current.isSubmitting).toBe(false);
   });
+
+  it("401エラー時は/loginへ遷移しsubmitErrorはセットされない", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 401 },
+    });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/login");
+    expect(result.current.submitError).toBeNull();
+  });
 });
