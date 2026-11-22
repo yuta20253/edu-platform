@@ -1,6 +1,8 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { taskUnitPath } from "@/libs/path/taskUnitPath";
 import { QuestionType } from "@/types/question/question";
 import { useRouter } from "next/navigation";
@@ -33,7 +35,7 @@ export const useQuestion = ({
     new Set(),
   );
   const [openedHintStep, setOpenedHintStep] = useState<number>(0);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isLastQuestion =
@@ -73,7 +75,7 @@ export const useQuestion = ({
 
     try {
       setIsSubmitting(true);
-      setHasError(false);
+      setSubmitError(null);
       setSelectedChoiceId(choiceId);
 
       const alreadyAnswered =
@@ -117,8 +119,8 @@ export const useQuestion = ({
         handleNextQuestion(updatedIds);
       }
     } catch (error) {
-      console.error(error);
-      setHasError(true);
+      const { errors } = extractApiError(error);
+      setSubmitError(buildErrorMessage(errors, "回答の送信に失敗しました"));
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +139,7 @@ export const useQuestion = ({
     isAnswered,
     isLastQuestion,
     openedHintStep,
-    hasError,
+    submitError,
     isSubmitting,
     setOpenedHintStep,
     handleNextQuestion,
