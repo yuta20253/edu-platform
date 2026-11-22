@@ -50,7 +50,7 @@ type WrapperProps = {
   fetchCourse?: (name: string) => Promise<void>;
   selectedCourse?: Course | null;
   displayedCourses?: Course[] | null;
-  setSelectedCourseId?: (value: number) => void;
+  setSelectedCourseId?: (value: number | null) => void;
   setShowAllCourses?: () => void;
   selectedUnitIds?: number[];
   handleToggleUnit?: (unitId: number) => void;
