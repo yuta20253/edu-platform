@@ -307,8 +307,10 @@ describe("useQuestion", () => {
     });
   });
 
-  it("回答の送信に失敗するとhasErrorがtrueになる", async () => {
-    vi.mocked(apiClient.post).mockRejectedValue(new Error("network error"));
+  it("バリデーションエラー(422)時はバックエンドのメッセージがsubmitErrorにセットされる", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 422, data: { errors: ["選択肢が不正です"] } },
+    });
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
       useQuestion({ questions, taskId: 5, unitId: 11 }),
@@ -318,7 +320,9 @@ describe("useQuestion", () => {
       await result.current.handleAnswer(101);
     });
 
-    await waitFor(() => expect(result.current.hasError).toBe(true));
+    await waitFor(() =>
+      expect(result.current.submitError).toBe("選択肢が不正です"),
+    );
     expect(result.current.isAnswered).toBe(false);
     expect(result.current.isSubmitting).toBe(false);
   });
