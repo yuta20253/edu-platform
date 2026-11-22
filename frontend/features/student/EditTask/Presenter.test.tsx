@@ -245,6 +245,9 @@ describe("EditTaskPresenter", () => {
     expect(handleToggleUnit).toHaveBeenCalledWith(11);
   });
 
+  // 期限が目標の期限以前かのロジック自体は validateTaskDueDate のテストで担保する
+  // (libs/domain/task/validateTaskDueDate.test.ts)。ここでは Controller に正しく
+  // 繋がっていることだけを確かめる
   it("goalDueDateより後の期限に変更すると「期限は目標の期限以前にしてください」が表示される", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
@@ -262,17 +265,6 @@ describe("EditTaskPresenter", () => {
       ).toBeInTheDocument();
     });
     expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it("goalDueDate以前の期限であれば送信できる", async () => {
-    const onSubmit = vi.fn();
-    render(<Wrapper onSubmit={onSubmit} goalDueDate="2026/09/01" />);
-
-    fireEvent.click(screen.getByRole("button", { name: "保存する" }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalled();
-    });
   });
 
   it("toast.open のときメッセージが表示される", () => {

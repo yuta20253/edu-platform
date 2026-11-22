@@ -21,7 +21,6 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ja } from "date-fns/locale";
-import { format } from "date-fns";
 import { priorities } from "./constants";
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -31,6 +30,7 @@ import { PrimaryCta } from "@/components/PrimaryCta";
 import { SubjectName } from "@/constants/subject";
 import { Dispatch, SetStateAction } from "react";
 import { Course } from "@/types/tasks/course";
+import { validateTaskDueDate } from "@/libs/domain/task/validateTaskDueDate";
 
 type Props = {
   goalId?: number;
@@ -176,14 +176,7 @@ export const Presenter = ({
                 control={control}
                 rules={{
                   required: "期限を選択してください",
-                  validate: (value) => {
-                    if (!value || !goalDueDate) return true;
-                    return (
-                      format(value, "yyyy-MM-dd") <=
-                        format(new Date(goalDueDate), "yyyy-MM-dd") ||
-                      "期限は目標の期限以前にしてください"
-                    );
-                  },
+                  validate: (value) => validateTaskDueDate(value, goalDueDate),
                 }}
                 defaultValue={task.due_date ? new Date(task.due_date) : null}
                 render={({ field }) => (

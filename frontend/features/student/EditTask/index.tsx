@@ -4,7 +4,7 @@ import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { Presenter } from "./Presenter";
 import { useForm } from "react-hook-form";
-import { EditTaskForm, Goal, Task } from "./types";
+import { EditTaskForm, Task } from "./types";
 import { useSubmit } from "./hooks/useSubmit";
 import { useCourses } from "@/hooks/useCourses";
 import { useUnitSelection } from "@/hooks/useUnitSelection";
@@ -22,7 +22,7 @@ export const EditTask = ({ goalId, taskId }: Props) => {
 
   // 期限のバリデーション(目標の期限以前か)にだけ使う。取得できなくても
   // フォームの表示自体はブロックしない(認可はRails側のバリデーションが最終防衛)
-  const { data: goal } = useApiQuery<Goal>(
+  const { data: goal } = useApiQuery<{ due_date: string }>(
     `/api/student/goals/${data?.goal_id ?? 0}`,
     { enabled: !!data?.goal_id },
   );
