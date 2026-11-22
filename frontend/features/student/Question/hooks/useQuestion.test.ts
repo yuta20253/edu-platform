@@ -361,4 +361,34 @@ describe("useQuestion", () => {
     expect(pushMock).toHaveBeenCalledWith("/login");
     expect(result.current.submitError).toBeNull();
   });
+
+  it("handleRetryを呼ぶと直前に選択した選択肢IDで再送信される", async () => {
+    vi.mocked(apiClient.post)
+      .mockRejectedValueOnce(new Error("network error"))
+      .mockResolvedValueOnce({ data: { is_correct: true, correct_answer: 1 } });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+    await waitFor(() =>
+      expect(result.current.submitError).toBe("回答の送信に失敗しました"),
+    );
+
+    await act(async () => {
+      await result.current.handleRetry();
+    });
+
+    expect(apiClient.post).toHaveBeenCalledTimes(2);
+    expect(apiClient.post).toHaveBeenNthCalledWith(
+      2,
+      "/api/student/answers",
+      expect.objectContaining({ question_choice_id: 101 }),
+    );
+    expect(result.current.submitError).toBeNull();
+    expect(result.current.isAnswered).toBe(true);
+  });
 });
