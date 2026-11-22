@@ -119,7 +119,11 @@ export const useQuestion = ({
         handleNextQuestion(updatedIds);
       }
     } catch (error) {
-      const { errors } = extractApiError(error);
+      const { status, errors } = extractApiError(error);
+      if (status === 401) {
+        router.push("/login");
+        return;
+      }
       setSubmitError(buildErrorMessage(errors, "回答の送信に失敗しました"));
     } finally {
       setIsSubmitting(false);
