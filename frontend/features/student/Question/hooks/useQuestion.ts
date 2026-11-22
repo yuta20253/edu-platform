@@ -22,7 +22,13 @@ export const useQuestion = ({
   studyLogId,
 }: Props) => {
   const router = useRouter();
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentIndex, setCurrentIndex] = useState<number>(() => {
+    const firstUnansweredIndex = questions.findIndex((q) => !q.answered);
+    if (firstUnansweredIndex === -1) {
+      return questions.length > 0 ? questions.length - 1 : 0;
+    }
+    return firstUnansweredIndex;
+  });
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [correctChoiceNumber, setCorrectChoiceNumber] = useState<number | null>(
