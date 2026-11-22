@@ -134,6 +134,11 @@ export const useQuestion = ({
     handleNextQuestion();
   };
 
+  const handleRetry = () => {
+    if (selectedChoiceId === null) return;
+    handleAnswer(selectedChoiceId);
+  };
+
   return {
     currentQuestion,
     currentIndex,
@@ -149,5 +154,6 @@ export const useQuestion = ({
     handleNextQuestion,
     handleSkip,
     handleAnswer,
+    handleRetry,
   };
 };
