@@ -217,13 +217,9 @@ describe("QuestionPresenter", () => {
       <Presenter {...defaultProps} submitError="回答の送信に失敗しました" />,
     );
     expect(screen.getByText("回答の送信に失敗しました")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "再試行" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "再試行" })).toBeInTheDocument();
     expect(screen.getByText("1 / 3")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /中断する/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /中断する/ })).toBeInTheDocument();
     expect(screen.queryByText("1 + 1 は？")).not.toBeInTheDocument();
   });
 
