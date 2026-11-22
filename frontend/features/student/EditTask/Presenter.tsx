@@ -41,7 +41,7 @@ type Props = {
   fetchCourse: (name: SubjectName) => Promise<void>;
   selectedCourse: Course | null;
   displayedCourses: Course[] | null | undefined;
-  setSelectedCourseId: (value: number) => void;
+  setSelectedCourseId: (value: number | null) => void;
   setShowAllCourses: Dispatch<SetStateAction<boolean>>;
   selectedUnitIds: number[];
   handleToggleUnit: (userId: number) => void;

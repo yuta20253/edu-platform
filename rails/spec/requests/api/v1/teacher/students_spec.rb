@@ -318,10 +318,29 @@ RSpec.describe 'Api::V1::Teacher::Students', type: :request do
         )
       end
 
-      it 'tasksとmetaは返さない' do
+      it 'tasksは返さない' do
         request_show
 
-        expect(body.keys).to contain_exactly('student', 'goals')
+        expect(body.keys).to contain_exactly('student', 'goals', 'meta')
+      end
+
+      it 'ページネーションのmetaを返す(既定は1ページ10件)' do
+        request_show
+
+        expect(body['meta']).to eq(
+          'current_page' => 1, 'total_pages' => 1, 'total_count' => 2, 'per_page' => 10
+        )
+      end
+
+      context 'pageとper_pageを指定した場合' do
+        let(:params) { { tab: 'goals', page: 2, per_page: 1 } }
+
+        it '指定したページの目標だけを返す' do
+          request_show
+
+          expect(body['goals'].pluck('id')).to eq([goal_late.id])
+          expect(body['meta']).to include('current_page' => 2, 'total_pages' => 2, 'per_page' => 1)
+        end
       end
 
       it '目標の数に関係なく、tasksの取得は1クエリ(N+1にならない)' do

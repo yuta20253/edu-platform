@@ -129,7 +129,24 @@ export const Presenter = ({
       ) : data.tab === "profile" ? (
         <ProfileTab student={data.data} />
       ) : data.tab === "goals" ? (
-        <GoalsTab goals={data.data.goals} />
+        <>
+          <GoalsTab
+            goals={data.data.goals}
+            totalCount={data.data.meta.total_count}
+          />
+
+          {data.data.meta.total_pages > 1 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+              <Pagination
+                count={data.data.meta.total_pages}
+                page={page}
+                onChange={(_, value) => onPageChange(value)}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
+          )}
+        </>
       ) : (
         <>
           <TasksTab
