@@ -147,7 +147,8 @@ const CreateTaskBody = ({
                 control={control}
                 rules={{
                   required: "期限を選択してください",
-                  validate: (value) => validateTaskDueDate(value, goal?.due_date),
+                  validate: (value) =>
+                    validateTaskDueDate(value, goal?.due_date),
                 }}
                 render={({ field }) => (
                   <DatePicker
