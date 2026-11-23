@@ -37,7 +37,8 @@ describe("useStartStudyLog", () => {
     expect(pushMock).toHaveBeenCalledWith(
       "/tasks/5/units/11/questions?study_log_id=99",
     );
-    expect(result.current.isStarting).toBe(false);
+    // 遷移が完了するまでボタンを押せる状態に戻さない
+    expect(result.current.isStarting).toBe(true);
   });
 
   it("goalIdがあるとき遷移先パスはgoals配下になる", async () => {
@@ -70,7 +71,7 @@ describe("useStartStudyLog", () => {
     });
 
     expect(pushMock).toHaveBeenCalledWith("/tasks/5/units/11/questions");
-    expect(result.current.isStarting).toBe(false);
+    expect(result.current.isStarting).toBe(true);
   });
 
   it("開始処理中に再度呼んでも二重に送信されない", async () => {
