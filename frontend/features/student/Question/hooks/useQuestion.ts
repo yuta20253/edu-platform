@@ -1,6 +1,8 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { taskUnitPath } from "@/libs/path/taskUnitPath";
 import { QuestionType } from "@/types/question/question";
 import { useRouter } from "next/navigation";
@@ -35,7 +37,7 @@ export const useQuestion = ({
   const [openedHintSteps, setOpenedHintSteps] = useState<Set<number>>(
     new Set(),
   );
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isLastQuestion =
@@ -75,7 +77,7 @@ export const useQuestion = ({
 
     try {
       setIsSubmitting(true);
-      setHasError(false);
+      setSubmitError(null);
       setSelectedChoiceId(choiceId);
 
       const alreadyAnswered =
@@ -119,8 +121,12 @@ export const useQuestion = ({
         handleNextQuestion(updatedIds);
       }
     } catch (error) {
-      console.error(error);
-      setHasError(true);
+      const { status, errors } = extractApiError(error);
+      if (status === 401) {
+        router.push("/login");
+        return;
+      }
+      setSubmitError(buildErrorMessage(errors, "回答の送信に失敗しました"));
     } finally {
       setIsSubmitting(false);
     }
@@ -128,6 +134,11 @@ export const useQuestion = ({
 
   const handleSkip = () => {
     handleNextQuestion();
+  };
+
+  const handleRetry = () => {
+    if (selectedChoiceId === null) return;
+    handleAnswer(selectedChoiceId);
   };
 
   const openHint = (stepNumber: number) => {
@@ -151,12 +162,13 @@ export const useQuestion = ({
     isAnswered,
     isLastQuestion,
     openedHintSteps,
-    hasError,
+    submitError,
     isSubmitting,
     openHint,
     closeHint,
     handleNextQuestion,
     handleSkip,
     handleAnswer,
+    handleRetry,
   };
 };
