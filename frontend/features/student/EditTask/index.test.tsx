@@ -120,6 +120,34 @@ describe("student/EditTask", () => {
     );
   });
 
+  it("講座一覧の取得に失敗したときは、講座を選択せずエラーを表示し、再試行で選択される", async () => {
+    let courseCalls = 0;
+    vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.startsWith("/api/student/courses")) {
+        courseCalls += 1;
+        return courseCalls === 1
+          ? Promise.reject(new Error("Network Error"))
+          : Promise.resolve({ data: [] });
+      }
+      return taskResponse() as ReturnType<typeof apiClient.get>;
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<EditTask goalId={9} taskId={1} />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "講座一覧の取得に失敗しました",
+    );
+    expect(screen.getByTestId("selected-course-id")).toHaveTextContent("");
+
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-course-id")).toHaveTextContent("1"),
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   it("タスクに単元が紐づいていない場合、教科・講座は自動選択されない", async () => {
     taskResponse = () => Promise.resolve({ data: { ...task, units: [] } });
 

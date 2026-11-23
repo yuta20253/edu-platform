@@ -44,6 +44,7 @@ const CreateTaskBody = ({
   const {
     courses,
     selectedCourseId,
+    selectedSubject,
     showAllCourses,
     fetchCourse,
     selectedCourse,
@@ -164,6 +165,7 @@ const CreateTaskBody = ({
           displayedCourses={displayedCourses}
           selectedCourse={selectedCourse}
           selectedCourseId={selectedCourseId}
+          selectedSubject={selectedSubject}
           showAllCourses={showAllCourses}
           fetchCourse={fetchCourse}
           setSelectedCourseId={setSelectedCourseId}
