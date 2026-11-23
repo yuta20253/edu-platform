@@ -37,8 +37,9 @@ type Props = {
   task: Task;
   courses: Course[] | null;
   selectedCourseId: number | null;
+  selectedSubject: SubjectName | null;
   showAllCourses: boolean;
-  fetchCourse: (name: SubjectName) => Promise<void>;
+  fetchCourse: (name: SubjectName) => Promise<boolean>;
   selectedCourse: Course | null;
   displayedCourses: Course[] | null | undefined;
   setSelectedCourseId: (value: number | null) => void;
@@ -64,6 +65,7 @@ export const Presenter = ({
   task,
   courses,
   selectedCourseId,
+  selectedSubject,
   showAllCourses,
   fetchCourse,
   selectedCourse,
@@ -204,6 +206,7 @@ export const Presenter = ({
           displayedCourses={displayedCourses}
           selectedCourse={selectedCourse}
           selectedCourseId={selectedCourseId}
+          selectedSubject={selectedSubject}
           showAllCourses={showAllCourses}
           fetchCourse={fetchCourse}
           setSelectedCourseId={setSelectedCourseId}
