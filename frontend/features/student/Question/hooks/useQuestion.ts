@@ -32,7 +32,9 @@ export const useQuestion = ({
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<number>>(
     new Set(),
   );
-  const [openedHintStep, setOpenedHintStep] = useState<number>(0);
+  const [openedHintSteps, setOpenedHintSteps] = useState<Set<number>>(
+    new Set(),
+  );
   const [hasError, setHasError] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -65,7 +67,7 @@ export const useQuestion = ({
     setCorrectChoiceNumber(null);
     setIsAnswered(false);
 
-    setOpenedHintStep(0);
+    setOpenedHintSteps(new Set());
   };
 
   const handleAnswer = async (choiceId: number) => {
@@ -111,7 +113,7 @@ export const useQuestion = ({
       setCorrectChoiceNumber(res.data.correct_answer);
       setIsAnswered(true);
 
-      setOpenedHintStep(0);
+      setOpenedHintSteps(new Set());
 
       if (isLastQuestion) {
         handleNextQuestion(updatedIds);
@@ -128,6 +130,18 @@ export const useQuestion = ({
     handleNextQuestion();
   };
 
+  const openHint = (stepNumber: number) => {
+    setOpenedHintSteps((prev) => new Set(prev).add(stepNumber));
+  };
+
+  const closeHint = (stepNumber: number) => {
+    setOpenedHintSteps((prev) => {
+      const next = new Set(prev);
+      next.delete(stepNumber);
+      return next;
+    });
+  };
+
   return {
     currentQuestion,
     currentIndex,
@@ -136,10 +150,11 @@ export const useQuestion = ({
     correctChoiceNumber,
     isAnswered,
     isLastQuestion,
-    openedHintStep,
+    openedHintSteps,
     hasError,
     isSubmitting,
-    setOpenedHintStep,
+    openHint,
+    closeHint,
     handleNextQuestion,
     handleSkip,
     handleAnswer,

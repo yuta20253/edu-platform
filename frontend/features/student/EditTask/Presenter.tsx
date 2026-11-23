@@ -30,6 +30,7 @@ import { PrimaryCta } from "@/components/PrimaryCta";
 import { SubjectName } from "@/constants/subject";
 import { Dispatch, SetStateAction } from "react";
 import { Course } from "@/types/tasks/course";
+import { validateTaskDueDate } from "@/libs/domain/task/validateTaskDueDate";
 
 type Props = {
   goalId?: number;
@@ -41,7 +42,7 @@ type Props = {
   fetchCourse: (name: SubjectName) => Promise<boolean>;
   selectedCourse: Course | null;
   displayedCourses: Course[] | null | undefined;
-  setSelectedCourseId: (value: number) => void;
+  setSelectedCourseId: (value: number | null) => void;
   setShowAllCourses: Dispatch<SetStateAction<boolean>>;
   selectedUnitIds: number[];
   handleToggleUnit: (userId: number) => void;
@@ -56,6 +57,7 @@ type Props = {
     severity: "success" | "error";
   };
   closeToast: () => void;
+  goalDueDate?: string | null;
 };
 
 export const Presenter = ({
@@ -79,6 +81,7 @@ export const Presenter = ({
   onSubmit,
   toast,
   closeToast,
+  goalDueDate,
 }: Props) => {
   const backHref = goalId
     ? `/goals/${goalId}/tasks/${task.id}`
@@ -175,6 +178,7 @@ export const Presenter = ({
                 control={control}
                 rules={{
                   required: "期限を選択してください",
+                  validate: (value) => validateTaskDueDate(value, goalDueDate),
                 }}
                 defaultValue={task.due_date ? new Date(task.due_date) : null}
                 render={({ field }) => (

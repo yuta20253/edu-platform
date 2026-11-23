@@ -24,6 +24,7 @@ import { AsyncBoundary } from "@/components/ui/AsyncBoundary";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import type { DraftTaskType } from "../CreateTaskConfirm/types";
 import { useDefaultValues } from "./hooks/useDefaultValues";
+import { validateTaskDueDate } from "@/libs/domain/task/validateTaskDueDate";
 
 type Props = {
   goalId: number;
@@ -52,6 +53,12 @@ const CreateTaskBody = ({
     setSelectedCourseId,
     setShowAllCourses,
   } = useCourses();
+
+  // 期限のバリデーション(目標の期限以前か)にだけ使う。取得できなくても
+  // フォームの表示自体はブロックしない(認可はRails側のバリデーションが最終防衛)
+  const { data: goal } = useApiQuery<{ due_date: string }>(
+    `/api/student/goals/${goalId}`,
+  );
 
   // 下書きは最初から揃っているので、初期値は defaultValues と initialIds で渡す
   // (取得後に reset や setSelectedUnitIds で流し込み直さない)
@@ -139,7 +146,11 @@ const CreateTaskBody = ({
               <Controller
                 name="due_date"
                 control={control}
-                rules={{ required: "期限を選択してください" }}
+                rules={{
+                  required: "期限を選択してください",
+                  validate: (value) =>
+                    validateTaskDueDate(value, goal?.due_date),
+                }}
                 render={({ field }) => (
                   <DatePicker
                     format="yyyy/MM/dd"

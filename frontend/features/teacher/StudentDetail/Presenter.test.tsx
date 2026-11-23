@@ -48,6 +48,7 @@ const mockStudent: Student = {
 const mockGoalsData: StudentGoalsData = {
   student: { id: 1, name: "山田太郎" },
   goals: [],
+  meta: { current_page: 1, total_pages: 1, total_count: 0, per_page: 10 },
 };
 
 const mockGoal: StudentGoal = {
@@ -125,10 +126,13 @@ const renderTasks = (data: Partial<StudentTasksData> = {}) =>
     data: { tab: "tasks", data: { ...mockTasksData, ...data } },
   });
 
-const renderGoals = (goals: StudentGoal[]) =>
+const renderGoals = (
+  goals: StudentGoal[],
+  overrides: Partial<StudentGoalsData> = {},
+) =>
   renderPresenter({
     tab: "goals",
-    data: { tab: "goals", data: { ...mockGoalsData, goals } },
+    data: { tab: "goals", data: { ...mockGoalsData, goals, ...overrides } },
   });
 
 describe("StudentDetailPresenter", () => {
@@ -351,6 +355,18 @@ describe("StudentDetailPresenter", () => {
       expect(within(summary).getByText("5/8")).toBeInTheDocument();
     });
 
+    it("全件数が表示される", () => {
+      renderGoals([mockGoal], {
+        meta: {
+          current_page: 1,
+          total_pages: 3,
+          total_count: 25,
+          per_page: 10,
+        },
+      });
+      expect(screen.getByText("全25件")).toBeInTheDocument();
+    });
+
     it("目標に紐づくタスクがステータス付きで表示される", () => {
       renderGoals([
         {
@@ -558,6 +574,40 @@ describe("StudentDetailPresenter", () => {
       await userEvent.click(screen.getByText("単語帳を1周する"));
 
       expect(screen.getByText("紐づくUnitがありません")).toBeInTheDocument();
+    });
+  });
+
+  describe("目標タブのページネーション", () => {
+    it("複数ページあるときはページネーションが表示され、ページを押すとonPageChangeが呼ばれる", async () => {
+      const onPageChange = vi.fn();
+      renderPresenter({
+        tab: "goals",
+        data: {
+          tab: "goals",
+          data: {
+            ...mockGoalsData,
+            goals: [mockGoal],
+            meta: {
+              current_page: 1,
+              total_pages: 3,
+              total_count: 25,
+              per_page: 10,
+            },
+          },
+        },
+        onPageChange,
+      });
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "Go to page 2" }),
+      );
+
+      expect(onPageChange).toHaveBeenCalledWith(2);
+    });
+
+    it("1ページしかないときはページネーションを表示しない", () => {
+      renderGoals([mockGoal]);
+      expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
     });
   });
 

@@ -9,6 +9,10 @@ import {
   CardActions,
   CardContent,
   Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   FormControlLabel,
   MenuItem,
@@ -25,7 +29,7 @@ type Props = {
   selectedSubject: SubjectName | null;
   showAllCourses: boolean;
   fetchCourse: (name: SubjectName) => Promise<boolean>;
-  setSelectedCourseId: (value: number) => void;
+  setSelectedCourseId: (value: number | null) => void;
   /** 「もっと見る」「閉じる」の切替 */
   onToggleShowAll: () => void;
   selectedUnitIds: number[];
@@ -111,8 +115,14 @@ export const CourseSelector = ({
       </Box>
     </FormSection>
 
-    {selectedCourseId && (
-      <FormSection title="講座詳細">
+    <Dialog
+      open={!!selectedCourseId}
+      onClose={() => setSelectedCourseId(null)}
+      fullWidth
+      maxWidth="sm"
+    >
+      <DialogTitle sx={{ fontWeight: 700 }}>講座詳細</DialogTitle>
+      <DialogContent>
         <Typography variant="h6" gutterBottom>
           {selectedCourse?.level_name}レベル
           {selectedCourse?.level_number}
@@ -141,7 +151,10 @@ export const CourseSelector = ({
             />
           );
         })}
-      </FormSection>
-    )}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={() => setSelectedCourseId(null)}>閉じる</Button>
+      </DialogActions>
+    </Dialog>
   </>
 );
