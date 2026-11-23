@@ -25,11 +25,9 @@ export const useQuestion = ({
 }: Props) => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState<number>(() => {
+    // 全問回答済みのときは解き直せるように最初の問題から始める
     const firstUnansweredIndex = questions.findIndex((q) => !q.answered);
-    if (firstUnansweredIndex === -1) {
-      return questions.length > 0 ? questions.length - 1 : 0;
-    }
-    return firstUnansweredIndex;
+    return firstUnansweredIndex === -1 ? 0 : firstUnansweredIndex;
   });
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
