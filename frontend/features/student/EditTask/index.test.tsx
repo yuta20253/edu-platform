@@ -19,13 +19,16 @@ vi.mock("./Presenter", () => ({
   Presenter: ({
     task,
     selectedUnitIds,
+    goalDueDate,
   }: {
     task: Task;
     selectedUnitIds: number[];
+    goalDueDate?: string | null;
   }) => (
     <div data-testid="presenter">
       <span>{task.title}</span>
       <span data-testid="selected-unit-ids">{selectedUnitIds.join(",")}</span>
+      <span data-testid="goal-due-date">{goalDueDate ?? ""}</span>
     </div>
   ),
 }));
@@ -67,6 +70,9 @@ describe("student/EditTask", () => {
       if (url.startsWith("/api/student/courses")) {
         return Promise.resolve({ data: [] });
       }
+      if (url.startsWith("/api/student/goals/")) {
+        return Promise.resolve({ data: { due_date: "2026/09/10" } });
+      }
       return taskResponse() as ReturnType<typeof apiClient.get>;
     });
   });
@@ -88,6 +94,19 @@ describe("student/EditTask", () => {
       "英単語100個を覚える",
     );
     expect(calledTaskUrl()).toBe(true);
+  });
+
+  it("タスクのgoal_idから目標を取得し、goalDueDateとしてPresenterに渡す", async () => {
+    render(<EditTask goalId={9} taskId={1} />);
+
+    expect(await screen.findByTestId("goal-due-date")).toHaveTextContent(
+      "2026/09/10",
+    );
+    expect(
+      vi
+        .mocked(apiClient.get)
+        .mock.calls.some(([url]) => url === "/api/student/goals/9"),
+    ).toBe(true);
   });
 
   it("初回の取得で、タスクの単元が選択済みとして反映される", async () => {

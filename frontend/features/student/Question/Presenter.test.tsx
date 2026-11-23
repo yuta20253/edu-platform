@@ -40,13 +40,15 @@ const defaultProps = {
   correctChoiceNumber: null as number | null,
   isAnswered: false,
   isLastQuestion: false,
-  openedHintStep: 0,
+  openedHintSteps: new Set<number>(),
   isSubmitting: false,
+  submitError: null as string | null,
   onAnswer: vi.fn(),
   onSkip: vi.fn(),
   onNextQuestion: vi.fn(),
   onOpenHint: vi.fn(),
   onCloseHint: vi.fn(),
+  onRetry: vi.fn(),
 };
 
 describe("QuestionPresenter", () => {
@@ -149,18 +151,44 @@ describe("QuestionPresenter", () => {
     expect(onOpenHint).toHaveBeenCalledWith(1);
   });
 
-  it("openedHintStepが一致するとヒント本文が表示され、閉じるでonCloseHintが呼ばれる", () => {
+  it("openedHintStepsに含まれるとヒント本文が表示され、閉じるでonCloseHintがstep_numberで呼ばれる", () => {
     const onCloseHint = vi.fn();
     render(
       <Presenter
         {...defaultProps}
-        openedHintStep={1}
+        openedHintSteps={new Set([1])}
         onCloseHint={onCloseHint}
       />,
     );
     expect(screen.getByText("指を使って数えよう")).toBeInTheDocument();
     fireEvent.click(screen.getByText("閉じる"));
-    expect(onCloseHint).toHaveBeenCalledTimes(1);
+    expect(onCloseHint).toHaveBeenCalledWith(1);
+  });
+
+  it("複数のヒントを同時に開いた状態で両方の本文が表示される", () => {
+    const mockQuestionTwoHints: QuestionType = {
+      ...mockQuestion,
+      question_hints: [
+        {
+          id: 1,
+          question_id: 1,
+          step_number: 1,
+          hint_text: "指を使って数えよう",
+        },
+        { id: 2, question_id: 1, step_number: 2, hint_text: "10から考えよう" },
+      ],
+    };
+
+    render(
+      <Presenter
+        {...defaultProps}
+        question={mockQuestionTwoHints}
+        openedHintSteps={new Set([1, 2])}
+      />,
+    );
+
+    expect(screen.getByText("指を使って数えよう")).toBeInTheDocument();
+    expect(screen.getByText("10から考えよう")).toBeInTheDocument();
   });
 
   it("「中断する」リンクがgoalIdなしのタスクパスを指す", () => {
@@ -208,5 +236,29 @@ describe("QuestionPresenter", () => {
     );
     fireEvent.click(screen.getByText("結果を見る"));
     expect(onNextQuestion).toHaveBeenCalledTimes(1);
+  });
+
+  it("submitErrorがあるときエラーメッセージと再試行ボタンが表示され、進捗表示と中断するリンクは残る", () => {
+    render(
+      <Presenter {...defaultProps} submitError="回答の送信に失敗しました" />,
+    );
+    expect(screen.getByText("回答の送信に失敗しました")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "再試行" })).toBeInTheDocument();
+    expect(screen.getByText("1 / 3")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /中断する/ })).toBeInTheDocument();
+    expect(screen.queryByText("1 + 1 は？")).not.toBeInTheDocument();
+  });
+
+  it("submitErrorのときに再試行ボタンをクリックするとonRetryが呼ばれる", () => {
+    const onRetry = vi.fn();
+    render(
+      <Presenter
+        {...defaultProps}
+        submitError="回答の送信に失敗しました"
+        onRetry={onRetry}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
   });
 });

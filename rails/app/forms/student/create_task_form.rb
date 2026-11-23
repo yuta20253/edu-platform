@@ -24,6 +24,7 @@ module Student
     validates :due_date, presence: true
     validate :goal_must_exist
     validate :due_date_must_be_valid
+    validate :due_date_must_not_be_after_goal_due_date
 
     def initialize(current_user:, **attributes)
       super(attributes)
@@ -48,6 +49,15 @@ module Student
     end
 
     private
+
+    def due_date_must_not_be_after_goal_due_date
+      return if goal.nil?
+      return if goal.due_date.blank?
+
+      return if errors[:due_date].present?
+
+      errors.add(:due_date, 'は目標の期限以前にしてください') if goal.due_date < parsed_due_date
+    end
 
     def due_date_must_be_valid
       return if due_date.blank?

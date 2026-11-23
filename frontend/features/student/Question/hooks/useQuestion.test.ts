@@ -267,7 +267,7 @@ describe("useQuestion", () => {
     );
   });
 
-  it("回答が完了するとopenedHintStepが0にリセットされる", async () => {
+  it("回答が完了するとopenedHintStepsが空にリセットされる", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: { is_correct: true } });
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
@@ -275,32 +275,69 @@ describe("useQuestion", () => {
     );
 
     act(() => {
-      result.current.setOpenedHintStep(2);
+      result.current.openHint(2);
     });
-    expect(result.current.openedHintStep).toBe(2);
+    expect(result.current.openedHintSteps.has(2)).toBe(true);
 
     await act(async () => {
       await result.current.handleAnswer(101);
     });
 
-    expect(result.current.openedHintStep).toBe(0);
+    expect(result.current.openedHintSteps.size).toBe(0);
   });
 
-  it("次の問題に進むとopenedHintStepが0にリセットされる", () => {
+  it("次の問題に進むとopenedHintStepsが空にリセットされる", () => {
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
       useQuestion({ questions, taskId: 5, unitId: 11 }),
     );
 
     act(() => {
-      result.current.setOpenedHintStep(1);
+      result.current.openHint(1);
     });
 
     act(() => {
       result.current.handleSkip();
     });
 
-    expect(result.current.openedHintStep).toBe(0);
+    expect(result.current.openedHintSteps.size).toBe(0);
+  });
+
+  it("ヒント1とヒント2を両方開くと両方が開いた状態になる", () => {
+    const questions = [makeQuestion({ id: 1 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    act(() => {
+      result.current.openHint(1);
+    });
+    act(() => {
+      result.current.openHint(2);
+    });
+
+    expect(result.current.openedHintSteps.has(1)).toBe(true);
+    expect(result.current.openedHintSteps.has(2)).toBe(true);
+  });
+
+  it("開いたヒントをcloseHintで閉じると、もう片方は開いたままになる", () => {
+    const questions = [makeQuestion({ id: 1 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    act(() => {
+      result.current.openHint(1);
+    });
+    act(() => {
+      result.current.openHint(2);
+    });
+    act(() => {
+      result.current.closeHint(1);
+    });
+
+    expect(result.current.openedHintSteps.has(1)).toBe(false);
+    expect(result.current.openedHintSteps.has(2)).toBe(true);
   });
 
   it("送信中に再度回答しても二重に送信されない", async () => {
@@ -334,7 +371,27 @@ describe("useQuestion", () => {
     });
   });
 
-  it("回答の送信に失敗するとhasErrorがtrueになる", async () => {
+  it("バリデーションエラー(422)時はバックエンドのメッセージがsubmitErrorにセットされる", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 422, data: { errors: ["選択肢が不正です"] } },
+    });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+
+    await waitFor(() =>
+      expect(result.current.submitError).toBe("選択肢が不正です"),
+    );
+    expect(result.current.isAnswered).toBe(false);
+    expect(result.current.isSubmitting).toBe(false);
+  });
+
+  it("レスポンスのない失敗(通信エラー等)時は汎用メッセージがsubmitErrorにセットされる", async () => {
     vi.mocked(apiClient.post).mockRejectedValue(new Error("network error"));
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
@@ -345,8 +402,57 @@ describe("useQuestion", () => {
       await result.current.handleAnswer(101);
     });
 
-    await waitFor(() => expect(result.current.hasError).toBe(true));
+    await waitFor(() =>
+      expect(result.current.submitError).toBe("回答の送信に失敗しました"),
+    );
     expect(result.current.isAnswered).toBe(false);
     expect(result.current.isSubmitting).toBe(false);
+  });
+
+  it("401エラー時は/loginへ遷移しsubmitErrorはセットされない", async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      response: { status: 401 },
+    });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/login");
+    expect(result.current.submitError).toBeNull();
+  });
+
+  it("handleRetryを呼ぶと直前に選択した選択肢IDで再送信される", async () => {
+    vi.mocked(apiClient.post)
+      .mockRejectedValueOnce(new Error("network error"))
+      .mockResolvedValueOnce({ data: { is_correct: true, correct_answer: 1 } });
+    const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    await act(async () => {
+      await result.current.handleAnswer(101);
+    });
+    await waitFor(() =>
+      expect(result.current.submitError).toBe("回答の送信に失敗しました"),
+    );
+
+    await act(async () => {
+      await result.current.handleRetry();
+    });
+
+    expect(apiClient.post).toHaveBeenCalledTimes(2);
+    expect(apiClient.post).toHaveBeenNthCalledWith(
+      2,
+      "/api/student/answers",
+      expect.objectContaining({ question_choice_id: 101 }),
+    );
+    expect(result.current.submitError).toBeNull();
+    expect(result.current.isAnswered).toBe(true);
   });
 });

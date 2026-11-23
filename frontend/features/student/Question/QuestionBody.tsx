@@ -30,13 +30,15 @@ export const QuestionBody = ({
     correctChoiceNumber,
     isAnswered,
     isLastQuestion,
-    openedHintStep,
-    hasError,
+    openedHintSteps,
+    submitError,
     isSubmitting,
-    setOpenedHintStep,
+    openHint,
+    closeHint,
     handleNextQuestion,
     handleSkip,
     handleAnswer,
+    handleRetry,
   } = useQuestion({ questions, taskId, unitId, goalId, studyLogId });
 
   if (!currentQuestion) {
@@ -56,21 +58,6 @@ export const QuestionBody = ({
     );
   }
 
-  if (hasError) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        回答の送信に失敗しました
-      </Box>
-    );
-  }
-
   return (
     <Presenter
       goalId={goalId}
@@ -84,13 +71,15 @@ export const QuestionBody = ({
       correctChoiceNumber={correctChoiceNumber}
       isAnswered={isAnswered}
       isLastQuestion={isLastQuestion}
-      openedHintStep={openedHintStep}
+      openedHintSteps={openedHintSteps}
       isSubmitting={isSubmitting}
+      submitError={submitError}
       onAnswer={handleAnswer}
       onSkip={handleSkip}
       onNextQuestion={handleNextQuestion}
-      onOpenHint={setOpenedHintStep}
-      onCloseHint={() => setOpenedHintStep(0)}
+      onOpenHint={openHint}
+      onCloseHint={closeHint}
+      onRetry={handleRetry}
     />
   );
 };

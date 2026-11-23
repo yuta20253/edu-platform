@@ -1,6 +1,8 @@
 "use client";
 
 import { apiClient } from "@/libs/http/apiClient";
+import { buildErrorMessage } from "@/libs/http/buildErrorMessage";
+import { extractApiError } from "@/libs/http/extractApiError";
 import { taskUnitPath } from "@/libs/path/taskUnitPath";
 import { QuestionType } from "@/types/question/question";
 import { useRouter } from "next/navigation";
@@ -38,8 +40,10 @@ export const useQuestion = ({
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<number>>(
     new Set(),
   );
-  const [openedHintStep, setOpenedHintStep] = useState<number>(0);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [openedHintSteps, setOpenedHintSteps] = useState<Set<number>>(
+    new Set(),
+  );
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isLastQuestion =
@@ -71,7 +75,7 @@ export const useQuestion = ({
     setCorrectChoiceNumber(null);
     setIsAnswered(false);
 
-    setOpenedHintStep(0);
+    setOpenedHintSteps(new Set());
   };
 
   const handleAnswer = async (choiceId: number) => {
@@ -79,7 +83,7 @@ export const useQuestion = ({
 
     try {
       setIsSubmitting(true);
-      setHasError(false);
+      setSubmitError(null);
       setSelectedChoiceId(choiceId);
 
       const alreadyAnswered =
@@ -117,14 +121,18 @@ export const useQuestion = ({
       setCorrectChoiceNumber(res.data.correct_answer);
       setIsAnswered(true);
 
-      setOpenedHintStep(0);
+      setOpenedHintSteps(new Set());
 
       if (isLastQuestion) {
         handleNextQuestion(updatedIds);
       }
     } catch (error) {
-      console.error(error);
-      setHasError(true);
+      const { status, errors } = extractApiError(error);
+      if (status === 401) {
+        router.push("/login");
+        return;
+      }
+      setSubmitError(buildErrorMessage(errors, "回答の送信に失敗しました"));
     } finally {
       setIsSubmitting(false);
     }
@@ -132,6 +140,23 @@ export const useQuestion = ({
 
   const handleSkip = () => {
     handleNextQuestion();
+  };
+
+  const handleRetry = () => {
+    if (selectedChoiceId === null) return;
+    handleAnswer(selectedChoiceId);
+  };
+
+  const openHint = (stepNumber: number) => {
+    setOpenedHintSteps((prev) => new Set(prev).add(stepNumber));
+  };
+
+  const closeHint = (stepNumber: number) => {
+    setOpenedHintSteps((prev) => {
+      const next = new Set(prev);
+      next.delete(stepNumber);
+      return next;
+    });
   };
 
   return {
@@ -142,12 +167,14 @@ export const useQuestion = ({
     correctChoiceNumber,
     isAnswered,
     isLastQuestion,
-    openedHintStep,
-    hasError,
+    openedHintSteps,
+    submitError,
     isSubmitting,
-    setOpenedHintStep,
+    openHint,
+    closeHint,
     handleNextQuestion,
     handleSkip,
     handleAnswer,
+    handleRetry,
   };
 };

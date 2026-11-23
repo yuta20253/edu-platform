@@ -20,16 +20,26 @@ vi.mock("./Presenter", () => ({
     totalCount,
     onAnswer,
     onSkip,
+    submitError,
+    onRetry,
   }: {
     currentIndex: number;
     totalCount: number;
     onAnswer: (choiceId: number) => void;
     onSkip: () => void;
+    submitError: string | null;
+    onRetry: () => void;
   }) => (
     <div>
       <span>{`問題 ${currentIndex + 1}/${totalCount}`}</span>
       <button onClick={() => onAnswer(1)}>回答</button>
       <button onClick={onSkip}>スキップ</button>
+      {submitError && (
+        <div>
+          <span>{submitError}</span>
+          <button onClick={onRetry}>再試行</button>
+        </div>
+      )}
     </div>
   ),
 }));
