@@ -51,7 +51,7 @@ export const SignUp = ({
     setValue,
     control,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<User>();
 
   const password = watch("user.password");
@@ -59,6 +59,10 @@ export const SignUp = ({
   const isClaimingExistingAccount = Boolean(studentNumber?.trim());
 
   const { onSubmit } = useSubmit({ setErrorMessage, userRole });
+
+  // 送信中、または成功して画面遷移の完了を待っている間は再送信させない
+  // (useSubmit はエラーを throw せず errorMessage に入れるため、成功 = エラー無しで完了)
+  const isProcessing = isSubmitting || (isSubmitSuccessful && !errorMessage);
 
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
@@ -336,8 +340,8 @@ export const SignUp = ({
               />
             </Box>
             <Box sx={{ my: 4 }}>
-              <PrimaryCta type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "登録中..." : "登録"}
+              <PrimaryCta type="submit" disabled={isProcessing}>
+                {isProcessing ? "登録中..." : "登録"}
               </PrimaryCta>
             </Box>
             <Box sx={{ width: "100%", textAlign: "center", mb: 2 }}>

@@ -74,16 +74,29 @@ describe("SignUp", () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it("送信が完了したら登録ボタンが再び押せる", async () => {
+  it("送信に成功したら画面遷移が終わるまで登録ボタンは非活性のまま", async () => {
     const onSubmit = vi.fn(async () => {});
     vi.mocked(useSubmit).mockReturnValue({ onSubmit });
     render(<SignUp userRole="student" />);
 
     await fillAndSubmit();
 
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: "登録" })).toBeEnabled(),
-    );
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    expect(screen.getByRole("button", { name: "登録中..." })).toBeDisabled();
+  });
+
+  it("送信でエラーが出たら登録ボタンが再び押せる", async () => {
+    vi.mocked(useSubmit).mockImplementation(({ setErrorMessage }) => ({
+      onSubmit: async () => {
+        setErrorMessage("新規登録に失敗しました");
+      },
+    }));
+    render(<SignUp userRole="student" />);
+
+    await fillAndSubmit();
+
+    await screen.findByRole("alert");
+    expect(screen.getByRole("button", { name: "登録" })).toBeEnabled();
   });
 
   it("送信でエラーが出たらエラー表示へスクロールする", async () => {
