@@ -7,7 +7,7 @@ export const PRIORITY = {
 } as const;
 
 // API(バックエンドのenum)は優先度を文字列(very_low 〜 very_high)で返すが、
-// フォームの値は数値(1〜5)なので、対応表が要る。キーの綴りは rails/app/models/draft_task.rb と同じ。
+// フォームの値は数値(1〜5)なので、対応表が要る。キーの綴りはバックエンドのenum定義と同じ。
 export const PRIORITY_BY_KEY: Record<string, number> = Object.fromEntries(
   Object.entries(PRIORITY).map(([key, value]) => [key.toLowerCase(), value]),
 );
