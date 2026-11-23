@@ -55,7 +55,7 @@ const CreateTaskBody = ({
   } = useCourses();
 
   // 期限のバリデーション(目標の期限以前か)にだけ使う。取得できなくても
-  // フォームの表示自体はブロックしない(認可はRails側のバリデーションが最終防衛)
+  // フォームの表示自体はブロックしない(バックエンド側のバリデーションが最終防衛)
   const { data: goal } = useApiQuery<{ due_date: string }>(
     `/api/student/goals/${goalId}`,
   );

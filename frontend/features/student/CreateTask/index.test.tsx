@@ -158,7 +158,7 @@ describe("CreateTask", () => {
       goal_id: 9,
       title: "英単語100個を覚える",
       content: "単語帳1〜100",
-      // API(Rails の enum)は優先度を文字列で返す
+      // API(バックエンドのenum)は優先度を文字列で返す
       priority: "high",
       due_date: "2026-09-01",
       units: [

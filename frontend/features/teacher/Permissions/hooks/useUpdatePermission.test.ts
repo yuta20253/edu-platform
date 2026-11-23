@@ -153,7 +153,7 @@ describe("useUpdatePermission", () => {
       await result.current.handleUpdate(payload);
     });
 
-    // Railsの「再読み込みしてください」ではなく、自動で取り直す挙動に合った文言にする
+    // バックエンドの「再読み込みしてください」ではなく、自動で取り直す挙動に合った文言にする
     expect(result.current.updateErrors).toEqual([
       "ほかの人が先にこの教員の権限を変更しました。最新の内容を確認して、保存し直してください",
     ]);
@@ -162,7 +162,7 @@ describe("useUpdatePermission", () => {
     expect(onUpdated).toHaveBeenCalledTimes(1);
   });
 
-  it("403(開いている間に自分の権限が外された)のときは、ドロワーを閉じてsnackbarでRailsの文言を出し、一覧を取り直す", async () => {
+  it("403(開いている間に自分の権限が外された)のときは、ドロワーを閉じてsnackbarでバックエンドの文言を出し、一覧を取り直す", async () => {
     vi.mocked(apiClient.patch).mockRejectedValue({
       response: {
         status: 403,
