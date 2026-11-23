@@ -35,14 +35,14 @@ type Props = {
   correctChoiceNumber: number | null;
   isAnswered: boolean;
   isLastQuestion: boolean;
-  openedHintStep: number;
+  openedHintSteps: Set<number>;
   isSubmitting: boolean;
   submitError: string | null;
   onAnswer: (choiceId: number) => void;
   onSkip: () => void;
   onNextQuestion: () => void;
   onOpenHint: (hintNum: number) => void;
-  onCloseHint: () => void;
+  onCloseHint: (hintNum: number) => void;
   onRetry: () => void;
 };
 
@@ -58,7 +58,7 @@ export const Presenter = ({
   correctChoiceNumber,
   isAnswered,
   isLastQuestion,
-  openedHintStep,
+  openedHintSteps,
   isSubmitting,
   submitError,
   onAnswer,
@@ -218,7 +218,7 @@ export const Presenter = ({
                 <Box sx={{ mt: 3 }}>
                   {question.question_hints.map((hint) => (
                     <Box key={hint.id} sx={{ mb: 2 }}>
-                      {openedHintStep !== hint.step_number ? (
+                      {!openedHintSteps.has(hint.step_number) ? (
                         <Box
                           onClick={() => onOpenHint(hint.step_number)}
                           sx={{
@@ -260,7 +260,7 @@ export const Presenter = ({
                             </Typography>
 
                             <Box
-                              onClick={onCloseHint}
+                              onClick={() => onCloseHint(hint.step_number)}
                               sx={{
                                 fontSize: 13,
                                 color: "text.secondary",

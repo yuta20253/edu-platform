@@ -240,7 +240,7 @@ describe("useQuestion", () => {
     );
   });
 
-  it("回答が完了するとopenedHintStepが0にリセットされる", async () => {
+  it("回答が完了するとopenedHintStepsが空にリセットされる", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: { is_correct: true } });
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
@@ -248,32 +248,69 @@ describe("useQuestion", () => {
     );
 
     act(() => {
-      result.current.setOpenedHintStep(2);
+      result.current.openHint(2);
     });
-    expect(result.current.openedHintStep).toBe(2);
+    expect(result.current.openedHintSteps.has(2)).toBe(true);
 
     await act(async () => {
       await result.current.handleAnswer(101);
     });
 
-    expect(result.current.openedHintStep).toBe(0);
+    expect(result.current.openedHintSteps.size).toBe(0);
   });
 
-  it("次の問題に進むとopenedHintStepが0にリセットされる", () => {
+  it("次の問題に進むとopenedHintStepsが空にリセットされる", () => {
     const questions = [makeQuestion({ id: 1 }), makeQuestion({ id: 2 })];
     const { result } = renderHook(() =>
       useQuestion({ questions, taskId: 5, unitId: 11 }),
     );
 
     act(() => {
-      result.current.setOpenedHintStep(1);
+      result.current.openHint(1);
     });
 
     act(() => {
       result.current.handleSkip();
     });
 
-    expect(result.current.openedHintStep).toBe(0);
+    expect(result.current.openedHintSteps.size).toBe(0);
+  });
+
+  it("ヒント1とヒント2を両方開くと両方が開いた状態になる", () => {
+    const questions = [makeQuestion({ id: 1 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    act(() => {
+      result.current.openHint(1);
+    });
+    act(() => {
+      result.current.openHint(2);
+    });
+
+    expect(result.current.openedHintSteps.has(1)).toBe(true);
+    expect(result.current.openedHintSteps.has(2)).toBe(true);
+  });
+
+  it("開いたヒントをcloseHintで閉じると、もう片方は開いたままになる", () => {
+    const questions = [makeQuestion({ id: 1 })];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    act(() => {
+      result.current.openHint(1);
+    });
+    act(() => {
+      result.current.openHint(2);
+    });
+    act(() => {
+      result.current.closeHint(1);
+    });
+
+    expect(result.current.openedHintSteps.has(1)).toBe(false);
+    expect(result.current.openedHintSteps.has(2)).toBe(true);
   });
 
   it("送信中に再度回答しても二重に送信されない", async () => {

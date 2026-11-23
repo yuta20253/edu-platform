@@ -102,6 +102,7 @@ export type StudentTask = {
 export type StudentGoalsData = {
   student: StudentSummary;
   goals: StudentGoal[];
+  meta: PaginationMeta;
 };
 
 export type StudentTasksData = {

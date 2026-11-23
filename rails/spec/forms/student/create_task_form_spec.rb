@@ -163,6 +163,47 @@ RSpec.describe Student::CreateTaskForm, type: :model do
     end
   end
 
+  context 'due_dateがgoalのdue_dateより後の場合' do
+    let(:goal) { create(:goal, user:, due_date: Date.new(2026, 2, 9)) }
+
+    before { subject.due_date = '2026-02-10' }
+
+    it '無効になる' do
+      expect(subject).not_to be_valid
+      expect(subject.errors[:due_date]).to include('は目標の期限以前にしてください')
+    end
+  end
+
+  context 'due_dateがgoalのdue_dateと同じ日の場合' do
+    let(:goal) { create(:goal, user:, due_date: Date.new(2026, 2, 10)) }
+
+    before { subject.due_date = '2026-02-10' }
+
+    it '有効になる' do
+      expect(subject).to be_valid
+    end
+  end
+
+  context 'due_dateがgoalのdue_dateより前の場合' do
+    let(:goal) { create(:goal, user:, due_date: Date.new(2026, 2, 11)) }
+
+    before { subject.due_date = '2026-02-10' }
+
+    it '有効になる' do
+      expect(subject).to be_valid
+    end
+  end
+
+  context 'goalのdue_dateが設定されていない場合' do
+    let(:goal) { create(:goal, user:, due_date: nil) }
+
+    before { subject.due_date = '2026-02-10' }
+
+    it '有効になる' do
+      expect(subject).to be_valid
+    end
+  end
+
   context 'unit_ids' do
     let!(:unit1) { create(:unit) }
     let!(:unit2) { create(:unit) }
