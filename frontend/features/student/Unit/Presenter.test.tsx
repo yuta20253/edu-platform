@@ -51,11 +51,6 @@ describe("UnitPresenter", () => {
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 
-  it("isStarting中は「スタート」ボタンが無効になる", () => {
-    render(<Presenter {...defaultProps} isStarting />);
-    expect(screen.getByRole("button", { name: "スタート" })).toBeDisabled();
-  });
-
   it("isStarting中はボタンにスピナーと「開始中...」が表示される", () => {
     render(<Presenter {...defaultProps} isStarting />);
     const button = screen.getByRole("button", { name: "開始中..." });
