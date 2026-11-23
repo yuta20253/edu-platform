@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Presenter } from "./Presenter";
 import type { UnitType } from "./types";
@@ -51,9 +51,19 @@ describe("UnitPresenter", () => {
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 
-  it("isStarting中は「スタート」ボタンが無効になる", () => {
+  it("isStarting中はボタンにスピナーと「開始中...」が表示される", () => {
     render(<Presenter {...defaultProps} isStarting />);
-    expect(screen.getByRole("button", { name: "スタート" })).toBeDisabled();
+    const button = screen.getByRole("button", { name: "開始中..." });
+    expect(button).toBeDisabled();
+    expect(within(button).getByRole("progressbar")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "スタート" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("isStartingでないときはスピナーが表示されない", () => {
+    render(<Presenter {...defaultProps} />);
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
   it("「タスク詳細へ戻る」リンクがgoalIdなしのタスクパスを指す", () => {
