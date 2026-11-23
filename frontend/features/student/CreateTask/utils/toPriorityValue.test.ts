@@ -3,7 +3,7 @@ import { PRIORITY } from "../constants";
 import { toPriorityValue } from "./toPriorityValue";
 
 describe("toPriorityValue", () => {
-  // キーの綴りは Rails の enum(rails/app/models/draft_task.rb)と同じ。
+  // キーの綴りはバックエンドのenum(rails/app/models/draft_task.rb)と同じ。
   // 5 つすべてを確かめて、綴りの食い違いを検知する。
   it.each([
     ["very_low", PRIORITY.VERY_LOW],
