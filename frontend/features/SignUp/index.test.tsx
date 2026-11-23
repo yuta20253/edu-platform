@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SignUp } from "./index";
@@ -70,7 +70,7 @@ describe("SignUp", () => {
 
     const button = await screen.findByRole("button", { name: "登録中..." });
     expect(button).toBeDisabled();
-    await userEvent.click(button);
+    fireEvent.click(button);
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 

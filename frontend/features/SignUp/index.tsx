@@ -16,7 +16,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Link from "next/link";
 import { UserRole } from "@/types/signUp/user_role";
@@ -51,7 +51,7 @@ export const SignUp = ({
     setValue,
     control,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<User>();
 
   const password = watch("user.password");
@@ -59,6 +59,17 @@ export const SignUp = ({
   const isClaimingExistingAccount = Boolean(studentNumber?.trim());
 
   const { onSubmit } = useSubmit({ setErrorMessage, userRole });
+
+  const errorAlertRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (errorMessage) {
+      errorAlertRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [errorMessage]);
 
   const roleTitleMap: Record<UserRole, string> = {
     student: "生徒",
@@ -96,7 +107,7 @@ export const SignUp = ({
           新規登録({roleTitleMap[userRole]})
         </Typography>
         {errorMessage && (
-          <Alert severity="error" sx={{ mt: 2 }}>
+          <Alert severity="error" sx={{ mt: 2 }} ref={errorAlertRef}>
             {errorMessage}
           </Alert>
         )}
@@ -325,7 +336,9 @@ export const SignUp = ({
               />
             </Box>
             <Box sx={{ my: 4 }}>
-              <PrimaryCta type="submit">登録</PrimaryCta>
+              <PrimaryCta type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "登録中..." : "登録"}
+              </PrimaryCta>
             </Box>
             <Box sx={{ width: "100%", textAlign: "center", mb: 2 }}>
               <Link href="/login" style={{ color: colors.accent[600] }}>
