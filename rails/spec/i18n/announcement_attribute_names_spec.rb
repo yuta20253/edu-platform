@@ -4,7 +4,7 @@ require 'rails_helper'
 
 # お知らせのバリデーションエラーは full_messages で「項目名 + メッセージ」になる。
 # 項目名の訳が無いと「Announcement targets 学年を指定してください」のように英語が混ざる。
-RSpec.describe 'お知らせの項目名の訳' do
+RSpec.describe Announcement, 'お知らせの項目名の訳' do
   attributes = %i[title content status scheduled_at announcement_targets]
   klasses = [Admin::AnnouncementForm, Teacher::CreateAnnouncementForm, Teacher::UpdateAnnouncementForm]
 
