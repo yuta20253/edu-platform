@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AddressesQuery
-  def initialize(prefecture_id:, city:, town:, relation: Address.includes(:prefecture))
+  def initialize(prefecture_id:, city:, town:, relation: Address.active.includes(:prefecture))
     @relation = relation
     @prefecture_id = prefecture_id
     @city = city
