@@ -203,7 +203,7 @@ export const SignUp = ({
                   }}
                   renderInput={(params) => <TextField {...params} />}
                 />
-                <Typography sx={{ color: "red" }}>
+                <Typography sx={{ color: "text.secondary" }}>
                   都道府県を選択後、学校名を2文字以上入力すると候補が表示されます
                 </Typography>
                 {userRole === "student" && selectedHighSchool && (

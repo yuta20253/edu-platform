@@ -121,4 +121,15 @@ describe("SignUp", () => {
 
     expect(scrollIntoView).not.toHaveBeenCalled();
   });
+
+  it("学校名検索の注釈テキストはエラーに見えない注釈色(text.secondary)で表示される", () => {
+    vi.mocked(useSubmit).mockReturnValue({ onSubmit: vi.fn() });
+    render(<SignUp userRole="student" />);
+
+    const hint = screen.getByText(
+      "都道府県を選択後、学校名を2文字以上入力すると候補が表示されます",
+    );
+
+    expect(getComputedStyle(hint).color).toBe("rgba(0, 0, 0, 0.6)");
+  });
 });
