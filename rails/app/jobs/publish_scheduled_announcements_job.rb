@@ -16,7 +16,7 @@ class PublishScheduledAnnouncementsJob < ApplicationJob
 
   def publish(announcement)
     announcement.with_lock do
-      announcement.update!(status: :published)
+      announcement.update!(status: :published, scheduled_at: nil)
       Rails.logger.info("published announcement id=#{announcement.id}")
     end
   rescue StandardError => e
