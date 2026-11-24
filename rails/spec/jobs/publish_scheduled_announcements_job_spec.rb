@@ -37,6 +37,22 @@ RSpec.describe PublishScheduledAnnouncementsJob, type: :job do
         end
       end
 
+      it '配信後はscheduled_atがnilになる（手動配信と揃える）' do
+        freeze_time do
+          announcement = create(
+            :announcement,
+            :scheduled,
+            scheduled_at: 1.minute.from_now
+          )
+
+          travel 2.minutes
+
+          described_class.perform_now
+
+          expect(announcement.reload.scheduled_at).to be_nil
+        end
+      end
+
       it '複数のscheduledをまとめてpublishedにする' do
         freeze_time do
           announcement1 = create(
