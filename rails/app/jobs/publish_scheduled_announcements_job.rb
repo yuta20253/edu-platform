@@ -16,6 +16,8 @@ class PublishScheduledAnnouncementsJob < ApplicationJob
 
   def publish(announcement)
     announcement.with_lock do
+      return unless announcement.scheduled?
+
       announcement.update!(status: :published, scheduled_at: nil)
       Rails.logger.info("published announcement id=#{announcement.id}")
     end
