@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { Presenter } from "./Presenter";
 import type { EditTaskForm, Task } from "./types";
 import type { Course } from "@/types/tasks/course";
+import type { SubjectName } from "@/constants/subject";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -16,6 +17,13 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+const taskCourse = {
+  id: 1,
+  level_number: 1,
+  level_name: "標準",
+  subject_name: "英語" as const,
+};
+
 const mockTask: Task = {
   id: 1,
   goal_id: 10,
@@ -26,8 +34,20 @@ const mockTask: Task = {
   status: "not_started",
   completed_at: "",
   units: [
-    { id: 11, course_id: 1, unit_name: "be動詞", started: false },
-    { id: 12, course_id: 1, unit_name: "一般動詞", started: true },
+    {
+      id: 11,
+      course_id: 1,
+      unit_name: "be動詞",
+      started: false,
+      course: taskCourse,
+    },
+    {
+      id: 12,
+      course_id: 1,
+      unit_name: "一般動詞",
+      started: true,
+      course: taskCourse,
+    },
   ],
 };
 
@@ -47,8 +67,9 @@ type WrapperProps = {
   goalId?: number;
   courses?: Course[] | null;
   selectedCourseId?: number | null;
+  selectedSubject?: SubjectName | null;
   showAllCourses?: boolean;
-  fetchCourse?: (name: string) => Promise<void>;
+  fetchCourse?: (name: string) => Promise<boolean>;
   selectedCourse?: Course | null;
   displayedCourses?: Course[] | null;
   setSelectedCourseId?: (value: number | null) => void;
@@ -66,6 +87,7 @@ const Wrapper = ({
   goalId,
   courses = null,
   selectedCourseId = null,
+  selectedSubject = null,
   showAllCourses = false,
   fetchCourse = vi.fn(),
   selectedCourse = null,
@@ -92,6 +114,7 @@ const Wrapper = ({
       task={task}
       courses={courses}
       selectedCourseId={selectedCourseId}
+      selectedSubject={selectedSubject}
       showAllCourses={showAllCourses}
       fetchCourse={fetchCourse}
       selectedCourse={selectedCourse}

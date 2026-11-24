@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Chip, Typography } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, Typography } from "@mui/material";
 import Link from "next/link";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { colors } from "@/app/theme/colors";
@@ -86,8 +86,11 @@ export const Presenter = ({
           size="large"
           onClick={onStart}
           disabled={isStarting}
+          startIcon={
+            isStarting ? <CircularProgress size={16} color="inherit" /> : null
+          }
         >
-          スタート
+          {isStarting ? "開始中..." : "スタート"}
         </Button>
       </Box>
     </Box>

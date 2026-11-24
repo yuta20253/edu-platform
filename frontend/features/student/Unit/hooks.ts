@@ -35,9 +35,8 @@ export const useStartStudyLog = ({
     } catch (error) {
       console.error(error);
       router.push(questionsPath);
-    } finally {
-      setIsStarting(false);
     }
+    // 成功・失敗どちらも遷移するため、遷移が終わるまで isStarting は戻さない
   };
 
   return { handleStart, isStarting };

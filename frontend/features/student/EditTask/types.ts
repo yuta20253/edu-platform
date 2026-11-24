@@ -1,5 +1,6 @@
 import { Status } from "@/types/common/status";
 import { Unit } from "@/types/tasks/unit";
+import { SubjectName } from "@/constants/subject";
 
 export type Task = {
   id: number;
@@ -23,4 +24,13 @@ export type EditTaskForm = {
 
 export type TaskUnit = Unit & {
   started: boolean;
+  // 既存のUnit型には無い教科・講座の表示情報(編集時の自動選択に使う)
+  course: {
+    id: number;
+    level_number: number;
+    level_name: string;
+    // API は文字列を返す。マスターの教科名が SubjectName のいずれかであることを前提にしている
+    // (教科を追加するときは constants/subject も合わせて更新する)
+    subject_name: SubjectName;
+  };
 };

@@ -26,8 +26,9 @@ type Props = {
   displayedCourses: Course[] | null | undefined;
   selectedCourse: Course | null;
   selectedCourseId: number | null;
+  selectedSubject: SubjectName | null;
   showAllCourses: boolean;
-  fetchCourse: (name: SubjectName) => Promise<void>;
+  fetchCourse: (name: SubjectName) => Promise<boolean>;
   setSelectedCourseId: (value: number | null) => void;
   /** 「もっと見る」「閉じる」の切替 */
   onToggleShowAll: () => void;
@@ -43,6 +44,7 @@ export const CourseSelector = ({
   displayedCourses,
   selectedCourse,
   selectedCourseId,
+  selectedSubject,
   showAllCourses,
   fetchCourse,
   setSelectedCourseId,
@@ -57,7 +59,7 @@ export const CourseSelector = ({
       <TextField
         select
         fullWidth
-        defaultValue=""
+        value={selectedSubject ?? ""}
         onChange={(e) => fetchCourse(e.target.value as SubjectName)}
         slotProps={{
           select: {

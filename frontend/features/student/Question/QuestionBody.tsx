@@ -14,7 +14,7 @@ type Props = {
 };
 
 // 取得が終わってから描画する。useQuestion の状態は取得後にしか生まれず、
-// 失敗 → 再試行 → 成功のときも作り直されて最初の問題から始まる
+// 失敗 → 再試行 → 成功のときも作り直されて最初の未回答問題から始まる
 export const QuestionBody = ({
   questions,
   taskId,

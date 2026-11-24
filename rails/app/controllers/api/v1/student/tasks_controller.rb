@@ -31,7 +31,7 @@ module Api
         end
 
         def show
-          task = current_user.tasks.includes(units: :course).find(params.expect(:id))
+          task = current_user.tasks.includes(units: { course: :subject }).find(params.expect(:id))
 
           render json: task,
                  serializer: TaskDetailSerializer,

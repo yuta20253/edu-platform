@@ -11,7 +11,8 @@ class UnitDetailSerializer < ActiveModel::Serializer
     {
       id: object.course.id,
       level_number: object.course.level_number,
-      level_name: object.course.level_name
+      level_name: object.course.level_name,
+      subject_name: object.course.subject.name
     }
   end
 end

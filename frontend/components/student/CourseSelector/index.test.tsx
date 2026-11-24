@@ -18,6 +18,7 @@ const baseProps = {
   displayedCourses: courses.slice(0, 3),
   selectedCourse: null,
   selectedCourseId: null,
+  selectedSubject: null,
   showAllCourses: false,
   fetchCourse: vi.fn(),
   setSelectedCourseId: vi.fn(),

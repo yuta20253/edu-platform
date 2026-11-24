@@ -44,6 +44,34 @@ describe("useQuestion", () => {
     expect(result.current.isLastQuestion).toBe(false);
   });
 
+  it("一部の問題が回答済みのとき、最初の未回答問題から始まる", () => {
+    const questions = [
+      makeQuestion({ id: 1, answered: true }),
+      makeQuestion({ id: 2, answered: false }),
+      makeQuestion({ id: 3, answered: false }),
+    ];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    expect(result.current.currentIndex).toBe(1);
+    expect(result.current.currentQuestion?.id).toBe(2);
+  });
+
+  it("全問が回答済みのとき、解き直せるように最初の問題から始まる", () => {
+    const questions = [
+      makeQuestion({ id: 1, answered: true }),
+      makeQuestion({ id: 2, answered: true }),
+    ];
+    const { result } = renderHook(() =>
+      useQuestion({ questions, taskId: 5, unitId: 11 }),
+    );
+
+    expect(result.current.currentIndex).toBe(0);
+    expect(result.current.currentQuestion?.id).toBe(1);
+    expect(result.current.isLastQuestion).toBe(false);
+  });
+
   it("未回答の問題に回答するとapiClient.postが呼ばれ、結果がセットされる", async () => {
     vi.mocked(apiClient.post).mockResolvedValue({
       data: { is_correct: true, correct_answer: 1 },
