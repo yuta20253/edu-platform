@@ -1400,6 +1400,12 @@ RSpec.describe 'Api::V1::Teacher::Announcements', type: :request do
       let!(:announcement) { create(:announcement, :published, publisher: teacher) }
 
       it_behaves_like '更新されない'
+
+      it '編集できない理由が返される' do
+        patch_announcement
+
+        expect(response.parsed_body['errors']).to eq(['配信済みのお知らせは編集できません'])
+      end
     end
 
     context '異常系 - announcement_targetsを指定しない(statusのみの更新)' do
