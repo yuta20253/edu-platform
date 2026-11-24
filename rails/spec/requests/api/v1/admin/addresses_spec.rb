@@ -53,6 +53,18 @@ RSpec.describe 'Api::V1::Admin::Addresses', type: :request do
       expect(ids).to include(address.id)
     end
 
+    it '論理削除済みの住所は含まれない' do
+      address = create(:address, prefecture: prefecture)
+      deleted_address = create(:address, prefecture: prefecture, deleted_at: Time.current)
+      get '/api/v1/admin/addresses',
+          params: { prefecture_id: prefecture.id },
+          headers: headers.merge('Cookie' => cookie)
+
+      ids = response.parsed_body.pluck('id')
+      expect(ids).to include(address.id)
+      expect(ids).not_to include(deleted_address.id)
+    end
+
     it 'city で絞り込める' do
       create(:address, prefecture: prefecture, city: '千代田区')
       create(:address, prefecture: prefecture, city: '港区')
