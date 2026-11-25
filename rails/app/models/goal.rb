@@ -33,7 +33,9 @@ class Goal < ApplicationRecord
   def soft_delete!
     transaction do
       lock!
-      raise HasActiveTasksError, '進行中または完了のタスクがあるため削除できません' if active_tasks.exists?
+      # 目標の行ロックだけでは、既存タスクのステータス更新（未着手→進行中）を止められない。
+      # 紐づくタスクの行も先にロックし、判定から削除までの間の更新を待たせる。
+      raise HasActiveTasksError, '進行中または完了のタスクがあるため削除できません' if tasks.lock.any? { |task| !task.not_started? }
 
       now = Time.current
       update_columns(deleted_at: now, updated_at: now)
