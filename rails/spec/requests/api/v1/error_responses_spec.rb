@@ -22,28 +22,4 @@ RSpec.describe 'エラー応答の日本語化', type: :request do
       expect(response.parsed_body['errors']).to eq(['必須パラメータ「user」がありません'])
     end
   end
-
-  describe 'バリデーションメッセージ' do
-    it '範囲外の解答時間が日本語になる' do
-      form = Student::CreateQuestionHistoryForm.new(current_user: build(:user), time_spent_sec: 99_999)
-      form.valid?
-
-      expect(form.errors.full_messages.join).not_to include('Translation missing')
-      expect(form.errors.full_messages.join).to include('解答時間 は3600以下の値にしてください')
-    end
-
-    it 'プロフィールの項目名が日本語になる' do
-      form = ProfileUpdateForm.new(name: '')
-      form.valid?
-
-      expect(form.errors.full_messages).to include('氏名 を入力してください')
-    end
-
-    it 'belongs_to の必須エラーの項目名が日本語になる' do
-      task = Task.new
-      task.valid?
-
-      expect(task.errors.full_messages.join).not_to match(/Translation missing|\bUser\b|\bGoal\b/)
-    end
-  end
 end

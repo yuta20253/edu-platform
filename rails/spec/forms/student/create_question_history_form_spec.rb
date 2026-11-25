@@ -274,4 +274,14 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
       end
     end
   end
+
+  describe 'time_spent_sec の範囲外' do
+    let(:params) { super().merge(time_spent_sec: 99_999) }
+
+    it '日本語のエラーメッセージになる' do
+      form.valid?
+
+      expect(form.errors.full_messages).to include('解答時間 は3600以下の値にしてください')
+    end
+  end
 end
