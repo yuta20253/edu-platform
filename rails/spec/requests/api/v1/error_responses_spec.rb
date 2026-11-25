@@ -6,11 +6,11 @@ RSpec.describe 'エラー応答の日本語化', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   describe '未認証' do
-    it '日本語のerrors配列で401を返す' do
+    it '日本語のメッセージで401を返す' do
       get '/api/v1/me', headers: headers
 
       expect(response).to have_http_status(:unauthorized)
-      expect(response.parsed_body).to eq('errors' => ['ログインしてください'])
+      expect(response.parsed_body).to eq('error' => 'ログインしてください')
     end
   end
 
