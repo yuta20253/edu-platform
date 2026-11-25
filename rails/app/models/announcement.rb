@@ -98,13 +98,13 @@ class Announcement < ApplicationRecord
   def prevent_destroy_when_published
     return if editable?
 
-    errors.add(:base, 'は配信済みのため削除できません')
+    errors.add(:base, '配信済みのお知らせは削除できません')
     throw :abort
   end
 
   def immutable_once_published
     return if editable?
 
-    errors.add(:base, 'は配信済みのため編集できません')
+    errors.add(:base, '配信済みのお知らせは編集できません')
   end
 end

@@ -100,6 +100,8 @@ ja:
         title: タイトル
         content: 本文
         status: 状態
+        scheduled_at: 配信日時
+        announcement_targets: 配信先
       admin/question_import_form:
         question_text: 問題文
         correct_answer: 正解番号
@@ -177,6 +179,9 @@ ja:
       teacher/create_announcement_form:
         title: タイトル
         content: 本文
+        status: 状態
+        scheduled_at: 配信日時
+        announcement_targets: 配信先
       teacher/create_interview_request_form:
         student_id: 生徒
         reason_detail: 相談内容
@@ -208,6 +213,9 @@ ja:
       teacher/update_announcement_form:
         title: タイトル
         content: 本文
+        status: 状態
+        scheduled_at: 配信日時
+        announcement_targets: 配信先
       teacher/update_permission_form:
         grade_scope: 操作範囲
         manage_other_teachers: 他の教員操作権限
