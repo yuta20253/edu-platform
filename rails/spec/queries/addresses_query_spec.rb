@@ -102,6 +102,42 @@ RSpec.describe AddressesQuery, type: :model do
       end
     end
 
+    context '論理削除済みの住所がある場合' do
+      let!(:deleted_address) do
+        create(:address, prefecture: tokyo, city: '新橋', town: '新橋', deleted_at: Time.current)
+      end
+
+      it '都道府県で絞り込んでも論理削除済みの住所は含まれない' do
+        result = described_class.new(
+          prefecture_id: tokyo.id,
+          city: nil,
+          town: nil
+        ).call
+
+        expect(result).to contain_exactly(shinjuku_address, shibuya_address)
+      end
+
+      it '市区町村・町名に一致していても論理削除済みの住所は含まれない' do
+        result = described_class.new(
+          prefecture_id: tokyo.id,
+          city: '新橋',
+          town: '新橋'
+        ).call
+
+        expect(result).to be_empty
+      end
+
+      it '条件なしでも論理削除済みの住所は含まれない' do
+        result = described_class.new(
+          prefecture_id: nil,
+          city: nil,
+          town: nil
+        ).call
+
+        expect(result).not_to include(deleted_address)
+      end
+    end
+
     context '空文字が渡された場合' do
       it '空文字は無視されて全件対象になる' do
         result = described_class.new(

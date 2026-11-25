@@ -17,4 +17,6 @@
 class Address < ApplicationRecord
   belongs_to :prefecture
   has_many :users
+
+  scope :active, -> { where(deleted_at: nil) }
 end

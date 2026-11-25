@@ -130,6 +130,21 @@ RSpec.describe 'Api::V1::Addresses', type: :request do
         expect(json).to be_empty
       end
 
+      it '論理削除済みの住所は検索結果に含まれない' do
+        deleted_address = create(:address, prefecture: tokyo, city: '新橋', town: '新橋', deleted_at: Time.current)
+
+        get '/api/v1/addresses',
+            params: { prefecture_id: tokyo.id },
+            headers: headers.merge('Cookie' => cookie)
+
+        expect(response).to have_http_status(:ok)
+
+        returned_ids = response.parsed_body.pluck('id')
+
+        expect(returned_ids).not_to include(deleted_address.id)
+        expect(returned_ids).to contain_exactly(shinjuku_address.id, shibuya_address.id)
+      end
+
       it '空文字パラメータは無視される' do
         get '/api/v1/addresses',
             params: {
