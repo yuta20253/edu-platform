@@ -1,0 +1,12 @@
+ja:
+  devise:
+    failure:
+      already_authenticated: "すでにログインしています"
+      inactive: "アカウントが有効化されていません"
+      invalid: "%{authentication_keys}またはパスワードが違います"
+      locked: "アカウントがロックされています"
+      last_attempt: "あと1回間違えるとアカウントがロックされます"
+      not_found_in_database: "%{authentication_keys}またはパスワードが違います"
+      timeout: "セッションの有効期限が切れました。もう一度ログインしてください"
+      unauthenticated: "ログインしてください"
+      unconfirmed: "メールアドレスの確認が必要です"

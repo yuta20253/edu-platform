@@ -14,6 +14,7 @@ class ApplicationController < ActionController::API
   rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
   rescue_from ActiveRecord::RecordNotDestroyed, with: :record_not_destroyed
   rescue_from ActiveRecord::StaleObjectError, with: :stale_object
+  rescue_from ActionController::ParameterMissing, with: :parameter_missing
 
   DEFAULT_PER_PAGE = 20
   MAX_PER_PAGE = 100
@@ -36,6 +37,10 @@ class ApplicationController < ActionController::API
   # destroy! が restrict_with_error や before_destroy で止められたとき
   def record_not_destroyed(exception)
     render json: { errors: exception.record.errors.full_messages }, status: :unprocessable_content
+  end
+
+  def parameter_missing(exception)
+    render json: { errors: ["必須パラメータ「#{exception.param}」がありません"] }, status: :bad_request
   end
 
   def stale_object

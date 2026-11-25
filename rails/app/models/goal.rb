@@ -31,9 +31,12 @@ class Goal < ApplicationRecord
   # dependent: :restrict_with_errorはActiveRecordの物理destroyにしかフックできず
   # この論理削除とは両立しないため、active_tasksを見て自前でガードする。
   def soft_delete!
-    raise HasActiveTasksError, '進行中または完了のタスクがあるため削除できません' if active_tasks.exists?
+    transaction do
+      lock!
+      raise HasActiveTasksError, '進行中または完了のタスクがあるため削除できません' if active_tasks.exists?
 
-    now = Time.current
-    update_columns(deleted_at: now, updated_at: now)
+      now = Time.current
+      update_columns(deleted_at: now, updated_at: now)
+    end
   end
 end
