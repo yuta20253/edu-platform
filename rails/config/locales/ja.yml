@@ -40,6 +40,7 @@ ja:
       wrong_length: "は%{count}個でなければなりません"
       taken: "はすでに存在します"
       present: "は入力しないでください"
+      too_short: "は%{count}文字以上で入力してください"
       required: "を入力してください"
       not_a_number: "は数値で入力してください"
       not_an_integer: "は整数で入力してください"
@@ -60,6 +61,20 @@ ja:
       high_school: 高校
       school_class_request: 学級申請
       school_class: 学級
+    # 状態遷移のエラーメッセージで表示する、enum の値の訳
+    enums:
+      announcement:
+        status:
+          draft: 下書き
+          scheduled: 予約済み
+          published: 配信済み
+      interview_request:
+        status:
+          requested: 申請中
+          scheduling: 日程調整中
+          confirmed: 確定
+          completed: 完了
+          cancelled: キャンセル
     attributes:
       announcement:
         title: タイトル
@@ -74,6 +89,7 @@ ja:
       import_history:
         unit: 単元
       interview_request:
+        status: 状態
         reason_detail: 相談内容
         reason_category: 相談カテゴリ
       interview_request_message:
@@ -82,6 +98,7 @@ ja:
         users: 生徒
         name: クラス名
       school_class_request:
+        school_class_id: 学級
         reason: 理由
       task:
         status: 状態

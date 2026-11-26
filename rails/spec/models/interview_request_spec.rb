@@ -191,6 +191,16 @@ RSpec.describe InterviewRequest, type: :model do
     end
   end
 
+  describe '#validate (ステータス遷移のエラーメッセージ)' do
+    it '項目名と状態が日本語で表示される' do
+      request = create(:interview_request, :initiated_by_teacher, status: 'requested')
+      request.status = 'completed'
+      request.valid?
+
+      expect(request.errors.full_messages).to include('状態は申請中から完了へは変更できません')
+    end
+  end
+
   describe '.for_participant' do
     let!(:student) { create(:user, :student) }
     let!(:teacher) { create(:user, :teacher) }
