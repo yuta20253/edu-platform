@@ -272,4 +272,13 @@ RSpec.describe User, type: :model do
       expect(described_class.accepted_students).to be_empty
     end
   end
+
+  describe 'パスワードの長さ' do
+    it '短いとき日本語のエラーメッセージになる' do
+      user = build(:user, password: 'a', password_confirmation: 'a')
+      user.valid?
+
+      expect(user.errors.full_messages).to include('パスワードは6文字以上で入力してください')
+    end
+  end
 end

@@ -72,6 +72,7 @@ RSpec.describe SchoolClassRequest, type: :model do
         new_request.valid?
 
         expect(new_request.errors[:school_class_id]).to include('に対して承認待ちの申請が既に存在します')
+        expect(new_request.errors.full_messages).to include('学級に対して承認待ちの申請が既に存在します')
       end
     end
 

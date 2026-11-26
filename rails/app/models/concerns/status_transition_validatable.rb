@@ -21,6 +21,10 @@ module StatusTransitionValidatable
 
     return if self.class::STATUS_TRANSITIONS.fetch(from, []).include?(to)
 
-    errors.add(:status, "は#{from}から#{to}へは変更できません")
+    errors.add(:status, "は#{status_label(from)}から#{status_label(to)}へは変更できません")
+  end
+
+  def status_label(value)
+    I18n.t("activerecord.enums.#{self.class.model_name.i18n_key}.status.#{value}", default: value.to_s)
   end
 end
