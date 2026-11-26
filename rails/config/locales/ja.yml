@@ -1,4 +1,33 @@
 ja:
+  # モデル個別の訳が無いときの共通の項目名（belongs_to の必須エラーなどで使う）
+  attributes:
+    announcement: お知らせ
+    applicant: 申請者
+    course: コース
+    draft_task: 下書きタスク
+    email: メールアドレス
+    goal: 目標
+    grade: 学年
+    high_school: 高校
+    import_history: インポート履歴
+    initiator: 申請者
+    interview_request: 面談申請
+    name: 名前
+    prefecture: 都道府県
+    publisher: 配信者
+    question: 問題
+    question_choice: 選択肢
+    receiver_user: 受信者
+    school_class: 学級
+    sender: 送信者
+    sender_user: 送信者
+    student: 生徒
+    subject: 教科
+    task: タスク
+    teacher: 教員
+    unit: 単元
+    user: ユーザー
+    user_id: ユーザー
   errors:
     messages:
       blank: "を入力してください"
@@ -9,6 +38,11 @@ ja:
       wrong_length: "は%{count}個でなければなりません"
       taken: "はすでに存在します"
       present: "は入力しないでください"
+      required: "を入力してください"
+      not_a_number: "は数値で入力してください"
+      not_an_integer: "は整数で入力してください"
+      greater_than_or_equal_to: "は%{count}以上の値にしてください"
+      less_than_or_equal_to: "は%{count}以下の値にしてください"
   activerecord:
     models:
       goal: 目標
@@ -70,7 +104,7 @@ ja:
         gender: 性別
     errors:
       messages:
-        record_invalid: "バリデーションに失敗しました"
+        record_invalid: "バリデーションに失敗しました: %{errors}"
         restrict_dependent_destroy:
           has_one: "%{record}が存在するため削除できません"
           has_many: "%{record}が存在するため削除できません"
@@ -125,6 +159,8 @@ ja:
         from: 開始日
         to: 終了日
       profile_update_form:
+        name: 氏名
+        name_kana: 氏名カナ
         address_id: 住所
         birthday: 生年月日
         gender: 性別

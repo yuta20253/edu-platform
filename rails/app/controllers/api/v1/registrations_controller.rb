@@ -16,6 +16,8 @@ module Api
         render json: { errors: [e.message] }, status: :unprocessable_content
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+      rescue ActionController::ParameterMissing
+        raise
       rescue StandardError
         render json: { errors: ['予期せぬエラーが発生しました'] }, status: :internal_server_error
       end

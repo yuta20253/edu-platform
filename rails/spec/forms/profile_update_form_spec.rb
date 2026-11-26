@@ -128,4 +128,13 @@ RSpec.describe ProfileUpdateForm, type: :model do
       end
     end
   end
+
+  describe 'エラーメッセージ' do
+    it '氏名の項目名が日本語になる' do
+      form = described_class.new(name: '')
+      form.valid?
+
+      expect(form.errors.full_messages).to include('氏名 を入力してください')
+    end
+  end
 end

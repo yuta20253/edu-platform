@@ -6,6 +6,14 @@ RSpec.describe Goal, type: :model do
   describe '#soft_delete!' do
     let(:goal) { create(:goal) }
 
+    it '判定と削除を行ロックの取得後に行う（競合でタスク付きの目標を消さないため）' do
+      allow(goal).to receive(:lock!).and_call_original
+
+      goal.soft_delete!
+
+      expect(goal).to have_received(:lock!)
+    end
+
     context 'タスクがない場合' do
       it '削除できる' do
         expect { goal.soft_delete! }.to change { goal.reload.deleted_at }.from(nil)

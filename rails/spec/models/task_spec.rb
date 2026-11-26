@@ -123,4 +123,13 @@ RSpec.describe Task, type: :model do
       expect(task.completed_at).to be_nil
     end
   end
+
+  describe 'belongs_to の必須エラー' do
+    it '項目名が日本語になる' do
+      task = described_class.new
+      task.valid?
+
+      expect(task.errors.full_messages).to include('ユーザー を入力してください', '目標 を入力してください')
+    end
+  end
 end
