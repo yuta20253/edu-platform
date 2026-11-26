@@ -281,7 +281,7 @@ RSpec.describe Student::CreateQuestionHistoryForm, type: :model do
     it '日本語のエラーメッセージになる' do
       form.valid?
 
-      expect(form.errors.full_messages).to include('解答時間 は3600以下の値にしてください')
+      expect(form.errors.full_messages).to include('解答時間は3600以下の値にしてください')
     end
   end
 end

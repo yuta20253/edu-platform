@@ -88,7 +88,7 @@ RSpec.describe Student::CreateInterviewRequestForm, type: :model do
 
       it 'エラーが追加される' do
         form.valid?
-        expect(form.errors[:teacher_id]).to include('申請可能な教員ではありません')
+        expect(form.errors[:teacher_id]).to include('は申請可能な教員ではありません')
       end
     end
   end

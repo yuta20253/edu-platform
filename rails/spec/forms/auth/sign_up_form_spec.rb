@@ -56,7 +56,7 @@ RSpec.describe Auth::SignUpForm, type: :model do
         form = build_form(user_role_name: 'student')
 
         expect(form).to be_invalid
-        expect(form.errors[:student_number]).to include('生徒番号は必須です')
+        expect(form.errors[:student_number]).to include('は必須です')
       end
 
       it '生徒コードが入力されていれば有効' do
@@ -71,7 +71,7 @@ RSpec.describe Auth::SignUpForm, type: :model do
         form = build_form(user_role_name: 'student', student_number: 'INVALIDCODE')
 
         expect(form).to be_invalid
-        expect(form.errors[:student_number]).to include('生徒コードの形式が正しくありません')
+        expect(form.errors[:student_number]).to include('の形式が正しくありません')
       end
     end
 

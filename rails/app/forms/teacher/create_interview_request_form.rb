@@ -44,7 +44,7 @@ module Teacher
       return if student_id.blank?
       return if target_students.exists?(id: student_id)
 
-      errors.add(:student_id, '担当外の生徒です')
+      errors.add(:student_id, 'は担当外の生徒です')
     end
 
     def target_students

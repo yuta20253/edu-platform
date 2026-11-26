@@ -129,7 +129,7 @@ RSpec.describe Task, type: :model do
       task = described_class.new
       task.valid?
 
-      expect(task.errors.full_messages).to include('ユーザー を入力してください', '目標 を入力してください')
+      expect(task.errors.full_messages).to include('ユーザーを入力してください', '目標を入力してください')
     end
   end
 end

@@ -66,7 +66,7 @@ RSpec.describe Student::CreateGoalForm, type: :model do
         form = described_class.new(**params)
         form.save
 
-        expect(form.errors.full_messages).to include('タイトル を入力してください')
+        expect(form.errors.full_messages).to include('タイトルを入力してください')
       end
     end
 
@@ -77,7 +77,7 @@ RSpec.describe Student::CreateGoalForm, type: :model do
         form = described_class.new(**params)
         form.save
 
-        expect(form.errors.full_messages).to include('期限 を入力してください')
+        expect(form.errors.full_messages).to include('期限を入力してください')
       end
     end
 

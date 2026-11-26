@@ -120,7 +120,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
       it 'エラーが追加される' do
         form.valid?
 
-        expect(form.errors[:announcement_targets]).to include('配列で指定してください')
+        expect(form.errors[:announcement_targets]).to include('は配列で指定してください')
       end
     end
 
@@ -168,7 +168,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it '指定できない学年のエラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('指定できない学年です')
+        expect(form.errors[:announcement_targets]).to include('に指定できない学年が含まれています')
       end
     end
 
@@ -195,7 +195,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
           it 'invalidになる' do
             expect(form).not_to be_valid
-            expect(form.errors[:announcement_targets]).to include('学年が制限されているため指定できない配信先です')
+            expect(form.errors[:announcement_targets]).to include('に学年が制限されているため指定できない配信先が含まれています')
           end
         end
       end
@@ -235,7 +235,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
         it 'invalidになる' do
           expect(form).not_to be_valid
-          expect(form.errors[:announcement_targets]).to include('指定できないユーザーです')
+          expect(form.errors[:announcement_targets]).to include('に指定できないユーザーが含まれています')
         end
       end
 
@@ -247,7 +247,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
         it 'invalidになる' do
           expect(form).not_to be_valid
-          expect(form.errors[:announcement_targets]).to include('指定できないユーザーです')
+          expect(form.errors[:announcement_targets]).to include('に指定できないユーザーが含まれています')
         end
       end
     end
@@ -284,7 +284,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it '存在しない学年のエラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('存在しない学年です')
+        expect(form.errors[:announcement_targets]).to include('に存在しない学年が含まれています')
       end
     end
 
@@ -327,7 +327,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it '存在しない権限のエラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('存在しない権限です')
+        expect(form.errors[:announcement_targets]).to include('に存在しない権限が含まれています')
       end
     end
 
@@ -362,7 +362,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it '存在しないユーザーのエラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('存在しないユーザーです')
+        expect(form.errors[:announcement_targets]).to include('に存在しないユーザーが含まれています')
       end
     end
 
@@ -400,7 +400,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it 'エラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('他校のユーザーは指定できません')
+        expect(form.errors[:announcement_targets]).to include('に他校のユーザーは指定できません')
       end
     end
 
@@ -427,7 +427,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it 'エラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('他校の学年は指定できません')
+        expect(form.errors[:announcement_targets]).to include('に他校の学年は指定できません')
       end
     end
 
@@ -444,7 +444,7 @@ RSpec.describe Teacher::CreateAnnouncementForm, type: :model do
 
       it 'エラーになる' do
         expect(form).not_to be_valid
-        expect(form.errors[:announcement_targets]).to include('権限を指定してください')
+        expect(form.errors[:announcement_targets]).to include('に権限を指定してください')
       end
     end
 

@@ -136,7 +136,7 @@ RSpec.describe User, type: :model do
         )
 
         expect(user).to be_invalid
-        expect(user.errors[:school_class]).to include('学年が一致しません')
+        expect(user.errors[:school_class]).to include('の学年が一致しません')
       end
     end
 

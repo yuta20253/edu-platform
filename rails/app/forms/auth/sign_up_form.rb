@@ -56,13 +56,13 @@ module Auth
       high_school = HighSchool.find_by(id: high_school_id)
       return if high_school.nil?
 
-      errors.add(:student_number, '生徒番号は必須です') if high_school.csv_managed? && student_number.blank?
+      errors.add(:student_number, 'は必須です') if high_school.csv_managed? && student_number.blank?
     end
 
     def student_number_format
       return if student_number.blank?
 
-      errors.add(:student_number, '生徒コードの形式が正しくありません') unless User.student_number_format_valid?(student_number)
+      errors.add(:student_number, 'の形式が正しくありません') unless User.student_number_format_valid?(student_number)
     end
   end
 end

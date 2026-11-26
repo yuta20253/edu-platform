@@ -30,7 +30,7 @@ RSpec.describe TeacherGrade, type: :model do
 
     expect(teacher_grade).to be_invalid
 
-    expect(teacher_grade.errors[:user]).to include('教職員アカウントのみ設定可能です')
+    expect(teacher_grade.errors[:user]).to include('には教職員アカウントのみ設定できます')
   end
 
   it 'gradeがないと無効' do
