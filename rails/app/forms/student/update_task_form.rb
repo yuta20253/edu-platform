@@ -73,7 +73,7 @@ module Student
 
       return if removed_started_unit_ids.empty?
 
-      errors.add(:unit_ids, '学習開始済みの単元は削除できません')
+      errors.add(:unit_ids, 'のうち学習開始済みのものは削除できません')
     end
   end
 end

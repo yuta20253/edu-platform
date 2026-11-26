@@ -141,7 +141,7 @@ describe("useAnnouncementEditor", () => {
     vi.mocked(apiClient.post).mockRejectedValue({
       response: {
         status: 422,
-        data: { errors: ["配信日時 は未来日時を指定してください"] },
+        data: { errors: ["配信日時は未来日時を指定してください"] },
       },
     });
     const { result } = renderHook(() => useAnnouncementEditor());
@@ -155,7 +155,7 @@ describe("useAnnouncementEditor", () => {
     });
 
     expect(result.current.submitError).toBe(
-      "配信日時 は未来日時を指定してください",
+      "配信日時は未来日時を指定してください",
     );
     expect(pushMock).not.toHaveBeenCalled();
   });

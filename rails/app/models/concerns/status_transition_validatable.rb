@@ -21,6 +21,6 @@ module StatusTransitionValidatable
 
     return if self.class::STATUS_TRANSITIONS.fetch(from, []).include?(to)
 
-    errors.add(:status, "#{from} から #{to} へは変更できません")
+    errors.add(:status, "は#{from}から#{to}へは変更できません")
   end
 end

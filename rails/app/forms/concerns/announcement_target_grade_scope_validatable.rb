@@ -20,7 +20,7 @@ module AnnouncementTargetGradeScopeValidatable
     return if restriction.nil?
 
     if targets_of_types(*GRADE_UNRESTRICTABLE_TARGET_TYPES).any?
-      errors.add(:announcement_targets, '学年が制限されているため指定できない配信先です')
+      errors.add(:announcement_targets, 'に学年が制限されているため指定できない配信先が含まれています')
     end
 
     validate_restricted_grades(restriction)
@@ -31,7 +31,7 @@ module AnnouncementTargetGradeScopeValidatable
     targets_of_type('by_grade').each do |target|
       next if target['grade_id'].to_i == restriction
 
-      errors.add(:announcement_targets, '指定できない学年です')
+      errors.add(:announcement_targets, 'に指定できない学年が含まれています')
     end
   end
 
@@ -41,7 +41,7 @@ module AnnouncementTargetGradeScopeValidatable
       next if user.blank?
       next if user.student? && user.grade_id == restriction
 
-      errors.add(:announcement_targets, '指定できないユーザーです')
+      errors.add(:announcement_targets, 'に指定できないユーザーが含まれています')
     end
   end
 end

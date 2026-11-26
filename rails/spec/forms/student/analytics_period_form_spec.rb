@@ -34,7 +34,7 @@ RSpec.describe Student::AnalyticsPeriodForm, type: :model do
 
       it 'full_messagesの項目名が日本語になる' do
         form.valid?
-        expect(form.errors.full_messages).to include('開始日 は正しい日付を入力してください')
+        expect(form.errors.full_messages).to include('開始日は正しい日付を入力してください')
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe Student::AnalyticsPeriodForm, type: :model do
 
       it 'full_messagesの項目名が日本語になる' do
         form.valid?
-        expect(form.errors.full_messages).to include('終了日 は正しい日付を入力してください')
+        expect(form.errors.full_messages).to include('終了日は正しい日付を入力してください')
       end
     end
 

@@ -175,6 +175,6 @@ class User < ApplicationRecord
   def school_class_belongs_to_grade
     return if school_class.blank? || grade.blank?
 
-    errors.add(:school_class, '学年が一致しません') if school_class.grade_id != grade_id
+    errors.add(:school_class, 'の学年が一致しません') if school_class.grade_id != grade_id
   end
 end

@@ -36,7 +36,7 @@ module AnnouncementTargetsValidatable
   def announcement_targets_must_be_array
     return if announcement_targets.is_a?(Array)
 
-    errors.add(:announcement_targets, '配列で指定してください')
+    errors.add(:announcement_targets, 'は配列で指定してください')
   end
 
   def target_types_must_be_valid
@@ -55,9 +55,9 @@ module AnnouncementTargetsValidatable
   def grade_ids_must_exist
     targets_of_type('by_grade').each do |target|
       if target['grade_id'].blank?
-        errors.add(:announcement_targets, '学年を指定してください')
+        errors.add(:announcement_targets, 'に学年を指定してください')
       elsif !Grade.exists?(target['grade_id'])
-        errors.add(:announcement_targets, '存在しない学年です')
+        errors.add(:announcement_targets, 'に存在しない学年が含まれています')
       end
     end
   end
@@ -66,9 +66,9 @@ module AnnouncementTargetsValidatable
     targets_of_types(*TARGET_TYPES_REQUIRING_USER_ROLE).each do |target|
       role_id = target['user_role_id']
       if target['user_role_id'].blank?
-        errors.add(:announcement_targets, '権限を指定してください')
+        errors.add(:announcement_targets, 'に権限を指定してください')
       elsif !UserRole.exists?(id: role_id)
-        errors.add(:announcement_targets, '存在しない権限です')
+        errors.add(:announcement_targets, 'に存在しない権限が含まれています')
       end
     end
   end
@@ -76,9 +76,9 @@ module AnnouncementTargetsValidatable
   def user_ids_must_exist
     targets_of_type('by_user').each do |target|
       if target['user_id'].blank?
-        errors.add(:announcement_targets, 'ユーザーを指定してください')
+        errors.add(:announcement_targets, 'にユーザーを指定してください')
       elsif !User.exists?(target['user_id'])
-        errors.add(:announcement_targets, '存在しないユーザーです')
+        errors.add(:announcement_targets, 'に存在しないユーザーが含まれています')
       end
     end
   end
@@ -89,7 +89,7 @@ module AnnouncementTargetsValidatable
 
       next if user.blank?
 
-      errors.add(:announcement_targets, '他校のユーザーは指定できません') if user.high_school_id != current_user.high_school_id
+      errors.add(:announcement_targets, 'に他校のユーザーは指定できません') if user.high_school_id != current_user.high_school_id
     end
   end
 
@@ -99,7 +99,7 @@ module AnnouncementTargetsValidatable
 
       next if grade.blank?
 
-      errors.add(:announcement_targets, '他校の学年は指定できません') if grade.high_school_id != current_user.high_school_id
+      errors.add(:announcement_targets, 'に他校の学年は指定できません') if grade.high_school_id != current_user.high_school_id
     end
   end
 end

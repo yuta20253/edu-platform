@@ -35,7 +35,7 @@ RSpec.describe TeacherPermission, type: :model do
 
     expect(permission).to be_invalid
 
-    expect(permission.errors[:user]).to include('教職員アカウントのみ設定可能です')
+    expect(permission.errors[:user]).to include('には教職員アカウントのみ設定できます')
   end
 
   it 'userがないと無効' do

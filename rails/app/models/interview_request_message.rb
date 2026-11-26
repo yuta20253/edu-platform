@@ -31,6 +31,6 @@ class InterviewRequestMessage < ApplicationRecord
   def interview_request_must_be_active
     return if interview_request.blank? || interview_request.active?
 
-    errors.add(:interview_request, '終了した面談にはメッセージを投稿できません')
+    errors.add(:interview_request, 'が終了しているためメッセージを投稿できません')
   end
 end

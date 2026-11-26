@@ -427,7 +427,7 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
 
         json = response.parsed_body
 
-        expect(json['errors']).to include('クラス名 を入力してください')
+        expect(json['errors']).to include('クラス名を入力してください')
       end
     end
 
@@ -613,7 +613,7 @@ RSpec.describe 'Api::V1::Teacher::SchoolClassRequests', type: :request do
                headers: headers.merge('Cookie' => cookie)
 
           expect(response.parsed_body['errors'])
-            .to include('対象クラス は生徒または教員が所属しているため削除できません')
+            .to include('対象クラスは生徒または教員が所属しているため削除できません')
         end
       end
     end

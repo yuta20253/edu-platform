@@ -60,7 +60,7 @@ RSpec.describe Teacher::CreateInterviewRequestForm, type: :model do
 
       it 'エラーが追加される' do
         form.valid?
-        expect(form.errors[:student_id]).to include('担当外の生徒です')
+        expect(form.errors[:student_id]).to include('は担当外の生徒です')
       end
     end
 

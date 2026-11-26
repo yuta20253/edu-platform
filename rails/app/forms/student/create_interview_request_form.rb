@@ -46,7 +46,7 @@ module Student
       return if teacher_id.blank?
       return if @user.school_class.present? && @user.school_class.teachers.exists?(id: teacher_id)
 
-      errors.add(:teacher_id, '申請可能な教員ではありません')
+      errors.add(:teacher_id, 'は申請可能な教員ではありません')
     end
   end
 end

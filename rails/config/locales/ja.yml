@@ -29,6 +29,8 @@ ja:
     user: ユーザー
     user_id: ユーザー
   errors:
+    # 日本語では項目名と本文の間に半角スペースを入れない
+    format: "%{attribute}%{message}"
     messages:
       blank: "を入力してください"
       invalid: "が不正です"
@@ -112,11 +114,11 @@ ja:
         teacher_grade:
           attributes:
             user:
-              not_teacher: "教職員アカウントのみ設定可能です"
+              not_teacher: "には教職員アカウントのみ設定できます"
         teacher_permission:
           attributes:
             user:
-              not_teacher: "教職員アカウントのみ設定可能です"
+              not_teacher: "には教職員アカウントのみ設定できます"
   activemodel:
     attributes:
       admin/admin_form:
