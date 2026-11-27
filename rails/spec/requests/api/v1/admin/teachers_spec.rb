@@ -268,6 +268,18 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
 
+    context '異常系 - name_kana が101文字以上' do
+      it '500ではなく422が返され、教師は作成されない' do
+        expect do
+          post "/api/v1/admin/high_schools/#{school.id}/teachers",
+               params: JSON.parse(valid_params).merge('name_kana' => 'タ' * 101).to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.not_to change(User, :count)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body).to have_key('errors')
+      end
+    end
+
     context '異常系 - grade_scope が不正な値' do
       let(:invalid_params) do
         {
@@ -502,6 +514,17 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
               params: valid_params,
               headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context '異常系 - name_kana が101文字以上' do
+      it '500ではなく422が返され、保存済みの name_kana は変わらない' do
+        original = teacher.name_kana
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: JSON.parse(valid_params).merge('name_kana' => 'タ' * 101).to_json,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(teacher.reload.name_kana).to eq(original)
       end
     end
 
