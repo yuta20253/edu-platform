@@ -64,6 +64,7 @@ describe("TeachersTab", () => {
             {
               id: 1,
               name: "田中太郎",
+              name_kana: "タナカ タロウ",
               email: "tanaka@example.com",
               grade_scope: "own_grade",
               manage_other_teachers: false,
@@ -103,6 +104,12 @@ describe("TeachersTab", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
       target: { value: "太郎" },
     });
+    fireEvent.change(screen.getByRole("textbox", { name: /姓（カナ）/ }), {
+      target: { value: "タナカ" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: /名（カナ）/ }), {
+      target: { value: "タロウ" },
+    });
     fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
       target: { value: "tanaka@example.com" },
     });
@@ -128,6 +135,8 @@ describe("TeachersTab", () => {
             {
               id: 1,
               name: "田中 太郎",
+            name_kana: "タナカ タロウ",
+              name_kana: "タナカ タロウ",
               email: "tanaka@example.com",
               grade_scope: "own_grade",
               manage_other_teachers: false,
@@ -200,6 +209,12 @@ describe("TeachersTab", () => {
     });
     fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
       target: { value: "太郎" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: /姓（カナ）/ }), {
+      target: { value: "タナカ" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: /名（カナ）/ }), {
+      target: { value: "タロウ" },
     });
     fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
       target: { value: "tanaka@example.com" },
@@ -304,6 +319,7 @@ describe("TeachersTab", () => {
           {
             id: 1,
             name: "田中 太郎",
+            name_kana: "タナカ タロウ",
             email: "tanaka@example.com",
             grade_scope: "own_grade",
             manage_other_teachers: false,
@@ -313,6 +329,7 @@ describe("TeachersTab", () => {
           {
             id: 2,
             name: "鈴木 花子",
+            name_kana: "スズキ ハナコ",
             email: "suzuki@example.com",
             grade_scope: "all_grades",
             manage_other_teachers: true,

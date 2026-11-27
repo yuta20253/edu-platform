@@ -17,6 +17,16 @@ const baseProps = {
   grades,
 };
 
+// 氏名カナは必須なので、送信するテストでは先に入力しておく
+const fillKana = () => {
+  fireEvent.change(screen.getByRole("textbox", { name: /姓（カナ）/ }), {
+    target: { value: "タナカ" },
+  });
+  fireEvent.change(screen.getByRole("textbox", { name: /名（カナ）/ }), {
+    target: { value: "タロウ" },
+  });
+};
+
 describe("TeacherDrawer", () => {
   describe("新規追加モード", () => {
     it("姓/名・メールの入力欄が表示される", () => {
@@ -142,6 +152,7 @@ describe("TeacherDrawer", () => {
       );
       fireEvent.click(screen.getByRole("checkbox", { name: "高１生" }));
 
+      fillKana();
       fireEvent.click(screen.getByRole("button", { name: "追加" }));
 
       await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
@@ -179,6 +190,7 @@ describe("TeacherDrawer", () => {
       fireEvent.click(screen.getByRole("checkbox", { name: "高１生" }));
       fireEvent.click(screen.getByRole("radio", { name: "全学年" }));
 
+      fillKana();
       fireEvent.click(screen.getByRole("button", { name: "追加" }));
 
       await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
@@ -212,6 +224,7 @@ describe("TeacherDrawer", () => {
       fireEvent.click(screen.getByRole("radio", { name: "全学年" }));
       fireEvent.click(screen.getByRole("radio", { name: "自学年" }));
 
+      fillKana();
       fireEvent.click(screen.getByRole("button", { name: "追加" }));
 
       await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());

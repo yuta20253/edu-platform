@@ -24,6 +24,8 @@ import type { Grade, GradeScope, Teacher } from "../types";
 export type TeacherFormValues = {
   lastName: string;
   firstName: string;
+  lastNameKana: string;
+  firstNameKana: string;
   email: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
@@ -41,10 +43,10 @@ type Props = {
   initialTeacher?: Teacher | null;
 };
 
-// "姓 名" 形式で保存されているnameを分割してフォームの初期値にする。
+// "姓 名" 形式で保存されているnameとname_kanaを分割してフォームの初期値にする。
 const splitName = (name: string) => {
-  const [lastName, ...rest] = name.split(" ");
-  return { lastName: lastName ?? "", firstName: rest.join(" ") };
+  const [last, ...rest] = name.split(" ");
+  return { last: last ?? "", first: rest.join(" ") };
 };
 
 const buildDefaultValues = (
@@ -52,10 +54,15 @@ const buildDefaultValues = (
   teacher?: Teacher | null,
 ): TeacherFormValues => {
   if (mode === "edit" && teacher) {
-    const { lastName, firstName } = splitName(teacher.name);
+    const { last: lastName, first: firstName } = splitName(teacher.name);
+    const { last: lastNameKana, first: firstNameKana } = splitName(
+      teacher.name_kana,
+    );
     return {
       lastName,
       firstName,
+      lastNameKana,
+      firstNameKana,
       email: teacher.email,
       gradeScope: teacher.grade_scope,
       manageOtherTeachers: teacher.manage_other_teachers,
@@ -66,6 +73,8 @@ const buildDefaultValues = (
   return {
     lastName: "",
     firstName: "",
+    lastNameKana: "",
+    firstNameKana: "",
     email: "",
     gradeScope: "own_grade",
     manageOtherTeachers: false,
@@ -166,6 +175,29 @@ export const TeacherDrawer = ({
                 })}
                 error={!!errors.firstName}
                 helperText={errors.firstName?.message}
+              />
+            </Stack>
+
+            <Stack direction="row" spacing={2}>
+              <TextField
+                label="姓（カナ）"
+                fullWidth
+                required
+                {...register("lastNameKana", {
+                  required: "姓（カナ）を入力してください",
+                })}
+                error={!!errors.lastNameKana}
+                helperText={errors.lastNameKana?.message}
+              />
+              <TextField
+                label="名（カナ）"
+                fullWidth
+                required
+                {...register("firstNameKana", {
+                  required: "名（カナ）を入力してください",
+                })}
+                error={!!errors.firstNameKana}
+                helperText={errors.firstNameKana?.message}
               />
             </Stack>
 

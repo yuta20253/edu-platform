@@ -71,6 +71,9 @@ export type AnnouncementsData = {
 export type CreateTeacherInput = {
   lastName: string;
   firstName: string;
+  // 氏名カナ（姓/名は結合して name_kana としてAPIへ渡す）
+  lastNameKana: string;
+  firstNameKana: string;
   email: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
@@ -81,6 +84,9 @@ export type CreateTeacherInput = {
 export type UpdateTeacherInput = {
   lastName: string;
   firstName: string;
+  // 氏名カナ（姓/名は結合して name_kana としてAPIへ渡す）
+  lastNameKana: string;
+  firstNameKana: string;
   email: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
