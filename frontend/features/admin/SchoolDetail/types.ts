@@ -32,6 +32,7 @@ export type TeacherGrade = {
 export type Teacher = {
   id: number;
   name: string;
+  name_kana: string;
   email: string;
   grade_scope: GradeScope;
   manage_other_teachers: boolean;
@@ -42,6 +43,7 @@ export type Teacher = {
 
 export type TeachersData = {
   teachers: Teacher[];
+  meta: PaginationMeta;
 };
 
 export type GradesData = {
