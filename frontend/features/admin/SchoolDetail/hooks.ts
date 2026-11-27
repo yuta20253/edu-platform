@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/libs/http/apiClient";
-import type { SchoolDetail } from "./types";
+import type { SchoolDetail, SchoolDetailData } from "./types";
 
 export const useSchoolDetail = (schoolId: number) => {
   const [school, setSchool] = useState<SchoolDetail | null>(null);
@@ -14,8 +14,8 @@ export const useSchoolDetail = (schoolId: number) => {
   useEffect(() => {
     setError(false);
     apiClient
-      .get<SchoolDetail>(`/api/admin/schools/${schoolId}`)
-      .then((res) => setSchool(res.data))
+      .get<SchoolDetailData>(`/api/admin/schools/${schoolId}`)
+      .then((res) => setSchool(res.data.school))
       .catch((err) => {
         if (err.response?.status === 401) {
           router.push("/login");

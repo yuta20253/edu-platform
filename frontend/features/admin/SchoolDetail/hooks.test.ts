@@ -4,8 +4,10 @@ import { apiClient } from "@/libs/http/apiClient";
 import { useSchoolDetail } from "./hooks";
 
 const pushMock = vi.fn();
+// useRouter は同じ参照を返す（毎回新しい参照だと、依存に含む effect が再実行され続ける）
+const routerMock = { push: pushMock };
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => routerMock,
 }));
 
 vi.mock("@/libs/http/apiClient", () => ({

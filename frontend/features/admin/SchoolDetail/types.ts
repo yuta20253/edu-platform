@@ -8,6 +8,11 @@ export type SchoolDetail = {
   teacher_count: number;
 };
 
+// GET /high_schools/:id のレスポンス。単体は単数形のキー（school）に包まれて返る。
+export type SchoolDetailData = {
+  school: SchoolDetail;
+};
+
 export type GradeScope = "own_grade" | "all_grades";
 
 // GET /high_schools/:id/grades（学年一覧、Admin::GradeSerializer）のレスポンス形状。
