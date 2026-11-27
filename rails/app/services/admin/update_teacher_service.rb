@@ -20,7 +20,7 @@ module Admin
     private
 
     def update_user_attributes
-      user_attrs = @params.slice(:name, :email).compact
+      user_attrs = @params.slice(:name, :name_kana, :email).compact
       @user.update!(user_attrs) if user_attrs.present?
     end
 

@@ -48,12 +48,13 @@ module Api
         private
 
         def create_params
-          params.permit(:name, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
+          params.permit(:name, :name_kana, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
                 .to_h.symbolize_keys
         end
 
         def update_params
-          params.permit(:name, :email, :grade_scope, :manage_other_teachers, :permission_lock_version, grade_ids: [])
+          params.permit(:name, :name_kana, :email, :grade_scope, :manage_other_teachers, :permission_lock_version,
+                        grade_ids: [])
         end
 
         def require_lock_version!
