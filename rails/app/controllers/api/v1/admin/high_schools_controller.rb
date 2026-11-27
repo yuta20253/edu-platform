@@ -35,10 +35,13 @@ module Api
           student_count = User.students.active.by_high_school(school.id).count
           teacher_count = User.teachers.by_high_school(school.id).count
 
-          render json: school,
-                 serializer: ::Admin::HighSchoolSerializer,
-                 student_counts: { school.id => student_count },
-                 teacher_counts: { school.id => teacher_count }
+          render json: {
+            school: ::Admin::HighSchoolSerializer.new(
+              school,
+              student_counts: { school.id => student_count },
+              teacher_counts: { school.id => teacher_count }
+            )
+          }
         end
       end
     end
