@@ -1,0 +1,61 @@
+name: Go CI
+
+on:
+  pull_request:
+    paths:
+      - 'go/**'
+      - '.github/workflows/go-ci.yml'
+
+defaults:
+  run:
+    working-directory: go
+
+jobs:
+  lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go/go.mod
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+          working-directory: go
+
+  test:
+    name: go test
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mysql:8.0.32
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: myapp_test
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -u root -ppassword"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 30s
+    env:
+      TEST_DATABASE_DSN: root:password@tcp(127.0.0.1:3306)/myapp_test?charset=utf8mb4&parseTime=True&loc=Local
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go/go.mod
+      - run: go test -race ./...
+
+  build:
+    name: go build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go/go.mod
+      - run: go build ./...

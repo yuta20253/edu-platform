@@ -58,7 +58,31 @@ services:
       RAILS_ENV: development
     env_file:
       - ./rails/.env
+  go:
+    build: ./go
+    command: go run ./cmd/server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./go:/app
+      - go_mod_cache:/go/pkg/mod
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: myapp_development
+      PORT: 8080
+      LOG_LEVEL: debug
+      APP_ENV: development
+      GIN_MODE: debug
+      TEST_DATABASE_DSN: root:password@tcp(db:3306)/myapp_test?charset=utf8mb4&parseTime=True&loc=Local
+    tty: true
+    stdin_open: true
 volumes:
   mysql_data:
   gem_data:
   redis_data:
+  go_mod_cache:
