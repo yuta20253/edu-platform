@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_19_144855) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_28_011304) do
   create_table "account_link_audits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "merged_user_id", null: false
@@ -241,6 +241,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_19_144855) do
     t.index ["student_id", "teacher_id", "status"], name: "index_interview_requests_on_student_teacher_status"
     t.index ["student_id"], name: "index_interview_requests_on_student_id"
     t.index ["teacher_id"], name: "index_interview_requests_on_teacher_id"
+  end
+
+  create_table "jobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "type", null: false
+    t.text "payload", size: :medium, null: false
+    t.string "status", default: "pending", null: false
+    t.integer "attempts", default: 0, null: false
+    t.integer "max_attempts", default: 3, null: false
+    t.datetime "run_after", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status", "run_after"], name: "idx_jobs_status_run_after"
   end
 
   create_table "prefectures", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
