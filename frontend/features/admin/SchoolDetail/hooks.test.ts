@@ -46,7 +46,9 @@ describe("useSchoolDetail", () => {
   });
 
   it("401以外の失敗は error になり、retry で再取得する", async () => {
-    vi.mocked(apiClient.get).mockRejectedValueOnce({ response: { status: 500 } });
+    vi.mocked(apiClient.get).mockRejectedValueOnce({
+      response: { status: 500 },
+    });
     vi.mocked(apiClient.get).mockResolvedValueOnce({ data: { school } });
 
     const { result } = renderHook(() => useSchoolDetail(1));

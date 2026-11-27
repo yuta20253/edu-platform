@@ -135,7 +135,6 @@ describe("TeachersTab", () => {
             {
               id: 1,
               name: "田中 太郎",
-            name_kana: "タナカ タロウ",
               name_kana: "タナカ タロウ",
               email: "tanaka@example.com",
               grade_scope: "own_grade",
