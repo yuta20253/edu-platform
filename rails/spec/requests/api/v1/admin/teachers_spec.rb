@@ -82,6 +82,65 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
 
+    context '正常系 - 並び順とページネーション' do
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:school)     { create(:high_school) }
+      let(:cookie)      { login_and_get_cookie(admin_user) }
+
+      def create_teacher(name_kana:, name: 'テスト教員')
+        user = create(:user, :teacher, high_school: school, grade: nil, name: name, name_kana: name_kana)
+        create(:teacher_permission, user: user, grade_scope: :all_grades, manage_other_teachers: false)
+        user
+      end
+
+      def fetch_teachers(query = '')
+        get "/api/v1/admin/high_schools/#{school.id}/teachers#{query}",
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      it 'meta にページネーション情報が含まれる' do
+        create_teacher(name_kana: 'アイウ')
+        fetch_teachers
+        expect(response.parsed_body['meta']).to eq(
+          'current_page' => 1, 'total_pages' => 1, 'total_count' => 1, 'per_page' => 20
+        )
+      end
+
+      it 'per_page 未指定では 20 件ずつ返される' do
+        21.times { |i| create_teacher(name_kana: format('カナ%02d', i)) }
+        fetch_teachers
+        expect(response.parsed_body['teachers'].length).to eq(20)
+        expect(response.parsed_body['meta']).to include('total_pages' => 2, 'total_count' => 21)
+      end
+
+      it 'page と per_page で指定したページが返される' do
+        3.times { |i| create_teacher(name_kana: format('カナ%02d', i)) }
+        fetch_teachers('?page=2&per_page=2')
+        expect(response.parsed_body['teachers'].length).to eq(1)
+        expect(response.parsed_body['meta']).to include('current_page' => 2, 'per_page' => 2, 'total_count' => 3)
+      end
+
+      it '氏名カナの順に並ぶ' do
+        later = create_teacher(name_kana: 'ヤマダ')
+        earlier = create_teacher(name_kana: 'アベ')
+        fetch_teachers
+        expect(response.parsed_body['teachers'].pluck('id')).to eq([earlier.id, later.id])
+      end
+
+      it '氏名カナが同じ場合は id の順に並ぶ' do
+        first = create_teacher(name_kana: 'タナカ')
+        second = create_teacher(name_kana: 'タナカ')
+        fetch_teachers
+        expect(response.parsed_body['teachers'].pluck('id')).to eq([first.id, second.id])
+      end
+
+      it '各教師に name_kana が含まれる' do
+        create_teacher(name_kana: 'タナカ タロウ')
+        fetch_teachers
+        expect(response.parsed_body['teachers'].first['name_kana']).to eq('タナカ タロウ')
+      end
+    end
+
     context '異常系 - 未認証アクセス' do
       let!(:school) { create(:high_school) }
 
