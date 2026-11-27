@@ -1,0 +1,19 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    - funlen
+    - lll
+    - staticcheck
+  settings:
+    lll:
+      line-length: 100
+    govet:
+      enable:
+        - shadow
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
