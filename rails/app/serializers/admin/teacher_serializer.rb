@@ -2,7 +2,7 @@
 
 module Admin
   class TeacherSerializer < ActiveModel::Serializer
-    attributes :id, :name, :email, :grade_scope, :manage_other_teachers, :grades, :permission_lock_version
+    attributes :id, :name, :name_kana, :email, :grade_scope, :manage_other_teachers, :grades, :permission_lock_version
 
     def grade_scope
       object.teacher_permission&.grade_scope

@@ -7,12 +7,15 @@ module Api
         def index
           school = HighSchool.find(params.expect(:high_school_id))
           teachers = school.users.teachers.includes(:teacher_permission, :grades)
+                           .order(:name_kana, :id)
+                           .page(sanitized_page).per(sanitized_per_page)
 
           render json: {
             teachers: ActiveModelSerializers::SerializableResource.new(
               teachers,
               each_serializer: ::Admin::TeacherSerializer
-            )
+            ),
+            meta: pagination_meta(teachers)
           }
         end
 
