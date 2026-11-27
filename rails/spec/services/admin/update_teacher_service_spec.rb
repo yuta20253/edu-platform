@@ -16,6 +16,25 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
   end
   let(:lock_version) { teacher.teacher_permission.lock_version }
 
+  context '正常系 - name_kana を指定した場合' do
+    let(:params) { { name_kana: 'コウシン タロウ', permission_lock_version: lock_version } }
+
+    it 'name_kana が更新される' do
+      service.call
+      expect(teacher.reload.name_kana).to eq('コウシン タロウ')
+    end
+  end
+
+  context '異常系 - name_kana が空' do
+    let(:params) { { name_kana: '', permission_lock_version: lock_version } }
+
+    it 'ActiveRecord::RecordInvalid を raise し、name_kana は変わらない' do
+      original = teacher.name_kana
+      expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(teacher.reload.name_kana).to eq(original)
+    end
+  end
+
   context '正常系 - grade_ids を指定した場合' do
     let(:params) { { grade_ids: [grade1.id, grade2.id], permission_lock_version: lock_version } }
 
