@@ -19,6 +19,8 @@ const onConflict = vi.fn();
 const validInput: UpdateTeacherInput = {
   lastName: "田中",
   firstName: "花子",
+  lastNameKana: "タナカ",
+  firstNameKana: "ハナコ",
   email: "hanako@example.com",
   gradeScope: "all_grades",
   manageOtherTeachers: true,
@@ -52,12 +54,40 @@ describe("useUpdateTeacher", () => {
       "/api/admin/schools/1/teachers/5",
       {
         name: "田中 花子",
+        name_kana: "タナカ ハナコ",
         email: "hanako@example.com",
         grade_scope: "all_grades",
         manage_other_teachers: true,
         grade_ids: [1, 2],
         permission_lock_version: 3,
       },
+    );
+  });
+
+  it("氏名カナの前後の空白を除去して name_kana として送信する", async () => {
+    vi.mocked(apiClient.patch).mockResolvedValue({ data: { teacher: {} } });
+
+    const { result } = renderHook(() =>
+      useUpdateTeacher({
+        schoolId: 1,
+        teacherId: 5,
+        permissionLockVersion: 3,
+        onUpdated: vi.fn(),
+        onConflict,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleUpdate({
+        ...validInput,
+        lastNameKana: " ヤマダ ",
+        firstNameKana: " ハナコ ",
+      });
+    });
+
+    expect(apiClient.patch).toHaveBeenCalledWith(
+      "/api/admin/schools/1/teachers/5",
+      expect.objectContaining({ name_kana: "ヤマダ ハナコ" }),
     );
   });
 

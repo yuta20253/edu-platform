@@ -28,6 +28,77 @@ describe("TeacherDrawer", () => {
       ).toBeInTheDocument();
     });
 
+    it("姓（カナ）・名（カナ）の入力欄が表示される", () => {
+      render(<TeacherDrawer {...baseProps} mode="create" />);
+      expect(
+        screen.getByRole("textbox", { name: /姓（カナ）/ }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("textbox", { name: /名（カナ）/ }),
+      ).toBeInTheDocument();
+    });
+
+    it("氏名カナを入力して送信するとonSubmitへカナの値が渡される", async () => {
+      const onSubmit = vi.fn();
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
+
+      fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
+        target: { value: "田中" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
+        target: { value: "太郎" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: /姓（カナ）/ }), {
+        target: { value: "タナカ" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: /名（カナ）/ }), {
+        target: { value: "タロウ" },
+      });
+      fireEvent.change(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+        { target: { value: "tanaka@example.com" } },
+      );
+      fireEvent.click(screen.getByRole("button", { name: "追加" }));
+
+      await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          lastNameKana: "タナカ",
+          firstNameKana: "タロウ",
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("氏名カナが未入力だとonSubmitが呼ばれずエラーが表示される", async () => {
+      const onSubmit = vi.fn();
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
+
+      fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
+        target: { value: "田中" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
+        target: { value: "太郎" },
+      });
+      fireEvent.change(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+        { target: { value: "tanaka@example.com" } },
+      );
+      fireEvent.click(screen.getByRole("button", { name: "追加" }));
+
+      expect(
+        await screen.findByText("姓（カナ）を入力してください"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("名（カナ）を入力してください"),
+      ).toBeInTheDocument();
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
     it("初期パスワード欄は表示されず招待メール送信の案内が表示される", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
       expect(
@@ -172,6 +243,7 @@ describe("TeacherDrawer", () => {
     const teacher: Teacher = {
       id: 5,
       name: "田中 花子",
+      name_kana: "タナカ ハナコ",
       email: "hanako@example.com",
       grade_scope: "all_grades",
       manage_other_teachers: true,
@@ -194,6 +266,12 @@ describe("TeacherDrawer", () => {
       );
       expect(screen.getByRole("textbox", { name: "姓" })).toHaveValue("田中");
       expect(screen.getByRole("textbox", { name: "名" })).toHaveValue("花子");
+      expect(screen.getByRole("textbox", { name: /姓（カナ）/ })).toHaveValue(
+        "タナカ",
+      );
+      expect(screen.getByRole("textbox", { name: /名（カナ）/ })).toHaveValue(
+        "ハナコ",
+      );
       expect(
         screen.getByRole("textbox", { name: "メールアドレス" }),
       ).toHaveValue("hanako@example.com");
