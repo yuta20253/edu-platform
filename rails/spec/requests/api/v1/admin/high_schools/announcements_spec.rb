@@ -61,7 +61,7 @@ RSpec.describe 'Api::V1::Admin::HighSchools::Announcements', type: :request do
         data = response.parsed_body['announcements'].first
         expect(data.keys).to include(
           'id', 'title', 'content', 'status', 'published_at', 'scheduled_at',
-          'created_at', 'publisher', 'targets'
+          'created_at', 'publisher', 'announcement_targets'
         )
       end
 
@@ -72,20 +72,26 @@ RSpec.describe 'Api::V1::Admin::HighSchools::Announcements', type: :request do
         expect(data['publisher']['name_kana']).to eq('ハイシンシャタロウ')
       end
 
-      it 'targets が配列で返される' do
+      it 'announcement_targets が配列で返される' do
         subject
         data = response.parsed_body['announcements'].first
-        expect(data['targets']).to be_an(Array)
-        expect(data['targets'].first['high_school_id']).to eq(school.id)
+        expect(data['announcement_targets']).to be_an(Array)
+        expect(data['announcement_targets'].first['high_school_id']).to eq(school.id)
       end
 
-      it '他校をターゲットにした行は targets に含まれない' do
+      it '旧キーの targets は返されない' do
+        subject
+        data = response.parsed_body['announcements'].first
+        expect(data.keys).not_to include('targets')
+      end
+
+      it '他校をターゲットにした行は announcement_targets に含まれない' do
         other_school = create(:high_school)
         create(:announcement_target, announcement: announcement, target_type: :by_school,
                                      high_school_id: other_school.id)
         subject
         data = response.parsed_body['announcements'].find { |a| a['id'] == announcement.id }
-        school_ids = data['targets'].pluck('high_school_id')
+        school_ids = data['announcement_targets'].pluck('high_school_id')
         expect(school_ids).to all(eq(school.id))
       end
 
