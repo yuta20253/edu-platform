@@ -3,3 +3,5 @@ config/master.key
 
 # Claude Code skill (/ticket) のスクリーンショット出力
 .claude/screenshots/
+# /draft-ticket と /ticket の作業ファイル。記録は projects_kanri の data/reviews/ に保存する
+.claude/reviews-work/
