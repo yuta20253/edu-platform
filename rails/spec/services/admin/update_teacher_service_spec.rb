@@ -102,6 +102,18 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
+  context '正常系 - 権限レコードが無い教師に氏名・メールのみ送る場合' do
+    let!(:teacher) { create(:user, :teacher, high_school: school, grade: nil) }
+    let(:params) { { name: '更新太郎', email: 'updated@example.com', permission_lock_version: 0 } }
+
+    it '氏名とメールが更新される' do
+      service.call
+      teacher.reload
+      expect(teacher.name).to eq('更新太郎')
+      expect(teacher.email).to eq('updated@example.com')
+    end
+  end
+
   context '異常系 - email が重複している' do
     let(:params) { { email: 'duplicate@example.com', permission_lock_version: lock_version } }
 
