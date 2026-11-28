@@ -43,6 +43,9 @@ type Props = {
   initialTeacher?: Teacher | null;
 };
 
+// Rails の NameValidatable::KATAKANA_REGEX と揃える
+const KATAKANA_PATTERN = /^[\u30A0-\u30FF・\s\u3000]+$/u;
+
 // "姓 名" 形式で保存されているnameとname_kanaを分割してフォームの初期値にする。
 const splitName = (name: string) => {
   const [last, ...rest] = name.split(" ");
@@ -185,6 +188,10 @@ export const TeacherDrawer = ({
                 required
                 {...register("lastNameKana", {
                   required: "姓（カナ）を入力してください",
+                  pattern: {
+                    value: KATAKANA_PATTERN,
+                    message: "姓（カナ）はカタカナで入力してください",
+                  },
                 })}
                 error={!!errors.lastNameKana}
                 helperText={errors.lastNameKana?.message}
@@ -195,6 +202,10 @@ export const TeacherDrawer = ({
                 required
                 {...register("firstNameKana", {
                   required: "名（カナ）を入力してください",
+                  pattern: {
+                    value: KATAKANA_PATTERN,
+                    message: "名（カナ）はカタカナで入力してください",
+                  },
                 })}
                 error={!!errors.firstNameKana}
                 helperText={errors.firstNameKana?.message}

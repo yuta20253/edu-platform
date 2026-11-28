@@ -28,6 +28,10 @@ module Admin
       # 明示的にチェックする(フォームの必須入力を素通しでAPIを叩かれた場合の防御)
       user.errors.add(:name, :blank) if user.name.blank?
       user.errors.add(:name_kana, :blank) if user.name_kana.blank?
+      # 一覧は name_kana の五十音順のため、他の登録経路と同じくカタカナだけを許す
+      if user.name_kana.present? && !NameValidatable::KATAKANA_REGEX.match?(user.name_kana)
+        user.errors.add(:name_kana, :invalid)
+      end
       raise ActiveRecord::RecordInvalid, user if user.errors.any?
 
       user

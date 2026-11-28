@@ -109,6 +109,39 @@ describe("TeacherDrawer", () => {
       expect(onSubmit).not.toHaveBeenCalled();
     });
 
+    it("姓（カナ）・名（カナ）にカタカナ以外を入力すると送信されずエラーが表示される", async () => {
+      const onSubmit = vi.fn();
+      render(
+        <TeacherDrawer {...baseProps} mode="create" onSubmit={onSubmit} />,
+      );
+
+      fireEvent.change(screen.getByRole("textbox", { name: "姓" }), {
+        target: { value: "田中" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
+        target: { value: "太郎" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "姓（カナ）" }), {
+        target: { value: "たなか" },
+      });
+      fireEvent.change(screen.getByRole("textbox", { name: "名（カナ）" }), {
+        target: { value: "たろう" },
+      });
+      fireEvent.change(
+        screen.getByRole("textbox", { name: "メールアドレス" }),
+        { target: { value: "tanaka@example.com" } },
+      );
+      fireEvent.click(screen.getByRole("button", { name: "追加" }));
+
+      expect(
+        await screen.findByText("姓（カナ）はカタカナで入力してください"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("名（カナ）はカタカナで入力してください"),
+      ).toBeInTheDocument();
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
     it("初期パスワード欄は表示されず招待メール送信の案内が表示される", () => {
       render(<TeacherDrawer {...baseProps} mode="create" />);
       expect(
