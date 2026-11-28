@@ -25,6 +25,8 @@ module Admin
     end
 
     def update_permission_attributes
+      return if @user.teacher_permission.nil?
+
       permission_attrs = @params.slice(:grade_scope, :manage_other_teachers).compact
       permission_attrs[:lock_version] = @params[:permission_lock_version]
       @user.teacher_permission.update!(permission_attrs)
