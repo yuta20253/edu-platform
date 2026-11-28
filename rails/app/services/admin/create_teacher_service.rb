@@ -17,18 +17,21 @@ module Admin
     def build_user(role, password)
       user = User.new(
         name: @attributes[:name],
-        # フォームにカナ入力欄が無いため、User#validates :name_kana の
-        # presence(on: :update)を後続の編集(PATCH)で満たせるよう name と同値を設定しておく
-        name_kana: @attributes[:name],
+        name_kana: @attributes[:name_kana],
         email: @attributes[:email],
         user_role: role,
         high_school: @school,
         password: password,
         password_confirmation: password
       )
-      # User#validates :name の presence は on: :update のみのため、作成時にも
+      # User#validates :name・:name_kana の presence は on: :update のみのため、作成時にも
       # 明示的にチェックする(フォームの必須入力を素通しでAPIを叩かれた場合の防御)
       user.errors.add(:name, :blank) if user.name.blank?
+      user.errors.add(:name_kana, :blank) if user.name_kana.blank?
+      # 一覧は name_kana の五十音順のため、他の登録経路と同じくカタカナだけを許す
+      if user.name_kana.present? && !NameValidatable::KATAKANA_REGEX.match?(user.name_kana)
+        user.errors.add(:name_kana, :invalid)
+      end
       raise ActiveRecord::RecordInvalid, user if user.errors.any?
 
       user

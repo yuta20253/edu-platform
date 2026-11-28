@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { TableCard } from "@/components/ui/TableCard";
 import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -51,7 +52,8 @@ const gradeScopeLabel: Record<Teacher["grade_scope"], string> = {
 };
 
 export const TeachersTab = ({ schoolId }: Props) => {
-  const { teachers, loading, error, refetch } = useFetchTeachers(schoolId);
+  const { teachers, meta, page, setPage, loading, error, refetch } =
+    useFetchTeachers(schoolId);
   const { grades, error: gradesError } = useFetchGrades(schoolId);
   const toast = useToast();
   const [drawerMode, setDrawerMode] = useState<"create" | "edit" | null>(null);
@@ -206,6 +208,15 @@ export const TeachersTab = ({ schoolId }: Props) => {
               </Table>
             </TableContainer>
           </TableCard>
+          {meta && (
+            <Box sx={{ mt: 3 }}>
+              <PaginationBar
+                totalPages={meta.total_pages}
+                page={page}
+                onChange={setPage}
+              />
+            </Box>
+          )}
         </Box>
       )}
 

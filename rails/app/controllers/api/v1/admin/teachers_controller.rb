@@ -7,12 +7,15 @@ module Api
         def index
           school = HighSchool.find(params.expect(:high_school_id))
           teachers = school.users.teachers.includes(:teacher_permission, :grades)
+                           .order(:name_kana, :id)
+                           .page(sanitized_page).per(sanitized_per_page)
 
           render json: {
             teachers: ActiveModelSerializers::SerializableResource.new(
               teachers,
               each_serializer: ::Admin::TeacherSerializer
-            )
+            ),
+            meta: pagination_meta(teachers)
           }
         end
 
@@ -45,12 +48,13 @@ module Api
         private
 
         def create_params
-          params.permit(:name, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
+          params.permit(:name, :name_kana, :email, :grade_scope, :manage_other_teachers, grade_ids: [])
                 .to_h.symbolize_keys
         end
 
         def update_params
-          params.permit(:name, :email, :grade_scope, :manage_other_teachers, :permission_lock_version, grade_ids: [])
+          params.permit(:name, :name_kana, :email, :grade_scope, :manage_other_teachers, :permission_lock_version,
+                        grade_ids: [])
         end
 
         def require_lock_version!

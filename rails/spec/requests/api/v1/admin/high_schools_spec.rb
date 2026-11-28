@@ -123,19 +123,26 @@ RSpec.describe 'Api::V1::Admin::HighSchools', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
+      it '最上位が school キーだけである' do
+        subject
+        expect(response.parsed_body.keys).to eq(['school'])
+      end
+
       it '必要なフィールドが含まれる' do
         subject
-        expect(response.parsed_body.keys).to include('id', 'name', 'prefecture_name', 'student_count', 'teacher_count')
+        expect(response.parsed_body['school'].keys).to include(
+          'id', 'name', 'prefecture_name', 'student_count', 'teacher_count'
+        )
       end
 
       it 'student_count が正しい' do
         subject
-        expect(response.parsed_body['student_count']).to eq(3)
+        expect(response.parsed_body['school']['student_count']).to eq(3)
       end
 
       it 'teacher_count が正しい' do
         subject
-        expect(response.parsed_body['teacher_count']).to eq(2)
+        expect(response.parsed_body['school']['teacher_count']).to eq(2)
       end
     end
 

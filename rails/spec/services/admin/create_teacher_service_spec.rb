@@ -8,6 +8,7 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
       school: school,
       attributes: {
         name: name,
+        name_kana: name_kana,
         email: email,
         grade_scope: grade_scope,
         manage_other_teachers: manage_other_teachers,
@@ -19,6 +20,7 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
   let!(:school) { create(:high_school) }
   let!(:grade) { create(:grade, high_school: school, year: 1) }
   let(:name) { '田中太郎' }
+  let(:name_kana) { 'タナカ タロウ' }
   let(:email) { 'tanaka@example.com' }
   let(:grade_scope) { 'own_grade' }
   let(:manage_other_teachers) { true }
@@ -32,6 +34,11 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
     it '指定した name が設定される' do
       service.call
       expect(User.find_by(email: email).name).to eq('田中太郎')
+    end
+
+    it '指定した name_kana が設定される（name のコピーではない）' do
+      service.call
+      expect(User.find_by(email: email).name_kana).to eq('タナカ タロウ')
     end
 
     it '指定した grade_scope / manage_other_teachers で TeacherPermission が作成される' do
@@ -88,6 +95,30 @@ RSpec.describe Admin::CreateTeacherService, type: :service do
 
   context '異常系 - name が空' do
     let(:name) { '' }
+
+    it 'ActiveRecord::RecordInvalid を raise する' do
+      expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'User を作成しない' do
+      expect { suppress(ActiveRecord::RecordInvalid) { service.call } }.not_to change(User, :count)
+    end
+  end
+
+  context '異常系 - name_kana が空' do
+    let(:name_kana) { '' }
+
+    it 'ActiveRecord::RecordInvalid を raise する' do
+      expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'User を作成しない' do
+      expect { suppress(ActiveRecord::RecordInvalid) { service.call } }.not_to change(User, :count)
+    end
+  end
+
+  context '異常系 - name_kana がカタカナ以外' do
+    let(:name_kana) { 'たなか たろう' }
 
     it 'ActiveRecord::RecordInvalid を raise する' do
       expect { service.call }.to raise_error(ActiveRecord::RecordInvalid)

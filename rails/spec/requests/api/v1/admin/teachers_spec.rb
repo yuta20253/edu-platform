@@ -82,6 +82,65 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
 
+    context '正常系 - 並び順とページネーション' do
+      let!(:admin_user) { create(:user, :admin, high_school: nil) }
+      let!(:school)     { create(:high_school) }
+      let(:cookie)      { login_and_get_cookie(admin_user) }
+
+      def create_teacher(name_kana:, name: 'テスト教員')
+        user = create(:user, :teacher, high_school: school, grade: nil, name: name, name_kana: name_kana)
+        create(:teacher_permission, user: user, grade_scope: :all_grades, manage_other_teachers: false)
+        user
+      end
+
+      def fetch_teachers(query = '')
+        get "/api/v1/admin/high_schools/#{school.id}/teachers#{query}",
+            headers: headers.merge('Cookie' => cookie)
+      end
+
+      it 'meta にページネーション情報が含まれる' do
+        create_teacher(name_kana: 'アイウ')
+        fetch_teachers
+        expect(response.parsed_body['meta']).to eq(
+          'current_page' => 1, 'total_pages' => 1, 'total_count' => 1, 'per_page' => 20
+        )
+      end
+
+      it 'per_page 未指定では 20 件ずつ返される' do
+        21.times { |i| create_teacher(name_kana: format('カナ%02d', i)) }
+        fetch_teachers
+        expect(response.parsed_body['teachers'].length).to eq(20)
+        expect(response.parsed_body['meta']).to include('total_pages' => 2, 'total_count' => 21)
+      end
+
+      it 'page と per_page で指定したページが返される' do
+        3.times { |i| create_teacher(name_kana: format('カナ%02d', i)) }
+        fetch_teachers('?page=2&per_page=2')
+        expect(response.parsed_body['teachers'].length).to eq(1)
+        expect(response.parsed_body['meta']).to include('current_page' => 2, 'per_page' => 2, 'total_count' => 3)
+      end
+
+      it '氏名カナの順に並ぶ' do
+        later = create_teacher(name_kana: 'ヤマダ')
+        earlier = create_teacher(name_kana: 'アベ')
+        fetch_teachers
+        expect(response.parsed_body['teachers'].pluck('id')).to eq([earlier.id, later.id])
+      end
+
+      it '氏名カナが同じ場合は id の順に並ぶ' do
+        first = create_teacher(name_kana: 'タナカ')
+        second = create_teacher(name_kana: 'タナカ')
+        fetch_teachers
+        expect(response.parsed_body['teachers'].pluck('id')).to eq([first.id, second.id])
+      end
+
+      it '各教師に name_kana が含まれる' do
+        create_teacher(name_kana: 'タナカ タロウ')
+        fetch_teachers
+        expect(response.parsed_body['teachers'].first['name_kana']).to eq('タナカ タロウ')
+      end
+    end
+
     context '異常系 - 未認証アクセス' do
       let!(:school) { create(:high_school) }
 
@@ -124,6 +183,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
     let(:valid_params) do
       {
         name: '田中太郎',
+        name_kana: 'タナカ タロウ',
         email: 'tanaka@example.com',
         grade_scope: 'own_grade',
         manage_other_teachers: false,
@@ -153,6 +213,12 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         expect(teacher_data['manage_other_teachers']).to be(false)
       end
 
+      it '指定した name_kana が保存され、レスポンスに含まれる' do
+        subject
+        expect(response.parsed_body['teacher']['name_kana']).to eq('タナカ タロウ')
+        expect(User.find_by(email: 'tanaka@example.com').name_kana).to eq('タナカ タロウ')
+      end
+
       it '招待メールが送信される' do
         allow(AuthMailer).to receive(:invite_user).and_call_original
         subject
@@ -174,6 +240,42 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         post "/api/v1/admin/high_schools/#{school.id}/teachers",
              params: valid_params,
              headers: headers.merge('Cookie' => cookie)
+        expect(response.parsed_body).to have_key('errors')
+      end
+    end
+
+    context '異常系 - name_kana が未入力' do
+      let(:params_without_kana) do
+        { name: '田中太郎', email: 'tanaka@example.com', grade_scope: 'own_grade',
+          manage_other_teachers: false, grade_ids: [grade.id] }
+      end
+
+      it 'name_kana を送らないと422が返され、教師は作成されない' do
+        expect do
+          post "/api/v1/admin/high_schools/#{school.id}/teachers",
+               params: params_without_kana.to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.not_to change(User, :count)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body).to have_key('errors')
+      end
+
+      it 'name_kana が空文字だと422が返される' do
+        post "/api/v1/admin/high_schools/#{school.id}/teachers",
+             params: params_without_kana.merge(name_kana: '').to_json,
+             headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context '異常系 - name_kana が101文字以上' do
+      it '500ではなく422が返され、教師は作成されない' do
+        expect do
+          post "/api/v1/admin/high_schools/#{school.id}/teachers",
+               params: JSON.parse(valid_params).merge('name_kana' => 'タ' * 101).to_json,
+               headers: headers.merge('Cookie' => cookie)
+        end.not_to change(User, :count)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body).to have_key('errors')
       end
     end
@@ -242,6 +344,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
     let(:valid_params) do
       {
         name: '更新太郎',
+        name_kana: 'コウシン タロウ',
         email: 'updated@example.com',
         grade_scope: 'all_grades',
         manage_other_teachers: true,
@@ -266,6 +369,7 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
         subject
         teacher_data = response.parsed_body['teacher']
         expect(teacher_data['name']).to eq('更新太郎')
+        expect(teacher_data['name_kana']).to eq('コウシン タロウ')
         expect(teacher_data['email']).to eq('updated@example.com')
         expect(teacher_data['grade_scope']).to eq('all_grades')
         expect(teacher_data['manage_other_teachers']).to be(true)
@@ -410,6 +514,29 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
               params: valid_params,
               headers: headers.merge('Cookie' => cookie)
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context '異常系 - name_kana が101文字以上' do
+      it '500ではなく422が返され、保存済みの name_kana は変わらない' do
+        original = teacher.name_kana
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: JSON.parse(valid_params).merge('name_kana' => 'タ' * 101).to_json,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(teacher.reload.name_kana).to eq(original)
+      end
+    end
+
+    context '異常系 - name_kana が空' do
+      it '422が返され、保存済みの name_kana は変わらない' do
+        original = teacher.name_kana
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: JSON.parse(valid_params).merge('name_kana' => '').to_json,
+              headers: headers.merge('Cookie' => cookie)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body).to have_key('errors')
+        expect(teacher.reload.name_kana).to eq(original)
       end
     end
 

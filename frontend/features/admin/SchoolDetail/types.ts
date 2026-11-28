@@ -8,6 +8,11 @@ export type SchoolDetail = {
   teacher_count: number;
 };
 
+// GET /high_schools/:id のレスポンス。単体は単数形のキー（school）に包まれて返る。
+export type SchoolDetailData = {
+  school: SchoolDetail;
+};
+
 export type GradeScope = "own_grade" | "all_grades";
 
 // GET /high_schools/:id/grades（学年一覧、Admin::GradeSerializer）のレスポンス形状。
@@ -27,6 +32,7 @@ export type TeacherGrade = {
 export type Teacher = {
   id: number;
   name: string;
+  name_kana: string | null;
   email: string;
   grade_scope: GradeScope;
   manage_other_teachers: boolean;
@@ -37,6 +43,7 @@ export type Teacher = {
 
 export type TeachersData = {
   teachers: Teacher[];
+  meta: PaginationMeta;
 };
 
 export type GradesData = {
@@ -64,6 +71,9 @@ export type AnnouncementsData = {
 export type CreateTeacherInput = {
   lastName: string;
   firstName: string;
+  // 氏名カナ（姓/名は結合して name_kana としてAPIへ渡す）
+  lastNameKana: string;
+  firstNameKana: string;
   email: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;
@@ -74,6 +84,9 @@ export type CreateTeacherInput = {
 export type UpdateTeacherInput = {
   lastName: string;
   firstName: string;
+  // 氏名カナ（姓/名は結合して name_kana としてAPIへ渡す）
+  lastNameKana: string;
+  firstNameKana: string;
   email: string;
   gradeScope: GradeScope;
   manageOtherTeachers: boolean;

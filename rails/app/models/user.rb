@@ -74,6 +74,8 @@ class User < ApplicationRecord
   # 管理者は氏名カナを持たない運用（作成時も未設定）。student/teacher の
   # カナ必須は各プロフィールフォーム側で担保しているため、ここでは admin を除外する。
   validates :name_kana, presence: true, on: :update, unless: :admin?
+  # DB の列は 100 文字まで。超えると保存時に例外(500)になるので、検証で 422 にする
+  validates :name_kana, length: { maximum: 100 }
   validates :user_role, presence: true
   validates :high_school, presence: true, if: :requires_high_school?
   validates :grade, presence: true, if: :student?

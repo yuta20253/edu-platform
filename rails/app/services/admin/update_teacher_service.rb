@@ -20,8 +20,18 @@ module Admin
     private
 
     def update_user_attributes
-      user_attrs = @params.slice(:name, :email).compact
+      user_attrs = @params.slice(:name, :name_kana, :email).compact
+      validate_name_kana_format(user_attrs[:name_kana])
       @user.update!(user_attrs) if user_attrs.present?
+    end
+
+    # 一覧は name_kana の五十音順のため、他の登録経路と同じくカタカナだけを許す
+    # (空は User の presence 検証に任せる)
+    def validate_name_kana_format(name_kana)
+      return if name_kana.blank? || NameValidatable::KATAKANA_REGEX.match?(name_kana)
+
+      @user.errors.add(:name_kana, :invalid)
+      raise ActiveRecord::RecordInvalid, @user
     end
 
     def update_permission_attributes

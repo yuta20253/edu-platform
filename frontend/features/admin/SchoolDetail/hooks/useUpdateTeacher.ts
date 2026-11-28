@@ -38,6 +38,7 @@ export const useUpdateTeacher = ({
         `/api/admin/schools/${schoolId}/teachers/${teacherId}`,
         {
           name: `${input.lastName.trim()} ${input.firstName.trim()}`,
+          name_kana: `${input.lastNameKana.trim()} ${input.firstNameKana.trim()}`,
           email: input.email,
           grade_scope: input.gradeScope,
           manage_other_teachers: input.manageOtherTeachers,

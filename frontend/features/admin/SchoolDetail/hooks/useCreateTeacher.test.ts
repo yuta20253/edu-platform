@@ -17,6 +17,8 @@ vi.mock("@/libs/http/apiClient", () => ({
 const validInput: CreateTeacherInput = {
   lastName: "田中",
   firstName: "太郎",
+  lastNameKana: "タナカ",
+  firstNameKana: "タロウ",
   email: "tanaka@example.com",
   gradeScope: "own_grade",
   manageOtherTeachers: false,
@@ -44,6 +46,7 @@ describe("useCreateTeacher", () => {
       "/api/admin/schools/1/teachers",
       {
         name: "田中 太郎",
+        name_kana: "タナカ タロウ",
         email: "tanaka@example.com",
         grade_scope: "own_grade",
         manage_other_teachers: false,
@@ -71,6 +74,27 @@ describe("useCreateTeacher", () => {
     expect(apiClient.post).toHaveBeenCalledWith(
       "/api/admin/schools/1/teachers",
       expect.objectContaining({ name: "田中 太郎" }),
+    );
+  });
+
+  it("氏名カナの前後の空白を除去して name_kana として送信する", async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: { teacher: {} } });
+
+    const { result } = renderHook(() =>
+      useCreateTeacher({ schoolId: 1, onCreated: vi.fn() }),
+    );
+
+    await act(async () => {
+      await result.current.handleCreate({
+        ...validInput,
+        lastNameKana: " ヤマダ ",
+        firstNameKana: " ハナコ ",
+      });
+    });
+
+    expect(apiClient.post).toHaveBeenCalledWith(
+      "/api/admin/schools/1/teachers",
+      expect.objectContaining({ name_kana: "ヤマダ ハナコ" }),
     );
   });
 

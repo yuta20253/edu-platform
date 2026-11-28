@@ -1,38 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { apiClient } from "@/libs/http/apiClient";
-import { extractApiError } from "@/libs/http/extractApiError";
-import type { Teacher, TeachersData } from "../types";
+import { useState } from "react";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import type { TeachersData } from "../types";
 
-// 教師一覧を取得するフック。追加/編集後の再取得用にrefetchも返す。
+// 教師一覧をページネーション付きで取得するフック。追加/編集後の再取得用にrefetchも返す。
+// 再取得中（ページ切替・refetch）は前回の一覧を残す。loading は初回取得中だけ true になる。
 export const useFetchTeachers = (schoolId: number) => {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const router = useRouter();
+  const [page, setPage] = useState(1);
+  const { data, error, refetch } = useApiQuery<TeachersData>(
+    `/api/admin/schools/${schoolId}/teachers`,
+    { params: { page: String(page) } },
+  );
 
-  const fetchTeachers = useCallback(() => {
-    setLoading(true);
-    setError(false);
-
-    apiClient
-      .get<TeachersData>(`/api/admin/schools/${schoolId}/teachers`)
-      .then((res) => setTeachers(res.data.teachers))
-      .catch((err) => {
-        if (extractApiError(err).status === 401) {
-          router.push("/login");
-          return;
-        }
-        setError(true);
-      })
-      .finally(() => setLoading(false));
-  }, [schoolId, router]);
-
-  useEffect(() => {
-    fetchTeachers();
-  }, [fetchTeachers]);
-
-  return { teachers, loading, error, refetch: fetchTeachers };
+  return {
+    teachers: data?.teachers ?? [],
+    meta: data?.meta ?? null,
+    page,
+    setPage,
+    loading: !data && !error,
+    error,
+    refetch,
+  };
 };

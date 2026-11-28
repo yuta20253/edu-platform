@@ -64,6 +64,7 @@ describe("TeachersTab", () => {
             {
               id: 1,
               name: "田中太郎",
+              name_kana: "タナカ タロウ",
               email: "tanaka@example.com",
               grade_scope: "own_grade",
               manage_other_teachers: false,
@@ -103,6 +104,12 @@ describe("TeachersTab", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
       target: { value: "太郎" },
     });
+    fireEvent.change(screen.getByRole("textbox", { name: /姓（カナ）/ }), {
+      target: { value: "タナカ" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: /名（カナ）/ }), {
+      target: { value: "タロウ" },
+    });
     fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
       target: { value: "tanaka@example.com" },
     });
@@ -128,6 +135,7 @@ describe("TeachersTab", () => {
             {
               id: 1,
               name: "田中 太郎",
+              name_kana: "タナカ タロウ",
               email: "tanaka@example.com",
               grade_scope: "own_grade",
               manage_other_teachers: false,
@@ -201,6 +209,12 @@ describe("TeachersTab", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "名" }), {
       target: { value: "太郎" },
     });
+    fireEvent.change(screen.getByRole("textbox", { name: /姓（カナ）/ }), {
+      target: { value: "タナカ" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: /名（カナ）/ }), {
+      target: { value: "タロウ" },
+    });
     fireEvent.change(screen.getByRole("textbox", { name: "メールアドレス" }), {
       target: { value: "tanaka@example.com" },
     });
@@ -213,6 +227,90 @@ describe("TeachersTab", () => {
     );
   });
 
+  describe("ページネーション", () => {
+    const teacher = (id: number, name: string) => ({
+      id,
+      name,
+      name_kana: "カナ",
+      email: `t${id}@example.com`,
+      grade_scope: "own_grade",
+      manage_other_teachers: false,
+      grades: [],
+      permission_lock_version: 0,
+    });
+    const meta = (page: number, totalPages: number) => ({
+      current_page: page,
+      total_pages: totalPages,
+      total_count: totalPages * 20,
+      per_page: 20,
+    });
+    const mockTeachers = (totalPages: number) => {
+      vi.mocked(apiClient.get).mockImplementation(
+        (url: string, config?: { params?: { page?: string } }) => {
+          if (url.includes("/grades")) return Promise.resolve(gradesResponse);
+          const page = Number(config?.params?.page ?? "1");
+          return Promise.resolve({
+            data: {
+              teachers: [teacher(page, `${page}ページ目の教員`)],
+              meta: meta(page, totalPages),
+            },
+          });
+        },
+      );
+    };
+
+    it("複数ページあるときはページ送りが表示される", async () => {
+      mockTeachers(2);
+
+      render(<TeachersTab schoolId={1} />);
+
+      await screen.findByText("1ページ目の教員");
+      expect(
+        screen.getByRole("button", { name: "Go to page 2" }),
+      ).toBeInTheDocument();
+    });
+
+    it("1ページしかないときはページ送りを表示しない", async () => {
+      mockTeachers(1);
+
+      render(<TeachersTab schoolId={1} />);
+
+      await screen.findByText("1ページ目の教員");
+      expect(
+        screen.queryByRole("button", { name: "Go to page 2" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("ページを押すとそのページの教員が表示される", async () => {
+      mockTeachers(2);
+
+      render(<TeachersTab schoolId={1} />);
+      await screen.findByText("1ページ目の教員");
+
+      fireEvent.click(screen.getByRole("button", { name: "Go to page 2" }));
+
+      expect(await screen.findByText("2ページ目の教員")).toBeInTheDocument();
+      expect(screen.queryByText("1ページ目の教員")).not.toBeInTheDocument();
+    });
+
+    it("ページ切替中は前のページの一覧を残す（スケルトンに戻さない）", async () => {
+      mockTeachers(2);
+
+      const { container } = render(<TeachersTab schoolId={1} />);
+      await screen.findByText("1ページ目の教員");
+
+      vi.mocked(apiClient.get).mockImplementation((url: string) =>
+        url.includes("/grades")
+          ? Promise.resolve(gradesResponse)
+          : new Promise(() => {}),
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Go to page 2" }));
+
+      expect(screen.getByText("1ページ目の教員")).toBeInTheDocument();
+      expect(container.querySelector(".MuiSkeleton-root")).toBeNull();
+    });
+  });
+
   describe("編集の楽観ロック", () => {
     const teachersResponse = {
       data: {
@@ -220,6 +318,7 @@ describe("TeachersTab", () => {
           {
             id: 1,
             name: "田中 太郎",
+            name_kana: "タナカ タロウ",
             email: "tanaka@example.com",
             grade_scope: "own_grade",
             manage_other_teachers: false,
@@ -229,6 +328,7 @@ describe("TeachersTab", () => {
           {
             id: 2,
             name: "鈴木 花子",
+            name_kana: "スズキ ハナコ",
             email: "suzuki@example.com",
             grade_scope: "all_grades",
             manage_other_teachers: true,
