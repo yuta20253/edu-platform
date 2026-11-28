@@ -1,3 +1,16 @@
 {
-  "enabledMcpjsonServers": ["notion"]
+  "permissions": {
+    "allow": [
+      "Bash(kanri doctor)",
+      "Bash(kanri doctor --json)",
+      "Bash(kanri task list:*)",
+      "Bash(kanri task show:*)",
+      "Bash(kanri doc search:*)",
+      "Bash(kanri doc show:*)",
+      "Bash(kanri review show:*)",
+      "Bash(kanri mention list:*)",
+      "Bash(kanri sync)",
+      "Bash(kanri sync --json)"
+    ]
+  }
 }
