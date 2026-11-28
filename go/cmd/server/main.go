@@ -2,6 +2,8 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -14,10 +16,20 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/yuta20253/edu-platform/go/internal/shared/config"
+	"github.com/yuta20253/edu-platform/go/internal/shared/jobqueue"
+	"github.com/yuta20253/edu-platform/go/internal/shared/jobqueue/worker"
 	"github.com/yuta20253/edu-platform/go/internal/shared/middleware"
+	"github.com/yuta20253/edu-platform/go/internal/user"
 )
 
-const productionEnv = "production"
+const (
+	productionEnv = "production"
+	// workerInterval はジョブのワーカーのポーリング間隔です。
+	workerInterval = 5 * time.Second
+)
+
+// errNotImplemented は相手Contextが未実装の依存を呼んだときのエラーです。
+var errNotImplemented = errors.New("相手Contextが未実装のため利用できません")
 
 func main() {
 	cfg, err := config.Load()
@@ -32,10 +44,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	if _, err := connectDB(buildDSN(cfg)); err != nil {
+	db, err := connectDB(buildDSN(cfg))
+	if err != nil {
 		logger.Error("failed to connect to database", "error", err)
 		os.Exit(1)
 	}
+
+	userCtx := newUserContext(db, logger, cfg)
+
+	jobWorker := worker.NewWorker(db, logger, newJobHandlers(userCtx))
+	go jobWorker.Run(context.Background(), workerInterval)
 
 	router := newRouter(logger)
 
@@ -109,4 +127,39 @@ func newRouter(logger *slog.Logger) *gin.Engine {
 	)
 
 	return router
+}
+
+// newUserContext は user Context を組み立てます。TokenIssuer（authentication）・SchoolCodeReader
+// （master-data）は相手Contextが未実装のため、「未実装」エラーを返す実装を渡します。
+// 相手Contextの実装後に infrastructure/contextadapter/ の実装へ差し替えます。
+func newUserContext(db *gorm.DB, logger *slog.Logger, cfg *config.Config) *user.Context {
+	return user.NewContext(db, logger,
+		unimplementedTokenIssuer{}, unimplementedSchoolCodeReader{}, cfg.FrontendURL)
+}
+
+// newJobHandlers は各Contextのジョブのハンドラを、ジョブ種別ごとにまとめます。
+func newJobHandlers(userCtx *user.Context) jobqueue.HandlerMap {
+	return jobqueue.HandlerMap{
+		user.InvitationEmailJobType: userCtx.InvitationEmailHandler(),
+	}
+}
+
+// unimplementedTokenIssuer は authentication が未実装の間に user へ渡す TokenIssuer です。
+type unimplementedTokenIssuer struct{}
+
+var _ user.TokenIssuer = unimplementedTokenIssuer{}
+
+// IssueInvitationToken は常に errNotImplemented を返します。
+func (unimplementedTokenIssuer) IssueInvitationToken(context.Context, uint) (string, error) {
+	return "", fmt.Errorf("招待トークンの発行: %w", errNotImplemented)
+}
+
+// unimplementedSchoolCodeReader は master-data が未実装の間に user へ渡す SchoolCodeReader です。
+type unimplementedSchoolCodeReader struct{}
+
+var _ user.SchoolCodeReader = unimplementedSchoolCodeReader{}
+
+// FindSchoolCode は常に errNotImplemented を返します。
+func (unimplementedSchoolCodeReader) FindSchoolCode(context.Context, uint) (string, error) {
+	return "", fmt.Errorf("学校コードの取得: %w", errNotImplemented)
 }

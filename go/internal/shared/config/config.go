@@ -17,6 +17,8 @@ type Config struct {
 	Port       string
 	LogLevel   string
 	AppEnv     string
+	// FrontendURL はフロントエンドのURLです。招待メールのリンクの基点に使います。
+	FrontendURL string
 }
 
 // Load は環境変数から設定値を読み込みます。
@@ -27,13 +29,14 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		DBHost:     os.Getenv("DB_HOST"),
-		DBPort:     dbPort,
-		DBUser:     os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBName:     os.Getenv("DB_NAME"),
-		Port:       os.Getenv("PORT"),
-		LogLevel:   os.Getenv("LOG_LEVEL"),
-		AppEnv:     os.Getenv("APP_ENV"),
+		DBHost:      os.Getenv("DB_HOST"),
+		DBPort:      dbPort,
+		DBUser:      os.Getenv("DB_USER"),
+		DBPassword:  os.Getenv("DB_PASSWORD"),
+		DBName:      os.Getenv("DB_NAME"),
+		Port:        os.Getenv("PORT"),
+		LogLevel:    os.Getenv("LOG_LEVEL"),
+		AppEnv:      os.Getenv("APP_ENV"),
+		FrontendURL: os.Getenv("FRONTEND_URL"),
 	}, nil
 }

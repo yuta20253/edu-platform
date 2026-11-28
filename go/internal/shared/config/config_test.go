@@ -13,14 +13,15 @@ type loadCase struct {
 
 func validEnv() map[string]string {
 	return map[string]string{
-		"DB_HOST":     "db",
-		"DB_PORT":     "3306",
-		"DB_USER":     "root",
-		"DB_PASSWORD": "password",
-		"DB_NAME":     "myapp_development",
-		"PORT":        "8080",
-		"LOG_LEVEL":   "debug",
-		"APP_ENV":     "development",
+		"DB_HOST":      "db",
+		"DB_PORT":      "3306",
+		"DB_USER":      "root",
+		"DB_PASSWORD":  "password",
+		"DB_NAME":      "myapp_development",
+		"PORT":         "8080",
+		"LOG_LEVEL":    "debug",
+		"APP_ENV":      "development",
+		"FRONTEND_URL": "http://localhost:3000",
 	}
 }
 
@@ -30,14 +31,15 @@ func loadCases() []loadCase {
 			name: "すべての環境変数が設定されていると読み込める",
 			env:  validEnv(),
 			want: Config{
-				DBHost:     "db",
-				DBPort:     3306,
-				DBUser:     "root",
-				DBPassword: "password",
-				DBName:     "myapp_development",
-				Port:       "8080",
-				LogLevel:   "debug",
-				AppEnv:     "development",
+				DBHost:      "db",
+				DBPort:      3306,
+				DBUser:      "root",
+				DBPassword:  "password",
+				DBName:      "myapp_development",
+				Port:        "8080",
+				LogLevel:    "debug",
+				AppEnv:      "development",
+				FrontendURL: "http://localhost:3000",
 			},
 		},
 		{

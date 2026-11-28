@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/yuta20253/edu-platform/go/internal/shared/config"
+	"github.com/yuta20253/edu-platform/go/internal/user"
 )
 
 func TestNewLogger(t *testing.T) {
@@ -139,5 +141,40 @@ func TestConnectDB(t *testing.T) {
 				t.Fatalf("connectDB() = nil, want *gorm.DB")
 			}
 		})
+	}
+}
+
+func TestUnimplementedDependencies(t *testing.T) {
+	_, err := unimplementedTokenIssuer{}.IssueInvitationToken(t.Context(), 1)
+	if !errors.Is(err, errNotImplemented) {
+		t.Errorf("IssueInvitationToken() error = %v, want %v", err, errNotImplemented)
+	}
+
+	_, err = unimplementedSchoolCodeReader{}.FindSchoolCode(t.Context(), 1)
+	if !errors.Is(err, errNotImplemented) {
+		t.Errorf("FindSchoolCode() error = %v, want %v", err, errNotImplemented)
+	}
+}
+
+func TestNewJobHandlers(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(&bytes.Buffer{}, nil))
+	// ハンドラの登録のみを確認するため、DBに接続しない（payloadの解析はDBより前に行われる）
+	cfg := &config.Config{FrontendURL: "http://front"}
+	handlers := newJobHandlers(newUserContext(nil, logger, cfg))
+
+	if len(handlers) != 1 {
+		t.Fatalf("len(handlers) = %d, want 1", len(handlers))
+	}
+
+	handler, ok := handlers["user_invitation_email"]
+	if !ok || handler == nil {
+		t.Fatalf("handlers[%q] が登録されていません", user.InvitationEmailJobType)
+	}
+
+	// user の招待メール送信ハンドラであれば、payload の解析に失敗した時点でエラーを返す
+	for _, payload := range []string{`{`, `{"user_id":0}`} {
+		if err := handler(t.Context(), []byte(payload)); err == nil {
+			t.Errorf("handler(%s) error = nil, want error", payload)
+		}
 	}
 }
