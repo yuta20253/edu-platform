@@ -2,6 +2,14 @@
 
 module Admin
   class UpdateTeacherService
+    class PermissionNotFoundError < StandardError
+      def initialize(msg = '権限情報が見つかりません')
+        super
+      end
+    end
+
+    PERMISSION_KEYS = %i[grade_scope manage_other_teachers grade_ids].freeze
+
     def initialize(user:, params:)
       @user = user
       @params = params
@@ -25,9 +33,19 @@ module Admin
     end
 
     def update_permission_attributes
+      if @user.teacher_permission.nil?
+        raise PermissionNotFoundError if permission_params_given?
+
+        return
+      end
+
       permission_attrs = @params.slice(:grade_scope, :manage_other_teachers).compact
       permission_attrs[:lock_version] = @params[:permission_lock_version]
       @user.teacher_permission.update!(permission_attrs)
+    end
+
+    def permission_params_given?
+      PERMISSION_KEYS.any? { |key| @params.key?(key) }
     end
 
     def update_teacher_grades

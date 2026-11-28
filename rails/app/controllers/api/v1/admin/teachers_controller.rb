@@ -38,7 +38,7 @@ module Api
           render json: { teacher: ::Admin::TeacherSerializer.new(user) }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
-        rescue ArgumentError => e
+        rescue ::Admin::UpdateTeacherService::PermissionNotFoundError, ArgumentError => e
           render json: { errors: [e.message] }, status: :unprocessable_content
         end
 

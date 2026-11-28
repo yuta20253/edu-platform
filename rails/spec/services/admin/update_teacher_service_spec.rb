@@ -102,6 +102,54 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
+  context '異常系 - 権限項目を送らず、permission_lock_version が古い場合' do
+    let!(:stale_lock_version) { teacher.teacher_permission.lock_version }
+    let!(:original_name) { teacher.name }
+    let(:params) { { name: '更新太郎', permission_lock_version: stale_lock_version } }
+
+    before do
+      TeacherPermission.find_by!(user: teacher).update!(manage_other_teachers: true)
+      teacher.reload
+    end
+
+    it 'ActiveRecord::StaleObjectError を raise し、名前の更新も取り消される' do
+      expect { service.call }.to raise_error(ActiveRecord::StaleObjectError)
+      expect(teacher.reload.name).to eq(original_name)
+    end
+  end
+
+  context '正常系 - 権限レコードが無い教師に氏名・メールのみ送る場合' do
+    let!(:teacher) { create(:user, :teacher, high_school: school, grade: nil) }
+    let(:params) { { name: '更新太郎', email: 'updated@example.com', permission_lock_version: 0 } }
+
+    it '氏名とメールが更新される' do
+      service.call
+      teacher.reload
+      expect(teacher.name).to eq('更新太郎')
+      expect(teacher.email).to eq('updated@example.com')
+    end
+  end
+
+  context '異常系 - 権限レコードが無い教師に権限項目を送る場合' do
+    let!(:teacher) { create(:user, :teacher, high_school: school, grade: nil) }
+    let!(:original_name) { teacher.name }
+
+    [
+      { grade_scope: 'all_grades' },
+      { manage_other_teachers: true },
+      { grade_ids: [] }
+    ].each do |permission_param|
+      context "#{permission_param.keys.first} を送る場合" do
+        let(:params) { { name: '更新太郎', permission_lock_version: 0, **permission_param } }
+
+        it 'PermissionNotFoundError を raise し、氏名の更新も取り消される' do
+          expect { service.call }.to raise_error(described_class::PermissionNotFoundError, '権限情報が見つかりません')
+          expect(teacher.reload.name).to eq(original_name)
+        end
+      end
+    end
+  end
+
   context '異常系 - email が重複している' do
     let(:params) { { email: 'duplicate@example.com', permission_lock_version: lock_version } }
 

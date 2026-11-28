@@ -402,6 +402,49 @@ RSpec.describe 'Api::V1::Admin::Teachers', type: :request do
       end
     end
 
+    context '権限レコードが無い教師' do
+      subject do
+        patch "/api/v1/admin/high_schools/#{school.id}/teachers/#{teacher.id}",
+              params: params.to_json,
+              headers: headers.merge('Cookie' => cookie)
+      end
+
+      let!(:teacher) { create(:user, :teacher, high_school: school, grade: nil) }
+      let!(:original_name) { teacher.name }
+
+      context '氏名・メールのみ送る場合' do
+        let(:params) { { name: '更新太郎', email: 'updated@example.com', permission_lock_version: 0 } }
+
+        it '200で氏名とメールが更新されること' do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(teacher.reload.name).to eq('更新太郎')
+          expect(teacher.email).to eq('updated@example.com')
+        end
+      end
+
+      context '権限項目を送る場合' do
+        let(:params) do
+          {
+            name: '更新太郎',
+            grade_scope: 'all_grades',
+            manage_other_teachers: true,
+            grade_ids: [grade1.id],
+            permission_lock_version: 0
+          }
+        end
+
+        it '422で errors が返され、氏名も変わらないこと' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body['errors']).to eq(['権限情報が見つかりません'])
+          expect(teacher.reload.name).to eq(original_name)
+        end
+      end
+    end
+
     context '異常系 - email 重複' do
       before { create(:user, :teacher, email: 'updated@example.com', high_school: school, grade: nil) }
 
