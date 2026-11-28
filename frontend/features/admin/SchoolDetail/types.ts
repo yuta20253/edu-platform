@@ -32,7 +32,7 @@ export type TeacherGrade = {
 export type Teacher = {
   id: number;
   name: string;
-  name_kana: string;
+  name_kana: string | null;
   email: string;
   grade_scope: GradeScope;
   manage_other_teachers: boolean;

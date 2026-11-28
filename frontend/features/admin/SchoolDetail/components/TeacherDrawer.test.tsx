@@ -324,6 +324,22 @@ describe("TeacherDrawer", () => {
       expect(screen.getByRole("radio", { name: "全学年" })).toBeChecked();
       expect(screen.getByRole("button", { name: "保存" })).toBeInTheDocument();
     });
+
+    it("name_kana が null の教員でも編集ドロワーが開き、カナ欄は空になる", () => {
+      render(
+        <TeacherDrawer
+          {...baseProps}
+          mode="edit"
+          initialTeacher={{ ...teacher, name_kana: null }}
+        />,
+      );
+      expect(screen.getByRole("textbox", { name: /姓（カナ）/ })).toHaveValue(
+        "",
+      );
+      expect(screen.getByRole("textbox", { name: /名（カナ）/ })).toHaveValue(
+        "",
+      );
+    });
   });
 
   describe("エラー表示", () => {

@@ -59,7 +59,7 @@ const buildDefaultValues = (
   if (mode === "edit" && teacher) {
     const { last: lastName, first: firstName } = splitName(teacher.name);
     const { last: lastNameKana, first: firstNameKana } = splitName(
-      teacher.name_kana,
+      teacher.name_kana ?? "",
     );
     return {
       lastName,
