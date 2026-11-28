@@ -102,6 +102,22 @@ RSpec.describe Admin::UpdateTeacherService, type: :service do
     end
   end
 
+  context '異常系 - 権限項目を送らず、permission_lock_version が古い場合' do
+    let!(:stale_lock_version) { teacher.teacher_permission.lock_version }
+    let!(:original_name) { teacher.name }
+    let(:params) { { name: '更新太郎', permission_lock_version: stale_lock_version } }
+
+    before do
+      TeacherPermission.find_by!(user: teacher).update!(manage_other_teachers: true)
+      teacher.reload
+    end
+
+    it 'ActiveRecord::StaleObjectError を raise し、名前の更新も取り消される' do
+      expect { service.call }.to raise_error(ActiveRecord::StaleObjectError)
+      expect(teacher.reload.name).to eq(original_name)
+    end
+  end
+
   context '正常系 - 権限レコードが無い教師に氏名・メールのみ送る場合' do
     let!(:teacher) { create(:user, :teacher, high_school: school, grade: nil) }
     let(:params) { { name: '更新太郎', email: 'updated@example.com', permission_lock_version: 0 } }
